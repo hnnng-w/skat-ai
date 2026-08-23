@@ -736,12 +736,18 @@ transfer, focused Strategy Teacher Evidence, Dataset-v2 joins, Summary counts,
 and existing local Corpus preparation. It does not change the Search contracts or
 algorithm.
 
+Issue #192 adds a separate Historical Information-set Replay Coaching path and
+private Match Historical Information-set Review/Coaching. Coaching reuses one
+retained Review, assesses only complete Information-set Candidate sets except
+factual forced moves, and keeps same-selection PIMC and Immediate diagnostic with
+no fallback. It does not change this Search contract or executor.
+
 The integration does not add calibrated sampled quality, a latency guarantee,
 adaptive sampling, Expectimax, complete Strategy-Fusion correction,
 complete-contract solving, or a stable package-root Domain API. Multi-Step and
-Policy Comparison and one-Decision Match analysis are integrated only for the
-bounded strict behavior above. Match Historical Information-set execution,
-Replay Coaching classification, performance integration, cross-decision global Policy,
+Policy Comparison, one-Decision Match analysis, Match Historical execution, and
+separate Information-set Replay Coaching are integrated only for the bounded
+strict behavior above. Performance integration, cross-decision global Policy,
 equilibrium, global optimality, and calibrated probabilities remain absent. The
 stronger-search v1.0 completion gate therefore remains open.
 
@@ -753,4 +759,6 @@ integrated public boundaries, and
 [Information-set Search Multi-Step and Policy Comparison](information_set_search_multi_step_and_policy_comparison.md)
 for Issue #190, and
 [Match Information-set Search and Strategy Teacher Evidence](match_information_set_search_and_strategy_teacher.md)
-for Issue #191.
+for Issue #191, and
+[Information-set Replay Coaching and Match Historical analysis](information_set_replay_coaching_and_match_historical_analysis.md)
+for Issue #192.

@@ -532,6 +532,294 @@ def build_historical_summary_attachment(
     )
 
 
+def _information_set_coaching_assessment_context(
+    document: Mapping[str, object],
+    tokens: tuple[str, ...],
+) -> tuple[int, str] | None:
+    value: object = document
+    for token in tokens:
+        if isinstance(value, Mapping):
+            evidence = value.get("decision_time_evidence")
+            if isinstance(evidence, Mapping):
+                decision_index = evidence.get("decision_index")
+                acting_player_id = evidence.get("acting_player_id")
+                if type(decision_index) is int and isinstance(
+                    acting_player_id, str
+                ):
+                    return decision_index, acting_player_id
+            value = value.get(token)
+        elif isinstance(value, (list, tuple)) and token.isdecimal():
+            value = value[int(token)]
+        else:
+            break
+    return None
+
+
+def _information_set_coaching_report_entry_builder(
+    document: Mapping[str, object],
+):
+
+    def build(path: str, tokens: tuple[str, ...]) -> FieldProvenanceEntry:
+        if tokens and tokens[0] == "outcome_context":
+            return _entry(
+                path,
+                origin="rule_derived",
+                visibility="post_game_only",
+                available_from="game_end",
+                derivation="deterministic_rule",
+                decision_index=None,
+                perspective_player_id=None,
+                source_references=(
+                    _reference("historical_game", "final_outcome_context"),
+                ),
+            )
+        assessment_context = _information_set_coaching_assessment_context(
+            document,
+            tokens,
+        )
+        if assessment_context is not None:
+            decision_index, acting_player_id = assessment_context
+            if "decision_time_evidence" in tokens:
+                if any("immediate" in token for token in tokens):
+                    origin = "heuristic_analysis"
+                    derivation = "heuristic"
+                    references = (
+                        _reference("algorithm", "immediate_expected_value"),
+                    )
+                elif any("pimc" in token for token in tokens):
+                    origin = "search_derived"
+                    derivation = "direct"
+                    references = (
+                        _reference(
+                            "algorithm",
+                            "compatible_world_minimax_same_selection_v1",
+                        ),
+                    )
+                elif tokens[-1] == "same_selected_world_sequence":
+                    origin = "rule_derived"
+                    derivation = "deterministic_rule"
+                    references = (
+                        _reference(
+                            "aggregate",
+                            "retained_historical_information_set_search_review",
+                        ),
+                        _reference(
+                            "algorithm",
+                            "compatible_world_minimax_same_selection_v1",
+                        ),
+                    )
+                else:
+                    origin = "search_derived"
+                    derivation = "direct"
+                    references = (
+                        _reference(
+                            "aggregate",
+                            "retained_historical_information_set_search_review",
+                        ),
+                    )
+                return _entry(
+                    path,
+                    origin=origin,
+                    visibility="public",
+                    available_from="current_decision",
+                    derivation=derivation,
+                    decision_index=decision_index,
+                    perspective_player_id=acting_player_id,
+                    source_references=references,
+                )
+            if "comparison" in tokens:
+                field_name = tokens[-1]
+                uses_actual = "actual" in field_name
+                references = []
+                if "information_set" in field_name:
+                    references.append(
+                        _reference(
+                            "algorithm",
+                            "bounded_information_set_policy_search_v1",
+                        )
+                    )
+                if "pimc" in field_name:
+                    references.append(
+                        _reference(
+                            "algorithm",
+                            "compatible_world_minimax_same_selection_v1",
+                        )
+                    )
+                if "immediate" in field_name:
+                    references.append(
+                        _reference("algorithm", "immediate_expected_value")
+                    )
+                if uses_actual:
+                    references.append(
+                        _reference(
+                            "retrospective_observation",
+                            "historical_actual_card",
+                        )
+                    )
+                references.append(
+                    _reference(
+                        "rule_contract",
+                        "information_set_search_comparison_v1",
+                    )
+                )
+                return _entry(
+                    path,
+                    origin=(
+                        "retrospective_attachment"
+                        if field_name == "actual_card"
+                        else "rule_derived"
+                    ),
+                    visibility="public",
+                    available_from=(
+                        "after_actual_play" if uses_actual else "current_decision"
+                    ),
+                    derivation=(
+                        "retrospective"
+                        if field_name == "actual_card"
+                        else "deterministic_rule"
+                    ),
+                    decision_index=decision_index,
+                    perspective_player_id=acting_player_id,
+                    source_references=tuple(dict.fromkeys(references)),
+                )
+            actual = tokens[-1] == "actual_card"
+            return _entry(
+                path,
+                origin=(
+                    "retrospective_attachment" if actual else "rule_derived"
+                ),
+                visibility="public",
+                available_from="after_actual_play",
+                derivation="retrospective" if actual else "deterministic_rule",
+                decision_index=decision_index,
+                perspective_player_id=acting_player_id,
+                source_references=(
+                    _reference(
+                        "retrospective_observation" if actual else "algorithm",
+                        (
+                            "historical_actual_card"
+                            if actual
+                            else "information_set_replay_coaching_assessment_v1"
+                        ),
+                    ),
+                ),
+            )
+        if tokens and tokens[0] == "game_context":
+            return _entry(
+                path,
+                origin="historical_replay",
+                visibility="public",
+                available_from="game_end",
+                derivation="reconstruction",
+                decision_index=None,
+                perspective_player_id=None,
+                source_references=(
+                    _reference("historical_game", "coaching_source_game"),
+                ),
+            )
+        if tokens and tokens[0] == "source_review_settings":
+            option_paths = {
+                "base_search_seed": "/search_seed",
+                "search_budget_profile": "/search_budget_profile",
+                "requested_budget": "/search_budget_profile",
+                "immediate_sample_count": "/immediate_sample_count",
+                "immediate_base_random_seed": "/immediate_base_random_seed",
+            }
+            return _entry(
+                path,
+                origin="validated_copy",
+                visibility="public",
+                available_from="offline_review",
+                derivation="validated",
+                decision_index=None,
+                perspective_player_id=None,
+                source_references=(
+                    _reference(
+                        "request",
+                        "historical_review_options",
+                        field_path=option_paths.get(tokens[1]),
+                    ),
+                ),
+            )
+        return _entry(
+            path,
+            origin="rule_derived",
+            visibility="public",
+            available_from="offline_review",
+            derivation="deterministic_rule",
+            decision_index=None,
+            perspective_player_id=None,
+            source_references=(
+                _reference(
+                    "algorithm",
+                    "historical_information_set_replay_coaching_v1",
+                ),
+            ),
+        )
+
+    return build
+
+
+def build_information_set_replay_coaching_report_attachment(
+    document: Mapping[str, object],
+) -> ApplicationProvenanceAttachment:
+    """Builds complete provenance over an already serialized safe report."""
+    assessments = document.get("assessments")
+    if not isinstance(assessments, (list, tuple)):
+        assessments = document.get("decision_assessments", ())
+    decision_indexes = tuple(
+        evidence.get("decision_index", 0)
+        for row in assessments
+        if isinstance(row, Mapping)
+        and isinstance((evidence := row.get("decision_time_evidence")), Mapping)
+        and type(evidence.get("decision_index")) is int
+    )
+    assessment_field = (
+        "assessments"
+        if isinstance(document.get("assessments"), (list, tuple))
+        else "decision_assessments"
+    )
+    overrides = []
+    for index, row in enumerate(assessments):
+        if not isinstance(row, Mapping):
+            continue
+        evidence = row.get("decision_time_evidence")
+        comparison = row.get("comparison")
+        if not isinstance(evidence, Mapping) or not isinstance(comparison, Mapping):
+            continue
+        decision_index = evidence.get("decision_index")
+        source_game_id = evidence.get("source_game_id")
+        acting_player_id = evidence.get("acting_player_id")
+        if (
+            type(decision_index) is not int
+            or not isinstance(source_game_id, str)
+            or not isinstance(acting_player_id, str)
+        ):
+            continue
+        overrides.extend(
+            build_information_set_search_comparison_provenance_entries(
+                comparison,
+                field_path=f"/{assessment_field}/{index}/comparison",
+                decision_index=decision_index,
+                perspective_player_id=acting_player_id,
+                actual_reference_id=f"{source_game_id}/{decision_index}",
+            )
+        )
+    return build_complete_provenance_attachment(
+        name="information_set_replay_coaching/report",
+        document_role="result",
+        document=document,
+        information_use_context=_historical_context(
+            stage="offline_review",
+            decision_index=max(decision_indexes, default=0),
+            player_id=None,
+            side=None,
+        ),
+        entry_builder=_information_set_coaching_report_entry_builder(document),
+        override_entries=tuple(overrides),
+    )
+
+
 def build_historical_game_result_attachment(
     result: Mapping[str, object],
     *,
@@ -760,6 +1048,14 @@ class HistoricalReviewProvenanceCollector:
                 document=document,
                 kind="information_set_search",
             )
+        )
+
+    def capture_information_set_replay_coaching_report(
+        self,
+        document: Mapping[str, object],
+    ) -> None:
+        self._aggregate_attachments.append(
+            build_information_set_replay_coaching_report_attachment(document)
         )
 
     def capture_prioritization(

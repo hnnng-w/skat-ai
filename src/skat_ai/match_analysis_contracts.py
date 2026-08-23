@@ -179,7 +179,9 @@ class MatchHistoricalAnalysisOptionsV1:
     decision_snapshots: bool = False
     immediate_review: bool = True
     search_review: bool = False
+    information_set_search_review: bool = False
     replay_coaching: bool = False
+    information_set_replay_coaching: bool = False
     immediate_sample_count: int = DEFAULT_IMMEDIATE_ANALYSIS_SAMPLE_COUNT
     immediate_random_seed: int = 0
     search_random_seed: int | None = None
@@ -196,7 +198,9 @@ class MatchHistoricalAnalysisOptionsV1:
             "decision_snapshots",
             "immediate_review",
             "search_review",
+            "information_set_search_review",
             "replay_coaching",
+            "information_set_replay_coaching",
             "use_profile_presets",
         ):
             if type(getattr(self, field_name)) is not bool:
@@ -205,17 +209,29 @@ class MatchHistoricalAnalysisOptionsV1:
             self.decision_snapshots
             or self.immediate_review
             or self.search_review
+            or self.information_set_search_review
             or self.replay_coaching
+            or self.information_set_replay_coaching
         ):
             raise ValueError("At least one Historical analysis mode must be selected.")
+        existing_family = self.search_review or self.replay_coaching
+        information_set_family = (
+            self.information_set_search_review
+            or self.information_set_replay_coaching
+        )
+        if existing_family and information_set_family:
+            raise ValueError(
+                "Existing and Information-set Historical Search/Coaching families "
+                "cannot be combined."
+            )
         _require_sample_count(self.immediate_sample_count, "immediate_sample_count")
         if type(self.immediate_random_seed) is not int:
             raise ValueError("immediate_random_seed must be an integer.")
-        needs_search = self.search_review or self.replay_coaching
+        needs_search = existing_family or information_set_family
         if needs_search and type(self.search_random_seed) is not int:
-            raise ValueError("Search Review and Replay Coaching require search_random_seed.")
+            raise ValueError("Historical Search and Coaching require search_random_seed.")
         if not needs_search and self.search_random_seed is not None:
-            raise ValueError("search_random_seed requires Search Review or Replay Coaching.")
+            raise ValueError("search_random_seed requires Historical Search or Coaching.")
         if self.search_budget_profile not in MATCH_ANALYSIS_SEARCH_BUDGET_PROFILES:
             raise ValueError(
                 "search_budget_profile must be interactive_v1 or historical_review_v1."
@@ -234,7 +250,11 @@ class MatchHistoricalAnalysisOptionsV1:
             "decision_snapshots": self.decision_snapshots,
             "immediate_review": self.immediate_review,
             "search_review": self.search_review,
+            "information_set_search_review": self.information_set_search_review,
             "replay_coaching": self.replay_coaching,
+            "information_set_replay_coaching": (
+                self.information_set_replay_coaching
+            ),
             "immediate_sample_count": self.immediate_sample_count,
             "immediate_random_seed": self.immediate_random_seed,
             "search_random_seed": self.search_random_seed,

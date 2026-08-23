@@ -329,6 +329,60 @@ def test_selected_report_state_recursively_allows_only_rendered_fields() -> None
         "limitations": [],
         "private_coaching": ["CA"],
     }
+    summary["historical_information_set_search_review_summary"] = {
+        "review_method": "information_set_search_with_same_selection_pimc_and_immediate_v1",
+        "source_game_id": historical.game_id,
+        "decision_count": 1,
+        "status_counts": {"complete": 1, "private_status": 1},
+        "coverage_counts": {"single_exact_world": 1, "private_world": 1},
+        "selected_world_count_total": 1,
+        "sampled_world_count_total": 0,
+        "comparison_available_count": 1,
+        "comparison_unavailable_count": 0,
+        "information_set_recommendation_count": 1,
+        "information_set_pimc_agreement": {"same_card_count": 1},
+        "information_set_immediate_agreement": {"same_card_count": 1},
+        "information_set_actual_agreement": {"same_card_count": 1},
+        "decisions": [{"private_observation": ["CA"]}],
+    }
+    summary["historical_information_set_replay_coaching_summary"] = {
+        "report_method": "historical_information_set_replay_coaching_v1",
+        "source_game_id": historical.game_id,
+        "coverage": {
+            "decision_count": 1,
+            "assessable_decision_count": 1,
+            "forced_move_count": 0,
+            "best_or_equivalent_count": 1,
+            "strictly_below_best_count": 0,
+            "not_assessable_count": 0,
+            "high_impact_decision_count": 0,
+            "key_decision_count": 0,
+            "turning_point_count": 0,
+            "pattern_count": 0,
+            "actionable_pattern_count": 0,
+            "decision_recommendation_count": 0,
+            "pattern_recommendation_count": 0,
+            "information_set_recommendation_count": 1,
+            "pimc_recommendation_count": 1,
+            "immediate_recommendation_count": 1,
+            "assessment_status_counts": [],
+            "evidence_basis_counts": [],
+            "information_set_status_counts": [],
+            "world_coverage_counts": [],
+            "information_set_pimc_agreement_counts": [],
+            "information_set_immediate_agreement_counts": [],
+            "private_coverage": ["CA"],
+        },
+        "assessments": [{"private_policy": ["CA"]}],
+        "prioritization": {"key_decisions": [], "turning_points": []},
+        "guidance": {
+            "decision_recommendations": [],
+            "pattern_recommendations": [],
+            "private_guidance": ["CA"],
+        },
+        "outcome_context": {"private_information_set_outcome": ["CA"]},
+        "limitations": [],
+    }
     historical = replace(
         historical,
         result=ResultDocumentV1(
@@ -361,8 +415,40 @@ def test_selected_report_state_recursively_allows_only_rendered_fields() -> None
         "private_patterns",
         "private_outcome",
         "private_coaching",
+        "private_observation",
+        "private_policy",
+        "private_coverage",
+        "private_guidance",
+        "private_information_set_outcome",
     ):
         assert private_field not in serialized_historical
+    information_set_details = historical_state["selected_report"]["details"]
+    assert information_set_details["information_set_search_review"][
+        "decision_count"
+    ] == 1
+    assert information_set_details["information_set_replay_coaching"][
+        "coverage"
+    ]["assessable_decision_count"] == 1
+    historical_html = render_match_capture_web_page_v1(historical_state)
+    assert "Historical Information-set Search Review" in historical_html
+    assert "Information-set Replay Coaching" in historical_html
+    assert "Assessment status counts" in historical_html
+    assert "Same-selection PIMC agreement counts" in historical_html
+    assert "Immediate agreement counts" in historical_html
+    assert "Same-selection PIMC and Immediate are diagnostics, never fallback" in (
+        historical_html
+    )
+    assert "It is not equilibrium, calibrated probability, or perfect play." in (
+        historical_html
+    )
+    for private_field in (
+        "private_observation",
+        "private_policy",
+        "private_coverage",
+        "private_guidance",
+        "private_information_set_outcome",
+    ):
+        assert private_field not in historical_html
 
 
 def test_state_build_prepares_evidence_but_executes_no_application(
@@ -458,6 +544,17 @@ def test_json_analysis_options_are_strict_and_accept_no_custom_budget(
                 max_selected_worlds="1",
             ),
         )
+    with pytest.raises(ValueError, match="information_set_replay_coaching must be a boolean"):
+        execute_match_capture_web_analysis_v1(
+            context,
+            _analysis_values(
+                context,
+                "analyze_historical_game",
+                immediate_review=False,
+                information_set_replay_coaching=1,
+                search_random_seed=0,
+            ),
+        )
     with pytest.raises(ValueError, match="Workspace mutation"):
         apply_match_capture_web_operation_v1(
             context,
@@ -467,6 +564,48 @@ def test_json_analysis_options_are_strict_and_accept_no_custom_budget(
                 decision_index="1",
             ),
         )
+
+
+def test_historical_information_set_browser_controls_and_options_are_explicit(
+    tmp_path: Path,
+) -> None:
+    context = _partial_context(tmp_path)
+    state = build_match_capture_web_state_v1(
+        _strict_workspace(),
+        workspace_filename="historical-information-set.json",
+        selected_position=3,
+    )
+    html = render_match_capture_web_page_v1(state)
+    assert 'name="information_set_search_review"' in html
+    assert 'name="information_set_replay_coaching"' in html
+    assert "PIMC and Immediate are diagnostic baselines with no fallback" in html
+    assert "not equilibrium or perfect play" in html
+
+    result = execute_match_capture_web_analysis_v1(
+        context,
+        _analysis_values(
+            context,
+            "analyze_historical_game",
+            decision_snapshots=False,
+            immediate_review=False,
+            search_review=False,
+            information_set_search_review=True,
+            replay_coaching=False,
+            information_set_replay_coaching=True,
+            immediate_sample_count="1",
+            immediate_random_seed="23",
+            search_random_seed="29",
+            search_budget_profile="interactive_v1",
+            use_profile_presets=True,
+        ),
+    )
+    report = context.report_store.get(result.state["selected_report_id"])
+    options = report.value.options
+    assert options.information_set_search_review is True
+    assert options.information_set_replay_coaching is True
+    assert options.search_random_seed == 29
+    assert options.immediate_random_seed == 23
+    assert options.use_profile_presets is True
 
 
 @pytest.mark.parametrize("changed_field", ("revision", "fingerprint"))

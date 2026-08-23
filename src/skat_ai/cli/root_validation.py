@@ -98,6 +98,9 @@ def validate_cli_arguments(
     historical_information_set_search = getattr(
         args, "historical_information_set_search_review", False
     )
+    historical_information_set_coaching = getattr(
+        args, "historical_information_set_replay_coaching", False
+    )
     historical_coaching = getattr(args, "historical_replay_coaching", False)
     search_seed = getattr(args, "search_seed", None)
     search_budget_profile = getattr(args, "search_budget_profile", None)
@@ -105,31 +108,36 @@ def validate_cli_arguments(
         raise CliUsageError(
             "--historical-information-set-search-review requires historical-game input."
         )
-    if historical_information_set_search and historical_search:
+    if historical_information_set_coaching and workflow != "historical_game":
         raise CliUsageError(
-            "--historical-information-set-search-review conflicts with --historical-search-review."
+            "--historical-information-set-replay-coaching requires historical-game input."
         )
-    if historical_information_set_search and historical_coaching:
+    existing_historical_family = historical_search or historical_coaching
+    information_set_historical_family = (
+        historical_information_set_search or historical_information_set_coaching
+    )
+    if existing_historical_family and information_set_historical_family:
         raise CliUsageError(
-            "--historical-information-set-search-review conflicts with "
-            "--historical-replay-coaching."
+            "Existing and Information-set Historical Search/Coaching families "
+            "cannot be combined."
         )
     search_operation = (
-        historical_search
-        or historical_information_set_search
-        or historical_coaching
+        existing_historical_family
+        or information_set_historical_family
         or evaluate_search
         or evaluate_information_set_search
     )
     if search_operation and search_seed is None:
         raise CliUsageError(
             "Historical Search Review, Historical Information-set Search Review, "
-            "Historical Replay Coaching, and Search evaluation require --search-seed."
+            "both Historical Replay Coaching families, and Search evaluation require "
+            "--search-seed."
         )
     if search_seed is not None and not search_operation:
         raise CliUsageError(
             "--search-seed requires --historical-search-review, "
             "--historical-information-set-search-review, "
+            "--historical-information-set-replay-coaching, "
             "--historical-replay-coaching, --evaluate-bounded-search, or "
             "--information-set-search-evaluation."
         )
@@ -137,6 +145,7 @@ def validate_cli_arguments(
         raise CliUsageError(
             "--search-budget-profile requires --historical-search-review or "
             "--historical-information-set-search-review or "
+            "--historical-information-set-replay-coaching or "
             "--historical-replay-coaching or --evaluate-bounded-search or "
             "--information-set-search-evaluation."
         )
@@ -275,16 +284,19 @@ def validate_historical_game_cli_arguments(args: argparse.Namespace) -> None:
     information_set_review = getattr(
         args, "historical_information_set_search_review", False
     )
+    information_set_coaching = getattr(
+        args, "historical_information_set_replay_coaching", False
+    )
     historical_profile_review = (
-        (args.historical_game_review or information_set_review)
+        (args.historical_game_review or information_set_review or information_set_coaching)
         and args.opponent_statistics_file is not None
     )
     if args.opponent_statistics_file is not None and not (
-        args.historical_game_review or information_set_review
+        args.historical_game_review or information_set_review or information_set_coaching
     ):
         raise CliUsageError(
             "--opponent-statistics-file requires --historical-game-review or "
-            "--historical-information-set-search-review for historical-game input."
+            "an Information-set Historical Search/Coaching mode for historical-game input."
         )
     if historical_profile_review and (
         args.left_opponent_player_id is not None or args.right_opponent_player_id is not None
@@ -303,6 +315,7 @@ def validate_historical_game_cli_arguments(args: argparse.Namespace) -> None:
             args.historical_game_review
             or args.historical_search_review
             or getattr(args, "historical_information_set_search_review", False)
+            or getattr(args, "historical_information_set_replay_coaching", False)
             or args.historical_replay_coaching
         ),
         "--seed": args.seed is not None
@@ -310,6 +323,7 @@ def validate_historical_game_cli_arguments(args: argparse.Namespace) -> None:
             args.historical_game_review
             or args.historical_search_review
             or getattr(args, "historical_information_set_search_review", False)
+            or getattr(args, "historical_information_set_replay_coaching", False)
             or args.historical_replay_coaching
         ),
         "--opponent-strategy": args.opponent_strategy is not None,
@@ -376,6 +390,9 @@ def validate_training_dataset_cli_arguments(args: argparse.Namespace) -> None:
         "--historical-search-review": args.historical_search_review,
         "--historical-information-set-search-review": getattr(
             args, "historical_information_set_search_review", False
+        ),
+        "--historical-information-set-replay-coaching": getattr(
+            args, "historical_information_set_replay_coaching", False
         ),
         "--historical-replay-coaching": args.historical_replay_coaching,
         "--multi-step": args.multi_step is not None,
@@ -510,6 +527,9 @@ def validate_training_dataset_preparation_cli_arguments(
         "--historical-information-set-search-review": getattr(
             args, "historical_information_set_search_review", False
         ),
+        "--historical-information-set-replay-coaching": getattr(
+            args, "historical_information_set_replay_coaching", False
+        ),
         "--historical-replay-coaching": args.historical_replay_coaching,
         "--search-seed": args.search_seed is not None,
         "--search-budget-profile": args.search_budget_profile is not None,
@@ -559,6 +579,9 @@ def validate_opponent_statistics_cli_arguments(args: argparse.Namespace) -> None
         "--historical-search-review": getattr(args, "historical_search_review", False),
         "--historical-information-set-search-review": getattr(
             args, "historical_information_set_search_review", False
+        ),
+        "--historical-information-set-replay-coaching": getattr(
+            args, "historical_information_set_replay_coaching", False
         ),
         "--historical-replay-coaching": getattr(args, "historical_replay_coaching", False),
         "--search-seed": getattr(args, "search_seed", None) is not None,
@@ -623,6 +646,9 @@ def validate_fixed_three_player_historical_list_cli_arguments(
         "--historical-search-review": args.historical_search_review,
         "--historical-information-set-search-review": getattr(
             args, "historical_information_set_search_review", False
+        ),
+        "--historical-information-set-replay-coaching": getattr(
+            args, "historical_information_set_replay_coaching", False
         ),
         "--historical-replay-coaching": args.historical_replay_coaching,
         "--search-seed": args.search_seed is not None,

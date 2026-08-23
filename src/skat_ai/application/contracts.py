@@ -186,6 +186,7 @@ class HistoricalGameApplicationOptions:
     immediate_review: bool = False
     search_review: bool = False
     information_set_search_review: bool = False
+    information_set_replay_coaching: bool = False
     replay_coaching: bool = False
     search_seed: int | None = None
     search_budget_profile: str = HISTORICAL_REVIEW_SEARCH_BUDGET_PROFILE
@@ -206,6 +207,7 @@ class HistoricalGameApplicationOptions:
             "immediate_review",
             "search_review",
             "information_set_search_review",
+            "information_set_replay_coaching",
             "replay_coaching",
             "use_profile_presets_override",
         ):

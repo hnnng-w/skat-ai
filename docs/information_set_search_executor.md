@@ -196,9 +196,13 @@ decisions. A no-recommendation Result stops before local play with no fallback.
 
 Issue #191 subsequently adds strict one-Decision Match Capture and Reports,
 exact source transfer, and focused Strategy Teacher/Dataset/Corpus propagation
-without changing this executor. Match Historical Information-set execution,
-Replay Coaching classification, and performance baselines remain separate. There is no cross-
+without changing this executor. Issue #192 separately adds Match Historical
+Information-set execution and Replay Coaching classification from one retained
+Review. Complete Candidate sets are primary evidence, PIMC and Immediate are
+diagnostic only, and no fallback or executor change is introduced. Performance
+baselines remain separate. There is no cross-
 decision global Policy, equilibrium, global-optimality, or calibrated-probability
 claim. See [Information-set Search workflows](information_set_search_workflows.md)
 and [Information-set Search Multi-Step and Policy Comparison](information_set_search_multi_step_and_policy_comparison.md),
-plus [Match Information-set Search and Strategy Teacher Evidence](match_information_set_search_and_strategy_teacher.md).
+plus [Match Information-set Search and Strategy Teacher Evidence](match_information_set_search_and_strategy_teacher.md),
+and [Information-set Replay Coaching and Match Historical analysis](information_set_replay_coaching_and_match_historical_analysis.md).

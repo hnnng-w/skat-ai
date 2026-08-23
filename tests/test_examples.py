@@ -71,6 +71,7 @@ def get_position_example_json_files() -> list[Path]:
             "historical_grand_normal_completion.json",
             "historical_grand_ouvert_review.json",
             "historical_null_replay_coaching.json",
+            "historical_information_set_replay_coaching.json",
             "historical_party_wide_claim.json",
             "historical_opponent_policy_evaluation_dataset.json",
             "historical_opponent_statistics.json",
@@ -93,7 +94,7 @@ def get_position_example_json_files() -> list[Path]:
 def test_generated_output_matrix_has_exact_documented_scenario_count() -> None:
     from scripts.validate_generated_outputs_schema import SCENARIOS
 
-    assert len(SCENARIOS) == 94
+    assert len(SCENARIOS) == 96
     assert tuple(scenario.name for scenario in SCENARIOS[:70]) == (
         "normal_local_live",
         "quiet_json_output",
@@ -201,9 +202,13 @@ def test_generated_output_matrix_has_exact_documented_scenario_count() -> None:
         "historical_information_set_search_review",
         "training_dataset_information_set_search_evaluation",
     )
-    assert tuple(scenario.name for scenario in SCENARIOS[92:]) == (
+    assert tuple(scenario.name for scenario in SCENARIOS[92:94]) == (
         "information_set_search_multi_step",
         "information_set_search_policy_comparison",
+    )
+    assert tuple(scenario.name for scenario in SCENARIOS[94:]) == (
+        "historical_information_set_replay_coaching",
+        "historical_party_wide_claim_information_set_replay_coaching",
     )
     assert all(not scenario.include_provenance for scenario in SCENARIOS[:70])
     assert all(scenario.include_provenance for scenario in SCENARIOS[70:77])
@@ -216,6 +221,8 @@ def test_generated_output_matrix_has_exact_documented_scenario_count() -> None:
     assert all(not scenario.include_provenance for scenario in SCENARIOS[89:92])
     assert SCENARIOS[92].include_provenance is True
     assert SCENARIOS[93].include_provenance is False
+    assert SCENARIOS[94].include_provenance is True
+    assert SCENARIOS[95].include_provenance is False
 
 
 def test_examples_folder_contains_json_files() -> None:
@@ -262,6 +269,7 @@ def test_all_example_json_files_can_be_loaded_and_validated() -> None:
             "historical_grand_normal_completion.json",
             "historical_grand_ouvert_review.json",
             "historical_null_replay_coaching.json",
+            "historical_information_set_replay_coaching.json",
             "historical_party_wide_claim.json",
         }:
             record = load_historical_game_from_json(str(example_file))

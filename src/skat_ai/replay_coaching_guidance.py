@@ -1,3 +1,4 @@
+from collections.abc import Callable
 from dataclasses import InitVar, dataclass
 from typing import Any
 
@@ -160,6 +161,8 @@ def build_replay_coaching_guidance(
 
 def build_serializable_replay_coaching_guidance_result(
     result: ReplayCoachingGuidanceResult,
+    *,
+    assessment_serializer: Callable[[Any], dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     return {
         "guidance_version": result.guidance_version,
@@ -170,14 +173,18 @@ def build_serializable_replay_coaching_guidance_result(
         "decision_recommendation_count": result.decision_recommendation_count,
         "pattern_recommendation_count": result.pattern_recommendation_count,
         "prioritization": build_serializable_replay_coaching_prioritization_result(
-            result.prioritization
+            result.prioritization,
+            assessment_serializer=assessment_serializer,
         ),
         "patterns": [
             build_serializable_replay_coaching_pattern(pattern)
             for pattern in result.patterns
         ],
         "decision_recommendations": [
-            build_serializable_replay_coaching_decision_recommendation(recommendation)
+            build_serializable_replay_coaching_decision_recommendation(
+                recommendation,
+                assessment_serializer=assessment_serializer,
+            )
             for recommendation in result.decision_recommendations
         ],
         "pattern_recommendations": [

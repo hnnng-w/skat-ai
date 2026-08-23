@@ -316,13 +316,13 @@ def test_catalog_and_snapshot_are_private_internal_compatibility_additions_only(
     assert TRAINING_DATASET_SCHEMA_VERSION == 1
     assert TRAINING_FEATURE_GENERATION_VERSION == 1
     assert TRAINING_TARGET == "actual_card_played"
-    assert len(SCENARIOS) == 94
+    assert len(SCENARIOS) == 96
 
     pyproject = tomllib.loads((PROJECT_ROOT / "pyproject.toml").read_text(encoding="utf-8"))
     assert pyproject["project"]["version"] == "0.16.0"
     assert pyproject["project"]["scripts"] == {"skat-ai": "skat_ai.cli:main"}
-    assert len(tuple((PROJECT_ROOT / "schemas").glob("*.schema.json"))) == 69
-    assert len(tuple((PROJECT_ROOT / "src/skat_ai/schema_resources").glob("*.schema.json"))) == 69
+    assert len(tuple((PROJECT_ROOT / "schemas").glob("*.schema.json"))) == 70
+    assert len(tuple((PROJECT_ROOT / "src/skat_ai/schema_resources").glob("*.schema.json"))) == 70
     session_examples = {
         path.name
         for path in (PROJECT_ROOT / "examples").glob("session_*.json")

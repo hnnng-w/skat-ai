@@ -22,6 +22,7 @@ from skat_ai.cli.presentation.dataset import (
 )
 from skat_ai.cli.presentation.historical import (
     print_historical_game_result,
+    print_historical_information_set_replay_coaching_result,
     print_historical_information_set_search_review_result,
     print_historical_replay_coaching_result,
     print_historical_search_review_result,
@@ -199,6 +200,7 @@ def run_json_historical_game_analysis(
     historical_game_review: bool = False,
     historical_search_review: bool = False,
     historical_information_set_search_review: bool = False,
+    historical_information_set_replay_coaching: bool = False,
     historical_replay_coaching: bool = False,
     search_seed: int | None = None,
     search_budget_profile: str = HISTORICAL_REVIEW_SEARCH_BUDGET_PROFILE,
@@ -234,6 +236,9 @@ def run_json_historical_game_analysis(
                 immediate_review=historical_game_review,
                 search_review=historical_search_review,
                 information_set_search_review=(historical_information_set_search_review),
+                information_set_replay_coaching=(
+                    historical_information_set_replay_coaching
+                ),
                 replay_coaching=historical_replay_coaching,
                 search_seed=search_seed,
                 search_budget_profile=search_budget_profile,
@@ -270,6 +275,15 @@ def run_json_historical_game_analysis(
             "print_historical_information_set_search_review_result",
             print_historical_information_set_search_review_result,
         )(historical_game_summary["historical_information_set_search_review_summary"])
+    if historical_information_set_replay_coaching:
+        _dependency(
+            "print_historical_information_set_replay_coaching_result",
+            print_historical_information_set_replay_coaching_result,
+        )(
+            historical_game_summary[
+                "historical_information_set_replay_coaching_summary"
+            ]
+        )
     if historical_replay_coaching:
         _dependency(
             "print_historical_replay_coaching_result",

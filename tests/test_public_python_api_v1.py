@@ -483,6 +483,19 @@ def test_workflow_option_allowlists_exactly_match_application_contract_fields() 
     )
 
 
+def test_information_set_replay_coaching_option_is_forwarded_without_new_api_surface() -> None:
+    translated = facade_module._translate_workflow_options(
+        WorkflowV1.HISTORICAL_GAME,
+        {
+            "information_set_replay_coaching": True,
+            "search_seed": 193,
+        },
+    )
+
+    assert translated.historical_game.information_set_replay_coaching is True
+    assert translated.historical_game.search_seed == 193
+
+
 @pytest.mark.parametrize("field_name", ["output_path", "quiet", "provenance"])
 def test_unknown_transport_and_provenance_workflow_options_are_rejected(
     field_name: str,

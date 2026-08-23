@@ -290,6 +290,61 @@ def print_historical_information_set_search_review_result(
     print_information_set_search_metrics(summary)
 
 
+def _count_rows(
+    rows: object,
+    key_name: str,
+) -> dict[str, int]:
+    if not isinstance(rows, list):
+        return {}
+    return {
+        row[key_name]: row["count"]
+        for row in rows
+        if isinstance(row, dict)
+        and isinstance(row.get(key_name), str)
+        and type(row.get("count")) is int
+    }
+
+
+def print_historical_information_set_replay_coaching_result(
+    summary: dict[str, Any],
+) -> None:
+    """Prints aggregate Information-set Coaching without private Search state."""
+    coverage = summary["coverage"]
+    statuses = _count_rows(
+        coverage.get("information_set_status_counts"),
+        "information_set_status",
+    )
+    unavailable_count = statuses.get("unavailable", 0) + statuses.get(
+        "not_available", 0
+    )
+    worlds = _count_rows(coverage.get("world_coverage_counts"), "world_coverage")
+    recommendation_count = coverage["decision_recommendation_count"] + coverage[
+        "pattern_recommendation_count"
+    ]
+
+    print()
+    print("Historical Information-set Replay Coaching Report")
+    print("Source game:", summary["source_game_id"])
+    print("Decisions:", coverage["decision_count"])
+    print("Assessable decisions:", coverage["assessable_decision_count"])
+    print("Not assessable:", coverage["not_assessable_count"])
+    print("Key Decisions:", coverage["key_decision_count"])
+    print("Turning Points:", coverage["turning_point_count"])
+    print("Patterns:", coverage["pattern_count"])
+    print("Recommendations:", recommendation_count)
+    print(
+        "Information-set Search coverage: "
+        f"complete {statuses.get('complete', 0)}, "
+        f"partial {statuses.get('partial', 0)}, "
+        f"timeout {statuses.get('timeout', 0)}, "
+        f"unavailable {unavailable_count}; "
+        f"single exact {worlds.get('single_exact_world', 0)}, "
+        f"all compatible {worlds.get('all_compatible_worlds', 0)}, "
+        f"sampled compatible {worlds.get('sampled_compatible_worlds', 0)}, "
+        f"none {worlds.get('none', 0)}."
+    )
+
+
 def print_historical_replay_coaching_result(summary: dict[str, Any]) -> None:
     """Prints the concise public Replay Coaching view without private analysis state."""
     game = summary["game_context"]

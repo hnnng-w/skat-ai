@@ -21,6 +21,11 @@ from skat_ai.application.historical_game_workflow import (
 )
 from skat_ai.match_analysis_contracts import MatchHistoricalAnalysisOptionsV1
 from skat_ai.match_historical_analysis import execute_match_historical_analysis_v1
+from skat_ai.match_historical_information_set_analysis import (
+    MATCH_HISTORICAL_INFORMATION_SET_COACHING_INTEGRATION_VERSION,
+    MATCH_HISTORICAL_INFORMATION_SET_COACHING_POLICY,
+    MATCH_HISTORICAL_INFORMATION_SET_MODE_POLICY,
+)
 from skat_ai.match_workspace_contracts import create_match_workspace_v1
 from skat_ai.match_workspace_operations import mark_match_workspace_passed_deal_v1
 
@@ -30,6 +35,16 @@ def _strict_workspace(*, definition=None):
     return _set_game(
         create_match_workspace_v1(definition),
         _complete_observed_game(definition, match_position=3),
+    )
+
+
+def test_match_historical_information_set_version_and_policies_are_exact() -> None:
+    assert MATCH_HISTORICAL_INFORMATION_SET_COACHING_INTEGRATION_VERSION == 1
+    assert MATCH_HISTORICAL_INFORMATION_SET_COACHING_POLICY == (
+        "one_historical_application_with_shared_information_set_review"
+    )
+    assert MATCH_HISTORICAL_INFORMATION_SET_MODE_POLICY == (
+        "separate_from_existing_pimc_replay_coaching"
     )
 
 
@@ -245,6 +260,151 @@ def test_historical_search_and_coaching_modes_route_through_existing_application
         "historical_replay_coaching_summary"
     ] == {"status": "stub-coaching"}
     assert calls == [("search", 7), ("coaching", 9)]
+
+
+def test_historical_information_set_review_and_coaching_share_one_application(
+    monkeypatch,
+) -> None:
+    import skat_ai.match_historical_analysis as analysis_module
+
+    application_calls = 0
+    review_calls = 0
+    coaching_calls = 0
+
+    def counted_application(invocation, **kwargs):
+        nonlocal application_calls
+        application_calls += 1
+        return real_execute_application_invocation(invocation, **kwargs)
+
+    def build_review(**kwargs):
+        nonlocal review_calls
+        review_calls += 1
+        return {"source_game_id": kwargs["historical_record"].game_id}
+
+    class StubCoachingReport:
+        def __init__(self, game_id: str) -> None:
+            self.game_id = game_id
+
+        def to_dict(self):
+            return {
+                "source_game_id": self.game_id,
+                "report_method": "historical_information_set_replay_coaching_v1",
+            }
+
+    def build_coaching(**kwargs):
+        nonlocal coaching_calls
+        coaching_calls += 1
+        assert kwargs["source_review"] == {
+            "source_game_id": kwargs["historical_record"].game_id
+        }
+        return StubCoachingReport(kwargs["historical_record"].game_id)
+
+    dependencies = ApplicationWorkflowDependencies(
+        historical_game=HistoricalGameWorkflowDependencies(
+            build_information_set_search_review=build_review,
+            build_information_set_replay_coaching=build_coaching,
+            serialize_information_set_replay_coaching=lambda report: report.to_dict(),
+        )
+    )
+    monkeypatch.setattr(
+        analysis_module,
+        "execute_application_invocation",
+        counted_application,
+    )
+    monkeypatch.setattr(analysis_module, "validate_output_document", lambda _document: None)
+
+    result = execute_match_historical_analysis_v1(
+        _strict_workspace(),
+        match_position=3,
+        options=MatchHistoricalAnalysisOptionsV1(
+            immediate_review=False,
+            information_set_search_review=True,
+            information_set_replay_coaching=True,
+            search_random_seed=13,
+            immediate_sample_count=1,
+        ),
+        dependencies=dependencies,
+    )
+
+    assert application_calls == 1
+    assert review_calls == 1
+    assert coaching_calls == 1
+    assert result.request is not None
+    summary = result.result.to_dict()["document"]["historical_game_summary"]
+    assert summary["historical_information_set_search_review_summary"] == {
+        "source_game_id": result.game_id
+    }
+    assert summary["historical_information_set_replay_coaching_summary"][
+        "source_game_id"
+    ] == result.game_id
+
+
+def test_historical_information_set_profiles_do_not_change_classic_family(
+    monkeypatch,
+) -> None:
+    import skat_ai.match_historical_analysis as analysis_module
+
+    definition = _capture_with_snapshots(
+        snapshots=(
+            _actionable_snapshot("player-a", "snapshot-a"),
+            _actionable_snapshot("player-b", "snapshot-b"),
+        )
+    )
+    workspace = _strict_workspace(definition=definition)
+    information_set_bindings = []
+
+    def build_information_set_review(**kwargs):
+        information_set_bindings.append(kwargs["effective_policy_settings_by_decision"])
+        return {"source_game_id": kwargs["historical_record"].game_id}
+
+    information_set_dependencies = ApplicationWorkflowDependencies(
+        historical_game=HistoricalGameWorkflowDependencies(
+            build_information_set_search_review=build_information_set_review,
+        )
+    )
+    monkeypatch.setattr(analysis_module, "validate_output_document", lambda _document: None)
+    information_set = execute_match_historical_analysis_v1(
+        workspace,
+        match_position=3,
+        options=MatchHistoricalAnalysisOptionsV1(
+            immediate_review=False,
+            information_set_search_review=True,
+            search_random_seed=17,
+            immediate_sample_count=1,
+        ),
+        dependencies=information_set_dependencies,
+    )
+    information_set_document = information_set.result.to_dict()["document"]
+    assert information_set_document[
+        "historical_opponent_profile_application_summary"
+    ]["matched_player_count"] == 2
+    assert len(information_set_bindings) == 1
+
+    def build_classic_coaching(**_kwargs):
+        return {
+            "historical_search_review_summary": {"status": "unused"},
+            "historical_replay_coaching_summary": {"status": "classic"},
+        }
+
+    classic_dependencies = ApplicationWorkflowDependencies(
+        historical_game=HistoricalGameWorkflowDependencies(
+            build_replay_coaching=build_classic_coaching,
+        )
+    )
+    classic = execute_match_historical_analysis_v1(
+        workspace,
+        match_position=3,
+        options=MatchHistoricalAnalysisOptionsV1(
+            immediate_review=False,
+            replay_coaching=True,
+            search_random_seed=19,
+            immediate_sample_count=1,
+        ),
+        dependencies=classic_dependencies,
+    )
+    assert "historical_opponent_profile_application_summary" not in (
+        classic.result.to_dict()["document"]
+    )
 
 
 def test_historical_unavailable_performs_no_application_call(monkeypatch) -> None:

@@ -42,6 +42,7 @@ descriptive video or manual source metadata
     -> existing eligible relative Profile application where supported
     -> ephemeral revision-scoped reports and authenticated local downloads
     -> strict one-Decision Match Information-set Search and exact Report transfer
+    -> strict Match Historical Information-set Review and Coaching
     -> immutable content-addressed Learning Corpus Match Snapshots
     -> lightweight Catalog entries and explicit Current selections
     -> one explicit fixed-root private Store and strict full Resume
@@ -197,6 +198,12 @@ runs bounded Information-set Search, PIMC on the exact retained selected-world
 sequence, and an independently seeded Immediate baseline before attaching the
 observed Card. It emits descriptive agreement and aggregate differences without
 an accuracy or truth claim.
+Information-set Replay Coaching is a separate Issue-#192 mode over exactly one
+retained Historical Information-set Search Review. Complete Information-set
+Candidates are primary evidence; PIMC and Immediate remain diagnostics and never
+provide fallback. The observed Card is attached after decision-time analysis,
+and final Outcome Context is attached only after assessment, prioritization,
+patterns, and Guidance.
 
 The training-dataset flow validates dataset identity, provenance, optional
 known-opponent or unseen-player partition policy, and duplicate protection, then reuses the historical validator/replay and
@@ -348,6 +355,10 @@ The internal card-strength values in `rules.py` are comparison values only. They
 | `src/skat_ai/information_set_search_multi_step.py` | Version-1 Multi-Step Decision, domain-separated child settings, safe serialization, and compact Policy Comparison diagnostics. |
 | `src/skat_ai/historical_information_set_search_review.py` | Information-safe Historical Decision execution, deterministic seeds, descriptive metrics, and breakdowns. |
 | `src/skat_ai/information_set_search_evaluation.py` | Stable Dataset-v1 validation/test selection, global Decision cap, and no-training aggregate evaluation. |
+| `src/skat_ai/information_set_replay_coaching_evidence.py` | Exact pre-actual evidence reconstruction and retained actual-Card comparison reconciliation without rerunning analysis. |
+| `src/skat_ai/information_set_replay_coaching_assessment.py` | Information-set evidence bases, assessability, aggregate-equivalence, impact, factors, and canonical limitations. |
+| `src/skat_ai/information_set_replay_coaching_report.py` | Version-1 report composition over shared Key Decision, Turning Point, pattern, Guidance, scope, and Outcome Context behavior. |
+| `src/skat_ai/replay_coaching_method_neutral.py` | Narrow private adapters that let existing deterministic Coaching algorithms consume either assessment family. |
 | `src/skat_ai/dataset_partition_policy.py` | Versioned policy parsing, canonical serialization, exact stable-player membership extraction, and unseen-player conflict formatting. |
 | `src/skat_ai/dataset_partition_audit.py` | Deterministic partition, membership, overlap, known-opponent coverage, and unseen-player compliance auditing. |
 | `src/skat_ai/training_feature_view.py` | Information-safe conversion from stable-ID snapshots to relative model-facing features. |
@@ -483,6 +494,7 @@ public files, automatic collection, execution, and Assistant behavior.
 | `src/skat_ai/match_decision_analysis.py` | One prepared Decision to one validated flat Position Request and exact existing Application execution with actor-relative eligible Profiles. |
 | `src/skat_ai/match_information_set_search.py` | Match budget mapping, strict safe Result/comparison reconciliation, and curated browser diagnostics for one-Decision Information-set Search. |
 | `src/skat_ai/match_historical_analysis.py` | Strict Historical availability, selected existing modes, bounded Profile injection, one exact Application invocation, and Result reconciliation. |
+| `src/skat_ai/match_historical_information_set_analysis.py` | Match Historical mode adaptation, one shared Information-set Review, fixed-Policy Profile behavior, strict Result reconciliation, and safe rendering views. |
 | `src/skat_ai/match_analysis_exports.py` | Canonical private Root Result, materialization, Historical, Training-source, list-input, and list-aggregation download documents. |
 | `src/skat_ai/capture_web/` | Private Web/Protocol contracts, timecode presentation, locked context, browser-safe state, direct operation delegation, explicit analysis, max-eight report store, rendering, security, Standard Library server, downloads, and packaged assets. |
 | `src/skat_ai/cli/capture_parser.py` | Exact three-option Capture parser and command identity. |
@@ -500,6 +512,7 @@ integration, or tournament-management behavior. See
 [Match Player Statistics](match_player_statistics.md), and
 [Match review and materialization](match_review_and_materialization.md), and
 [Match analysis and exports](match_analysis_and_exports.md),
+[Information-set Replay Coaching and Match Historical analysis](information_set_replay_coaching_and_match_historical_analysis.md),
 [Learning Corpus identity and Catalogs](learning_corpus_identity_and_catalogs.md),
 [Learning Corpus persistence and Workspace import](learning_corpus_persistence_and_import.md),
 [Learning Corpus Player Catalog and Statistics history](learning_corpus_player_catalog_and_statistics_history.md),
@@ -766,12 +779,19 @@ strict Multi-Step and Policy Comparison integration with retained-Result complet
 provenance, without changing `auto`. Issue #191 adds strict one-Decision Match
 Capture execution, revision-scoped Reports and exact transfer, focused Strategy
 Teacher Evidence, Dataset-v2 propagation, Summary counts, and existing local
-Corpus workflow support. Replay Coaching classification and performance
-integration remain open. See [Information-set Search contracts](information_set_search_contracts.md),
+Corpus workflow support. At that Issue #191 baseline, Replay Coaching
+classification and performance integration remained open. Issue #192 adds
+separate Information-set Replay Coaching
+and private Match Historical Information-set Review/Coaching. It reuses one
+retained Review, permits only complete Candidate evidence except factual forced
+moves, treats PIMC and Immediate as diagnostics without fallback, and retains
+time-safe Profile-derived fixed Policies without World weighting. Performance
+integration remains open. See [Information-set Search contracts](information_set_search_contracts.md),
 the [Information-set Search executor](information_set_search_executor.md),
 [Information-set Search workflows](information_set_search_workflows.md), and
 [Information-set Search Multi-Step and Policy Comparison](information_set_search_multi_step_and_policy_comparison.md),
 plus [Match Information-set Search and Strategy Teacher Evidence](match_information_set_search_and_strategy_teacher.md).
+See also [Information-set Replay Coaching and Match Historical analysis](information_set_replay_coaching_and_match_historical_analysis.md).
 
 Immediate Analysis is available only when the normalized input state has
 `next_player = "me"` and the game has not ended. Opponent-turn input keeps the
@@ -1000,6 +1020,7 @@ Output is designed to be regression-friendly and schema-validatable.
 | `schemas/information_set_search_result.schema.json` | Strict safe aggregate Information-set Search Result. |
 | `schemas/information_set_search_comparison.schema.json` | Strict same-selection PIMC, independent Immediate, and actual-Card comparison. |
 | `schemas/historical_information_set_search_review.schema.json` | Strict per-Decision Historical Information-set Search Review and aggregates. |
+| `schemas/historical_information_set_replay_coaching.schema.json` | Strict separate Information-set Replay Coaching evidence, assessments, coverage, Guidance, scopes, Outcome Context, and limitations. |
 | `schemas/information_set_search_evaluation.schema.json` | Strict Training Dataset-v1 Information-set Search evaluation. |
 | `schemas/training_dataset.schema.json`       | Versioned training dataset input, records, provenance, and partitions.      |
 | `schemas/training_dataset_output.schema.json` | Strict training dataset output, metadata, features, labels, and counts.     |

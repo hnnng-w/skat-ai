@@ -403,6 +403,7 @@ class HistoricalInformationSetSearchDecisionReviewV1:
     contract: str
     decision_phase: str
     remaining_tricks: int
+    legal_cards: tuple[str, ...]
     actual_card: str
     effective_immediate_random_seed: int | None
     information_set_result: InformationSetSearchResultV1 | None
@@ -632,6 +633,7 @@ def build_historical_information_set_search_decision_review_v1(
             "response" if snapshot.visible_state.current_trick else "lead"
         ),
         remaining_tricks=remaining_tricks,
+        legal_cards=tuple(snapshot.visible_state.legal_cards),
         actual_card=snapshot.actual_card_played,
         effective_immediate_random_seed=decision_input.immediate_random_seed,
         information_set_result=analysis.information_set_result,

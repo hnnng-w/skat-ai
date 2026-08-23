@@ -196,6 +196,7 @@ Before larger changes, read the relevant documentation:
 * `docs/learning_corpus_browser_workflows.md`
 * `docs/information_set_search_workflows.md`
 * `docs/information_set_search_multi_step_and_policy_comparison.md`
+* `docs/information_set_replay_coaching_and_match_historical_analysis.md`
 * `docs/installed_cli.md`
 * `docs/public_field_provenance.md`
 * `docs/examples.md`
@@ -236,6 +237,14 @@ Issue #191 adds strict private one-Decision Match Information-set Search, exact
 Report-source transfer, focused Strategy Teacher Evidence, Dataset-v2 joins,
 cross-game counts, and existing Corpus workflow support without changing those
 counts or public/versioned surfaces.
+
+Issue #192 adds separate Historical Information-set Replay Coaching, private
+Match Historical Information-set Review and Coaching controls, one strict
+Schema, one Root example, and two append-only scenarios. The current working
+baseline therefore has 70 authoritative and packaged Schemas and 96 scenarios.
+Package version, Public API contract, seven Root workflows, one Console Script,
+Settlement Matrix version `3` with 61 cases, and six Session examples remain
+unchanged.
 
 The historical published `v0.15.0` GitHub Release has release theme "Local
 EuroSkat 36er Match capture, analysis, and exports" and GitHub Release title
@@ -460,9 +469,11 @@ Policy reuse, no-recommendation stopping without fallback, safe nested Results,
 ordering, stopped-row ineligibility, and retained-Result complete Provenance.
 Existing `auto` is unchanged. Match Capture, Match Analysis Reports, Strategy
 Teacher are integrated for the bounded one-Decision path by Issue #191 together
-with Dataset-v2 and Corpus propagation. Match Historical Information-set
-execution, Replay Coaching classification, and performance evidence remain open,
-along with tactical and cross-game Coaching, carefully
+with Dataset-v2 and Corpus propagation. Issue #192 adds separate Information-set
+Replay Coaching and Match Historical Information-set Review/Coaching with one
+retained Review, no PIMC/Immediate fallback, time-safe fixed Profile Policies,
+and complete Provenance. Performance evidence remains open, along with tactical
+and cross-game Coaching, carefully
 bounded Player Ratings where approved, broader Provenance and Confidence
 integration, performance and latency evidence, and the remaining pre-v1 scope
 audit. These areas remain open. The final Issue titles, count, architecture,
@@ -546,6 +557,11 @@ Major completed areas include:
   and generated-output coverage, plus strict Multi-Step and Policy Comparison
   integration with per-decision Search isolation, safe Decisions/diagnostics,
   no fallback, shared coherent comparison setup, and complete Provenance
+* separate version-1 Information-set Replay Coaching with retained Historical
+  Information-set Review reuse, complete Candidate-only assessment, diagnostic
+  PIMC/Immediate without fallback, existing Key Decision/Turning Point/pattern/
+  Guidance reuse, isolated Outcome Context, complete Provenance, strict Schema,
+  CLI, example, generated scenarios, and private Match Historical controls
 * information-safe one-game Replay Coaching evidence, prioritization, patterns, deterministic recommendations, complete report, public schema, JSON, CLI, examples, and generated-output coverage
 * fixed-three-player 36-position historical-list contracts, aggregation, progression, standings, exact external-lot application, independent-list comparison, public JSON/schema/CLI workflows, examples, and generated-output coverage
 * deterministic public automatic Training Dataset preparation with temporal Known-opponent and Player-disjoint unseen-player assignment, complete or unavailable Plans, lossless materialization, strict schemas, CLI, examples, and generated-output coverage
@@ -704,8 +720,9 @@ calibrated probability, measured timings are not latency guarantees, and timeout
 activation is machine-dependent. Flat, Historical Review, and Training Dataset
 evaluation routing plus strict Multi-Step and Policy Comparison integration are
 implemented. Issue #191 adds the bounded one-Decision Match/Report/Teacher/
-Dataset/Corpus path. Match Historical Information-set execution, Replay Coaching
-classification, and performance integration remain open. There is no
+Dataset/Corpus path. Issue #192 adds separate Information-set Replay Coaching and
+Match Historical Information-set Review/Coaching. Performance integration
+remains open. There is no
 cross-decision global Policy, equilibrium, global optimality, or calibrated
 probability claim. Overbid Null replacement selection, tactical
 motif detection, cross-game Coaching, causal
@@ -732,7 +749,11 @@ existing-behavior Profile application, ephemeral reports, and authenticated
 local downloads are also implemented, while materialization itself executes no
 workflow. Issue #191 adds strict one-Decision Information-set Search, curated
 safe diagnostics, and exact source transfer without changing persistence or
-public boundaries. Public Match API/export, Match Schema/data workflow, public/persisted Player
+public boundaries. Issue #192 adds explicit Match Historical Information-set
+Review/Coaching controls and safe rendering through one Historical Application
+invocation; Reports remain ephemeral and Historical Reports remain ineligible
+for Strategy Teacher transfer. Public Match API/export, Match Schema/data
+workflow, public/persisted Player
 Catalog, public or task-specific communication Dataset workflows,
 database/remote deployment, YouTube
 integration, and EuroSkat integration remain absent.

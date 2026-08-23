@@ -171,6 +171,11 @@ INFORMATION_SET_SEARCH_COMPARISON_SCHEMA_PATH = (
 HISTORICAL_INFORMATION_SET_SEARCH_REVIEW_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "historical_information_set_search_review.schema.json"
 )
+HISTORICAL_INFORMATION_SET_REPLAY_COACHING_SCHEMA_PATH = (
+    PROJECT_ROOT
+    / "schemas"
+    / "historical_information_set_replay_coaching.schema.json"
+)
 INFORMATION_SET_SEARCH_EVALUATION_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "information_set_search_evaluation.schema.json"
 )
@@ -3426,6 +3431,77 @@ def check_historical_information_set_search_review(data: dict[str, Any]) -> list
     return errors
 
 
+def check_historical_information_set_replay_coaching(
+    data: dict[str, Any],
+) -> list[str]:
+    historical = data.get("historical_game_summary")
+    if not isinstance(historical, dict):
+        return ["expected historical_game_summary"]
+    report = historical.get(
+        "historical_information_set_replay_coaching_summary"
+    )
+    if not isinstance(report, dict):
+        return ["expected historical_information_set_replay_coaching_summary"]
+    errors = _check_information_set_public_surface(report)
+    coverage = report["coverage"]
+    prioritization = report["prioritization"]
+    guidance = report["guidance"]
+    if report["report_method"] != (
+        "historical_information_set_replay_coaching_v1"
+    ):
+        errors.append("expected historical Information-set Replay Coaching method")
+    if report["source_review_method"] != (
+        "information_set_search_with_same_selection_pimc_and_immediate_v1"
+    ):
+        errors.append("expected retained Historical Information-set Review method")
+    if coverage["decision_count"] != len(report["assessments"]):
+        errors.append("expected Information-set Coaching decision coverage")
+    if coverage["key_decision_count"] != len(prioritization["key_decisions"]):
+        errors.append("expected Information-set Coaching Key Decision coverage")
+    if coverage["turning_point_count"] != len(prioritization["turning_points"]):
+        errors.append("expected Information-set Coaching Turning Point coverage")
+    if coverage["pattern_count"] != len(guidance["patterns"]):
+        errors.append("expected Information-set Coaching pattern coverage")
+    if tuple(
+        len(report[field])
+        for field in (
+            "player_summaries",
+            "role_summaries",
+            "phase_summaries",
+            "contract_summaries",
+        )
+    ) != (3, 2, 3, 1):
+        errors.append("expected complete Information-set Coaching scope summaries")
+    if "historical_information_set_search_review_summary" in historical:
+        errors.append("Coaching-only workflow must not emit the retained Review")
+    if report["outcome_context"]["source_game_id"] != report["source_game_id"]:
+        errors.append("expected Information-set Coaching outcome source identity")
+    return errors
+
+
+def check_historical_party_wide_claim_information_set_replay_coaching(
+    data: dict[str, Any],
+) -> list[str]:
+    errors = check_historical_information_set_replay_coaching(data)
+    report = data["historical_game_summary"].get(
+        "historical_information_set_replay_coaching_summary"
+    )
+    if not isinstance(report, dict):
+        return errors
+    if report["game_context"]["game_end_reason"] != (
+        "party_wide_all_remaining_tricks_claim"
+    ):
+        errors.append("expected party-wide Claim Coaching context")
+    outcome = report["outcome_context"]
+    if outcome["historical_game_end_summary"]["kind"] != (
+        "party_wide_all_remaining_tricks_claim"
+    ):
+        errors.append("expected party-wide Claim Coaching outcome")
+    if outcome["final_settlement_summary"]["is_complete"] is not True:
+        errors.append("expected complete Claim settlement in Coaching outcome")
+    return errors
+
+
 def check_information_set_search_evaluation(data: dict[str, Any]) -> list[str]:
     summary = data.get("information_set_search_evaluation_summary")
     if not isinstance(summary, dict):
@@ -5434,6 +5510,53 @@ SCENARIOS = (
         check_output=check_information_set_search_policy_comparison,
         expect_quiet_stdout=True,
     ),
+    Scenario(
+        name="historical_information_set_replay_coaching",
+        input_path=(
+            PROJECT_ROOT
+            / "examples"
+            / "historical_information_set_replay_coaching.json"
+        ),
+        branch="privacy-safe Historical Information-set Replay Coaching",
+        cli_args=(
+            "--historical-information-set-replay-coaching",
+            "--search-seed",
+            "83",
+            "--search-budget-profile",
+            "interactive_v1",
+            "--samples",
+            "1",
+            "--seed",
+            "47",
+            "--quiet",
+        ),
+        check_output=check_historical_information_set_replay_coaching,
+        expect_quiet_stdout=True,
+        include_position_overrides=False,
+        include_provenance=True,
+    ),
+    Scenario(
+        name="historical_party_wide_claim_information_set_replay_coaching",
+        input_path=PROJECT_ROOT / "examples" / "historical_party_wide_claim.json",
+        branch="party-wide Claim Historical Information-set Replay Coaching",
+        cli_args=(
+            "--historical-information-set-replay-coaching",
+            "--search-seed",
+            "97",
+            "--search-budget-profile",
+            "interactive_v1",
+            "--samples",
+            "1",
+            "--seed",
+            "53",
+            "--quiet",
+        ),
+        check_output=(
+            check_historical_party_wide_claim_information_set_replay_coaching
+        ),
+        expect_quiet_stdout=True,
+        include_position_overrides=False,
+    ),
 )
 
 
@@ -5558,6 +5681,9 @@ def validate_generated_outputs() -> list[str]:
     )
     historical_information_set_search_review_schema = load_json_file(
         HISTORICAL_INFORMATION_SET_SEARCH_REVIEW_SCHEMA_PATH
+    )
+    historical_information_set_replay_coaching_schema = load_json_file(
+        HISTORICAL_INFORMATION_SET_REPLAY_COACHING_SCHEMA_PATH
     )
     information_set_search_evaluation_schema = load_json_file(
         INFORMATION_SET_SEARCH_EVALUATION_SCHEMA_PATH
@@ -5781,6 +5907,12 @@ def validate_generated_outputs() -> list[str]:
                 historical_information_set_search_review_schema["$id"],
                 Resource.from_contents(
                     historical_information_set_search_review_schema
+                ),
+            ),
+            (
+                historical_information_set_replay_coaching_schema["$id"],
+                Resource.from_contents(
+                    historical_information_set_replay_coaching_schema
                 ),
             ),
             (

@@ -1,0 +1,993 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/skat-ai/historical_information_set_replay_coaching.schema.json",
+  "title": "skat-ai public historical Information-set Replay Coaching report version 1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "report_version",
+    "report_method",
+    "source_policy",
+    "information_policy",
+    "primary_evidence_policy",
+    "assessment_policy",
+    "prioritization_policy",
+    "guidance_policy",
+    "outcome_policy",
+    "public_policy",
+    "source_game_id",
+    "source_review_method",
+    "source_review_settings",
+    "game_context",
+    "assessments",
+    "prioritization",
+    "guidance",
+    "coverage",
+    "player_summaries",
+    "role_summaries",
+    "phase_summaries",
+    "contract_summaries",
+    "outcome_context",
+    "limitations"
+  ],
+  "properties": {
+    "report_version": {"const": 1},
+    "report_method": {
+      "const": "historical_information_set_replay_coaching_v1"
+    },
+    "source_policy": {
+      "const": "retained_historical_information_set_search_review_without_rerun"
+    },
+    "information_policy": {
+      "const": "decision_time_analysis_then_actual_card_then_outcome_context"
+    },
+    "primary_evidence_policy": {
+      "const": "information_set_candidates_primary_pimc_and_immediate_diagnostic_only"
+    },
+    "assessment_policy": {
+      "const": "complete_information_set_candidates_or_not_assessable"
+    },
+    "prioritization_policy": {
+      "const": "existing_objective_priority_without_baseline_fallback"
+    },
+    "guidance_policy": {
+      "const": "existing_deterministic_templates_without_tactical_inference"
+    },
+    "outcome_policy": {"const": "final_context_after_coaching"},
+    "public_policy": {
+      "const": "safe_report_without_private_policy_world_or_observation"
+    },
+    "source_game_id": {"$ref": "#/$defs/stable_identifier"},
+    "source_review_method": {
+      "const": "information_set_search_with_same_selection_pimc_and_immediate_v1"
+    },
+    "source_review_settings": {
+      "$ref": "https://example.local/skat-ai/historical_information_set_search_review.schema.json#/$defs/settings"
+    },
+    "game_context": {
+      "$ref": "https://example.local/skat-ai/historical_replay_coaching.schema.json#/$defs/game_context"
+    },
+    "assessments": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/decision_assessment"},
+      "maxItems": 30
+    },
+    "prioritization": {"$ref": "#/$defs/prioritization"},
+    "guidance": {"$ref": "#/$defs/guidance"},
+    "coverage": {"$ref": "#/$defs/coverage"},
+    "player_summaries": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "prefixItems": [
+        {"$ref": "#/$defs/player_scope_summary"},
+        {"$ref": "#/$defs/player_scope_summary"},
+        {"$ref": "#/$defs/player_scope_summary"}
+      ],
+      "items": false
+    },
+    "role_summaries": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "prefixItems": [
+        {
+          "allOf": [
+            {"$ref": "#/$defs/role_scope_summary"},
+            {"properties": {"scope_value": {"const": "declarer"}}}
+          ]
+        },
+        {
+          "allOf": [
+            {"$ref": "#/$defs/role_scope_summary"},
+            {"properties": {"scope_value": {"const": "defenders"}}}
+          ]
+        }
+      ],
+      "items": false
+    },
+    "phase_summaries": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "prefixItems": [
+        {
+          "allOf": [
+            {"$ref": "#/$defs/phase_scope_summary"},
+            {"properties": {"scope_value": {"const": "opening"}}}
+          ]
+        },
+        {
+          "allOf": [
+            {"$ref": "#/$defs/phase_scope_summary"},
+            {"properties": {"scope_value": {"const": "middle"}}}
+          ]
+        },
+        {
+          "allOf": [
+            {"$ref": "#/$defs/phase_scope_summary"},
+            {"properties": {"scope_value": {"const": "endgame"}}}
+          ]
+        }
+      ],
+      "items": false
+    },
+    "contract_summaries": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 1,
+      "items": {"$ref": "#/$defs/contract_scope_summary"}
+    },
+    "outcome_context": {
+      "$ref": "https://example.local/skat-ai/historical_replay_coaching.schema.json#/$defs/outcome_context"
+    },
+    "limitations": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/report_limitation"},
+      "uniqueItems": true,
+      "maxItems": 13
+    }
+  },
+  "$defs": {
+    "stable_identifier": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!\\s)(?:[\\s\\S]*\\S)?$"
+    },
+    "non_empty_string": {"type": "string", "minLength": 1},
+    "card": {
+      "type": "string",
+      "pattern": "^[CSHD](A|10|K|Q|J|9|8|7)$"
+    },
+    "nullable_card": {
+      "oneOf": [{"$ref": "#/$defs/card"}, {"type": "null"}]
+    },
+    "nullable_integer": {"type": ["integer", "null"]},
+    "nullable_number": {"type": ["number", "null"]},
+    "nullable_boolean": {"type": ["boolean", "null"]},
+    "count": {"type": "integer", "minimum": 0},
+    "decision_index": {"type": "integer", "minimum": 1, "maximum": 30},
+    "decision_indices": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/decision_index"},
+      "uniqueItems": true,
+      "maxItems": 30
+    },
+    "game_type": {
+      "enum": ["clubs", "spades", "hearts", "diamonds", "grand", "null"]
+    },
+    "party": {"enum": ["declarer", "defenders"]},
+    "recorded_state": {
+      "enum": ["undecided", "declarer_already_won", "defenders_already_won"]
+    },
+    "nullable_recorded_state": {
+      "oneOf": [{"$ref": "#/$defs/recorded_state"}, {"type": "null"}]
+    },
+    "nullable_party": {
+      "oneOf": [{"$ref": "#/$defs/party"}, {"type": "null"}]
+    },
+    "assessment_status": {
+      "enum": ["forced_move", "best_or_equivalent", "strictly_below_best", "not_assessable"]
+    },
+    "evidence_basis": {
+      "enum": [
+        "information_set_single_exact_world",
+        "information_set_all_compatible_worlds",
+        "information_set_sampled_compatible_worlds",
+        "none"
+      ]
+    },
+    "impact_tier": {
+      "enum": [
+        "no_missed_impact",
+        "contract_success",
+        "settlement_score",
+        "card_point_margin",
+        "not_assessable"
+      ]
+    },
+    "assessment_factor": {
+      "enum": [
+        "forced_move",
+        "aggregate_equivalent_choice",
+        "strictly_lower_contract_success",
+        "strictly_lower_settlement_score",
+        "strictly_lower_card_point_margin",
+        "search_unavailable",
+        "no_assessable_evidence",
+        "null_margin_not_applicable"
+      ]
+    },
+    "assessment_limitation": {
+      "enum": [
+        "bounded_three_trick_information_set_search",
+        "controlled_player_selected_world_consistency",
+        "fixed_opponent_policy_model",
+        "sampled_compatible_worlds",
+        "search_unavailable",
+        "observed_card_not_ground_truth",
+        "incomplete_assessment_coverage",
+        "no_equilibrium_or_global_optimality_claim"
+      ]
+    },
+    "pre_actual_analysis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "information_set_search_result",
+        "same_selection_pimc_result",
+        "immediate_recommended_card",
+        "same_selected_world_sequence"
+      ],
+      "properties": {
+        "information_set_search_result": {
+          "oneOf": [
+            {"$ref": "https://example.local/skat-ai/information_set_search_result.schema.json"},
+            {"type": "null"}
+          ]
+        },
+        "same_selection_pimc_result": {
+          "oneOf": [
+            {"$ref": "https://example.local/skat-ai/bounded_search_result.schema.json"},
+            {"type": "null"}
+          ]
+        },
+        "immediate_recommended_card": {"$ref": "#/$defs/nullable_card"},
+        "same_selected_world_sequence": {"type": "boolean"}
+      }
+    },
+    "decision_time_evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "information_set_replay_coaching_evidence_version",
+        "information_policy",
+        "source_game_id",
+        "decision_index",
+        "trick_number",
+        "play_index",
+        "acting_player_id",
+        "acting_seat",
+        "local_side",
+        "game_type",
+        "root_seat",
+        "game_phase",
+        "remaining_tricks",
+        "legal_cards",
+        "information_set_pre_actual_analysis"
+      ],
+      "properties": {
+        "information_set_replay_coaching_evidence_version": {"const": 1},
+        "information_policy": {
+          "const": "decision_time_analysis_then_actual_card_then_outcome_context"
+        },
+        "source_game_id": {"$ref": "#/$defs/stable_identifier"},
+        "decision_index": {"$ref": "#/$defs/decision_index"},
+        "trick_number": {"type": "integer", "minimum": 1, "maximum": 10},
+        "play_index": {"type": "integer", "minimum": 1, "maximum": 3},
+        "acting_player_id": {"$ref": "#/$defs/stable_identifier"},
+        "acting_seat": {"enum": ["forehand", "middlehand", "rearhand"]},
+        "local_side": {"$ref": "#/$defs/party"},
+        "game_type": {"$ref": "#/$defs/game_type"},
+        "root_seat": {"enum": ["lead", "second", "third"]},
+        "game_phase": {"enum": ["opening", "middle", "endgame"]},
+        "remaining_tricks": {"type": "integer", "minimum": 1, "maximum": 10},
+        "legal_cards": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/card"},
+          "minItems": 1,
+          "maxItems": 10,
+          "uniqueItems": true
+        },
+        "information_set_pre_actual_analysis": {"$ref": "#/$defs/pre_actual_analysis"}
+      }
+    },
+    "decision_assessment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "information_set_replay_coaching_assessment_version",
+        "decision_time_evidence",
+        "actual_card",
+        "assessment_status",
+        "evidence_basis",
+        "impact_tier",
+        "best_card",
+        "actual_card_rank",
+        "best_card_rank",
+        "strictly_better_card_count",
+        "aggregate_equivalent",
+        "contract_success_rate_gap",
+        "mean_local_side_game_score_gap",
+        "mean_local_side_card_point_margin_gap",
+        "comparison",
+        "factors",
+        "limitations"
+      ],
+      "properties": {
+        "information_set_replay_coaching_assessment_version": {"const": 1},
+        "decision_time_evidence": {"$ref": "#/$defs/decision_time_evidence"},
+        "actual_card": {"$ref": "#/$defs/card"},
+        "assessment_status": {"$ref": "#/$defs/assessment_status"},
+        "evidence_basis": {"$ref": "#/$defs/evidence_basis"},
+        "impact_tier": {"$ref": "#/$defs/impact_tier"},
+        "best_card": {"$ref": "#/$defs/nullable_card"},
+        "actual_card_rank": {"type": ["integer", "null"], "minimum": 1, "maximum": 32},
+        "best_card_rank": {"type": ["integer", "null"], "minimum": 1, "maximum": 32},
+        "strictly_better_card_count": {"type": ["integer", "null"], "minimum": 0, "maximum": 31},
+        "aggregate_equivalent": {"$ref": "#/$defs/nullable_boolean"},
+        "contract_success_rate_gap": {"$ref": "#/$defs/nullable_number"},
+        "mean_local_side_game_score_gap": {"$ref": "#/$defs/nullable_number"},
+        "mean_local_side_card_point_margin_gap": {"$ref": "#/$defs/nullable_number"},
+        "comparison": {
+          "$ref": "https://example.local/skat-ai/information_set_search_comparison.schema.json"
+        },
+        "factors": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/assessment_factor"},
+          "uniqueItems": true,
+          "maxItems": 8
+        },
+        "limitations": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/assessment_limitation"},
+          "uniqueItems": true,
+          "maxItems": 8
+        }
+      }
+    },
+    "key_decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "prioritization_version",
+        "rank",
+        "assessment",
+        "selection_reason",
+        "primary_gap",
+        "is_high_impact",
+        "turning_point_types"
+      ],
+      "properties": {
+        "prioritization_version": {"const": 1},
+        "rank": {"type": "integer", "minimum": 1, "maximum": 5},
+        "assessment": {"$ref": "#/$defs/decision_assessment"},
+        "selection_reason": {
+          "enum": [
+            "contract_success_gap",
+            "settlement_score_gap",
+            "card_point_margin_gap",
+            "immediate_only_gap"
+          ]
+        },
+        "primary_gap": {"type": "number", "exclusiveMinimum": 0},
+        "is_high_impact": {"type": "boolean"},
+        "turning_point_types": {
+          "type": "array",
+          "items": {"enum": ["decision_opportunity", "recorded_outcome"]},
+          "uniqueItems": true,
+          "maxItems": 2
+        }
+      }
+    },
+    "turning_point": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "prioritization_version",
+        "turning_point_type",
+        "decision_index",
+        "assessment",
+        "is_high_impact",
+        "recorded_state_before",
+        "recorded_state_after",
+        "decided_side",
+        "factors",
+        "limitations"
+      ],
+      "properties": {
+        "prioritization_version": {"const": 1},
+        "turning_point_type": {"enum": ["decision_opportunity", "recorded_outcome"]},
+        "decision_index": {"$ref": "#/$defs/decision_index"},
+        "assessment": {"$ref": "#/$defs/decision_assessment"},
+        "is_high_impact": {"const": true},
+        "recorded_state_before": {"$ref": "#/$defs/nullable_recorded_state"},
+        "recorded_state_after": {"$ref": "#/$defs/nullable_recorded_state"},
+        "decided_side": {"$ref": "#/$defs/nullable_party"},
+        "factors": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "lower_contract_success_opportunity",
+              "recorded_contract_became_decided",
+              "recorded_declarer_became_decided",
+              "recorded_defenders_became_decided",
+              "forced_recorded_outcome_transition"
+            ]
+          },
+          "uniqueItems": true,
+          "maxItems": 3
+        },
+        "limitations": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "counterfactual_aggregate_not_causal",
+              "recorded_path_only",
+              "decision_not_single_cause",
+              "observed_card_not_ground_truth"
+            ]
+          },
+          "uniqueItems": true,
+          "maxItems": 4
+        }
+      }
+    },
+    "prioritization": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "prioritization_version",
+        "source_game_id",
+        "decision_count",
+        "assessable_decision_count",
+        "missed_impact_decision_count",
+        "high_impact_decision_count",
+        "recorded_initial_state",
+        "recorded_final_state",
+        "key_decisions",
+        "turning_points"
+      ],
+      "properties": {
+        "prioritization_version": {"const": 1},
+        "source_game_id": {"$ref": "#/$defs/stable_identifier"},
+        "decision_count": {"type": "integer", "minimum": 0, "maximum": 30},
+        "assessable_decision_count": {"type": "integer", "minimum": 0, "maximum": 30},
+        "missed_impact_decision_count": {"type": "integer", "minimum": 0, "maximum": 30},
+        "high_impact_decision_count": {"type": "integer", "minimum": 0, "maximum": 30},
+        "recorded_initial_state": {"$ref": "#/$defs/recorded_state"},
+        "recorded_final_state": {"$ref": "#/$defs/recorded_state"},
+        "key_decisions": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/key_decision"},
+          "maxItems": 5
+        },
+        "turning_points": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/turning_point"},
+          "maxItems": 31
+        }
+      }
+    },
+    "assessment_status_count": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["assessment_status", "count"],
+      "properties": {
+        "assessment_status": {"$ref": "#/$defs/assessment_status"},
+        "count": {"$ref": "#/$defs/count"}
+      }
+    },
+    "evidence_basis_count": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["evidence_basis", "count"],
+      "properties": {
+        "evidence_basis": {"$ref": "#/$defs/evidence_basis"},
+        "count": {"$ref": "#/$defs/count"}
+      }
+    },
+    "impact_tier_count": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["impact_tier", "count"],
+      "properties": {
+        "impact_tier": {"$ref": "#/$defs/impact_tier"},
+        "count": {"$ref": "#/$defs/count"}
+      }
+    },
+    "information_set_status_count": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["information_set_status", "count"],
+      "properties": {
+        "information_set_status": {
+          "enum": ["complete", "partial", "timeout", "unavailable", "not_available"]
+        },
+        "count": {"$ref": "#/$defs/count"}
+      }
+    },
+    "world_coverage_count": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["world_coverage", "count"],
+      "properties": {
+        "world_coverage": {
+          "enum": ["none", "single_exact_world", "all_compatible_worlds", "sampled_compatible_worlds"]
+        },
+        "count": {"$ref": "#/$defs/count"}
+      }
+    },
+    "agreement_count": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["agreement", "count"],
+      "properties": {
+        "agreement": {"enum": ["same", "different", "not_available"]},
+        "count": {"$ref": "#/$defs/count"}
+      }
+    },
+    "coverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "decision_count",
+        "assessable_decision_count",
+        "forced_move_count",
+        "best_or_equivalent_count",
+        "strictly_below_best_count",
+        "not_assessable_count",
+        "high_impact_decision_count",
+        "key_decision_count",
+        "turning_point_count",
+        "pattern_count",
+        "actionable_pattern_count",
+        "decision_recommendation_count",
+        "pattern_recommendation_count",
+        "information_set_recommendation_count",
+        "pimc_recommendation_count",
+        "immediate_recommendation_count",
+        "assessment_status_counts",
+        "evidence_basis_counts",
+        "impact_tier_counts",
+        "information_set_status_counts",
+        "world_coverage_counts",
+        "information_set_pimc_agreement_counts",
+        "information_set_immediate_agreement_counts"
+      ],
+      "properties": {
+        "decision_count": {"type": "integer", "minimum": 0, "maximum": 30},
+        "assessable_decision_count": {"type": "integer", "minimum": 0, "maximum": 30},
+        "forced_move_count": {"type": "integer", "minimum": 0, "maximum": 30},
+        "best_or_equivalent_count": {"type": "integer", "minimum": 0, "maximum": 30},
+        "strictly_below_best_count": {"type": "integer", "minimum": 0, "maximum": 30},
+        "not_assessable_count": {"type": "integer", "minimum": 0, "maximum": 30},
+        "high_impact_decision_count": {"type": "integer", "minimum": 0, "maximum": 30},
+        "key_decision_count": {"type": "integer", "minimum": 0, "maximum": 5},
+        "turning_point_count": {"type": "integer", "minimum": 0, "maximum": 31},
+        "pattern_count": {"type": "integer", "minimum": 0, "maximum": 72},
+        "actionable_pattern_count": {"type": "integer", "minimum": 0, "maximum": 45},
+        "decision_recommendation_count": {"type": "integer", "minimum": 0, "maximum": 5},
+        "pattern_recommendation_count": {"type": "integer", "minimum": 0, "maximum": 5},
+        "information_set_recommendation_count": {"type": "integer", "minimum": 0, "maximum": 30},
+        "pimc_recommendation_count": {"type": "integer", "minimum": 0, "maximum": 30},
+        "immediate_recommendation_count": {"type": "integer", "minimum": 0, "maximum": 30},
+        "assessment_status_counts": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/assessment_status_count"},
+          "minItems": 4,
+          "maxItems": 4
+        },
+        "evidence_basis_counts": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/evidence_basis_count"},
+          "minItems": 4,
+          "maxItems": 4
+        },
+        "impact_tier_counts": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/impact_tier_count"},
+          "minItems": 5,
+          "maxItems": 5
+        },
+        "information_set_status_counts": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/information_set_status_count"},
+          "minItems": 5,
+          "maxItems": 5
+        },
+        "world_coverage_counts": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/world_coverage_count"},
+          "minItems": 4,
+          "maxItems": 4
+        },
+        "information_set_pimc_agreement_counts": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/agreement_count"},
+          "minItems": 3,
+          "maxItems": 3
+        },
+        "information_set_immediate_agreement_counts": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/agreement_count"},
+          "minItems": 3,
+          "maxItems": 3
+        }
+      }
+    },
+    "pattern": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "guidance_version",
+        "source_game_id",
+        "pattern_type",
+        "scope",
+        "scope_value",
+        "game_type",
+        "scope_decision_count",
+        "scope_assessable_decision_count",
+        "occurrence_count",
+        "decision_indices",
+        "key_decision_indices",
+        "high_impact_decision_count",
+        "evidence_basis_counts",
+        "impact_tier_counts",
+        "is_actionable",
+        "factors",
+        "limitations"
+      ],
+      "properties": {
+        "guidance_version": {"const": 1},
+        "source_game_id": {"$ref": "#/$defs/stable_identifier"},
+        "pattern_type": {
+          "enum": [
+            "repeated_lower_contract_success",
+            "repeated_lower_settlement_score",
+            "repeated_lower_card_point_margin",
+            "repeated_immediate_only_gap",
+            "repeated_search_immediate_divergence",
+            "repeated_aggregate_equivalent_choice",
+            "repeated_forced_move",
+            "repeated_search_unavailable"
+          ]
+        },
+        "scope": {"enum": ["player", "role", "phase", "contract"]},
+        "scope_value": {"$ref": "#/$defs/stable_identifier"},
+        "game_type": {"$ref": "#/$defs/game_type"},
+        "scope_decision_count": {"type": "integer", "minimum": 0, "maximum": 30},
+        "scope_assessable_decision_count": {"type": "integer", "minimum": 0, "maximum": 30},
+        "occurrence_count": {"type": "integer", "minimum": 2, "maximum": 30},
+        "decision_indices": {"$ref": "#/$defs/decision_indices"},
+        "key_decision_indices": {"$ref": "#/$defs/decision_indices"},
+        "high_impact_decision_count": {"type": "integer", "minimum": 0, "maximum": 30},
+        "evidence_basis_counts": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/evidence_basis_count"},
+          "minItems": 4,
+          "maxItems": 4
+        },
+        "impact_tier_counts": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/impact_tier_count"},
+          "minItems": 5,
+          "maxItems": 5
+        },
+        "is_actionable": {"type": "boolean"},
+        "factors": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "repeated_contract_success_gap",
+              "repeated_settlement_score_gap",
+              "repeated_card_point_margin_gap",
+              "repeated_immediate_only_gap",
+              "repeated_search_immediate_divergence",
+              "repeated_aggregate_equivalent_choice",
+              "repeated_forced_move",
+              "repeated_search_unavailable",
+              "player_scope",
+              "role_scope",
+              "phase_scope",
+              "contract_scope"
+            ]
+          },
+          "minItems": 2,
+          "maxItems": 2,
+          "uniqueItems": true
+        },
+        "limitations": {"$ref": "#/$defs/guidance_limitations"}
+      }
+    },
+    "guidance_limitations": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "single_recorded_game_only",
+          "minimum_occurrence_product_rule",
+          "bounded_late_game_search",
+          "determinization_strategy_fusion",
+          "sampled_compatible_worlds",
+          "completed_common_prefix",
+          "immediate_expected_value_only",
+          "search_unavailable",
+          "observed_card_not_ground_truth",
+          "no_tactical_motif_inference",
+          "no_causal_outcome_claim"
+        ]
+      },
+      "uniqueItems": true,
+      "maxItems": 11
+    },
+    "recommendation_factor": {
+      "enum": [
+        "decision_specific",
+        "repeated_pattern",
+        "contract_success_priority",
+        "settlement_score_priority",
+        "card_point_margin_priority",
+        "immediate_only_evidence",
+        "search_immediate_divergence",
+        "player_scope",
+        "role_scope",
+        "phase_scope",
+        "contract_scope"
+      ]
+    },
+    "decision_recommendation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "guidance_version",
+        "rank",
+        "recommendation_type",
+        "key_decision",
+        "title",
+        "explanation",
+        "action",
+        "factors",
+        "limitations"
+      ],
+      "properties": {
+        "guidance_version": {"const": 1},
+        "rank": {"type": "integer", "minimum": 1, "maximum": 5},
+        "recommendation_type": {
+          "enum": [
+            "prioritize_contract_success",
+            "prefer_higher_settlement_score",
+            "prefer_higher_card_point_margin",
+            "review_immediate_alternative"
+          ]
+        },
+        "key_decision": {"$ref": "#/$defs/key_decision"},
+        "title": {"$ref": "#/$defs/non_empty_string"},
+        "explanation": {"$ref": "#/$defs/non_empty_string"},
+        "action": {"$ref": "#/$defs/non_empty_string"},
+        "factors": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/recommendation_factor"},
+          "minItems": 2,
+          "maxItems": 2,
+          "uniqueItems": true
+        },
+        "limitations": {"$ref": "#/$defs/guidance_limitations"}
+      }
+    },
+    "pattern_recommendation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "guidance_version",
+        "rank",
+        "recommendation_type",
+        "pattern",
+        "title",
+        "explanation",
+        "action",
+        "decision_indices",
+        "factors",
+        "limitations"
+      ],
+      "properties": {
+        "guidance_version": {"const": 1},
+        "rank": {"type": "integer", "minimum": 1, "maximum": 5},
+        "recommendation_type": {
+          "enum": [
+            "review_repeated_contract_success_gaps",
+            "review_repeated_settlement_score_gaps",
+            "review_repeated_card_point_margin_gaps",
+            "review_repeated_immediate_only_gaps",
+            "review_search_immediate_divergence"
+          ]
+        },
+        "pattern": {"$ref": "#/$defs/pattern"},
+        "title": {"$ref": "#/$defs/non_empty_string"},
+        "explanation": {"$ref": "#/$defs/non_empty_string"},
+        "action": {"$ref": "#/$defs/non_empty_string"},
+        "decision_indices": {"$ref": "#/$defs/decision_indices"},
+        "factors": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/recommendation_factor"},
+          "minItems": 3,
+          "maxItems": 3,
+          "uniqueItems": true
+        },
+        "limitations": {"$ref": "#/$defs/guidance_limitations"}
+      }
+    },
+    "guidance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "guidance_version",
+        "source_game_id",
+        "decision_count",
+        "pattern_count",
+        "actionable_pattern_count",
+        "decision_recommendation_count",
+        "pattern_recommendation_count",
+        "prioritization",
+        "patterns",
+        "decision_recommendations",
+        "pattern_recommendations"
+      ],
+      "properties": {
+        "guidance_version": {"const": 1},
+        "source_game_id": {"$ref": "#/$defs/stable_identifier"},
+        "decision_count": {"type": "integer", "minimum": 0, "maximum": 30},
+        "pattern_count": {"type": "integer", "minimum": 0, "maximum": 72},
+        "actionable_pattern_count": {"type": "integer", "minimum": 0, "maximum": 45},
+        "decision_recommendation_count": {"type": "integer", "minimum": 0, "maximum": 5},
+        "pattern_recommendation_count": {"type": "integer", "minimum": 0, "maximum": 5},
+        "prioritization": {"$ref": "#/$defs/prioritization"},
+        "patterns": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/pattern"},
+          "maxItems": 72
+        },
+        "decision_recommendations": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/decision_recommendation"},
+          "maxItems": 5
+        },
+        "pattern_recommendations": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/pattern_recommendation"},
+          "maxItems": 5
+        }
+      }
+    },
+    "scope_summary_properties": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "scope",
+        "scope_value",
+        "decision_count",
+        "assessable_decision_count",
+        "forced_move_count",
+        "best_or_equivalent_count",
+        "strictly_below_best_count",
+        "not_assessable_count",
+        "high_impact_decision_count",
+        "key_decision_count",
+        "turning_point_count",
+        "pattern_count",
+        "actionable_pattern_count",
+        "decision_recommendation_count",
+        "pattern_recommendation_count",
+        "decision_indices",
+        "key_decision_indices",
+        "turning_point_indices",
+        "assessment_status_counts",
+        "evidence_basis_counts",
+        "impact_tier_counts"
+      ],
+      "properties": {
+        "scope": {"enum": ["player", "role", "phase", "contract"]},
+        "scope_value": {"$ref": "#/$defs/stable_identifier"},
+        "decision_count": {"type": "integer", "minimum": 0, "maximum": 30},
+        "assessable_decision_count": {"type": "integer", "minimum": 0, "maximum": 30},
+        "forced_move_count": {"type": "integer", "minimum": 0, "maximum": 30},
+        "best_or_equivalent_count": {"type": "integer", "minimum": 0, "maximum": 30},
+        "strictly_below_best_count": {"type": "integer", "minimum": 0, "maximum": 30},
+        "not_assessable_count": {"type": "integer", "minimum": 0, "maximum": 30},
+        "high_impact_decision_count": {"type": "integer", "minimum": 0, "maximum": 30},
+        "key_decision_count": {"type": "integer", "minimum": 0, "maximum": 5},
+        "turning_point_count": {"type": "integer", "minimum": 0, "maximum": 31},
+        "pattern_count": {"type": "integer", "minimum": 0, "maximum": 72},
+        "actionable_pattern_count": {"type": "integer", "minimum": 0, "maximum": 45},
+        "decision_recommendation_count": {"type": "integer", "minimum": 0, "maximum": 5},
+        "pattern_recommendation_count": {"type": "integer", "minimum": 0, "maximum": 5},
+        "decision_indices": {"$ref": "#/$defs/decision_indices"},
+        "key_decision_indices": {"$ref": "#/$defs/decision_indices"},
+        "turning_point_indices": {"$ref": "#/$defs/decision_indices"},
+        "assessment_status_counts": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/assessment_status_count"},
+          "minItems": 4,
+          "maxItems": 4
+        },
+        "evidence_basis_counts": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/evidence_basis_count"},
+          "minItems": 4,
+          "maxItems": 4
+        },
+        "impact_tier_counts": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/impact_tier_count"},
+          "minItems": 5,
+          "maxItems": 5
+        }
+      }
+    },
+    "player_scope_summary": {
+      "allOf": [
+        {"$ref": "#/$defs/scope_summary_properties"},
+        {"properties": {"scope": {"const": "player"}}}
+      ]
+    },
+    "role_scope_summary": {
+      "allOf": [
+        {"$ref": "#/$defs/scope_summary_properties"},
+        {
+          "properties": {
+            "scope": {"const": "role"},
+            "scope_value": {"enum": ["declarer", "defenders"]}
+          }
+        }
+      ]
+    },
+    "phase_scope_summary": {
+      "allOf": [
+        {"$ref": "#/$defs/scope_summary_properties"},
+        {
+          "properties": {
+            "scope": {"const": "phase"},
+            "scope_value": {"enum": ["opening", "middle", "endgame"]}
+          }
+        }
+      ]
+    },
+    "contract_scope_summary": {
+      "allOf": [
+        {"$ref": "#/$defs/scope_summary_properties"},
+        {
+          "properties": {
+            "scope": {"const": "contract"},
+            "scope_value": {"$ref": "#/$defs/game_type"}
+          }
+        }
+      ]
+    },
+    "report_limitation": {
+      "enum": [
+        "outcome_context_not_decision_evidence",
+        "single_recorded_game_only",
+        "bounded_three_trick_information_set_search",
+        "controlled_player_selected_world_consistency",
+        "fixed_opponent_policy_model",
+        "sampled_compatible_worlds",
+        "search_unavailable",
+        "observed_card_not_ground_truth",
+        "incomplete_assessment_coverage",
+        "no_equilibrium_or_global_optimality_claim",
+        "no_tactical_motif_inference",
+        "no_causal_outcome_claim",
+        "no_player_skill_rating"
+      ]
+    }
+  }
+}

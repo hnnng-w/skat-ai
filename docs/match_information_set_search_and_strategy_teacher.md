@@ -19,6 +19,13 @@ contract version, or any public Schema. The working baseline remains 69
 authoritative and packaged Schemas, six Session examples, and 94 generated-
 output scenarios.
 
+That 69/94 count is the Issue #191 point-in-time baseline. Issue #192
+subsequently adds separate Information-set Replay Coaching and Match Historical
+Information-set Review/Coaching, one Schema, one Root example, and two scenarios.
+The current working baseline is therefore 70 authoritative and packaged Schemas,
+six Session examples, and 96 generated-output scenarios. The one-Decision
+Teacher path in this document remains unchanged.
+
 ## Match execution
 
 `information_set_search` is the fourth explicit flat Match Decision method,
@@ -166,10 +173,10 @@ automatic Report capture, Public API, Schema, example, or generated scenario.
 
 The following remain open or intentionally unchanged:
 
-* Match Historical Information-set Search execution;
-* Replay Coaching classification of Information-set evidence;
 * performance and latency evidence;
 * automatic Report capture and Report or derived-artifact persistence;
+* Historical Strategy Teacher Report import and automatic Coaching Report
+  transfer;
 * public Match, Corpus, Strategy Teacher, or Dataset-v2 APIs and Schemas;
 * a global cross-decision Policy, equilibrium, calibrated probability, or
   complete-contract solver;
@@ -180,3 +187,5 @@ See also [Match analysis and exports](match_analysis_and_exports.md),
 [Learning Corpus Strategy Teacher Evidence](learning_corpus_strategy_teacher_evidence.md),
 [Learning Dataset version 2](learning_dataset_v2.md), and
 [Learning Corpus browser workflows](learning_corpus_browser_workflows.md).
+Issue #192's separate Historical path is documented in
+[Information-set Replay Coaching and Match Historical analysis](information_set_replay_coaching_and_match_historical_analysis.md).

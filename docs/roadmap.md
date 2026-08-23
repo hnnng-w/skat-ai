@@ -1165,6 +1165,14 @@ Report-source transfer, focused Strategy Teacher Evidence, Dataset-v2 joins,
 cross-game counts, and existing Corpus browser workflow support. It adds no
 Schema, example, generated output, Public API, persistence, or new command.
 
+Issue #192 subsequently adds separate Information-set Replay Coaching, private
+Match Historical Information-set Review/Coaching, one strict Schema, one Root
+example, and two append-only generated outputs. The current working baseline is
+therefore 70 authoritative and packaged Schemas, six Session examples, and 96
+generated outputs. Package version, Public API contract, seven Root workflows,
+one Console Script, and Settlement Matrix version `3` with 61 cases remain
+unchanged.
+
 Deletion and garbage collection, recovery UI, Player Catalog persistence,
 persisted aliases/assertions, merge/split operations, all-revision Player views,
 Human Evidence persistence and public API/Schema transport, Strategy Teacher
@@ -1218,9 +1226,11 @@ safe nested Results and 16-field diagnostics, existing ranking, and complete
 Provenance. Existing `auto` remains unchanged. Match Capture, Match Analysis
 Reports, and Strategy Teacher are integrated for this bounded one-Decision path
 by Issue #191 together with Dataset-v2 and Corpus propagation. Match Historical
-Information-set execution, Replay Coaching classification, and performance
-evidence remain open. Tactical and
-cross-game Coaching, carefully bounded Player Ratings where approved, broader
+Information-set execution and Replay Coaching classification are completed
+separately by Issue #192 through one retained Review, complete-Candidate primary
+evidence, diagnostic PIMC/Immediate without fallback, time-safe fixed Profile
+Policies, and complete Provenance. Performance evidence remains open. Tactical
+and cross-game Coaching, carefully bounded Player Ratings where approved, broader
 Provenance and Confidence integration, and the remaining pre-v1 scope audit also
 remain open. See [Information-set Search workflows](information_set_search_workflows.md)
 and [Information-set Search Multi-Step and Policy Comparison](information_set_search_multi_step_and_policy_comparison.md).
@@ -1297,10 +1307,11 @@ foundation and bounded executor. Issue #189 adds strict flat routing, descriptiv
 retrospective comparison, separate Historical Review and Training Dataset
 evaluation, safe output, Provenance, CLI, Schemas, example, and scenarios.
 Multi-Step and Policy Comparison integration is completed by Issue #190. Issue
-#191 adds the bounded one-Decision Match/Report/Teacher/Dataset/Corpus path. Match
-Historical Information-set execution, Replay Coaching classification, complete
-Strategy-Fusion correction, calibrated quality, and performance evidence remain
-open, so the stronger-search completion gate is not closed.
+#191 adds the bounded one-Decision Match/Report/Teacher/Dataset/Corpus path. Issue
+#192 adds separate Information-set Replay Coaching and Match Historical
+Information-set Review/Coaching. Complete Strategy-Fusion correction, calibrated
+quality, and performance evidence remain open, so the stronger-search completion
+gate is not closed.
 
 The published `v0.11.0` milestone is complete through functional Issue #124, and
 Issue #125 completed release preparation. The milestone establishes the
@@ -1413,5 +1424,7 @@ Dataset evaluation, safe output, Provenance, CLI, Schemas, example, and scenario
 coverage. Issue #190 adds strict Multi-Step and Policy Comparison integration.
 Issue #191 adds strict one-Decision Match/Report execution and focused
 Teacher/Dataset/Corpus propagation without changing schemas or scenarios.
-Remaining Replay Coaching, Historical Match and performance integration, and the
-final `v1.0.0` Issue split and architecture remain open.
+Issue #192 adds separate Information-set Replay Coaching, Match Historical
+Information-set Review/Coaching, one Schema, one example, and two scenarios.
+Performance integration and the final `v1.0.0` Issue split and architecture
+remain open.

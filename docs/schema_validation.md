@@ -52,7 +52,7 @@ The project check script also runs this validation:
 
 ## Packaged schema resources
 
-The repository `schemas/` directory remains authoritative. Every one of its 69
+The repository `schemas/` directory remains authoritative. Every one of its 70
 `*.schema.json` files is mirrored byte-for-byte into the private Package Resource
 namespace:
 
@@ -255,10 +255,14 @@ information_set_search_result.schema.json
 information_set_search_comparison.schema.json
 historical_information_set_search_review.schema.json
 information_set_search_evaluation.schema.json
+historical_information_set_replay_coaching.schema.json
 ```
 
-It has 69 authoritative and byte-identical packaged Schemas, six unchanged
-Session examples, and 94 generated-output scenarios. Package version `0.16.0`,
+Issue #186 reached 65 Schemas, Issue #189 reached 69, and Issue #190 reused those
+69 while bringing the scenario matrix to 94. Issue #192 adds the final Schema
+above and two append-only scenarios. The current working baseline has 70
+authoritative and byte-identical packaged Schemas, six unchanged Session
+examples, and 96 generated-output scenarios. Package version `0.16.0`,
 Public API contract version `1`, seven Root workflows, and one Console Script
 remain unchanged; the published counts above remain historical Release facts.
 
@@ -362,10 +366,24 @@ information_set_search_multi_step
 information_set_search_policy_comparison
 ```
 
-The current unreleased matrix therefore has 94 scenarios. The additions cover
+The Issue #190 matrix therefore reached 94 scenarios. The additions cover
 one strict public-state Multi-Step decision with opt-in Provenance and one
 five-row shared-root Policy Comparison with `information_set_search` exactly once
 and last.
+
+Issue #192 preserves those first 94 scenarios in order and appends exactly:
+
+```text
+historical_information_set_replay_coaching
+historical_party_wide_claim_information_set_replay_coaching
+```
+
+The current unreleased matrix therefore has 96 scenarios. The additions cover a
+separate Information-set Coaching report and the supported party-wide Claim
+ending with Information-set Coaching. At least one includes opt-in public
+Provenance. Both validate retained Historical Information-set Review reuse,
+decision-time/actual-Card/Outcome separation, complete-Candidate primary
+evidence, diagnostic PIMC/Immediate without fallback, and privacy-safe output.
 
 The scenario matrix is intentionally bounded. It covers representative
 user-facing CLI workflows, including explicit-input live recommendation, JSON
@@ -435,6 +453,15 @@ reconciliation, and exactly 16 compact diagnostic fields. Runtime validation
 remains authoritative for per-decision child-seed derivation, fresh Search,
 coherent-world independence, no World or Policy reuse, append-once-last ordering,
 stopped-row ineligibility, and existing ranking.
+
+Issue #192 adds the strict standalone
+`historical_information_set_replay_coaching.schema.json` and references it from
+the Historical output branch. It validates report policies, decision-time
+evidence, actual-Card assessments, diagnostic comparisons, prioritization,
+Guidance, coverage, scope summaries, Outcome Context, and limitations while
+rejecting private Policies, Observations, Worlds, Exact States, hands, caches,
+branches, and child seeds. The existing bounded Replay Coaching and Historical
+Information-set Review Schemas remain unchanged.
 
 Two further deterministic scenarios cover Search-aware Multi-Step execution and
 Search-inclusive Policy Comparison. The schema references the standalone bounded-

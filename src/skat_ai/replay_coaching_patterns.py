@@ -2,10 +2,13 @@ from dataclasses import InitVar, dataclass
 from typing import Any
 
 from skat_ai.historical_game import HISTORICAL_SEATS, HistoricalGameRecord
-from skat_ai.replay_coaching_assessment import (
-    REPLAY_COACHING_EVIDENCE_BASES,
-    REPLAY_COACHING_IMPACT_TIERS,
-    ReplayCoachingDecisionAssessment,
+from skat_ai.replay_coaching_assessment import ReplayCoachingDecisionAssessment
+from skat_ai.replay_coaching_method_neutral import (
+    get_replay_coaching_evidence_basis_order,
+    get_replay_coaching_impact_tier_order,
+    has_replay_coaching_search_immediate_divergence,
+    is_replay_coaching_divergence_actionable,
+    validate_supported_replay_coaching_assessment,
 )
 from skat_ai.replay_coaching_prioritization import (
     ReplayCoachingPrioritizationResult,
@@ -70,8 +73,7 @@ def is_replay_coaching_pattern_occurrence(
     """Applies one exact version-1 occurrence predicate."""
     if pattern_type not in REPLAY_COACHING_PATTERN_TYPES:
         raise ValueError(f"Unsupported Replay Coaching pattern type: {pattern_type}")
-    if not isinstance(assessment, ReplayCoachingDecisionAssessment):
-        raise ValueError("assessment must be ReplayCoachingDecisionAssessment.")
+    validate_supported_replay_coaching_assessment(assessment)
     if pattern_type == "repeated_lower_contract_success":
         return (
             assessment.assessment_status == "strictly_below_best"
@@ -94,8 +96,7 @@ def is_replay_coaching_pattern_occurrence(
             and assessment.impact_tier == "immediate_only"
         )
     if pattern_type == "repeated_search_immediate_divergence":
-        comparison = assessment.decision_time_evidence.search_vs_immediate_comparison
-        return comparison.is_available and comparison.same_recommended_card is False
+        return has_replay_coaching_search_immediate_divergence(assessment)
     if pattern_type == "repeated_aggregate_equivalent_choice":
         return (
             assessment.assessment_status == "best_or_equivalent"
@@ -195,6 +196,20 @@ def _pattern_limitations(
         for limitation in REPLAY_COACHING_PATTERN_LIMITATIONS
         if limitation in selected
     )
+
+
+def _is_pattern_actionable(
+    pattern_type: str,
+    occurrences: tuple[ReplayCoachingDecisionAssessment, ...],
+) -> bool:
+    if pattern_type not in REPLAY_COACHING_ACTIONABLE_PATTERN_TYPES:
+        return False
+    if pattern_type == "repeated_search_immediate_divergence":
+        return all(
+            is_replay_coaching_divergence_actionable(assessment)
+            for assessment in occurrences
+        )
+    return True
 
 
 @dataclass(frozen=True)
@@ -322,13 +337,19 @@ class ReplayCoachingPattern:
                 index in high_indices for index in occurrence_indices
             ),
             "evidence_basis_counts": _count_tuple(
-                occurrences, "evidence_basis", REPLAY_COACHING_EVIDENCE_BASES
+                occurrences,
+                "evidence_basis",
+                get_replay_coaching_evidence_basis_order(occurrences[0]),
             ),
             "impact_tier_counts": _count_tuple(
-                occurrences, "impact_tier", REPLAY_COACHING_IMPACT_TIERS
+                occurrences,
+                "impact_tier",
+                get_replay_coaching_impact_tier_order(occurrences[0]),
             ),
-            "is_actionable": self.pattern_type
-            in REPLAY_COACHING_ACTIONABLE_PATTERN_TYPES,
+            "is_actionable": _is_pattern_actionable(
+                self.pattern_type,
+                occurrences,
+            ),
             "factors": _pattern_factors(self.pattern_type, self.scope),
             "limitations": _pattern_limitations(occurrences),
         }
@@ -386,12 +407,16 @@ def _build_pattern(
             index in high_indices for index in occurrence_indices
         ),
         evidence_basis_counts=_count_tuple(
-            occurrences, "evidence_basis", REPLAY_COACHING_EVIDENCE_BASES
+            occurrences,
+            "evidence_basis",
+            get_replay_coaching_evidence_basis_order(occurrences[0]),
         ),
         impact_tier_counts=_count_tuple(
-            occurrences, "impact_tier", REPLAY_COACHING_IMPACT_TIERS
+            occurrences,
+            "impact_tier",
+            get_replay_coaching_impact_tier_order(occurrences[0]),
         ),
-        is_actionable=pattern_type in REPLAY_COACHING_ACTIONABLE_PATTERN_TYPES,
+        is_actionable=_is_pattern_actionable(pattern_type, occurrences),
         factors=_pattern_factors(pattern_type, scope),
         limitations=_pattern_limitations(occurrences),
         record=record,

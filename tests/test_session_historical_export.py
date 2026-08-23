@@ -978,15 +978,15 @@ def test_public_api_cli_schema_output_and_package_boundaries_are_unchanged() -> 
         for action in cli.build_argument_parser()._actions
         for option in action.option_strings
     )
-    assert len(tuple((PROJECT_ROOT / "schemas").glob("*.schema.json"))) == 69
+    assert len(tuple((PROJECT_ROOT / "schemas").glob("*.schema.json"))) == 70
     assert len(
         tuple(
             (PROJECT_ROOT / "src" / "skat_ai" / "schema_resources").glob(
                 "*.schema.json"
             )
         )
-    ) == 69
-    assert len(SCENARIOS) == 94
+    ) == 70
+    assert len(SCENARIOS) == 96
     pyproject = tomllib.loads(
         (PROJECT_ROOT / "pyproject.toml").read_text(encoding="utf-8")
     )

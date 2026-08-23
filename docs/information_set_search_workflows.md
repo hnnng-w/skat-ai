@@ -202,9 +202,13 @@ Issue #190 adds `examples/information_set_search_multi_step.json`. Four Issue
 #189 generated-output scenarios cover complete Live routing, flat Post-game
 comparison, Historical Information-set Search Review, and Training Dataset
 evaluation. Two appended Issue #190 scenarios cover Multi-Step and Policy
-Comparison. The current unreleased totals are therefore 69 authoritative and
+Comparison. The Issue #190 baseline therefore reached 69 authoritative and
 packaged Schemas, six unchanged Session examples, and 94 generated-output
-scenarios. The published `v0.16.0` totals remain historical Release facts.
+scenarios. Issue #191 changed neither count. Issue #192 subsequently adds one
+strict Information-set Replay Coaching Schema, one Root example, and two
+append-only scenarios, bringing the current unreleased totals to 70 Schemas, six
+Session examples, and 96 scenarios. The published `v0.16.0` totals remain
+historical Release facts.
 
 ## Integration boundary
 
@@ -213,9 +217,11 @@ Issue #190 completes only Multi-Step and Policy Comparison integration. Issue
 exact Report-source transfer, focused Strategy Teacher Evidence, Dataset-v2
 propagation, cross-game Summary counts, and existing local Corpus workflow
 support. It adds no Root workflow, Public API, Schema, example, or generated
-scenario. Match Historical Information-set execution, Replay Coaching
-classification, performance integration, and `auto` remain unchanged. See
-[Match Information-set Search and Strategy Teacher Evidence](match_information_set_search_and_strategy_teacher.md).
+scenario. Issue #192 separately adds Match Historical Information-set Review and
+Coaching plus complete-Candidate-only Replay Coaching with diagnostic PIMC and
+Immediate and no fallback. Performance integration and `auto` remain unchanged.
+See [Match Information-set Search and Strategy Teacher Evidence](match_information_set_search_and_strategy_teacher.md)
+and [Information-set Replay Coaching and Match Historical analysis](information_set_replay_coaching_and_match_historical_analysis.md).
 
 The implementation remains limited to at most three unresolved Tricks and to the
 selected Compatible-world sequence under supplied fixed Policies. Exact

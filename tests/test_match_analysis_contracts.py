@@ -197,6 +197,8 @@ def test_decision_options_reject_invalid_values(kwargs: dict[str, object]) -> No
 def test_historical_options_defaults_modes_and_search_seed_rules() -> None:
     defaults = MatchHistoricalAnalysisOptionsV1()
     assert defaults.immediate_review is True
+    assert defaults.information_set_search_review is False
+    assert defaults.information_set_replay_coaching is False
     assert defaults.search_random_seed is None
     assert defaults.to_dict()["search_budget_profile"] == "historical_review_v1"
     snapshots = MatchHistoricalAnalysisOptionsV1(
@@ -215,6 +217,20 @@ def test_historical_options_defaults_modes_and_search_seed_rules() -> None:
     assert search.use_profile_presets is False
     coaching = replace(search, search_review=False, replay_coaching=True)
     assert coaching.replay_coaching is True
+    information_set = replace(
+        search,
+        search_review=False,
+        information_set_search_review=True,
+    )
+    assert information_set.information_set_search_review is True
+    combined_information_set = replace(
+        information_set,
+        information_set_replay_coaching=True,
+    )
+    assert combined_information_set.information_set_replay_coaching is True
+    assert combined_information_set.to_dict()[
+        "information_set_replay_coaching"
+    ] is True
 
 
 @pytest.mark.parametrize(
@@ -222,7 +238,13 @@ def test_historical_options_defaults_modes_and_search_seed_rules() -> None:
     (
         {"immediate_review": False},
         {"search_review": True},
+        {"information_set_replay_coaching": True},
         {"search_random_seed": 0},
+        {
+            "search_review": True,
+            "information_set_search_review": True,
+            "search_random_seed": 0,
+        },
         {"decision_snapshots": 1},
         {"immediate_random_seed": True},
         {"search_budget_profile": "interactive_v1"},

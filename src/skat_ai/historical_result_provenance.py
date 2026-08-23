@@ -63,6 +63,7 @@ _HISTORICAL_SUMMARY_KEYS = frozenset(
         "historical_game_review_summary",
         "historical_search_review_summary",
         "historical_information_set_search_review_summary",
+        "historical_information_set_replay_coaching_summary",
         "historical_replay_coaching_summary",
     }
 )
@@ -73,6 +74,7 @@ _REVIEW_BRANCHES = frozenset(
         "historical_game_review_summary",
         "historical_search_review_summary",
         "historical_information_set_search_review_summary",
+        "historical_information_set_replay_coaching_summary",
         "historical_replay_coaching_summary",
     }
 )
@@ -196,7 +198,20 @@ def _review_decision_index(
     result: Mapping[str, object],
     tokens: tuple[str, ...],
 ) -> int:
-    for family in ("snapshots", "decisions"):
+    value: object = result
+    for token in tokens:
+        if isinstance(value, Mapping):
+            evidence = value.get("decision_time_evidence")
+            if isinstance(evidence, Mapping):
+                decision_index = evidence.get("decision_index")
+                if type(decision_index) is int:
+                    return decision_index
+            value = value.get(token)
+        elif isinstance(value, (list, tuple)) and token.isdecimal():
+            value = value[int(token)]
+        else:
+            break
+    for family in ("snapshots", "decisions", "assessments", "decision_assessments"):
         if family not in tokens:
             continue
         family_index = tokens.index(family)
@@ -212,6 +227,10 @@ def _review_decision_index(
                 return 0
         if isinstance(value, Mapping):
             decision_index = value.get("decision_index")
+            if type(decision_index) is not int:
+                evidence = value.get("decision_time_evidence")
+                if isinstance(evidence, Mapping):
+                    decision_index = evidence.get("decision_index")
             if type(decision_index) is int:
                 return decision_index
     return 0
@@ -251,6 +270,200 @@ def _review_entry(
     branch = tokens[1]
     decision_index = _review_decision_index(result, tokens)
     is_actual = tokens[-1] in {"actual_card", "actual_card_played"}
+    if branch == "historical_information_set_replay_coaching_summary":
+        report_tokens = tokens[2:]
+        if report_tokens and report_tokens[0] == "outcome_context":
+            return result_provenance_entry(
+                path,
+                origin="rule_derived",
+                visibility="post_game_only",
+                available_from="game_end",
+                derivation="deterministic_rule",
+                source_references=(
+                    result_source_reference(
+                        "historical_game",
+                        "final_outcome_context",
+                    ),
+                ),
+            )
+        in_assessment = decision_index > 0
+        if in_assessment and "decision_time_evidence" in report_tokens:
+            if any("immediate" in token for token in report_tokens):
+                origin = "heuristic_analysis"
+                derivation = "heuristic"
+                references = (
+                    result_source_reference(
+                        "algorithm",
+                        "immediate_expected_value",
+                    ),
+                )
+            elif any("pimc" in token for token in report_tokens):
+                origin = "search_derived"
+                derivation = "direct"
+                references = (
+                    result_source_reference(
+                        "algorithm",
+                        "compatible_world_minimax_same_selection_v1",
+                    ),
+                )
+            elif report_tokens[-1] == "same_selected_world_sequence":
+                origin = "rule_derived"
+                derivation = "deterministic_rule"
+                references = (
+                    result_source_reference(
+                        "aggregate",
+                        "retained_historical_information_set_search_review",
+                    ),
+                    result_source_reference(
+                        "algorithm",
+                        "compatible_world_minimax_same_selection_v1",
+                    ),
+                )
+            else:
+                origin = "search_derived"
+                derivation = "direct"
+                references = (
+                    result_source_reference(
+                        "aggregate",
+                        "retained_historical_information_set_search_review",
+                    ),
+                )
+            return result_provenance_entry(
+                path,
+                origin=origin,
+                visibility="public",
+                available_from="current_decision",
+                derivation=derivation,
+                source_references=references,
+                decision_index=decision_index,
+            )
+        if in_assessment and "comparison" in report_tokens:
+            field_name = report_tokens[-1]
+            uses_actual = "actual" in field_name
+            references = []
+            if "information_set" in field_name:
+                references.append(
+                    result_source_reference(
+                        "algorithm",
+                        "bounded_information_set_policy_search_v1",
+                    )
+                )
+            if "pimc" in field_name:
+                references.append(
+                    result_source_reference(
+                        "algorithm",
+                        "compatible_world_minimax_same_selection_v1",
+                    )
+                )
+            if "immediate" in field_name:
+                references.append(
+                    result_source_reference(
+                        "algorithm",
+                        "immediate_expected_value",
+                    )
+                )
+            if uses_actual:
+                references.append(
+                    result_source_reference(
+                        "retrospective_observation",
+                        "historical_actual_card",
+                    )
+                )
+            references.append(
+                result_source_reference(
+                    "rule_contract",
+                    "information_set_search_comparison_v1",
+                )
+            )
+            return result_provenance_entry(
+                path,
+                origin=(
+                    "retrospective_attachment"
+                    if field_name == "actual_card"
+                    else "rule_derived"
+                ),
+                visibility="public",
+                available_from=(
+                    "after_actual_play" if uses_actual else "current_decision"
+                ),
+                derivation=(
+                    "retrospective"
+                    if field_name == "actual_card"
+                    else "deterministic_rule"
+                ),
+                source_references=tuple(dict.fromkeys(references)),
+                decision_index=decision_index,
+            )
+        if in_assessment:
+            return result_provenance_entry(
+                path,
+                origin=(
+                    "retrospective_attachment" if is_actual else "rule_derived"
+                ),
+                visibility="public",
+                available_from="after_actual_play",
+                derivation="retrospective" if is_actual else "deterministic_rule",
+                source_references=(
+                    result_source_reference(
+                        "retrospective_observation" if is_actual else "algorithm",
+                        (
+                            "historical_actual_card"
+                            if is_actual
+                            else "information_set_replay_coaching_assessment_v1"
+                        ),
+                    ),
+                ),
+                decision_index=decision_index,
+            )
+        if report_tokens and report_tokens[0] == "game_context":
+            return result_provenance_entry(
+                path,
+                origin="historical_replay",
+                visibility="public",
+                available_from="game_end",
+                derivation="reconstruction",
+                source_references=(
+                    result_source_reference(
+                        "historical_game",
+                        "coaching_source_game",
+                    ),
+                ),
+            )
+        if report_tokens and report_tokens[0] == "source_review_settings":
+            option_paths = {
+                "base_search_seed": "/search_seed",
+                "search_budget_profile": "/search_budget_profile",
+                "requested_budget": "/search_budget_profile",
+                "immediate_sample_count": "/immediate_sample_count",
+                "immediate_base_random_seed": "/immediate_base_random_seed",
+            }
+            return result_provenance_entry(
+                path,
+                origin="validated_copy",
+                visibility="public",
+                available_from="offline_review",
+                derivation="validated",
+                source_references=(
+                    result_source_reference(
+                        "request",
+                        "historical_review_options",
+                        field_path=option_paths.get(report_tokens[1]),
+                    ),
+                ),
+            )
+        return result_provenance_entry(
+            path,
+            origin="rule_derived",
+            visibility="public",
+            available_from="offline_review",
+            derivation="deterministic_rule",
+            source_references=(
+                result_source_reference(
+                    "algorithm",
+                    "historical_information_set_replay_coaching_v1",
+                ),
+            ),
+        )
     if branch == "historical_information_set_search_review_summary":
         field_name = tokens[-1]
         in_decision = "decisions" in tokens

@@ -1,9 +1,15 @@
 import math
+from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any
 
-from skat_ai.replay_coaching_assessment import ReplayCoachingDecisionAssessment
 from skat_ai.replay_coaching_evidence import REPLAY_COACHING_CONTRACT_VERSION
+from skat_ai.replay_coaching_method_neutral import (
+    get_replay_coaching_assessment_version,
+    get_replay_coaching_evidence_basis_order,
+    get_replay_coaching_primary_gap_value,
+    validate_supported_replay_coaching_assessment,
+)
 
 REPLAY_COACHING_PRIORITIZATION_VERSION = 1
 MAX_REPLAY_COACHING_KEY_DECISIONS = 5
@@ -20,51 +26,14 @@ REPLAY_COACHING_TURNING_POINT_TYPES = (
 )
 
 
-def _immediate_objective_utility_gap(
-    assessment: ReplayCoachingDecisionAssessment,
-) -> float:
-    immediate = assessment.decision_time_evidence.immediate_evidence
-    best = next(
-        candidate
-        for candidate in immediate.candidates
-        if candidate.card == immediate.recommended_card
-    )
-    actual = next(
-        candidate
-        for candidate in immediate.candidates
-        if candidate.card == assessment.actual_card
-    )
-    return best.objective_utility - actual.objective_utility
-
-
 def get_replay_coaching_primary_gap(
-    assessment: ReplayCoachingDecisionAssessment,
+    assessment: Any,
 ) -> float:
     """Returns the existing objective-aligned positive gap for one eligible decision."""
-    if assessment.assessment_status != "strictly_below_best":
-        raise ValueError("A Key Decision primary gap requires strictly_below_best.")
-    comparison = assessment.search_actual_card_comparison
-    if assessment.impact_tier == "contract_success":
-        gap = comparison.contract_success_rate_gap
-    elif assessment.impact_tier == "settlement_score":
-        gap = comparison.mean_local_side_game_score_gap
-    elif assessment.impact_tier == "card_point_margin":
-        gap = comparison.mean_local_side_card_point_margin_gap
-    elif assessment.impact_tier == "immediate_only":
-        gap = _immediate_objective_utility_gap(assessment)
-    else:
-        raise ValueError("A Key Decision requires a supported missed-impact tier.")
-    if (
-        isinstance(gap, bool)
-        or not isinstance(gap, (int, float))
-        or not math.isfinite(gap)
-        or gap <= 0
-    ):
-        raise ValueError("A Key Decision primary gap must be finite and positive.")
-    return float(gap)
+    return get_replay_coaching_primary_gap_value(assessment)
 
 
-def _selection_reason(assessment: ReplayCoachingDecisionAssessment) -> str:
+def _selection_reason(assessment: Any) -> str:
     return {
         "contract_success": "contract_success_gap",
         "settlement_score": "settlement_score_gap",
@@ -74,18 +43,13 @@ def _selection_reason(assessment: ReplayCoachingDecisionAssessment) -> str:
 
 
 def get_replay_coaching_key_decision_ranking_key(
-    assessment: ReplayCoachingDecisionAssessment,
+    assessment: Any,
 ) -> tuple[int, int, float, int, int]:
     reason = _selection_reason(assessment)
     evidence = assessment.evidence_basis
     return (
         REPLAY_COACHING_KEY_DECISION_SELECTION_REASONS.index(reason),
-        (
-            "all_compatible_worlds",
-            "sampled_compatible_worlds",
-            "completed_common_prefix",
-            "immediate_expected_value",
-        ).index(evidence),
+        get_replay_coaching_evidence_basis_order(assessment).index(evidence),
         -get_replay_coaching_primary_gap(assessment),
         -int(assessment.strictly_better_card_count),
         assessment.decision_time_evidence.decision_index,
@@ -98,7 +62,7 @@ class ReplayCoachingKeyDecision:
 
     prioritization_version: int
     rank: int
-    assessment: ReplayCoachingDecisionAssessment
+    assessment: Any
     selection_reason: str
     primary_gap: float
     is_high_impact: bool
@@ -113,9 +77,11 @@ class ReplayCoachingKeyDecision:
             raise ValueError("Unsupported replay-coaching prioritization version.")
         if isinstance(self.rank, bool) or not isinstance(self.rank, int) or self.rank <= 0:
             raise ValueError("Key Decision rank must be a positive integer.")
-        if not isinstance(self.assessment, ReplayCoachingDecisionAssessment):
-            raise ValueError("assessment must be ReplayCoachingDecisionAssessment.")
-        if self.assessment.contract_version != REPLAY_COACHING_CONTRACT_VERSION:
+        validate_supported_replay_coaching_assessment(self.assessment)
+        if (
+            get_replay_coaching_assessment_version(self.assessment)
+            != REPLAY_COACHING_CONTRACT_VERSION
+        ):
             raise ValueError("Key Decision assessment contract version is unsupported.")
         if self.assessment.assessment_status != "strictly_below_best":
             raise ValueError("Key Decisions require strictly_below_best assessments.")
@@ -154,7 +120,7 @@ class ReplayCoachingKeyDecision:
 
 
 def build_replay_coaching_key_decisions(
-    assessments: tuple[ReplayCoachingDecisionAssessment, ...],
+    assessments: tuple[Any, ...],
     turning_point_types_by_decision: dict[int, tuple[str, ...]],
 ) -> tuple[ReplayCoachingKeyDecision, ...]:
     """Selects and ranks at most five eligible assessments."""
@@ -196,17 +162,20 @@ def build_replay_coaching_key_decisions(
 
 def build_serializable_replay_coaching_key_decision(
     key_decision: ReplayCoachingKeyDecision,
+    *,
+    assessment_serializer: Callable[[Any], dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     from skat_ai.replay_coaching_assessment import (
         build_serializable_replay_coaching_decision_assessment,
     )
 
+    serializer = assessment_serializer or (
+        build_serializable_replay_coaching_decision_assessment
+    )
     return {
         "prioritization_version": key_decision.prioritization_version,
         "rank": key_decision.rank,
-        "assessment": build_serializable_replay_coaching_decision_assessment(
-            key_decision.assessment
-        ),
+        "assessment": serializer(key_decision.assessment),
         "selection_reason": key_decision.selection_reason,
         "primary_gap": key_decision.primary_gap,
         "is_high_impact": key_decision.is_high_impact,

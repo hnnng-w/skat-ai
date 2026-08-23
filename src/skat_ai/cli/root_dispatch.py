@@ -171,6 +171,9 @@ def _run_cli(
                 historical_information_set_search_review=(
                     args.historical_information_set_search_review
                 ),
+                historical_information_set_replay_coaching=(
+                    args.historical_information_set_replay_coaching
+                ),
                 historical_replay_coaching=args.historical_replay_coaching,
                 search_seed=args.search_seed,
                 search_budget_profile=(
@@ -199,6 +202,11 @@ def _run_cli(
             if args.historical_information_set_search_review:
                 raise CliUsageError(
                     "--historical-information-set-search-review requires historical-game input."
+                )
+            if args.historical_information_set_replay_coaching:
+                raise CliUsageError(
+                    "--historical-information-set-replay-coaching requires "
+                    "historical-game input."
                 )
             if args.historical_replay_coaching:
                 raise CliUsageError("--historical-replay-coaching requires historical-game input.")

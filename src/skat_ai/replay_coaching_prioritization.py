@@ -1,8 +1,8 @@
+from collections.abc import Callable
 from dataclasses import InitVar, dataclass
 from typing import Any
 
 from skat_ai.historical_game import HistoricalGameRecord
-from skat_ai.replay_coaching_assessment import ReplayCoachingDecisionAssessment
 from skat_ai.replay_coaching_evidence import REPLAY_COACHING_CONTRACT_VERSION
 from skat_ai.replay_coaching_key_decisions import (
     MAX_REPLAY_COACHING_KEY_DECISIONS,
@@ -11,6 +11,10 @@ from skat_ai.replay_coaching_key_decisions import (
     ReplayCoachingKeyDecision,
     build_replay_coaching_key_decisions,
     build_serializable_replay_coaching_key_decision,
+)
+from skat_ai.replay_coaching_method_neutral import (
+    get_replay_coaching_assessment_version,
+    validate_supported_replay_coaching_assessment,
 )
 from skat_ai.replay_coaching_turning_points import (
     REPLAY_COACHING_RECORDED_STATES,
@@ -21,23 +25,28 @@ from skat_ai.replay_coaching_turning_points import (
 )
 
 
-def _decision_index(assessment: ReplayCoachingDecisionAssessment) -> int:
+def _is_invalid_assessment(assessment: Any) -> bool:
+    try:
+        validate_supported_replay_coaching_assessment(assessment)
+    except ValueError:
+        return True
+    return False
+
+
+def _decision_index(assessment: Any) -> int:
     return assessment.decision_time_evidence.decision_index
 
 
 def validate_replay_coaching_assessment_sequence(
     record: HistoricalGameRecord,
-    assessments: tuple[ReplayCoachingDecisionAssessment, ...],
+    assessments: tuple[Any, ...],
 ) -> None:
     """Validates one complete chronological assessment sequence against its record."""
     if not isinstance(record, HistoricalGameRecord):
         raise ValueError("record must be HistoricalGameRecord.")
     if not isinstance(assessments, tuple):
         raise TypeError("assessments must be a tuple.")
-    if any(
-        not isinstance(assessment, ReplayCoachingDecisionAssessment)
-        for assessment in assessments
-    ):
+    if any(_is_invalid_assessment(assessment) for assessment in assessments):
         raise ValueError("assessments must contain coaching assessments.")
     actual_plays = tuple(
         (trick.trick_number, play_index, play.player_id, play.card)
@@ -57,7 +66,10 @@ def validate_replay_coaching_assessment_sequence(
         assessments, actual_plays, strict=True
     ):
         evidence = assessment.decision_time_evidence
-        if assessment.contract_version != REPLAY_COACHING_CONTRACT_VERSION:
+        if (
+            get_replay_coaching_assessment_version(assessment)
+            != REPLAY_COACHING_CONTRACT_VERSION
+        ):
             raise ValueError("Assessment contract version is unsupported.")
         if evidence.source_game_id != record.game_id:
             raise ValueError("Assessments must belong to one source game.")
@@ -90,12 +102,12 @@ class ReplayCoachingPrioritizationResult:
     key_decisions: tuple[ReplayCoachingKeyDecision, ...]
     turning_points: tuple[ReplayCoachingTurningPoint, ...]
     record: InitVar[HistoricalGameRecord]
-    assessments: InitVar[tuple[ReplayCoachingDecisionAssessment, ...]]
+    assessments: InitVar[tuple[Any, ...]]
 
     def __post_init__(
         self,
         record: HistoricalGameRecord,
-        assessments: tuple[ReplayCoachingDecisionAssessment, ...],
+        assessments: tuple[Any, ...],
     ) -> None:
         if (
             isinstance(self.prioritization_version, bool)
@@ -126,13 +138,11 @@ class ReplayCoachingPrioritizationResult:
             raise ValueError("record must match the result source game.")
         if self.decision_count != len(assessments):
             raise ValueError("decision_count must match assessments.")
-        if any(
-            not isinstance(assessment, ReplayCoachingDecisionAssessment)
-            for assessment in assessments
-        ):
+        if any(_is_invalid_assessment(assessment) for assessment in assessments):
             raise ValueError("assessments must contain coaching assessments.")
         if any(
-            assessment.contract_version != REPLAY_COACHING_CONTRACT_VERSION
+            get_replay_coaching_assessment_version(assessment)
+            != REPLAY_COACHING_CONTRACT_VERSION
             or assessment.decision_time_evidence.source_game_id != self.source_game_id
             for assessment in assessments
         ):
@@ -251,7 +261,7 @@ class ReplayCoachingPrioritizationResult:
 
 def build_replay_coaching_prioritization_result(
     record: HistoricalGameRecord,
-    assessments: tuple[ReplayCoachingDecisionAssessment, ...],
+    assessments: tuple[Any, ...],
 ) -> ReplayCoachingPrioritizationResult:
     """Builds deterministic game-level prioritization from one record and assessment tuple."""
     if not isinstance(assessments, tuple):
@@ -308,6 +318,8 @@ def build_replay_coaching_prioritization_result(
 
 def build_serializable_replay_coaching_prioritization_result(
     result: ReplayCoachingPrioritizationResult,
+    *,
+    assessment_serializer: Callable[[Any], dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     return {
         "prioritization_version": result.prioritization_version,
@@ -319,11 +331,17 @@ def build_serializable_replay_coaching_prioritization_result(
         "recorded_initial_state": result.recorded_initial_state,
         "recorded_final_state": result.recorded_final_state,
         "key_decisions": [
-            build_serializable_replay_coaching_key_decision(key)
+            build_serializable_replay_coaching_key_decision(
+                key,
+                assessment_serializer=assessment_serializer,
+            )
             for key in result.key_decisions
         ],
         "turning_points": [
-            build_serializable_replay_coaching_turning_point(point)
+            build_serializable_replay_coaching_turning_point(
+                point,
+                assessment_serializer=assessment_serializer,
+            )
             for point in result.turning_points
         ],
     }

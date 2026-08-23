@@ -7,7 +7,6 @@ from skat_ai.api.v1.schema_validation import validate_output_document
 from skat_ai.application.contracts import (
     ApplicationExecutionOptions,
     ApplicationExternalDocuments,
-    HistoricalGameApplicationOptions,
 )
 from skat_ai.application.execution import (
     ApplicationWorkflowDependencies,
@@ -20,6 +19,11 @@ from skat_ai.input_loader import build_historical_game_from_document
 from skat_ai.match_analysis_contracts import (
     MatchHistoricalAnalysisOptionsV1,
     MatchHistoricalAnalysisResultV1,
+)
+from skat_ai.match_historical_information_set_analysis import (
+    build_match_historical_application_options_v1,
+    reconcile_match_historical_information_set_result_v1,
+    uses_match_historical_information_set_family_v1,
 )
 from skat_ai.match_historical_materialization import (
     materialize_match_observed_game_historical_v1,
@@ -38,7 +42,10 @@ def _build_historical_external_documents(
     options: MatchHistoricalAnalysisOptionsV1,
 ) -> ApplicationExternalDocuments:
     if (
-        not options.immediate_review
+        not (
+            options.immediate_review
+            or uses_match_historical_information_set_family_v1(options)
+        )
         or not options.use_profile_presets
         or statistics.opponent_statistics_input is None
     ):
@@ -60,6 +67,7 @@ def _reconcile_historical_profile_summary(
     statistics: MatchPlayerStatisticsPreparationV1,
     external_documents: ApplicationExternalDocuments,
     game_id: str,
+    requires_immediate_review: bool,
 ) -> None:
     summary = document.get("historical_opponent_profile_application_summary")
     has_external = external_documents.opponent_statistics_document is not None
@@ -110,27 +118,32 @@ def _reconcile_historical_profile_summary(
         if isinstance(historical_summary, dict)
         else None
     )
-    decisions = review.get("decisions") if isinstance(review, dict) else None
-    if not isinstance(decisions, list):
+    if requires_immediate_review and not isinstance(review, dict):
         raise SkatAIInvariantError(
             "Historical Profile application requires Immediate Review Decisions."
         )
-    participant_ids = set(expected_contexts)
-    for decision in decisions:
-        application = decision.get("opponent_profile_application")
-        if not isinstance(application, dict):
+    if isinstance(review, dict):
+        decisions = review.get("decisions")
+        if not isinstance(decisions, list):
             raise SkatAIInvariantError(
-                "Historical Profile application omitted one Decision binding."
+                "Historical Profile application requires Immediate Review Decisions."
             )
-        identities = {
-            application.get("acting_player_id"),
-            application.get("left_opponent_player_id"),
-            application.get("right_opponent_player_id"),
-        }
-        if identities != participant_ids:
-            raise SkatAIInvariantError(
-                "Historical Decision Profile binding changed stable identities."
-            )
+        participant_ids = set(expected_contexts)
+        for decision in decisions:
+            application = decision.get("opponent_profile_application")
+            if not isinstance(application, dict):
+                raise SkatAIInvariantError(
+                    "Historical Profile application omitted one Decision binding."
+                )
+            identities = {
+                application.get("acting_player_id"),
+                application.get("left_opponent_player_id"),
+                application.get("right_opponent_player_id"),
+            }
+            if identities != participant_ids:
+                raise SkatAIInvariantError(
+                    "Historical Decision Profile binding changed stable identities."
+                )
 
 
 def execute_match_historical_analysis_v1(
@@ -190,28 +203,10 @@ def execute_match_historical_analysis_v1(
         options,
     )
     has_external = external_documents.opponent_statistics_document is not None
-    has_review = (
-        options.immediate_review
-        or options.search_review
-        or options.replay_coaching
-    )
     application_options = ApplicationExecutionOptions(
-        historical_game=HistoricalGameApplicationOptions(
-            decision_snapshots=options.decision_snapshots,
-            immediate_review=options.immediate_review,
-            search_review=options.search_review,
-            replay_coaching=options.replay_coaching,
-            search_seed=options.search_random_seed,
-            search_budget_profile=options.search_budget_profile,
-            immediate_sample_count=(
-                options.immediate_sample_count if has_review else None
-            ),
-            immediate_base_random_seed=(
-                options.immediate_random_seed if has_review else None
-            ),
-            use_profile_presets_override=(
-                options.use_profile_presets if has_external else False
-            ),
+        historical_game=build_match_historical_application_options_v1(
+            options,
+            inject_statistics=has_external,
         )
     )
     input_reference = (
@@ -238,11 +233,17 @@ def execute_match_historical_analysis_v1(
     summary = result_document.get("historical_game_summary")
     if not isinstance(summary, dict) or summary.get("game_id") != historical.game_id:
         raise SkatAIInvariantError("Match Historical Result changed Game identity.")
+    reconcile_match_historical_information_set_result_v1(
+        summary,
+        game_id=historical.game_id,
+        options=options,
+    )
     _reconcile_historical_profile_summary(
         result_document,
         statistics=statistics,
         external_documents=external_documents,
         game_id=historical.game_id,
+        requires_immediate_review=options.immediate_review,
     )
     return MatchHistoricalAnalysisResultV1(
         status="executed",

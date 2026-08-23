@@ -20,6 +20,12 @@ source envelope, and carries focused evidence into the existing Learning Corpus
 workflow. It changes no existing Match contract version, operation, persistence
 boundary, Public API, Schema, example, or generated scenario.
 
+Issue #192 subsequently adds private Match Historical Information-set Search
+Review and Information-set Replay Coaching controls. They use one Historical
+Application invocation and one shared retained Information-set Review, preserve
+the existing report lifecycle, and remain separate from one-Decision Match
+Teacher transfer.
+
 ## Contract identity
 
 The private version-1 contracts cover:
@@ -32,6 +38,7 @@ MATCH_ANALYSIS_REPORT_VERSION = 1
 MATCH_ANALYSIS_REPORT_STORE_VERSION = 1
 MATCH_ARTIFACT_EXPORT_VERSION = 1
 MATCH_INFORMATION_SET_SEARCH_INTEGRATION_VERSION = 1
+MATCH_HISTORICAL_INFORMATION_SET_COACHING_INTEGRATION_VERSION = 1
 ```
 
 The three explicit browser operations are:
@@ -111,12 +118,14 @@ Profiles affect only behavior already supported by the existing Application.
 They are not compatible-world weights and do not alter World selection. For
 Information-set Search, the effective deterministic left/right policies after
 existing Profile precedence become fixed-player policies; Profile data still
-does not weight Worlds. For a
-strict Historical execution, Match Statistics are injected only when Immediate
-Review and Profile Presets are both enabled, and then use the existing time-safe
-Historical per-Decision behavior. This does not claim that Profiles alter
-Historical Search Review or Replay Coaching. Coaching also does not consume
-Workspace Commentary or Response Links.
+does not weight Worlds. For strict Historical Information-set Review or Coaching,
+Match Statistics are also injected when Profile Presets are enabled and use the
+existing time-safe per-Decision behavior to derive fixed left/right Policies.
+They do not alter selected World probabilities or expose Statistics Records in
+Coaching output. Existing bounded-PIMC Historical Search Review and Replay
+Coaching remain unaffected by Profile settings unless independently requested
+Immediate Review already uses the existing Profile path. Coaching does not
+consume Workspace Commentary or Response Links.
 
 ## Strict Historical analysis
 
@@ -132,13 +141,25 @@ For an available Game, the caller selects at least one existing mode:
 * Decision Snapshots;
 * Immediate Historical Review;
 * Historical Search Review;
-* Replay Coaching.
+* Replay Coaching;
+* Historical Information-set Search Review; and
+* Information-set Replay Coaching.
 
-Search Review and Replay Coaching require an explicit Search seed and accept the
-same two Match Search budget profiles. The complete selected configuration is
-passed through one Historical Application invocation. When both Search Review
-and Coaching are selected, the existing Historical workflow retains its shared
-analysis behavior rather than adding a Match-specific rerun.
+Every Search Review or Coaching family requires an explicit Search seed and
+accepts the same two Match Search budget profiles. Existing Search Review and
+Replay Coaching form one family; Information-set Review and Information-set
+Coaching form another. Modes from different families cannot be mixed. Decision
+Snapshots and Immediate Review may accompany either family.
+
+The complete selected configuration is passed through one Historical
+Application invocation. When both Information-set Review and Coaching are
+selected, the Review executes once and the same retained value produces both
+attachments. Coaching alone retains that Review internally without returning the
+separate Review attachment. Complete Information-set Candidates are primary
+assessment evidence; same-selection PIMC and independent Immediate are diagnostic
+only and never provide fallback. Partial, timeout, unavailable, or incomplete
+Candidate evidence is not assessable except for a factual one-legal-Card forced
+move.
 
 ## Match materialization
 
@@ -290,3 +311,13 @@ comparison, propagates through Dataset version `2` and cross-game method counts,
 and uses the existing manual Corpus upload and seven downloads. It adds no
 automatic capture or persistence. See
 [Match Information-set Search and Strategy Teacher Evidence](match_information_set_search_and_strategy_teacher.md).
+
+Issue #192 does not make Historical Reports eligible for that source transfer.
+Its selected browser report view contains only curated Information-set Review
+and Coaching aggregates, Key Decisions, both Turning Point types, deterministic
+Guidance, and bounded Outcome Context. It omits controlled Policies,
+Observations, Worlds, Exact States, hands, caches, branches, child seeds,
+Statistics Records, Commentary, and Response Links. The selected-world fixed-
+Policy analysis is not equilibrium, perfect play, calibrated probability, or a
+global-optimality claim. See
+[Information-set Replay Coaching and Match Historical analysis](information_set_replay_coaching_and_match_historical_analysis.md).

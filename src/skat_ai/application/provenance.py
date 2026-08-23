@@ -74,6 +74,7 @@ def _attachment_sort_key(
         "replay_coaching/prioritization": 8,
         "replay_coaching/guidance": 9,
         "replay_coaching/report": 10,
+        "information_set_replay_coaching/report": 10,
     }
     if name in aggregate_order:
         return (aggregate_order[name], 0, 0, 0, name)

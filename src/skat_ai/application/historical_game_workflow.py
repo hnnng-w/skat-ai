@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import inspect
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
@@ -15,13 +15,18 @@ from skat_ai.historical_game_review import build_historical_game_review_summary
 from skat_ai.historical_information_set_search_review import (
     HistoricalInformationSetSearchReviewSettingsV1,
     build_historical_information_set_search_effective_policy_settings_v1,
-    build_historical_information_set_search_review_summary_v1,
+    build_historical_information_set_search_review_v1,
+    build_serializable_historical_information_set_search_review_v1,
 )
 from skat_ai.historical_opponent_profile_binding import (
     HistoricalOpponentProfileBindings,
     resolve_historical_opponent_profile_bindings,
 )
 from skat_ai.historical_search_review import build_historical_search_review_summary
+from skat_ai.information_set_replay_coaching_report import (
+    build_information_set_replay_coaching_report_v1,
+    build_serializable_information_set_replay_coaching_report_v1,
+)
 from skat_ai.input_loader import (
     build_historical_game_from_document,
     build_opponent_statistics_from_document,
@@ -45,7 +50,16 @@ class HistoricalGameWorkflowDependencies:
     build_immediate_review: Callable[..., Any] = build_historical_game_review_summary
     build_search_review: Callable[..., Any] = build_historical_search_review_summary
     build_information_set_search_review: Callable[..., Any] = (
-        build_historical_information_set_search_review_summary_v1
+        build_historical_information_set_search_review_v1
+    )
+    serialize_information_set_search_review: Callable[..., Any] = (
+        build_serializable_historical_information_set_search_review_v1
+    )
+    build_information_set_replay_coaching: Callable[..., Any] = (
+        build_information_set_replay_coaching_report_v1
+    )
+    serialize_information_set_replay_coaching: Callable[..., Any] = (
+        build_serializable_information_set_replay_coaching_report_v1
     )
     build_replay_coaching: Callable[..., Any] = build_historical_replay_coaching_public_summaries
 
@@ -86,6 +100,9 @@ def _build_effective_review_provenance_settings(
         "immediate_review": options.immediate_review,
         "search_review": options.search_review,
         "information_set_search_review": options.information_set_search_review,
+        "information_set_replay_coaching": (
+            options.information_set_replay_coaching
+        ),
         "replay_coaching": options.replay_coaching,
         "immediate_sample_count": (
             options.immediate_sample_count
@@ -97,6 +114,7 @@ def _build_effective_review_provenance_settings(
             if (
                 options.search_review
                 or options.information_set_search_review
+                or options.information_set_replay_coaching
                 or options.replay_coaching
             )
             else None
@@ -125,12 +143,22 @@ def execute_historical_game_workflow(
     dependencies: HistoricalGameWorkflowDependencies = _DEFAULT_DEPENDENCIES,
 ) -> dict[str, Any]:
     """Executes the complete Historical Game workflow without transport I/O."""
-    if options.information_set_search_review and (
-        options.search_review or options.replay_coaching
-    ):
+    existing_search_family = options.search_review or options.replay_coaching
+    information_set_search_family = (
+        options.information_set_search_review
+        or options.information_set_replay_coaching
+    )
+    if existing_search_family and information_set_search_family:
+        information_set_mode = (
+            "Information-set Search Review"
+            if options.information_set_search_review
+            else "Information-set Replay Coaching"
+        )
+        existing_mode = (
+            "Search Review" if options.search_review else "Replay Coaching"
+        )
         raise ValueError(
-            "Information-set Search Review cannot generate existing Search Review "
-            "or Replay Coaching."
+            f"{information_set_mode} cannot be combined with {existing_mode}."
         )
     record = build_historical_game_from_document(
         root_document,
@@ -153,6 +181,7 @@ def execute_historical_game_workflow(
         or options.immediate_review
         or options.search_review
         or options.information_set_search_review
+        or options.information_set_replay_coaching
         or options.replay_coaching
     ):
         snapshot_summary = dependencies.build_snapshots(historical_game_summary)
@@ -204,12 +233,12 @@ def execute_historical_game_workflow(
         historical_game_summary["historical_game_review_summary"] = immediate_review_summary
         if provenance_collector is not None:
             provenance_collector.capture_immediate_summary(immediate_review_summary)
-    if options.information_set_search_review:
+    if information_set_search_family:
         if snapshot_summary is None:
             raise ValueError("Historical decision snapshots were not generated.")
         if options.search_seed is None:
             raise ValueError(
-                "Historical Information-set Search Review requires an explicit "
+                "Historical Information-set Search Review or Coaching requires an explicit "
                 "Search seed."
             )
         effective_policy_settings_by_decision = {
@@ -251,7 +280,7 @@ def execute_historical_game_workflow(
                         snapshot.decision_index
                     ],
                 )
-        information_set_search_review_summary = (
+        retained_information_set_search_review = (
             dependencies.build_information_set_search_review(
                 snapshot_summary=snapshot_summary,
                 historical_record=record,
@@ -272,13 +301,41 @@ def execute_historical_game_workflow(
                 ),
             )
         )
-        historical_game_summary[
-            "historical_information_set_search_review_summary"
-        ] = information_set_search_review_summary
-        if provenance_collector is not None:
-            provenance_collector.capture_information_set_search_summary(
-                information_set_search_review_summary
+        if options.information_set_search_review:
+            information_set_search_review_summary = (
+                dict(retained_information_set_search_review)
+                if isinstance(retained_information_set_search_review, Mapping)
+                else dependencies.serialize_information_set_search_review(
+                    retained_information_set_search_review
+                )
             )
+            historical_game_summary[
+                "historical_information_set_search_review_summary"
+            ] = information_set_search_review_summary
+            if provenance_collector is not None:
+                provenance_collector.capture_information_set_search_summary(
+                    information_set_search_review_summary
+                )
+        if options.information_set_replay_coaching:
+            information_set_replay_coaching_report = (
+                dependencies.build_information_set_replay_coaching(
+                    historical_record=record,
+                    source_review=retained_information_set_search_review,
+                    historical_game_summary=historical_game_summary,
+                )
+            )
+            information_set_replay_coaching_summary = (
+                dependencies.serialize_information_set_replay_coaching(
+                    information_set_replay_coaching_report
+                )
+            )
+            historical_game_summary[
+                "historical_information_set_replay_coaching_summary"
+            ] = information_set_replay_coaching_summary
+            if provenance_collector is not None:
+                provenance_collector.capture_information_set_replay_coaching_report(
+                    information_set_replay_coaching_summary
+                )
     if options.replay_coaching:
         if snapshot_summary is None:
             raise ValueError("Historical decision snapshots were not generated.")

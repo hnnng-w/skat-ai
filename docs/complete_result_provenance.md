@@ -100,8 +100,8 @@ The complete Historical ledger covers:
 * all six supported terminal endings and their public proof metadata, including
   the Historical-only party-wide Claim;
 * the existing Snapshot, Immediate Review, Search Review, Information-set Search
-  Review, Replay Coaching, Outcome Context, and historical Profile application
-  branches.
+  Review, both Replay Coaching families, Outcome Context, and historical Profile
+  application branches.
 
 Historical actual plays become available in exact chronology. A completed trick
 depends only on its matching supplied trick and contract rules, never on a later
@@ -149,6 +149,19 @@ all 16 compact fields. The complete
 `position_result` ledger covers the resulting Multi-Step and Policy Comparison
 branches. Provenance construction does not rerun Search, rebuild Worlds, or reuse
 a controlled Policy.
+
+Issue #192 adds one complete
+`information_set_replay_coaching/report` attachment and the corresponding
+optional Historical Root Result branch. Decision-time Information-set aggregates
+are available at the current Decision; same-selection PIMC and independent
+Immediate retain their diagnostic origins; the actual Card and assessment are
+available only after actual play; and Outcome Context is post-game-only at Game
+end. Prioritization, patterns, and Guidance map from the retained assessment
+sequence. Provenance construction reuses the one retained Historical
+Information-set Review and reruns no Search, PIMC, Immediate, comparison,
+assessment, prioritization, Guidance, or Outcome construction. Public opt-in
+retains complete coverage while redacting Policies, Observations, Worlds, Exact
+States, caches, branches, and child seeds.
 
 ## Dependency direction
 

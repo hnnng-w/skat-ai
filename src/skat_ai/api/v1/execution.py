@@ -50,6 +50,7 @@ _HISTORICAL_OPTION_NAMES = (
     "immediate_review",
     "search_review",
     "information_set_search_review",
+    "information_set_replay_coaching",
     "replay_coaching",
     "search_seed",
     "search_budget_profile",

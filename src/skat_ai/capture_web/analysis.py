@@ -43,7 +43,9 @@ _ANALYSIS_FIELDS = {
         "decision_snapshots",
         "immediate_review",
         "search_review",
+        "information_set_search_review",
         "replay_coaching",
+        "information_set_replay_coaching",
         "immediate_sample_count",
         "immediate_random_seed",
         "search_random_seed",
@@ -179,9 +181,24 @@ def _historical_options(
         default=not browser_form,
     )
     search_review = _boolean(values, "search_review", default=False)
+    information_set_search_review = _boolean(
+        values,
+        "information_set_search_review",
+        default=False,
+    )
     replay_coaching = _boolean(values, "replay_coaching", default=False)
+    information_set_replay_coaching = _boolean(
+        values,
+        "information_set_replay_coaching",
+        default=False,
+    )
     supplied_search_seed = _optional_integer(values, "search_random_seed")
-    needs_search = search_review or replay_coaching
+    needs_search = (
+        search_review
+        or information_set_search_review
+        or replay_coaching
+        or information_set_replay_coaching
+    )
     search_seed = supplied_search_seed
     if browser_form and not needs_search:
         search_seed = None
@@ -191,7 +208,9 @@ def _historical_options(
         decision_snapshots=decision_snapshots,
         immediate_review=immediate_review,
         search_review=search_review,
+        information_set_search_review=information_set_search_review,
         replay_coaching=replay_coaching,
+        information_set_replay_coaching=information_set_replay_coaching,
         immediate_sample_count=_integer(
             values,
             "immediate_sample_count",

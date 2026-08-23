@@ -32,6 +32,8 @@ from skat_ai.historical_decision_snapshot import build_historical_decision_snaps
 from skat_ai.historical_game_review import build_historical_game_review_summary
 from skat_ai.historical_information_set_search_review import (
     build_historical_information_set_search_review_summary_v1,
+    build_historical_information_set_search_review_v1,
+    build_serializable_historical_information_set_search_review_v1,
 )
 from skat_ai.historical_opponent_statistics import (
     aggregate_historical_opponent_statistics,
@@ -96,6 +98,9 @@ _DEFAULT_LEGACY_PATCH_VALUES = {
     "build_historical_information_set_search_review_summary_v1": (
         build_historical_information_set_search_review_summary_v1
     ),
+    "build_historical_information_set_search_review_v1": (
+        build_historical_information_set_search_review_v1
+    ),
     "build_historical_opponent_statistics_aggregation_summary": (
         build_historical_opponent_statistics_aggregation_summary
     ),
@@ -105,6 +110,9 @@ _DEFAULT_LEGACY_PATCH_VALUES = {
     "build_historical_search_review_summary": build_historical_search_review_summary,
     "build_opponent_statistics_summary": build_opponent_statistics_summary,
     "build_serializable_dataset_partition_audit": (build_serializable_dataset_partition_audit),
+    "build_serializable_historical_information_set_search_review_v1": (
+        build_serializable_historical_information_set_search_review_v1
+    ),
     "build_serializable_opponent_statistics_input": (build_serializable_opponent_statistics_input),
     "build_serializable_rolling_opponent_policy_evaluation": (
         build_serializable_rolling_opponent_policy_evaluation
@@ -187,7 +195,10 @@ def build_legacy_application_dependencies() -> ApplicationWorkflowDependencies:
             build_immediate_review=dependency("build_historical_game_review_summary"),
             build_search_review=dependency("build_historical_search_review_summary"),
             build_information_set_search_review=dependency(
-                "build_historical_information_set_search_review_summary_v1"
+                "build_historical_information_set_search_review_v1"
+            ),
+            serialize_information_set_search_review=dependency(
+                "build_serializable_historical_information_set_search_review_v1"
             ),
             build_replay_coaching=dependency("build_historical_replay_coaching_public_summaries"),
         ),

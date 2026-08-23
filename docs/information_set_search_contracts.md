@@ -7,6 +7,9 @@ information-set-consistent Search. Issue #188 adds its separate private bounded
 executor. Issue #189 integrates those retained values through strict flat,
 retrospective, Historical Review, and Training Dataset evaluation boundaries.
 Issue #190 adds strict Multi-Step and Policy Comparison integration version `1`.
+Issue #191 adds the private one-Decision Match/Teacher/Dataset/Corpus path, and
+Issue #192 adds separate Information-set Replay Coaching plus Match Historical
+Information-set Review/Coaching.
 
 The existing `compatible_world_minimax_v1` method evaluates each selected exact
 Compatible World separately. A future action can therefore differ between two
@@ -27,8 +30,9 @@ Information-set Search Review, and a separate Training Dataset evaluation. Issue
 adds no `information_set_auto`. Issue #191 subsequently adds a bounded private
 one-Decision Match path, exact Report-source transfer, focused Strategy Teacher
 Evidence, Dataset-v2 propagation, Summary counts, and existing local Corpus
-workflow support. Replay Coaching classification and performance integration
-remain absent.
+workflow support. Issue #192 subsequently adds separate Replay Coaching
+classification from one retained Historical Information-set Review and private
+Match Historical execution. Performance integration remains absent.
 
 ## Versioned values
 
@@ -272,10 +276,12 @@ Issue #191 adds strict one-Decision Match execution and safe diagnostics, exact
 Report-source validation, focused Current-Snapshot Teacher Evidence, Dataset-v2
 joins, cross-game counts, and existing local Corpus preparation without changing
 the algorithm, public Schemas, examples, or generated scenarios. Match Historical
-Information-set execution, Replay Coaching classification, and performance
-evidence remain outside this integration. There
-is no cross-decision global Policy, equilibrium, global optimality, or calibrated-
-probability claim.
+Information-set execution and Replay Coaching classification are added
+separately by Issue #192. They reuse the retained Review and complete Candidate
+aggregates without changing this algorithm; PIMC and Immediate remain diagnostic
+and provide no fallback. Performance evidence remains outside this integration.
+There is no cross-decision global Policy, equilibrium, global optimality, or
+calibrated-probability claim.
 
 See [Information-set Search executor](information_set_search_executor.md) for
 the Issue-#188 algorithm, memoization, counter, Policy, and incomplete-Result
@@ -284,4 +290,6 @@ for Issue #189 routing, comparison, privacy, Provenance, CLI, and Schema behavio
 See [Information-set Search Multi-Step and Policy Comparison](information_set_search_multi_step_and_policy_comparison.md)
 for the Issue-#190 integration boundary. See
 [Match Information-set Search and Strategy Teacher Evidence](match_information_set_search_and_strategy_teacher.md)
-for Issue #191.
+for Issue #191. See
+[Information-set Replay Coaching and Match Historical analysis](information_set_replay_coaching_and_match_historical_analysis.md)
+for Issue #192.

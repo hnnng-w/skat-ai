@@ -936,6 +936,8 @@ def _historical_report(state: dict[str, Any], report: dict[str, Any]) -> str:
         review = details["immediate_review"]
         search = details["search_review"]
         coaching = details["replay_coaching"]
+        information_set_review = details["information_set_search_review"]
+        information_set_coaching = details["information_set_replay_coaching"]
         profile = details["profile_application"]
         review_html = "<p>Not requested.</p>"
         if review is not None:
@@ -1023,6 +1025,111 @@ def _historical_report(state: dict[str, Any], report: dict[str, Any]) -> str:
                 _e(", ".join(coaching.get("limitations") or []) or "None")
             }</p>
             """
+        information_set_review_html = "<p>Not requested.</p>"
+        if information_set_review is not None:
+            statuses = information_set_review.get("status_counts") or {}
+            coverage = information_set_review.get("coverage_counts") or {}
+            pimc = information_set_review.get("information_set_pimc_agreement") or {}
+            immediate = (
+                information_set_review.get("information_set_immediate_agreement") or {}
+            )
+            actual = information_set_review.get("information_set_actual_agreement") or {}
+            information_set_review_html = _facts(
+                (
+                    ("Decision count", information_set_review.get("decision_count")),
+                    (
+                        "Information-set recommendations",
+                        information_set_review.get(
+                            "information_set_recommendation_count"
+                        ),
+                    ),
+                    ("Complete", statuses.get("complete")),
+                    ("Partial", statuses.get("partial")),
+                    ("Timeout", statuses.get("timeout")),
+                    (
+                        "Unavailable",
+                        (statuses.get("unavailable") or 0)
+                        + (statuses.get("not_available") or 0),
+                    ),
+                    ("Single exact World", coverage.get("single_exact_world")),
+                    ("All compatible Worlds", coverage.get("all_compatible_worlds")),
+                    (
+                        "Sampled compatible Worlds",
+                        coverage.get("sampled_compatible_worlds"),
+                    ),
+                    ("No World coverage", coverage.get("none")),
+                    (
+                        "Same-selection PIMC agreement",
+                        pimc.get("same_card_count"),
+                    ),
+                    ("Immediate agreement", immediate.get("same_card_count")),
+                    ("Actual-Card agreement", actual.get("same_card_count")),
+                    (
+                        "Selected Worlds total",
+                        information_set_review.get("selected_world_count_total"),
+                    ),
+                    (
+                        "Sampled draws total",
+                        information_set_review.get("sampled_world_count_total"),
+                    ),
+                )
+            )
+        information_set_coaching_html = "<p>Not requested.</p>"
+        if information_set_coaching is not None:
+            coverage = information_set_coaching.get("coverage") or {}
+            prioritization = information_set_coaching.get("prioritization") or {}
+            guidance = information_set_coaching.get("guidance") or {}
+            outcome = information_set_coaching.get("outcome_context") or {}
+            key_decisions = prioritization.get("key_decisions", [])
+            turning_points = prioritization.get("turning_points", [])
+            decision_recommendations = guidance.get("decision_recommendations", [])
+            pattern_recommendations = guidance.get("pattern_recommendations", [])
+            information_set_coaching_html = f"""
+              {
+                _facts(
+                    (
+                        ("Method", information_set_coaching.get("report_method")),
+                        ("Decision count", coverage.get("decision_count")),
+                        ("Assessable", coverage.get("assessable_decision_count")),
+                        ("Forced moves", coverage.get("forced_move_count")),
+                        ("Best or equivalent", coverage.get("best_or_equivalent_count")),
+                        ("Below best", coverage.get("strictly_below_best_count")),
+                        ("Not assessable", coverage.get("not_assessable_count")),
+                        ("Key Decisions", coverage.get("key_decision_count")),
+                        ("Turning Points", coverage.get("turning_point_count")),
+                        ("Patterns", coverage.get("pattern_count")),
+                        (
+                            "Recommendations",
+                            (coverage.get("decision_recommendation_count") or 0)
+                            + (coverage.get("pattern_recommendation_count") or 0),
+                        ),
+                        (
+                            "Recorded winner",
+                            (outcome.get("game_result_summary") or {}).get("winner"),
+                        ),
+                        (
+                            "Recorded settlement",
+                            (outcome.get("final_settlement_summary") or {}).get(
+                                "settlement_score"
+                            ),
+                        ),
+                    )
+                )
+            }
+              <h4>Assessment status counts</h4>{_curated_json(coverage.get("assessment_status_counts", []))}
+              <h4>Evidence-basis counts</h4>{_curated_json(coverage.get("evidence_basis_counts", []))}
+              <h4>Information-set status counts</h4>{_curated_json(coverage.get("information_set_status_counts", []))}
+              <h4>Selected-World coverage counts</h4>{_curated_json(coverage.get("world_coverage_counts", []))}
+              <h4>Same-selection PIMC agreement counts</h4>{_curated_json(coverage.get("information_set_pimc_agreement_counts", []))}
+              <h4>Immediate agreement counts</h4>{_curated_json(coverage.get("information_set_immediate_agreement_counts", []))}
+              <h4>Key Decisions</h4>{_curated_json(key_decisions)}
+              <h4>Turning Points</h4>{_curated_json(turning_points)}
+              <h4>Decision Recommendations</h4>{_curated_json(decision_recommendations)}
+              <h4>Pattern Recommendations</h4>{_curated_json(pattern_recommendations)}
+              <p><strong>Limitations:</strong> {
+                _e(", ".join(information_set_coaching.get("limitations") or []) or "None")
+            }</p>
+            """
         profile_html = "<p>No eligible Match Profile input was applied.</p>"
         if profile is not None:
             participant_rows = "".join(
@@ -1091,6 +1198,12 @@ def _historical_report(state: dict[str, Any], report: dict[str, Any]) -> str:
           <h3>Replay Coaching</h3>
           {coaching_html}
           <p class="bounded-note">Coaching is retrospective and non-causal. It does not infer that Commentary caused a later Decision.</p>
+          <h3>Historical Information-set Search Review</h3>
+          {information_set_review_html}
+          <p class="bounded-note">Information-set Search controls only the acting Player over selected compatible Worlds with fixed opponent Policies. It is not equilibrium, calibrated probability, or perfect play.</p>
+          <h3>Information-set Replay Coaching</h3>
+          {information_set_coaching_html}
+          <p class="bounded-note">Information-set Coaching uses complete Information-set Search evidence only. Same-selection PIMC and Immediate are diagnostics, never fallback evidence; early-game and incomplete Search Decisions may remain not assessable.</p>
           <h3>Historical Profile application</h3>
           {profile_html}
         """
@@ -1334,7 +1447,9 @@ def _historical_analysis_controls(state: dict[str, Any]) -> str:
             <label><input type="checkbox" name="decision_snapshots" value="true"> Decision Snapshots</label>
             <label><input type="checkbox" name="immediate_review" value="true" checked> Immediate Review</label>
             <label><input type="checkbox" name="search_review" value="true"> Search Review</label>
+            <label><input type="checkbox" name="information_set_search_review" value="true"> Information-set Search Review</label>
             <label><input type="checkbox" name="replay_coaching" value="true"> Replay Coaching</label>
+            <label><input type="checkbox" name="information_set_replay_coaching" value="true"> Information-set Replay Coaching</label>
           </fieldset>
           <label>Immediate sample count <input type="number" min="1" max="100000" name="immediate_sample_count" value="100" required></label>
           <label>Immediate random seed <input type="number" name="immediate_random_seed" value="0" required></label>
@@ -1348,7 +1463,7 @@ def _historical_analysis_controls(state: dict[str, Any]) -> str:
             </label>
           </div>
           <label class="checkbox-label"><input type="checkbox" name="use_profile_presets" value="true" checked> Use eligible Player Profile Presets</label>
-          <p class="analysis-warning">Historical Search Review and Replay Coaching may take substantially longer. Their conclusions are bounded and retrospective, not perfect-play or causal claims.</p>
+          <p class="analysis-warning">Historical Search and Coaching may take substantially longer. Existing Search/Replay Coaching and Information-set Search/Coaching are separate families and cannot be mixed. Information-set Coaching uses complete Information-set Search evidence only; PIMC and Immediate are diagnostic baselines with no fallback. Early-game or incomplete Search Decisions may be not assessable. Selected-world fixed-Policy analysis is not equilibrium or perfect play.</p>
           <button type="submit" class="primary">Analyze strict Historical Game</button>
         </form>
       </section>

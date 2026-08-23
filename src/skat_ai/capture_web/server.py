@@ -144,7 +144,9 @@ _JSON_BOOLEAN_FIELDS = {
     "decision_snapshots",
     "immediate_review",
     "search_review",
+    "information_set_search_review",
     "replay_coaching",
+    "information_set_replay_coaching",
     "use_profile_presets",
 }
 

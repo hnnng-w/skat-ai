@@ -48,6 +48,9 @@ INFORMATION_SET_SEARCH_POST_GAME_SMOKE_EXAMPLE = (
 HISTORICAL_INFORMATION_SET_SEARCH_SMOKE_EXAMPLE = (
     PROJECT_ROOT / "examples" / "historical_grand_normal_completion.json"
 )
+HISTORICAL_INFORMATION_SET_REPLAY_COACHING_SMOKE_EXAMPLE = (
+    PROJECT_ROOT / "examples" / "historical_information_set_replay_coaching.json"
+)
 INFORMATION_SET_SEARCH_EVALUATION_SMOKE_EXAMPLE = (
     PROJECT_ROOT / "examples" / "training_dataset_normal_play.json"
 )
@@ -60,7 +63,7 @@ DEFAULT_POLICY_COMPARISON_SMOKE_EXAMPLE = (
 )
 PACKAGE_NAME = "skat-ai"
 PACKAGE_VERSION = "0.16.0"
-EXPECTED_SCHEMA_RESOURCE_COUNT = 69
+EXPECTED_SCHEMA_RESOURCE_COUNT = 70
 SCHEMA_RESOURCE_PREFIX = "skat_ai/schema_resources/"
 CAPTURE_RESOURCE_PREFIX = "skat_ai/capture_web/"
 CAPTURE_RESOURCE_NAMES = (
@@ -823,6 +826,11 @@ information_set_search_document = json.loads(
 information_set_multi_step_document = json.loads(
     (cwd / "information-set-search-multi-step.json").read_text(encoding="utf-8")
 )
+information_set_replay_coaching_document = json.loads(
+    (cwd / "historical-information-set-replay-coaching.json").read_text(
+        encoding="utf-8"
+    )
+)
 expected_schema_root = cwd / "expected_schemas"
 resource_root = importlib.resources.files("skat_ai.schema_resources")
 resource_names = sorted(
@@ -832,7 +840,7 @@ resource_names = sorted(
 )
 expected_names = sorted(path.name for path in expected_schema_root.glob("*.schema.json"))
 assert resource_names == expected_names
-assert len(resource_names) == 69
+assert len(resource_names) == 70
 assert len(WorkflowV1) == 7
 
 schema_ids = []
@@ -1233,6 +1241,37 @@ try:
     ]
     assert historical_review["decision_count"] == 30
     assert historical_review["reviewed_decision_count"] == 30
+
+    information_set_coaching_analysis = execute_match_historical_analysis_v1(
+        complete_workspace,
+        match_position=3,
+        options=MatchHistoricalAnalysisOptionsV1(
+            decision_snapshots=False,
+            immediate_review=False,
+            search_review=False,
+            replay_coaching=False,
+            information_set_search_review=False,
+            information_set_replay_coaching=True,
+            immediate_sample_count=1,
+            immediate_random_seed=47,
+            search_random_seed=83,
+            search_budget_profile="interactive_v1",
+            use_profile_presets=True,
+        ),
+    )
+    assert information_set_coaching_analysis.status == "executed"
+    information_set_coaching_summary = (
+        information_set_coaching_analysis.result.to_dict()["document"][
+            "historical_game_summary"
+        ]
+    )
+    information_set_coaching_report = information_set_coaching_summary[
+        "historical_information_set_replay_coaching_summary"
+    ]
+    assert information_set_coaching_report["coverage"]["decision_count"] == 30
+    assert "historical_information_set_search_review_summary" not in (
+        information_set_coaching_summary
+    )
 
     assert capture_context.save_candidate(complete_workspace) == "saved"
     corpus_workspace_bytes = capture_path.read_bytes()
@@ -1802,6 +1841,46 @@ assert information_set_multi_step_execution.field_provenance is not None
 assert information_set_multi_step_execution.field_provenance.result.coverage_summary[
     "provenance_complete"
 ] is True
+information_set_coaching_request = parse_request(
+    information_set_replay_coaching_document
+)
+information_set_coaching_execution = execute_document(
+    information_set_replay_coaching_document,
+    options=ExecutionOptionsV1(
+        validate_output=True,
+        include_provenance=True,
+        workflow_options={
+            "information_set_search_review": True,
+            "information_set_replay_coaching": True,
+            "search_seed": 83,
+            "search_budget_profile": "interactive_v1",
+            "immediate_sample_count": 1,
+            "immediate_base_random_seed": 47,
+        },
+    ),
+    input_reference="historical-information-set-replay-coaching.json",
+)
+information_set_coaching_document = (
+    information_set_coaching_execution.result.to_dict()["document"]
+)
+information_set_coaching_summary = information_set_coaching_document[
+    "historical_game_summary"
+]
+information_set_coaching_report = information_set_coaching_summary[
+    "historical_information_set_replay_coaching_summary"
+]
+assert information_set_coaching_request.workflow.value == "historical_game"
+assert "historical_information_set_search_review_summary" in (
+    information_set_coaching_summary
+)
+assert information_set_coaching_report["report_method"] == (
+    "historical_information_set_replay_coaching_v1"
+)
+assert information_set_coaching_report["coverage"]["decision_count"] == 30
+assert information_set_coaching_execution.field_provenance is not None
+assert information_set_coaching_execution.field_provenance.result.coverage_summary[
+    "provenance_complete"
+] is True
 
 
 def collect_property_names(value):
@@ -1823,6 +1902,15 @@ assert not {
     "world_identity",
     "memoization",
 }.intersection(collect_property_names(information_set_result))
+assert not {
+    "controlled_policy",
+    "policy_table",
+    "observation",
+    "own_hand",
+    "exact_state",
+    "world_identity",
+    "memoization",
+}.intersection(collect_property_names(information_set_coaching_report))
 claim_document = json.loads((cwd / "historical-claim.json").read_text(encoding="utf-8"))
 claim_request = parse_request(claim_document)
 claim_execution = execute_document(
@@ -1839,6 +1927,32 @@ assert claim_summary["final_settlement_summary"]["is_complete"] is True
 assert claim_execution.field_provenance is not None
 assert claim_execution.field_provenance.result.ledger["status"] == "complete"
 assert claim_execution.field_provenance.result.coverage_summary["provenance_complete"] is True
+claim_coaching_execution = execute_document(
+    claim_document,
+    options=ExecutionOptionsV1(
+        validate_output=True,
+        workflow_options={
+            "information_set_replay_coaching": True,
+            "search_seed": 97,
+            "search_budget_profile": "interactive_v1",
+            "immediate_sample_count": 1,
+            "immediate_base_random_seed": 53,
+        },
+    ),
+    input_reference="historical-claim.json",
+)
+claim_coaching_summary = claim_coaching_execution.result.document[
+    "historical_game_summary"
+]
+claim_coaching_report = claim_coaching_summary[
+    "historical_information_set_replay_coaching_summary"
+]
+assert claim_coaching_report["game_context"]["game_end_reason"] == (
+    "party_wide_all_remaining_tricks_claim"
+)
+assert claim_coaching_report["outcome_context"]["final_settlement_summary"][
+    "is_complete"
+] is True
 installed_claim = json.loads((cwd / "installed-claim.json").read_text(encoding="utf-8"))
 module_claim = json.loads((cwd / "module-claim.json").read_text(encoding="utf-8"))
 legacy_claim = json.loads((cwd / "legacy-claim.json").read_text(encoding="utf-8"))
@@ -1942,6 +2056,15 @@ print(json.dumps({
         "default_cli_document": installed_cli_default,
         "unavailable_document": unavailable_document,
         "information_set_search_document": information_set_document,
+        "information_set_replay_coaching": {
+            "decision_count": information_set_coaching_report["coverage"][
+                "decision_count"
+            ],
+            "combined_review_present": True,
+            "claim_end_reason": claim_coaching_report["game_context"][
+                "game_end_reason"
+            ],
+        },
         "session": {
             "new": session_new,
             "apply": session_apply,
@@ -2103,6 +2226,10 @@ def _install_and_smoke(
         (
             HISTORICAL_INFORMATION_SET_SEARCH_SMOKE_EXAMPLE,
             "historical-information-set-search.json",
+        ),
+        (
+            HISTORICAL_INFORMATION_SET_REPLAY_COACHING_SMOKE_EXAMPLE,
+            "historical-information-set-replay-coaching.json",
         ),
         (
             INFORMATION_SET_SEARCH_EVALUATION_SMOKE_EXAMPLE,
@@ -2709,6 +2836,22 @@ def _install_and_smoke(
             ),
         ),
         (
+            "historical-information-set-replay-coaching.json",
+            "historical-information-set-replay-coaching",
+            (
+                "--historical-information-set-replay-coaching",
+                "--search-seed",
+                "83",
+                "--search-budget-profile",
+                "interactive_v1",
+                "--samples",
+                "1",
+                "--seed",
+                "47",
+                "--include-provenance",
+            ),
+        ),
+        (
             "information-set-search-evaluation.json",
             "information-set-search-evaluation",
             (
@@ -2756,6 +2899,15 @@ def _install_and_smoke(
                 valid = isinstance(historical_summary, dict) and (
                     "historical_information_set_search_review_summary"
                     in historical_summary
+                )
+            elif output_stem == "historical-information-set-replay-coaching":
+                historical_summary = workflow_document.get("historical_game_summary")
+                valid = isinstance(historical_summary, dict) and (
+                    "historical_information_set_replay_coaching_summary"
+                    in historical_summary
+                    and "historical_information_set_search_review_summary"
+                    not in historical_summary
+                    and "field_provenance" in workflow_document
                 )
             elif output_stem == "information-set-search-evaluation":
                 valid = "information_set_search_evaluation_summary" in workflow_document

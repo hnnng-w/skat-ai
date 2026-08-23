@@ -457,7 +457,7 @@ def test_public_list_cli_rejects_each_non_file_option(
 
 
 def test_generated_output_matrix_appends_exactly_three_list_scenarios() -> None:
-    assert len(SCENARIOS) == 94
+    assert len(SCENARIOS) == 96
     assert tuple(scenario.name for scenario in SCENARIOS[64:67]) == (
         "fixed_three_player_historical_list_mixed",
         "fixed_three_player_historical_list_all_passed",

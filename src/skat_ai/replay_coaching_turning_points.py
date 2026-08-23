@@ -1,3 +1,4 @@
+from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any
 
@@ -12,6 +13,11 @@ from skat_ai.replay_coaching_assessment import ReplayCoachingDecisionAssessment
 from skat_ai.replay_coaching_key_decisions import (
     REPLAY_COACHING_PRIORITIZATION_VERSION,
     REPLAY_COACHING_TURNING_POINT_TYPES,
+)
+from skat_ai.replay_coaching_method_neutral import (
+    get_replay_coaching_primary_gap_value,
+    has_replay_coaching_primary_search_evidence,
+    validate_supported_replay_coaching_assessment,
 )
 from skat_ai.rules import get_trick_points, get_trick_winner
 
@@ -72,8 +78,7 @@ class ReplayCoachingTurningPoint:
             or self.decision_index <= 0
         ):
             raise ValueError("Turning Point decision_index must be positive.")
-        if not isinstance(self.assessment, ReplayCoachingDecisionAssessment):
-            raise ValueError("assessment must be ReplayCoachingDecisionAssessment.")
+        validate_supported_replay_coaching_assessment(self.assessment)
         if (
             self.decision_index
             != self.assessment.decision_time_evidence.decision_index
@@ -88,16 +93,10 @@ class ReplayCoachingTurningPoint:
             if (
                 self.assessment.assessment_status != "strictly_below_best"
                 or self.assessment.impact_tier != "contract_success"
-                or self.assessment.evidence_basis
-                not in {
-                    "all_compatible_worlds",
-                    "sampled_compatible_worlds",
-                    "completed_common_prefix",
-                }
-                or self.assessment.search_actual_card_comparison.contract_success_rate_gap
-                is None
-                or self.assessment.search_actual_card_comparison.contract_success_rate_gap
-                <= 0
+                or not has_replay_coaching_primary_search_evidence(
+                    self.assessment
+                )
+                or get_replay_coaching_primary_gap_value(self.assessment) <= 0
             ):
                 raise ValueError(
                     "Decision-opportunity Turning Points require a positive Search "
@@ -312,12 +311,7 @@ def build_replay_coaching_turning_points(
         for assessment in assessments
         if assessment.assessment_status == "strictly_below_best"
         and assessment.impact_tier == "contract_success"
-        and assessment.evidence_basis
-        in {
-            "all_compatible_worlds",
-            "sampled_compatible_worlds",
-            "completed_common_prefix",
-        }
+        and has_replay_coaching_primary_search_evidence(assessment)
     ]
     states = build_recorded_decision_state_timeline(record)
     recorded = []
@@ -375,18 +369,21 @@ def build_replay_coaching_turning_points(
 
 def build_serializable_replay_coaching_turning_point(
     turning_point: ReplayCoachingTurningPoint,
+    *,
+    assessment_serializer: Callable[[Any], dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     from skat_ai.replay_coaching_assessment import (
         build_serializable_replay_coaching_decision_assessment,
     )
 
+    serializer = assessment_serializer or (
+        build_serializable_replay_coaching_decision_assessment
+    )
     return {
         "prioritization_version": turning_point.prioritization_version,
         "turning_point_type": turning_point.turning_point_type,
         "decision_index": turning_point.decision_index,
-        "assessment": build_serializable_replay_coaching_decision_assessment(
-            turning_point.assessment
-        ),
+        "assessment": serializer(turning_point.assessment),
         "is_high_impact": turning_point.is_high_impact,
         "recorded_state_before": turning_point.recorded_state_before,
         "recorded_state_after": turning_point.recorded_state_after,

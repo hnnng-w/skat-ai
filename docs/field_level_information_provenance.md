@@ -139,6 +139,15 @@ branches. No Search,
 World selection, coherent-root construction, or controlled-Policy reconstruction
 is rerun for provenance.
 
+Issue #192 applies the same language to separate Information-set Replay
+Coaching. One retained Historical Information-set Review supplies current-
+Decision Search aggregates and diagnostic PIMC/Immediate values. The actual Card
+and Candidate-derived assessment become available after actual play;
+prioritization, patterns, and Guidance retain derived origins; Outcome Context
+remains post-game-only at Game end. Complete internal and public Result coverage
+is built without rerunning any stage. Controlled Policies, Observations, Worlds,
+Exact States, caches, branches, and child seeds remain engine-private.
+
 Exact selected states, hidden hands, actor Observations, selected assignments,
 controlled Policies, caches, memoization, and derived seeds remain engine-private.
 They gain no public attachment, Confidence value, Dataset field, or Match/Corpus
@@ -512,6 +521,8 @@ specialized contracts:
 | Same-selection PIMC Result | `compatible_world_aggregate` with the retained selection reference |
 | Information-set Search actual Card | `retrospective_attachment`, `after_actual_play` |
 | Replay Coaching recommendation | `search_derived` or `heuristic_analysis` |
+| Information-set Coaching assessment | `search_derived` from retained complete Candidates plus `retrospective_attachment`, `after_actual_play` |
+| Information-set Coaching Outcome Context | existing rule/result origins, `game_end`, `post_game_only` |
 | Training source field | `external_source` |
 | Generated Dataset partition | `dataset_assignment`, `deterministic_rule` |
 
@@ -525,8 +536,8 @@ and unchanged.
 
 The internal Application boundary carries live and retrospective Position,
 Historical Review, Historical Search Review, Replay Coaching, Dataset,
-Information-set Search Review/evaluation, Preparation, Opponent, Profile, list,
-comparison, and complete Result
+Information-set Search Review/evaluation, Information-set Replay Coaching,
+Preparation, Opponent, Profile, list, comparison, and complete Result
 provenance. Every Root Result ledger is complete and non-legacy. Issue #147
 publishes only one redacted Root Result ledger plus actual-artifact ledgers.
 

@@ -235,19 +235,24 @@ def _validate_historical_options(
         options.immediate_sample_count,
         "immediate_sample_count",
     )
-    if options.information_set_search_review and options.search_review:
-        raise SkatAIWorkflowError(
-            "Information-set Search Review cannot be combined with Search Review."
-        )
-    if options.information_set_search_review and options.replay_coaching:
-        raise SkatAIWorkflowError(
-            "Information-set Search Review cannot be combined with Replay Coaching."
-        )
-    needs_search = (
-        options.search_review
-        or options.information_set_search_review
-        or options.replay_coaching
+    existing_search_family = options.search_review or options.replay_coaching
+    information_set_search_family = (
+        options.information_set_search_review
+        or options.information_set_replay_coaching
     )
+    if existing_search_family and information_set_search_family:
+        information_set_mode = (
+            "Information-set Search Review"
+            if options.information_set_search_review
+            else "Information-set Replay Coaching"
+        )
+        existing_mode = (
+            "Search Review" if options.search_review else "Replay Coaching"
+        )
+        raise SkatAIWorkflowError(
+            f"{information_set_mode} cannot be combined with {existing_mode}."
+        )
+    needs_search = existing_search_family or information_set_search_family
     if needs_search and options.search_seed is None:
         raise SkatAIWorkflowError(
             "Historical Search operations require search_seed."
@@ -270,9 +275,7 @@ def _validate_historical_options(
         )
     has_review = (
         options.immediate_review
-        or options.search_review
-        or options.information_set_search_review
-        or options.replay_coaching
+        or needs_search
     )
     if (
         options.immediate_sample_count is not None
@@ -284,11 +287,11 @@ def _validate_historical_options(
     has_external = external_documents.opponent_statistics_document is not None
     profile_options = _historical_profile_option_names(options)
     if has_external and not (
-        options.immediate_review or options.information_set_search_review
+        options.immediate_review or information_set_search_family
     ):
         raise SkatAIWorkflowError(
             "Injected opponent statistics require Immediate Historical Review or "
-            "Information-set Search Review."
+            "Information-set Search Review or Coaching."
         )
     if has_external and not options.use_profile_presets_override:
         raise SkatAIWorkflowError(

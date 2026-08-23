@@ -216,6 +216,14 @@ def build_argument_parser(
         ),
     )
     parser.add_argument(
+        "--historical-information-set-replay-coaching",
+        action="store_true",
+        help=(
+            "Build Information-set Replay Coaching from complete Information-set "
+            "Search evidence without PIMC or Immediate fallback."
+        ),
+    )
+    parser.add_argument(
         "--historical-replay-coaching",
         action="store_true",
         help="Build the complete Replay Coaching Report for a historical game.",
@@ -226,7 +234,7 @@ def build_argument_parser(
         default=None,
         help=(
             "Use this explicit base seed for Historical Search Review, Information-set "
-            "Search Review, Replay Coaching, or evaluation."
+            "Search Review, either Replay Coaching family, or evaluation."
         ),
     )
     parser.add_argument(
@@ -235,7 +243,7 @@ def build_argument_parser(
         default=None,
         help=(
             "Select a versioned Historical Search Review, Information-set Search Review, "
-            "Replay Coaching, or evaluation budget profile."
+            "either Replay Coaching family, or evaluation budget profile."
         ),
     )
     parser.add_argument(

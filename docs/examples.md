@@ -43,6 +43,10 @@ and packaged Information-set Search Schemas, one input example, and four append-
 only generated-output scenarios. Issue #190 adds one Multi-Step input example
 and two append-only scenarios without adding a Schema, bringing the totals to 69
 Schemas and 94 scenarios without changing the published `v0.16.0` facts above.
+Issue #191 changes neither count. Issue #192 adds one strict Information-set
+Replay Coaching Schema, one Root example, and two append-only scenarios, bringing
+the current working totals to 70 Schemas and 96 scenarios while preserving the
+Issue #190 and published baselines.
 
 The historical published `v0.15.0` baseline at commit `ec1c154` contains 63
 authoritative Schemas and 63 Packaged Schema Resources, includes six strict
@@ -360,12 +364,28 @@ Review a complete Grand Ouvert through the same deterministic path:
 python main.py --input examples/historical_grand_ouvert_review.json --historical-game-review --samples 20 --seed 42
 ```
 
-Run the separate Historical Information-set Search Review. This flag conflicts
-with Historical Search Review and Replay Coaching:
+Run the separate Historical Information-set Search Review. Existing bounded
+Search/Coaching and Information-set Search/Coaching are separate families and
+cannot be mixed:
 
 ```powershell
 python main.py --input examples/historical_grand_normal_completion.json --historical-information-set-search-review --search-seed 83 --search-budget-profile interactive_v1 --samples 1 --seed 47
 ```
+
+Build the separate Information-set Replay Coaching report alone or return it
+with the exact retained Information-set Review from one pass:
+
+```powershell
+python main.py --input examples/historical_information_set_replay_coaching.json --historical-information-set-replay-coaching --search-seed 83 --search-budget-profile interactive_v1 --samples 1 --seed 47
+python main.py --input examples/historical_information_set_replay_coaching.json --historical-information-set-search-review --historical-information-set-replay-coaching --search-seed 83 --search-budget-profile interactive_v1 --samples 1 --seed 47
+```
+
+Information-set Coaching uses complete Information-set Candidate aggregates as
+primary evidence. Same-selection PIMC and independent Immediate are diagnostics
+only and never provide fallback. A partial, timeout, unavailable, or incomplete-
+Candidate Search Decision is not assessable unless exactly one legal Card makes
+it a factual forced move. The actual Card is attached after decision-time
+analysis, and final Outcome Context is attached after Coaching.
 
 Convert the versioned training/evaluation dataset example:
 
@@ -578,6 +598,7 @@ right's response is simulated before the local third-hand decision.
 | `historical_grand_defender_open_play.json` | Complete deal, exact 24-play Grand prefix, stable exposing defender, exact valid two-trick proof, privacy-safe assignment, and settlement. |
 | `historical_grand_open_card_throw.json` | Complete deal, exact 24-play Grand prefix, stable defender throw, confirmed canonical hand, opposing-party assignment, and shared settlement. |
 | `historical_party_wide_claim.json` | Complete deal, exact five-Trick Spades prefix, stable Declarer claimant, bounded exact valid party-wide Proof, diagnostic public summary, and reused Final Settlement. |
+| `historical_information_set_replay_coaching.json` | Complete historical Game configured for separate Information-set Replay Coaching with retained Review reuse, complete-Candidate primary evidence, diagnostic baselines, and no fallback. |
 | `historical_grand_defender_open_play_continuation.json` | Complete normal Grand with one timed exact returned defender hand and 30 actual plays. |
 | `historical_grand_defender_open_play_continuation_declarer_concession.json` | Timed public defender hand after play 12, two later plays with exact hand shrinkage, then delegated declarer concession. |
 | `historical_grand_declarer_card_exposure_continuation_defender_concession.json` | Public declarer hand after play 14 followed immediately by delegated defender concession with no post-event card decision. |
@@ -600,6 +621,11 @@ recommendation, and defender-open-play continuation before declarer concession.
 Issue #189 adds a separate Historical Information-set Search Review scenario with
 deterministic decision-time routing, no future leakage, and descriptive
 Information-set/PIMC/Immediate/actual-Card metrics.
+Issue #192 adds the separate Information-set Replay Coaching example and two
+append-only scenarios: one normal Historical Coaching report and one party-wide
+Claim ending with Information-set Coaching. They cover retained Review reuse,
+complete-Candidate-only assessment, diagnostic baselines without fallback,
+Outcome Context isolation, and opt-in public Provenance.
 The two chain examples keep the continuation summary
 separate from the reason-specific terminal summary and retain schema versions `1`.
 
@@ -742,8 +768,11 @@ uses `session.schema.json`; executed Position/Historical output uses
 Issue #186 appends three Historical Claim scenarios, Issue #189 appends four
 flat/Historical/Dataset Information-set Search scenarios, and Issue #190 appends
 `information_set_search_multi_step` and
-`information_set_search_policy_comparison`. The current unreleased total is 94;
-the published 85-scenario facts remain unchanged.
+`information_set_search_policy_comparison`, reaching the prior 94-scenario
+baseline. Issue #192 preserves those 94 definitions and order, then appends
+`historical_information_set_replay_coaching` and
+`historical_party_wide_claim_information_set_replay_coaching`. The current
+unreleased total is 96; the published 85-scenario facts remain unchanged.
 The behavioral match
 comparison does not evaluate recommendation quality or strategic strength.
 
@@ -1181,6 +1210,10 @@ Historical Information-set Search Review is nested under
 `historical_game_summary` as
 `historical_information_set_search_review_summary`; its Dataset evaluation uses
 the separate `information_set_search_evaluation_summary` branch.
+Separate Information-set Replay Coaching is nested under
+`historical_game_summary` as
+`historical_information_set_replay_coaching_summary`. It may be returned with
+the Review attachment, but both reuse one retained Review execution.
 Information-set Search Multi-Step nests the existing safe aggregate Result under
 each executed or stopped recommendation Decision; Policy Comparison exposes only
 the corresponding 16-field compact diagnostics.

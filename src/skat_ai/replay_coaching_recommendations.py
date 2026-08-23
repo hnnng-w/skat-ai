@@ -1,3 +1,4 @@
+from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any
 
@@ -464,6 +465,8 @@ def build_replay_coaching_pattern_recommendations(
 
 def build_serializable_replay_coaching_decision_recommendation(
     recommendation: ReplayCoachingDecisionRecommendation,
+    *,
+    assessment_serializer: Callable[[Any], dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     from skat_ai.replay_coaching_key_decisions import (
         build_serializable_replay_coaching_key_decision,
@@ -474,7 +477,8 @@ def build_serializable_replay_coaching_decision_recommendation(
         "rank": recommendation.rank,
         "recommendation_type": recommendation.recommendation_type,
         "key_decision": build_serializable_replay_coaching_key_decision(
-            recommendation.key_decision
+            recommendation.key_decision,
+            assessment_serializer=assessment_serializer,
         ),
         "title": recommendation.title,
         "explanation": recommendation.explanation,
