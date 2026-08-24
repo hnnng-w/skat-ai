@@ -195,6 +195,9 @@ HISTORICAL_INFORMATION_SET_REPLAY_COACHING_SCHEMA_PATH = (
     / "schemas"
     / "historical_information_set_replay_coaching.schema.json"
 )
+HISTORICAL_TACTICAL_MOTIF_REVIEW_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "historical_tactical_motif_review.schema.json"
+)
 INFORMATION_SET_SEARCH_EVALUATION_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "information_set_search_evaluation.schema.json"
 )
@@ -338,6 +341,8 @@ with HISTORICAL_INFORMATION_SET_REPLAY_COACHING_SCHEMA_PATH.open(
     "r", encoding="utf-8"
 ) as file:
     HISTORICAL_INFORMATION_SET_REPLAY_COACHING_SCHEMA = json.load(file)
+with HISTORICAL_TACTICAL_MOTIF_REVIEW_SCHEMA_PATH.open("r", encoding="utf-8") as file:
+    HISTORICAL_TACTICAL_MOTIF_REVIEW_SCHEMA = json.load(file)
 with INFORMATION_SET_SEARCH_EVALUATION_SCHEMA_PATH.open("r", encoding="utf-8") as file:
     INFORMATION_SET_SEARCH_EVALUATION_SCHEMA = json.load(file)
 with FIXED_THREE_PLAYER_HISTORICAL_LIST_AGGREGATION_SCHEMA_PATH.open(
@@ -573,6 +578,10 @@ OUTPUT_SCHEMA_REGISTRY = Registry().with_resources(
             ),
         ),
         (
+            HISTORICAL_TACTICAL_MOTIF_REVIEW_SCHEMA["$id"],
+            Resource.from_contents(HISTORICAL_TACTICAL_MOTIF_REVIEW_SCHEMA),
+        ),
+        (
             INFORMATION_SET_SEARCH_EVALUATION_SCHEMA["$id"],
             Resource.from_contents(INFORMATION_SET_SEARCH_EVALUATION_SCHEMA),
         ),
@@ -631,6 +640,17 @@ def test_output_schema_references_information_set_replay_coaching_schema() -> No
     assert schema["$defs"]["historical_game_summary"]["properties"][
         "historical_information_set_replay_coaching_summary"
     ]["$ref"] == HISTORICAL_INFORMATION_SET_REPLAY_COACHING_SCHEMA["$id"]
+
+
+def test_output_schema_references_historical_tactical_motif_schema() -> None:
+    schema = load_output_schema()
+
+    assert (
+        schema["$defs"]["historical_game_summary"]["properties"][
+            "historical_tactical_motif_review_summary"
+        ]["$ref"]
+        == HISTORICAL_TACTICAL_MOTIF_REVIEW_SCHEMA["$id"]
+    )
 
 
 def test_replay_coaching_output_matches_registered_main_schema() -> None:

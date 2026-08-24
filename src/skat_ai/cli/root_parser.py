@@ -229,6 +229,14 @@ def build_argument_parser(
         help="Build the complete Replay Coaching Report for a historical game.",
     )
     parser.add_argument(
+        "--historical-tactical-motif-review",
+        action="store_true",
+        help=(
+            "Add deterministic structural observations for every recorded "
+            "historical Card play."
+        ),
+    )
+    parser.add_argument(
         "--search-seed",
         type=int,
         default=None,

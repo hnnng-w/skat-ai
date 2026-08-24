@@ -102,6 +102,11 @@ def validate_cli_arguments(
         args, "historical_information_set_replay_coaching", False
     )
     historical_coaching = getattr(args, "historical_replay_coaching", False)
+    historical_tactical = getattr(
+        args,
+        "historical_tactical_motif_review",
+        False,
+    )
     search_seed = getattr(args, "search_seed", None)
     search_budget_profile = getattr(args, "search_budget_profile", None)
     if historical_information_set_search and workflow != "historical_game":
@@ -111,6 +116,10 @@ def validate_cli_arguments(
     if historical_information_set_coaching and workflow != "historical_game":
         raise CliUsageError(
             "--historical-information-set-replay-coaching requires historical-game input."
+        )
+    if historical_tactical and workflow != "historical_game":
+        raise CliUsageError(
+            "--historical-tactical-motif-review requires historical-game input."
         )
     existing_historical_family = historical_search or historical_coaching
     information_set_historical_family = (
@@ -395,6 +404,11 @@ def validate_training_dataset_cli_arguments(args: argparse.Namespace) -> None:
             args, "historical_information_set_replay_coaching", False
         ),
         "--historical-replay-coaching": args.historical_replay_coaching,
+        "--historical-tactical-motif-review": getattr(
+            args,
+            "historical_tactical_motif_review",
+            False,
+        ),
         "--multi-step": args.multi_step is not None,
         "--card-policy": args.card_policy is not None,
         "--expected-value-samples": args.expected_value_samples is not None,
@@ -531,6 +545,11 @@ def validate_training_dataset_preparation_cli_arguments(
             args, "historical_information_set_replay_coaching", False
         ),
         "--historical-replay-coaching": args.historical_replay_coaching,
+        "--historical-tactical-motif-review": getattr(
+            args,
+            "historical_tactical_motif_review",
+            False,
+        ),
         "--search-seed": args.search_seed is not None,
         "--search-budget-profile": args.search_budget_profile is not None,
         "--evaluate-bounded-search": args.evaluate_bounded_search,
@@ -584,6 +603,11 @@ def validate_opponent_statistics_cli_arguments(args: argparse.Namespace) -> None
             args, "historical_information_set_replay_coaching", False
         ),
         "--historical-replay-coaching": getattr(args, "historical_replay_coaching", False),
+        "--historical-tactical-motif-review": getattr(
+            args,
+            "historical_tactical_motif_review",
+            False,
+        ),
         "--search-seed": getattr(args, "search_seed", None) is not None,
         "--search-budget-profile": getattr(args, "search_budget_profile", None) is not None,
         "--evaluate-bounded-search": getattr(args, "evaluate_bounded_search", False),
@@ -651,6 +675,11 @@ def validate_fixed_three_player_historical_list_cli_arguments(
             args, "historical_information_set_replay_coaching", False
         ),
         "--historical-replay-coaching": args.historical_replay_coaching,
+        "--historical-tactical-motif-review": getattr(
+            args,
+            "historical_tactical_motif_review",
+            False,
+        ),
         "--search-seed": args.search_seed is not None,
         "--search-budget-profile": args.search_budget_profile is not None,
         "--evaluate-bounded-search": args.evaluate_bounded_search,

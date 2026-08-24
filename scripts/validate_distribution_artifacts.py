@@ -51,6 +51,9 @@ HISTORICAL_INFORMATION_SET_SEARCH_SMOKE_EXAMPLE = (
 HISTORICAL_INFORMATION_SET_REPLAY_COACHING_SMOKE_EXAMPLE = (
     PROJECT_ROOT / "examples" / "historical_information_set_replay_coaching.json"
 )
+HISTORICAL_TACTICAL_MOTIF_REVIEW_SMOKE_EXAMPLE = (
+    PROJECT_ROOT / "examples" / "historical_tactical_motif_review.json"
+)
 INFORMATION_SET_SEARCH_EVALUATION_SMOKE_EXAMPLE = (
     PROJECT_ROOT / "examples" / "training_dataset_normal_play.json"
 )
@@ -63,7 +66,7 @@ DEFAULT_POLICY_COMPARISON_SMOKE_EXAMPLE = (
 )
 PACKAGE_NAME = "skat-ai"
 PACKAGE_VERSION = "0.16.0"
-EXPECTED_SCHEMA_RESOURCE_COUNT = 70
+EXPECTED_SCHEMA_RESOURCE_COUNT = 71
 SCHEMA_RESOURCE_PREFIX = "skat_ai/schema_resources/"
 CAPTURE_RESOURCE_PREFIX = "skat_ai/capture_web/"
 CAPTURE_RESOURCE_NAMES = (
@@ -831,6 +834,9 @@ information_set_replay_coaching_document = json.loads(
         encoding="utf-8"
     )
 )
+tactical_motif_document = json.loads(
+    (cwd / "historical-tactical-motif-review.json").read_text(encoding="utf-8")
+)
 expected_schema_root = cwd / "expected_schemas"
 resource_root = importlib.resources.files("skat_ai.schema_resources")
 resource_names = sorted(
@@ -840,7 +846,7 @@ resource_names = sorted(
 )
 expected_names = sorted(path.name for path in expected_schema_root.glob("*.schema.json"))
 assert resource_names == expected_names
-assert len(resource_names) == 70
+assert len(resource_names) == 71
 assert len(WorkflowV1) == 7
 
 schema_ids = []
@@ -1226,6 +1232,7 @@ try:
         match_position=3,
         options=MatchHistoricalAnalysisOptionsV1(
             decision_snapshots=False,
+            tactical_motif_review=True,
             immediate_review=True,
             search_review=False,
             replay_coaching=False,
@@ -1241,6 +1248,11 @@ try:
     ]
     assert historical_review["decision_count"] == 30
     assert historical_review["reviewed_decision_count"] == 30
+    historical_tactical = historical_document["historical_game_summary"][
+        "historical_tactical_motif_review_summary"
+    ]
+    assert historical_tactical["observation_count"] == 30
+    assert historical_tactical["complete_observation_count"] == 30
 
     information_set_coaching_analysis = execute_match_historical_analysis_v1(
         complete_workspace,
@@ -1307,6 +1319,7 @@ try:
         b"Analyze selected Decision",
         b"Historical Game Analysis",
         b"Analyze strict Historical Game",
+        b"Tactical Motif Review",
     ):
         assert control in content
 
@@ -1850,6 +1863,7 @@ information_set_coaching_execution = execute_document(
         validate_output=True,
         include_provenance=True,
         workflow_options={
+            "historical_tactical_motif_review": True,
             "information_set_search_review": True,
             "information_set_replay_coaching": True,
             "search_seed": 83,
@@ -1877,6 +1891,9 @@ assert information_set_coaching_report["report_method"] == (
     "historical_information_set_replay_coaching_v1"
 )
 assert information_set_coaching_report["coverage"]["decision_count"] == 30
+assert information_set_coaching_summary[
+    "historical_tactical_motif_review_summary"
+]["observation_count"] == 30
 assert information_set_coaching_execution.field_provenance is not None
 assert information_set_coaching_execution.field_provenance.result.coverage_summary[
     "provenance_complete"
@@ -1911,6 +1928,40 @@ assert not {
     "world_identity",
     "memoization",
 }.intersection(collect_property_names(information_set_coaching_report))
+tactical_execution = execute_document(
+    tactical_motif_document,
+    options=ExecutionOptionsV1(
+        validate_output=True,
+        include_provenance=True,
+        workflow_options={"historical_tactical_motif_review": True},
+    ),
+    input_reference="historical-tactical-motif-review.json",
+)
+tactical_summary = tactical_execution.result.document["historical_game_summary"]
+tactical_report = tactical_summary["historical_tactical_motif_review_summary"]
+assert tactical_report["observation_count"] == 30
+assert tactical_report["complete_observation_count"] == 30
+assert tactical_execution.field_provenance is not None
+assert tactical_execution.field_provenance.result.coverage_summary[
+    "provenance_complete"
+] is True
+bounded_coaching_with_tactical = execute_document(
+    tactical_motif_document,
+    options=ExecutionOptionsV1(
+        validate_output=True,
+        workflow_options={
+            "historical_tactical_motif_review": True,
+            "replay_coaching": True,
+            "search_seed": 71,
+            "search_budget_profile": "interactive_v1",
+            "immediate_sample_count": 1,
+            "immediate_base_random_seed": 43,
+        },
+    ),
+    input_reference="historical-tactical-motif-review.json",
+).result.document["historical_game_summary"]
+assert "historical_tactical_motif_review_summary" in bounded_coaching_with_tactical
+assert "historical_replay_coaching_summary" in bounded_coaching_with_tactical
 claim_document = json.loads((cwd / "historical-claim.json").read_text(encoding="utf-8"))
 claim_request = parse_request(claim_document)
 claim_execution = execute_document(
@@ -1927,6 +1978,18 @@ assert claim_summary["final_settlement_summary"]["is_complete"] is True
 assert claim_execution.field_provenance is not None
 assert claim_execution.field_provenance.result.ledger["status"] == "complete"
 assert claim_execution.field_provenance.result.coverage_summary["provenance_complete"] is True
+claim_tactical_execution = execute_document(
+    claim_document,
+    options=ExecutionOptionsV1(
+        validate_output=True,
+        workflow_options={"historical_tactical_motif_review": True},
+    ),
+    input_reference="historical-claim.json",
+)
+claim_tactical_report = claim_tactical_execution.result.document[
+    "historical_game_summary"
+]["historical_tactical_motif_review_summary"]
+assert claim_tactical_report["observation_count"] == 15
 claim_coaching_execution = execute_document(
     claim_document,
     options=ExecutionOptionsV1(
@@ -2230,6 +2293,10 @@ def _install_and_smoke(
         (
             HISTORICAL_INFORMATION_SET_REPLAY_COACHING_SMOKE_EXAMPLE,
             "historical-information-set-replay-coaching.json",
+        ),
+        (
+            HISTORICAL_TACTICAL_MOTIF_REVIEW_SMOKE_EXAMPLE,
+            "historical-tactical-motif-review.json",
         ),
         (
             INFORMATION_SET_SEARCH_EVALUATION_SMOKE_EXAMPLE,
@@ -2852,6 +2919,14 @@ def _install_and_smoke(
             ),
         ),
         (
+            "historical-tactical-motif-review.json",
+            "historical-tactical-motif-review",
+            (
+                "--historical-tactical-motif-review",
+                "--include-provenance",
+            ),
+        ),
+        (
             "information-set-search-evaluation.json",
             "information-set-search-evaluation",
             (
@@ -2907,6 +2982,15 @@ def _install_and_smoke(
                     in historical_summary
                     and "historical_information_set_search_review_summary"
                     not in historical_summary
+                    and "field_provenance" in workflow_document
+                )
+            elif output_stem == "historical-tactical-motif-review":
+                historical_summary = workflow_document.get("historical_game_summary")
+                valid = isinstance(historical_summary, dict) and (
+                    historical_summary.get(
+                        "historical_tactical_motif_review_summary", {}
+                    ).get("observation_count")
+                    == 30
                     and "field_provenance" in workflow_document
                 )
             elif output_stem == "information-set-search-evaluation":

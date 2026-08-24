@@ -532,6 +532,153 @@ def build_historical_summary_attachment(
     )
 
 
+def _tactical_summary_entry_builder(document: Mapping[str, object]):
+    observations = document.get("observations", ())
+
+    def build(path: str, tokens: tuple[str, ...]) -> FieldProvenanceEntry:
+        if (
+            len(tokens) >= 2
+            and tokens[0] == "observations"
+            and tokens[1].isdecimal()
+            and isinstance(observations, (list, tuple))
+        ):
+            observation = observations[int(tokens[1])]
+            facts = (
+                observation.get("decision_time_facts")
+                if isinstance(observation, Mapping)
+                else None
+            )
+            if not isinstance(facts, Mapping):
+                raise ValueError("Tactical observations require Decision Facts.")
+            decision_index = facts.get("decision_index")
+            trick_number = facts.get("trick_number")
+            acting_player_id = facts.get("acting_player_id")
+            if (
+                type(decision_index) is not int
+                or type(trick_number) is not int
+                or not isinstance(acting_player_id, str)
+            ):
+                raise ValueError("Tactical observation identity is invalid.")
+            in_facts = "decision_time_facts" in tokens
+            actual = tokens[-1] == "actual_card"
+            completed = tokens[-1].startswith("completed_trick_")
+            observation_complete = observation.get("observation_status") == "complete"
+            after_completion_motif = False
+            if "motifs" in tokens:
+                motif_index = tokens.index("motifs") + 1
+                motifs = observation.get("motifs", ())
+                if (
+                    motif_index < len(tokens)
+                    and tokens[motif_index].isdecimal()
+                    and isinstance(motifs, (list, tuple))
+                ):
+                    motif = motifs[int(tokens[motif_index])]
+                    after_completion_motif = (
+                        isinstance(motif, Mapping)
+                        and motif.get("evidence_time") == "after_trick_completion"
+                    )
+            if in_facts:
+                return _entry(
+                    path,
+                    origin="rule_derived",
+                    visibility="public",
+                    available_from="current_decision",
+                    derivation="deterministic_rule",
+                    decision_index=decision_index,
+                    perspective_player_id=acting_player_id,
+                    source_references=(
+                        _reference(
+                            "aggregate",
+                            "retained_historical_decision_snapshots",
+                        ),
+                    ),
+                )
+            if actual:
+                return _entry(
+                    path,
+                    origin="retrospective_attachment",
+                    visibility="public",
+                    available_from="after_actual_play",
+                    derivation="retrospective",
+                    decision_index=decision_index,
+                    perspective_player_id=acting_player_id,
+                    source_references=(
+                        _reference(
+                            "retrospective_observation",
+                            "historical_actual_card",
+                        ),
+                    ),
+                )
+            completion_derived = observation_complete and (
+                completed
+                or tokens[-1] == "observation_status"
+                or after_completion_motif
+            )
+            evidence_decision_index = trick_number * 3 if completion_derived else decision_index
+            return _entry(
+                path,
+                origin="rule_derived",
+                visibility="public",
+                available_from="after_actual_play",
+                derivation="deterministic_rule",
+                decision_index=evidence_decision_index,
+                perspective_player_id=acting_player_id,
+                source_references=(
+                    _reference(
+                        "rule_contract",
+                        "historical_tactical_motif_review_v1",
+                    ),
+                ),
+            )
+        return _entry(
+            path,
+            origin="historical_aggregation",
+            visibility="public",
+            available_from="offline_review",
+            derivation="deterministic_rule",
+            decision_index=None,
+            perspective_player_id=None,
+            source_references=(
+                _reference(
+                    "aggregate",
+                    "historical_tactical_motif_review_summary",
+                ),
+            ),
+        )
+
+    return build
+
+
+def build_historical_tactical_motif_summary_attachment(
+    document: Mapping[str, object],
+) -> ApplicationProvenanceAttachment:
+    """Builds complete provenance over one already serialized tactical report."""
+    observations = document.get("observations", ())
+    max_index = max(
+        (
+            facts.get("decision_index", 0)
+            for observation in observations
+            if isinstance(observation, Mapping)
+            and isinstance((facts := observation.get("decision_time_facts")), Mapping)
+            and type(facts.get("decision_index")) is int
+        ),
+        default=0,
+    )
+    return build_complete_provenance_attachment(
+        name="historical_tactical_motif_review_summary",
+        document_role="result",
+        document=document,
+        information_use_context=_historical_context(
+            stage="offline_review",
+            decision_index=max_index,
+            player_id=None,
+            side=None,
+        ),
+        entry_builder=_tactical_summary_entry_builder(document),
+        allowed_private_field_names=frozenset({"observations"}),
+    )
+
+
 def _information_set_coaching_assessment_context(
     document: Mapping[str, object],
     tokens: tuple[str, ...],
@@ -1056,6 +1203,14 @@ class HistoricalReviewProvenanceCollector:
     ) -> None:
         self._aggregate_attachments.append(
             build_information_set_replay_coaching_report_attachment(document)
+        )
+
+    def capture_tactical_motif_summary(
+        self,
+        document: Mapping[str, object],
+    ) -> None:
+        self._aggregate_attachments.append(
+            build_historical_tactical_motif_summary_attachment(document)
         )
 
     def capture_prioritization(

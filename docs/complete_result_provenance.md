@@ -100,8 +100,8 @@ The complete Historical ledger covers:
 * all six supported terminal endings and their public proof metadata, including
   the Historical-only party-wide Claim;
 * the existing Snapshot, Immediate Review, Search Review, Information-set Search
-  Review, both Replay Coaching families, Outcome Context, and historical Profile
-  application branches.
+  Review, both Replay Coaching families, Tactical Motif Review, Outcome Context,
+  and historical Profile application branches.
 
 Historical actual plays become available in exact chronology. A completed trick
 depends only on its matching supplied trick and contract rules, never on a later
@@ -162,6 +162,19 @@ Information-set Review and reruns no Search, PIMC, Immediate, comparison,
 assessment, prioritization, Guidance, or Outcome construction. Public opt-in
 retains complete coverage while redacting Policies, Observations, Worlds, Exact
 States, caches, branches, and child seeds.
+
+Issue #194 adds one complete `historical_tactical_motif_review_summary`
+attachment and the corresponding optional Historical Root Result branch.
+Decision Facts are rule-derived from the retained Snapshot and available at the
+current Decision. The actual Card is a retrospective attachment available after
+actual play. Completed-Trick winner/points and the two outcome motif types are
+available only after Trick completion. A complete observation status follows
+that completion boundary; a partial status and null completion fields stay at
+the last recorded play rather than inventing a future Decision. Motif/family
+counts and scope summaries are exact derived values. Provenance construction reuses retained values and
+reruns no Historical replay, Snapshot, detector, or summary stage. Complete own
+hands and legal-Card tuples remain engine-private; Commentary and Response
+Evidence remain separate.
 
 ## Dependency direction
 

@@ -65,6 +65,7 @@ _HISTORICAL_SUMMARY_KEYS = frozenset(
         "historical_information_set_search_review_summary",
         "historical_information_set_replay_coaching_summary",
         "historical_replay_coaching_summary",
+        "historical_tactical_motif_review_summary",
     }
 )
 
@@ -76,6 +77,7 @@ _REVIEW_BRANCHES = frozenset(
         "historical_information_set_search_review_summary",
         "historical_information_set_replay_coaching_summary",
         "historical_replay_coaching_summary",
+        "historical_tactical_motif_review_summary",
     }
 )
 
@@ -206,6 +208,11 @@ def _review_decision_index(
                 decision_index = evidence.get("decision_index")
                 if type(decision_index) is int:
                     return decision_index
+            facts = value.get("decision_time_facts")
+            if isinstance(facts, Mapping):
+                decision_index = facts.get("decision_index")
+                if type(decision_index) is int:
+                    return decision_index
             value = value.get(token)
         elif isinstance(value, (list, tuple)) and token.isdecimal():
             value = value[int(token)]
@@ -270,6 +277,88 @@ def _review_entry(
     branch = tokens[1]
     decision_index = _review_decision_index(result, tokens)
     is_actual = tokens[-1] in {"actual_card", "actual_card_played"}
+    if branch == "historical_tactical_motif_review_summary":
+        summary = result["historical_game_summary"][branch]
+        report_tokens = tokens[2:]
+        if "observations" in report_tokens and decision_index > 0:
+            observation_index = report_tokens.index("observations") + 1
+            observation = summary["observations"][int(report_tokens[observation_index])]
+            facts = observation["decision_time_facts"]
+            in_facts = "decision_time_facts" in report_tokens
+            completed = tokens[-1].startswith("completed_trick_")
+            observation_complete = observation.get("observation_status") == "complete"
+            after_completion_motif = False
+            if "motifs" in report_tokens:
+                motif_index = report_tokens.index("motifs") + 1
+                if motif_index < len(report_tokens):
+                    motif = observation["motifs"][int(report_tokens[motif_index])]
+                    after_completion_motif = motif["evidence_time"] == "after_trick_completion"
+            if in_facts:
+                return result_provenance_entry(
+                    path,
+                    origin="rule_derived",
+                    visibility="public",
+                    available_from="current_decision",
+                    derivation="deterministic_rule",
+                    source_references=(
+                        result_source_reference(
+                            "aggregate",
+                            "retained_historical_decision_snapshots",
+                        ),
+                    ),
+                    decision_index=decision_index,
+                )
+            if is_actual:
+                return result_provenance_entry(
+                    path,
+                    origin="retrospective_attachment",
+                    visibility="public",
+                    available_from="after_actual_play",
+                    derivation="retrospective",
+                    source_references=(
+                        result_source_reference(
+                            "retrospective_observation",
+                            "historical_actual_card",
+                        ),
+                    ),
+                    decision_index=decision_index,
+                )
+            return result_provenance_entry(
+                path,
+                origin="rule_derived",
+                visibility="public",
+                available_from="after_actual_play",
+                derivation="deterministic_rule",
+                source_references=(
+                    result_source_reference(
+                        "rule_contract",
+                        "historical_tactical_motif_review_v1",
+                    ),
+                ),
+                decision_index=(
+                    facts["trick_number"] * 3
+                    if observation_complete
+                    and (
+                        completed
+                        or tokens[-1] == "observation_status"
+                        or after_completion_motif
+                    )
+                    else decision_index
+                ),
+            )
+        return result_provenance_entry(
+            path,
+            origin="historical_aggregation",
+            visibility="public",
+            available_from="offline_review",
+            derivation="deterministic_rule",
+            source_references=(
+                result_source_reference(
+                    "aggregate",
+                    "historical_tactical_motif_review_summary",
+                ),
+            ),
+        )
     if branch == "historical_information_set_replay_coaching_summary":
         report_tokens = tokens[2:]
         if report_tokens and report_tokens[0] == "outcome_context":

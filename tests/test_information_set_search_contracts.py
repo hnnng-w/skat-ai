@@ -431,13 +431,13 @@ def test_public_package_schema_example_and_scenario_baselines_are_unchanged() ->
     assert private_names.isdisjoint(api_v1.__all__)
     assert skat_ai.__all__ == ("api", "errors", "__version__")
     assert len(WorkflowV1) == 7
-    assert len(tuple((PROJECT_ROOT / "schemas").glob("*.schema.json"))) == 70
+    assert len(tuple((PROJECT_ROOT / "schemas").glob("*.schema.json"))) == 71
     assert (
         len(tuple((PROJECT_ROOT / "src" / "skat_ai" / "schema_resources").glob("*.schema.json")))
-        == 70
+        == 71
     )
     assert len(tuple((PROJECT_ROOT / "examples").glob("session_*.json"))) == 6
-    assert len(SCENARIOS) == 96
+    assert len(SCENARIOS) == 98
     project = tomllib.loads((PROJECT_ROOT / "pyproject.toml").read_text(encoding="utf-8"))[
         "project"
     ]

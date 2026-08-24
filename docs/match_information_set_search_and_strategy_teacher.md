@@ -22,9 +22,14 @@ output scenarios.
 That 69/94 count is the Issue #191 point-in-time baseline. Issue #192
 subsequently adds separate Information-set Replay Coaching and Match Historical
 Information-set Review/Coaching, one Schema, one Root example, and two scenarios.
-The current working baseline is therefore 70 authoritative and packaged Schemas,
-six Session examples, and 96 generated-output scenarios. The one-Decision
-Teacher path in this document remains unchanged.
+The Issue #192 point-in-time baseline is therefore 70 authoritative and packaged
+Schemas, six Session examples, and 96 generated-output scenarios. The one-
+Decision Teacher path in this document remains unchanged.
+
+Issue #193 changes neither count, and Issue #194 adds one Tactical Motif Review
+Schema and two scenarios. The
+current working baseline is 71 Schemas and 98 scenarios; the one-Decision Teacher
+path remains unchanged.
 
 ## Match execution
 

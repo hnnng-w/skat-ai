@@ -17,9 +17,11 @@ unchanged.
 Issue #190 established the prior working baseline of 69 authoritative and
 packaged Schemas and 94 generated-output scenarios. Issue #191 changed neither
 count. Issue #192 adds one Schema and two append-only scenarios, bringing the
-current unreleased working baseline to 70 authoritative and packaged Schemas and
-96 scenarios. The published `v0.16.0` baseline remains 63 Schemas, six Session
-examples, and 85 scenarios.
+Issue #192 point-in-time baseline to 70 authoritative and packaged Schemas and
+96 scenarios. Issue #193 changes neither count. Issue #194 subsequently adds one
+Tactical Motif Review Schema and two scenarios, bringing the current unreleased
+working baseline to 71 Schemas and 98 scenarios. The published `v0.16.0`
+baseline remains 63 Schemas, six Session examples, and 85 scenarios.
 
 ## Separate Coaching families
 
@@ -393,9 +395,11 @@ historical_information_set_replay_coaching
 historical_party_wide_claim_information_set_replay_coaching
 ```
 
-At least one includes opt-in public Provenance. The resulting current working
-totals are 70 authoritative Schemas, 70 packaged Schema Resources, six Session
-examples, and 96 generated-output scenarios.
+At least one includes opt-in public Provenance. The resulting Issue #192
+point-in-time totals are 70 authoritative Schemas, 70 packaged Schema Resources,
+six Session examples, and 96 generated-output scenarios. Issue #194 later brings
+the current working totals to 71/71 Schemas and 98 scenarios without changing
+this Coaching family.
 
 ## Privacy and claims
 
@@ -422,7 +426,7 @@ thresholds, or latency promises.
 
 The following remain open:
 
-* tactical motif detection and human Commentary interpretation;
+* tactical quality assessment and human Commentary interpretation;
 * signaling or communication inference;
 * cross-game Coaching and Player Ratings;
 * Historical Strategy Teacher Report import or automatic Coaching Report

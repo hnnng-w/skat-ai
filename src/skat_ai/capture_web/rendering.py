@@ -919,6 +919,71 @@ def _decision_report(state: dict[str, Any], report: dict[str, Any]) -> str:
     """
 
 
+def _historical_tactical_motif_report(value: dict[str, Any] | None) -> str:
+    if value is None:
+        return "<p>Not requested.</p>"
+    motif_rows = "".join(
+        f"<tr><td>{_e(_label(item.get('motif_type')))}</td><td>{_e(item.get('count'))}</td></tr>"
+        for item in value.get("motif_counts", [])
+    )
+    family_rows = "".join(
+        f"<tr><td>{_e(_label(item.get('motif_family')))}</td><td>{_e(item.get('count'))}</td></tr>"
+        for item in value.get("family_counts", [])
+    )
+    player_rows = "".join(
+        f"<tr><td>{_e(item.get('scope_value'))}</td>"
+        f"<td>{_e(item.get('observation_count'))}</td>"
+        f"<td>{_e(item.get('complete_observation_count'))}</td>"
+        f"<td>{_e(item.get('partial_observation_count'))}</td>"
+        f"<td>{_e(item.get('motif_occurrence_count'))}</td></tr>"
+        for item in value.get("player_summaries", [])
+    )
+    occurrence_rows = "".join(
+        f"<tr><td>{_e(observation.get('decision_index'))}</td>"
+        f"<td>{_e(observation.get('trick_number'))}/"
+        f"{_e(observation.get('play_index'))}</td>"
+        f"<td>{_e(observation.get('acting_player_id'))}</td>"
+        f"<td>{_e(_label(observation.get('acting_side')))}</td>"
+        f"<td>{_e(observation.get('actual_card'))}</td>"
+        f"<td>{_e(_label(observation.get('observation_status')))}</td>"
+        f"<td>{_e(_label(motif.get('motif_type')))}</td>"
+        f"<td>{_e(_label(motif.get('motif_family')))}</td>"
+        f"<td>{_e(_label(motif.get('evidence_time')))}</td></tr>"
+        for observation in value.get("observations", [])
+        for motif in observation.get("motifs", [])
+    )
+    return f"""
+      {
+        _facts(
+            (
+                ("Method", value.get("review_method")),
+                ("Source game", value.get("source_game_id")),
+                ("Observations", value.get("observation_count")),
+                ("Complete", value.get("complete_observation_count")),
+                ("Partial", value.get("partial_observation_count")),
+                ("Motif occurrences", value.get("motif_occurrence_count")),
+            )
+        )
+    }
+      <h4>Motif counts</h4>
+      <table><thead><tr><th>Motif</th><th>Count</th></tr></thead><tbody>{motif_rows}</tbody></table>
+      <h4>Family counts</h4>
+      <table><thead><tr><th>Family</th><th>Count</th></tr></thead><tbody>{
+        family_rows
+    }</tbody></table>
+      <h4>Per-Player counts</h4>
+      <table><thead><tr><th>Player</th><th>Observations</th><th>Complete</th><th>Partial</th><th>Motifs</th></tr></thead><tbody>{
+        player_rows
+    }</tbody></table>
+      <h4>Chronological motif rows</h4>
+      <table><thead><tr><th>Decision</th><th>Trick/play</th><th>Player</th><th>Side</th><th>Card</th><th>Status</th><th>Motif</th><th>Family</th><th>Evidence time</th></tr></thead>
+      <tbody>{
+        occurrence_rows or '<tr><td colspan="9">No motifs observed.</td></tr>'
+    }</tbody></table>
+      <p><strong>Limitations:</strong> {_e(", ".join(value.get("limitations") or []) or "None")}</p>
+    """
+
+
 def _historical_report(state: dict[str, Any], report: dict[str, Any]) -> str:
     details = report["details"]
     if details["status"] == "unavailable":
@@ -938,6 +1003,7 @@ def _historical_report(state: dict[str, Any], report: dict[str, Any]) -> str:
         coaching = details["replay_coaching"]
         information_set_review = details["information_set_search_review"]
         information_set_coaching = details["information_set_replay_coaching"]
+        tactical_motif_review = details["tactical_motif_review"]
         profile = details["profile_application"]
         review_html = "<p>Not requested.</p>"
         if review is not None:
@@ -1204,6 +1270,9 @@ def _historical_report(state: dict[str, Any], report: dict[str, Any]) -> str:
           <h3>Information-set Replay Coaching</h3>
           {information_set_coaching_html}
           <p class="bounded-note">Information-set Coaching uses complete Information-set Search evidence only. Same-selection PIMC and Immediate are diagnostics, never fallback evidence; early-game and incomplete Search Decisions may remain not assessable.</p>
+          <h3>Historical Tactical Motif Review</h3>
+          {_historical_tactical_motif_report(tactical_motif_review)}
+          <p class="bounded-note">Tactical motifs are deterministic structural observations, not quality, intent, signaling, communication, or causal claims.</p>
           <h3>Historical Profile application</h3>
           {profile_html}
         """
@@ -1445,6 +1514,7 @@ def _historical_analysis_controls(state: dict[str, Any]) -> str:
           <fieldset class="analysis-modes">
             <legend>Analysis modes, select at least one</legend>
             <label><input type="checkbox" name="decision_snapshots" value="true"> Decision Snapshots</label>
+            <label><input type="checkbox" name="tactical_motif_review" value="true"> Tactical Motif Review</label>
             <label><input type="checkbox" name="immediate_review" value="true" checked> Immediate Review</label>
             <label><input type="checkbox" name="search_review" value="true"> Search Review</label>
             <label><input type="checkbox" name="information_set_search_review" value="true"> Information-set Search Review</label>
@@ -1463,7 +1533,7 @@ def _historical_analysis_controls(state: dict[str, Any]) -> str:
             </label>
           </div>
           <label class="checkbox-label"><input type="checkbox" name="use_profile_presets" value="true" checked> Use eligible Player Profile Presets</label>
-          <p class="analysis-warning">Historical Search and Coaching may take substantially longer. Existing Search/Replay Coaching and Information-set Search/Coaching are separate families and cannot be mixed. Information-set Coaching uses complete Information-set Search evidence only; PIMC and Immediate are diagnostic baselines with no fallback. Early-game or incomplete Search Decisions may be not assessable. Selected-world fixed-Policy analysis is not equilibrium or perfect play.</p>
+          <p class="analysis-warning">Historical Search and Coaching may take substantially longer. Existing Search/Replay Coaching and Information-set Search/Coaching are separate families and cannot be mixed. Information-set Coaching uses complete Information-set Search evidence only; PIMC and Immediate are diagnostic baselines with no fallback. Early-game or incomplete Search Decisions may be not assessable. Selected-world fixed-Policy analysis is not equilibrium or perfect play. Tactical motifs are structural observations, not quality judgments, tactical intent, signaling, communication, or causal claims.</p>
           <button type="submit" class="primary">Analyze strict Historical Game</button>
         </form>
       </section>

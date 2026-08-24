@@ -20,6 +20,8 @@ from skat_ai.cli import execution as cli
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 EXAMPLES = PROJECT_ROOT / "examples"
+_WALL_CLOCK_ELAPSED_KEY = "wall_clock_elapsed_ms"
+_NORMALIZED_WALL_CLOCK_ELAPSED_MS = 0
 
 WORKFLOW_CASES = (
     (
@@ -91,6 +93,7 @@ EXPECTED_OPTION_STRINGS = (
     ("--historical-information-set-search-review",),
     ("--historical-information-set-replay-coaching",),
     ("--historical-replay-coaching",),
+    ("--historical-tactical-motif-review",),
     ("--search-seed",),
     ("--search-budget-profile",),
     ("--evaluate-bounded-search",),
@@ -203,6 +206,62 @@ def _action_contract(parser) -> tuple[tuple[object, ...], ...]:
     )
 
 
+def _collect_wall_clock_elapsed_fields(
+    value: object,
+    *,
+    path: str = "",
+) -> dict[str, int]:
+    fields: dict[str, int] = {}
+    if isinstance(value, dict):
+        for key, child in value.items():
+            child_path = f"{path}/{key}"
+            if key == _WALL_CLOCK_ELAPSED_KEY:
+                assert type(child) is int
+                assert child >= 0
+                fields[child_path] = child
+            fields.update(
+                _collect_wall_clock_elapsed_fields(child, path=child_path)
+            )
+    elif isinstance(value, list):
+        for index, child in enumerate(value):
+            child_path = f"{path}/{index}"
+            fields.update(
+                _collect_wall_clock_elapsed_fields(child, path=child_path)
+            )
+    return fields
+
+
+def _normalize_wall_clock_elapsed_fields(value: object) -> object:
+    if isinstance(value, dict):
+        return {
+            key: (
+                _NORMALIZED_WALL_CLOCK_ELAPSED_MS
+                if key == _WALL_CLOCK_ELAPSED_KEY
+                else _normalize_wall_clock_elapsed_fields(child)
+            )
+            for key, child in value.items()
+        }
+    if isinstance(value, list):
+        return [_normalize_wall_clock_elapsed_fields(child) for child in value]
+    return value
+
+
+def _assert_cross_execution_documents_equal_except_wall_clock_elapsed(
+    documents: list[dict[str, object]],
+) -> None:
+    timing_fields = [
+        _collect_wall_clock_elapsed_fields(document) for document in documents
+    ]
+    expected_paths = frozenset(timing_fields[0])
+    assert expected_paths
+    assert all(frozenset(fields) == expected_paths for fields in timing_fields)
+
+    normalized = [
+        _normalize_wall_clock_elapsed_fields(document) for document in documents
+    ]
+    assert all(document == normalized[0] for document in normalized[1:])
+
+
 def test_installed_cli_contract_constants_are_exact_and_internal() -> None:
     assert cli.INSTALLED_CLI_CONTRACT_VERSION == 1
     assert cli.INSTALLED_CLI_COMMAND == "skat-ai"
@@ -251,6 +310,7 @@ def test_parser_action_contract_is_exactly_equal_for_all_invocation_styles() -> 
         "historical_information_set_search_review",
         "historical_information_set_replay_coaching",
         "historical_replay_coaching",
+        "historical_tactical_motif_review",
         "search_seed",
         "search_budget_profile",
         "evaluate_bounded_search",
@@ -729,10 +789,16 @@ def test_representative_submodes_match_all_execution_boundaries(
             options=_application_options(workflow, workflow_options),
         )
     ).result.to_dict()["document"]
-    documents = [json.loads(path.read_text(encoding="utf-8")) for path in paths.values()]
-    assert documents[0] == documents[1] == documents[2] == public == application
+    documents = [
+        *(json.loads(path.read_text(encoding="utf-8")) for path in paths.values()),
+        public,
+        application,
+    ]
     if example_name == "grand_auto_search_fallback.json":
+        _assert_cross_execution_documents_equal_except_wall_clock_elapsed(documents)
         assert documents[0]["bounded_search_result"]["status"] == "partial"
+    else:
+        assert all(document == documents[0] for document in documents[1:])
     if example_name == "fixed_three_player_historical_list_all_passed.json":
         assert documents[0]["fixed_three_player_historical_list_summary"][
             "ranking_status"

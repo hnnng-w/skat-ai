@@ -175,6 +175,9 @@ def _run_cli(
                     args.historical_information_set_replay_coaching
                 ),
                 historical_replay_coaching=args.historical_replay_coaching,
+                historical_tactical_motif_review=(
+                    args.historical_tactical_motif_review
+                ),
                 search_seed=args.search_seed,
                 search_budget_profile=(
                     args.search_budget_profile or HISTORICAL_REVIEW_SEARCH_BUDGET_PROFILE
@@ -210,6 +213,10 @@ def _run_cli(
                 )
             if args.historical_replay_coaching:
                 raise CliUsageError("--historical-replay-coaching requires historical-game input.")
+            if args.historical_tactical_motif_review:
+                raise CliUsageError(
+                    "--historical-tactical-motif-review requires historical-game input."
+                )
             _legacy_patch_value("run_json_position_analysis")(
                 file_path=args.input,
                 sample_count_override=args.samples,

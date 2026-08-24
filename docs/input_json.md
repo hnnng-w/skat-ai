@@ -671,6 +671,7 @@ Exact options are:
 | `--historical-game-review` | Also emit the existing Immediate Historical Review summary. |
 | `--historical-search-review` | Evaluate every supplied historical decision with Search and Immediate. |
 | `--historical-replay-coaching` | Build the complete public one-game Coaching Report from Search, Immediate, and retrospective context. |
+| `--historical-tactical-motif-review` | Build the separate deterministic structural Tactical Motif Review without Search or Coaching. |
 | `--search-seed INTEGER` | Required Search base seed. |
 | `--search-budget-profile PROFILE` | One of `interactive_v1`, `historical_review_v1`, or `evaluation_v1`; default `historical_review_v1`. |
 | `--samples INTEGER` | Immediate samples per decision; default `100`. |
@@ -681,6 +682,17 @@ Exact options are:
 JSON output retains the complete strict report. The default CLI presentation is
 concise, and `--quiet` continues to suppress successful human-readable output
 without suppressing JSON written through `--output`.
+
+Tactical Motif Review requires only Historical Game input and adds no input JSON
+field. It can run alone or with either Replay Coaching family:
+
+```powershell
+python main.py --input examples/historical_tactical_motif_review.json --historical-tactical-motif-review
+```
+
+The detector derives decision-time facts before attaching the recorded Card and
+attaches completed-Trick outcomes only after completion. It executes no Search,
+opponent Policy, Commentary interpretation, or Coaching classification.
 
 The named profiles are immutable internal budgets, not editable JSON objects:
 

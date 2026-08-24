@@ -41,6 +41,7 @@ _ANALYSIS_FIELDS = {
     "analyze_historical_game": _COMMON_FIELDS
     | {
         "decision_snapshots",
+        "tactical_motif_review",
         "immediate_review",
         "search_review",
         "information_set_search_review",
@@ -175,6 +176,11 @@ def _historical_options(
         "decision_snapshots",
         default=False,
     )
+    tactical_motif_review = _boolean(
+        values,
+        "tactical_motif_review",
+        default=False,
+    )
     immediate_review = _boolean(
         values,
         "immediate_review",
@@ -206,6 +212,7 @@ def _historical_options(
         search_seed = 0
     return MatchHistoricalAnalysisOptionsV1(
         decision_snapshots=decision_snapshots,
+        tactical_motif_review=tactical_motif_review,
         immediate_review=immediate_review,
         search_review=search_review,
         information_set_search_review=information_set_search_review,

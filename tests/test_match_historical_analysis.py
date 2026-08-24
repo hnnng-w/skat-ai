@@ -26,6 +26,10 @@ from skat_ai.match_historical_information_set_analysis import (
     MATCH_HISTORICAL_INFORMATION_SET_COACHING_POLICY,
     MATCH_HISTORICAL_INFORMATION_SET_MODE_POLICY,
 )
+from skat_ai.match_historical_tactical_motif_analysis import (
+    MATCH_HISTORICAL_TACTICAL_MOTIF_INTEGRATION_VERSION,
+    build_match_historical_tactical_motif_report_view_v1,
+)
 from skat_ai.match_workspace_contracts import create_match_workspace_v1
 from skat_ai.match_workspace_operations import mark_match_workspace_passed_deal_v1
 
@@ -46,6 +50,104 @@ def test_match_historical_information_set_version_and_policies_are_exact() -> No
     assert MATCH_HISTORICAL_INFORMATION_SET_MODE_POLICY == (
         "separate_from_existing_pimc_replay_coaching"
     )
+    assert MATCH_HISTORICAL_TACTICAL_MOTIF_INTEGRATION_VERSION == 1
+
+
+def test_tactical_match_historical_executes_application_once_without_profiles(
+    monkeypatch,
+) -> None:
+    import skat_ai.match_historical_analysis as analysis_module
+
+    workspace = _strict_workspace()
+    calls = 0
+
+    def counted(invocation, **kwargs):
+        nonlocal calls
+        calls += 1
+        return real_execute_application_invocation(invocation, **kwargs)
+
+    monkeypatch.setattr(analysis_module, "execute_application_invocation", counted)
+    result = execute_match_historical_analysis_v1(
+        workspace,
+        match_position=3,
+        options=MatchHistoricalAnalysisOptionsV1(
+            tactical_motif_review=True,
+            immediate_review=False,
+        ),
+    )
+
+    assert calls == 1
+    document = result.result.to_dict()["document"]
+    assert "historical_opponent_profile_application_summary" not in document
+    summary = document["historical_game_summary"]
+    assert summary["historical_tactical_motif_review_summary"][
+        "observation_count"
+    ] == 30
+
+
+def test_tactical_match_report_view_is_explicitly_curated() -> None:
+    view = build_match_historical_tactical_motif_report_view_v1(
+        {
+            "historical_tactical_motif_review_summary": {
+                "review_method": "historical_tactical_motif_review_v1",
+                "source_game_id": "game-1",
+                "observation_count": 1,
+                "complete_observation_count": 1,
+                "partial_observation_count": 0,
+                "motif_occurrence_count": 1,
+                "motif_counts": [
+                    {"motif_type": "trump_lead", "count": 1, "quality": "x"}
+                ],
+                "family_counts": [
+                    {"motif_family": "lead_structure", "count": 1}
+                ],
+                "player_summaries": [
+                    {
+                        "scope_value": "player-a",
+                        "observation_count": 1,
+                        "complete_observation_count": 1,
+                        "partial_observation_count": 0,
+                        "motif_occurrence_count": 1,
+                        "legal_cards": ["CJ"],
+                    }
+                ],
+                "observations": [
+                    {
+                        "decision_time_facts": {
+                            "decision_index": 1,
+                            "trick_number": 1,
+                            "play_index": 1,
+                            "acting_player_id": "player-a",
+                            "acting_side": "defenders",
+                            "own_hand": ["CJ"],
+                        },
+                        "actual_card": "CJ",
+                        "observation_status": "complete",
+                        "motifs": [
+                            {
+                                "motif_type": "trump_lead",
+                                "motif_family": "lead_structure",
+                                "evidence_time": "after_actual_play",
+                                "recommendation": "x",
+                            }
+                        ],
+                        "selected_worlds": [],
+                    }
+                ],
+                "limitations": ["single_recorded_game_only"],
+                "commentary_text": "private",
+            }
+        }
+    )
+
+    assert view is not None
+    serialized = str(view)
+    assert "own_hand" not in serialized
+    assert "legal_cards" not in serialized
+    assert "selected_worlds" not in serialized
+    assert "commentary_text" not in serialized
+    assert "recommendation" not in serialized
+    assert "quality" not in serialized
 
 
 def test_empty_passed_and_incomplete_historical_analysis_are_normal_unavailable() -> None:

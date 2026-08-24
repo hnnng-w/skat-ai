@@ -76,7 +76,7 @@ def test_packaged_schema_mirror_has_exact_filename_byte_and_id_parity() -> None:
         for path in sorted(PACKAGED_SCHEMA_DIRECTORY.glob("*.schema.json"))
     }
 
-    assert EXPECTED_SCHEMA_RESOURCE_COUNT == 70
+    assert EXPECTED_SCHEMA_RESOURCE_COUNT == 71
     assert len(authoritative) == EXPECTED_SCHEMA_RESOURCE_COUNT
     assert packaged == authoritative
     schema_ids = []

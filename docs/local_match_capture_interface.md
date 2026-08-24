@@ -228,7 +228,7 @@ private Web Protocol version `1`:
 * analyze one selected prepared Decision through Immediate, bounded Search,
   `auto`, or strict Information-set Search;
 * analyze one strictly materializable Historical Game with selected Snapshots,
-  Immediate Review, Search Review, and/or Replay Coaching;
+  Immediate Review, Search Review, Replay Coaching, and/or Tactical Motif Review;
 * prepare one Match-wide materialization report without workflow execution.
 
 Decision execution works from any retained Decision whose acting own hand is
@@ -242,6 +242,11 @@ explicit seed, defaulting an empty browser seed to `0`. Effective deterministic
 left/right policies become fixed Search policies. Complete, partial, timeout,
 and unavailable Results are retained without fallback. Its report page displays
 only curated aggregate diagnostics and Card-agreement facts.
+Tactical Motif Review requires no Search settings and displays only escaped
+source/status totals, motif/family/player counts, chronological actual-Card motif
+rows, and explicit structural/noncausal limitations. It does not display complete
+hands, legal-Card sets, hidden ownership, Search Worlds, Commentary, Response
+Links, or quality labels.
 
 The materialization report shows reconciled Decision/Historical/Training counts,
 fixed-list availability, standings, unresolved lot state, and the twelve round-
@@ -300,12 +305,14 @@ the current published Package baseline is `0.16.0`. The seven Root workflows,
 Public APIs, 63 Schemas, six Session examples, and 85 generated-output scenarios
 are unchanged across those baselines.
 
-The current unreleased working baseline has 69 authoritative and packaged
-Schemas and 94 generated-output scenarios from Issues #189 and #190. Issue #191
-changes neither count and adds no Session example. It adds only the private
-one-Decision Match Information-set path and existing Corpus transfer described
-above. Match Historical Information-set execution, Replay Coaching
-classification, and performance evidence remain open. See
+The Issue #190 working baseline had 69 authoritative and packaged Schemas and 94
+generated-output scenarios. Issue #191 changes neither count and adds only the
+private one-Decision Match Information-set path and existing Corpus transfer.
+Issue #192 adds Match Historical Information-set Review/Coaching, one Schema, one
+example, and two scenarios. Issue #193 adds benchmark evidence without changing
+those counts. Issue #194 adds Historical Tactical Motif Review, one Schema, one
+example, and two scenarios. The current working totals are 71 Schemas and 98
+scenarios, with six unchanged Session examples. See
 [Match Information-set Search and Strategy Teacher Evidence](match_information_set_search_and_strategy_teacher.md).
 
 Issue #168 exposes explicit private Position/Historical analysis and

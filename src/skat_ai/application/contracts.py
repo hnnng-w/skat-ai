@@ -188,6 +188,7 @@ class HistoricalGameApplicationOptions:
     information_set_search_review: bool = False
     information_set_replay_coaching: bool = False
     replay_coaching: bool = False
+    historical_tactical_motif_review: bool = False
     search_seed: int | None = None
     search_budget_profile: str = HISTORICAL_REVIEW_SEARCH_BUDGET_PROFILE
     immediate_sample_count: int | None = None
@@ -209,6 +210,7 @@ class HistoricalGameApplicationOptions:
             "information_set_search_review",
             "information_set_replay_coaching",
             "replay_coaching",
+            "historical_tactical_motif_review",
             "use_profile_presets_override",
         ):
             _validate_boolean(getattr(self, name), path=name)

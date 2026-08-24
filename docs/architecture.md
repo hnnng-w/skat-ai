@@ -43,6 +43,7 @@ descriptive video or manual source metadata
     -> ephemeral revision-scoped reports and authenticated local downloads
     -> strict one-Decision Match Information-set Search and exact Report transfer
     -> strict Match Historical Information-set Review and Coaching
+    -> strict Match Historical Tactical Motif Review and safe browser projection
     -> immutable content-addressed Learning Corpus Match Snapshots
     -> lightweight Catalog entries and explicit Current selections
     -> one explicit fixed-root private Store and strict full Resume
@@ -205,6 +206,14 @@ provide fallback. The observed Card is attached after decision-time analysis,
 and final Outcome Context is attached only after assessment, prioritization,
 patterns, and Guidance.
 
+Historical Tactical Motif Review is a separate Issue-#194 mode over the same
+retained Decision Snapshot sequence. It derives safe decision-time structural
+facts before reading the actual Card, attaches immediate partial-Trick facts
+after the Card, and attaches completed-Trick outcomes only after completion. The
+detector executes no Search or Coaching and emits no quality, intent, signaling,
+communication, or causal classification. When multiple Historical attachments
+need Snapshots, the Application builds that sequence once and shares it.
+
 The training-dataset flow validates dataset identity, provenance, optional
 known-opponent or unseen-player partition policy, and duplicate protection, then reuses the historical validator/replay and
 decision snapshot generator. It converts stable player references to the local
@@ -263,6 +272,18 @@ play cardinality, including zero-decision concessions, while player coverage is
 participant-based and decision breakdowns remain actor-based.
 
 The project is not a machine-learning model. Its behavior is based on Skat rules, deterministic helpers, and simulation.
+
+## Tactical motif evidence
+
+| File | Purpose |
+| --- | --- |
+| `src/skat_ai/tactical_motif_contracts.py` | Immutable version-1 facts, occurrences, observations, report/scopes, exact taxonomy, policies, limitations, and serialization. |
+| `src/skat_ai/tactical_motif_detection.py` | Pure decision-time fact construction and deterministic after-play/after-Trick motif predicates over retained Snapshots. |
+| `src/skat_ai/historical_tactical_motif_review.py` | One-game chronology, complete/partial observation composition, canonical aggregates, and exact source reconciliation. |
+| `src/skat_ai/match_historical_tactical_motif_analysis.py` | Private Match option adaptation, validated Root reconciliation, and safe browser report projection. |
+
+These modules execute no Search, Coaching, Commentary, Response-Link, Profile,
+or opponent Policy stage. See [Tactical motif evidence](tactical_motif_evidence.md).
 
 ## Information provenance
 
@@ -1025,6 +1046,7 @@ Output is designed to be regression-friendly and schema-validatable.
 | `schemas/information_set_search_comparison.schema.json` | Strict same-selection PIMC, independent Immediate, and actual-Card comparison. |
 | `schemas/historical_information_set_search_review.schema.json` | Strict per-Decision Historical Information-set Search Review and aggregates. |
 | `schemas/historical_information_set_replay_coaching.schema.json` | Strict separate Information-set Replay Coaching evidence, assessments, coverage, Guidance, scopes, Outcome Context, and limitations. |
+| `schemas/historical_tactical_motif_review.schema.json` | Strict separate structural Tactical Decision Facts, after-play/completed-Trick observations, exact motif/family counts, scopes, and limitations. |
 | `schemas/information_set_search_evaluation.schema.json` | Strict Training Dataset-v1 Information-set Search evaluation. |
 | `schemas/training_dataset.schema.json`       | Versioned training dataset input, records, provenance, and partitions.      |
 | `schemas/training_dataset_output.schema.json` | Strict training dataset output, metadata, features, labels, and counts.     |

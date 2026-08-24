@@ -199,6 +199,7 @@ def test_historical_options_defaults_modes_and_search_seed_rules() -> None:
     assert defaults.immediate_review is True
     assert defaults.information_set_search_review is False
     assert defaults.information_set_replay_coaching is False
+    assert defaults.tactical_motif_review is False
     assert defaults.search_random_seed is None
     assert defaults.to_dict()["search_budget_profile"] == "historical_review_v1"
     snapshots = MatchHistoricalAnalysisOptionsV1(
@@ -206,6 +207,12 @@ def test_historical_options_defaults_modes_and_search_seed_rules() -> None:
         immediate_review=False,
     )
     assert snapshots.search_random_seed is None
+    tactical = MatchHistoricalAnalysisOptionsV1(
+        tactical_motif_review=True,
+        immediate_review=False,
+    )
+    assert tactical.search_random_seed is None
+    assert tactical.to_dict()["tactical_motif_review"] is True
     search = MatchHistoricalAnalysisOptionsV1(
         immediate_review=False,
         search_review=True,
@@ -246,6 +253,7 @@ def test_historical_options_defaults_modes_and_search_seed_rules() -> None:
             "search_random_seed": 0,
         },
         {"decision_snapshots": 1},
+        {"tactical_motif_review": 1},
         {"immediate_random_seed": True},
         {"search_budget_profile": "interactive_v1"},
         {"search_budget_profile": "evaluation_v1"},

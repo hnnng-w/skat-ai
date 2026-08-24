@@ -234,9 +234,9 @@ def test_export_remains_private_and_compatibility_baselines_are_unchanged() -> N
     assert TRAINING_FEATURE_GENERATION_VERSION == 1
     assert TRAINING_TARGET == "actual_card_played"
     assert len(WorkflowV1) == 7
-    assert len(SCENARIOS) == 96
-    assert len(tuple((PROJECT_ROOT / "schemas").glob("*.schema.json"))) == 70
-    assert len(tuple((PROJECT_ROOT / "src/skat_ai/schema_resources").glob("*.schema.json"))) == 70
+    assert len(SCENARIOS) == 98
+    assert len(tuple((PROJECT_ROOT / "schemas").glob("*.schema.json"))) == 71
+    assert len(tuple((PROJECT_ROOT / "src/skat_ai/schema_resources").glob("*.schema.json"))) == 71
     assert len(tuple((PROJECT_ROOT / "examples").glob("session_*.json"))) == 6
     assert not tuple((PROJECT_ROOT / "schemas").glob("*human_evidence*.schema.json"))
     for namespace in (skat_ai, api_v1, cli):

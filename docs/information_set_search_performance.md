@@ -181,8 +181,10 @@ contract solver.
 Issue #193 changes no production code, Search algorithm, route, work profile,
 Public API, Package version, Schema, example, generated-output scenario, Session
 example, Root workflow, Console Script, or Settlement Matrix case. The current
-working counts remain 70 authoritative and packaged Schemas, six Session
-examples, and 96 generated-output scenarios.
+Issue #193 point-in-time counts remain 70 authoritative and packaged Schemas,
+six Session examples, and 96 generated-output scenarios. Issue #194 subsequently
+adds one unrelated Tactical Motif Review Schema and two scenarios, so the current
+working totals are 71 Schemas and 98 scenarios without changing this benchmark.
 
 The existing `benchmarks/bounded_search_late_game_v1.json` corpus and
 `scripts/benchmark_bounded_search.py` runner remain byte-identical and continue

@@ -206,13 +206,16 @@ Comparison. The Issue #190 baseline therefore reached 69 authoritative and
 packaged Schemas, six unchanged Session examples, and 94 generated-output
 scenarios. Issue #191 changed neither count. Issue #192 subsequently adds one
 strict Information-set Replay Coaching Schema, one Root example, and two
-append-only scenarios, bringing the current unreleased totals to 70 Schemas, six
+append-only scenarios, bringing the Issue #192 totals to 70 Schemas, six
 Session examples, and 96 scenarios. The published `v0.16.0` totals remain
 historical Release facts.
 
 Issue #193 adds only a synthetic benchmark corpus, repository-local runner,
 focused tests, and performance documentation. It adds no Schema, example,
 generated scenario, route, profile, Public API, Package version, or count change.
+Issue #194 separately adds one Tactical Motif Review Schema, one Root example,
+and two scenarios, bringing the current working totals to 71 Schemas and 98
+scenarios without changing Information-set Search.
 
 ## Integration boundary
 

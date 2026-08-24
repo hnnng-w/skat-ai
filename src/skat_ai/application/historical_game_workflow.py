@@ -23,6 +23,10 @@ from skat_ai.historical_opponent_profile_binding import (
     resolve_historical_opponent_profile_bindings,
 )
 from skat_ai.historical_search_review import build_historical_search_review_summary
+from skat_ai.historical_tactical_motif_review import (
+    build_historical_tactical_motif_review_v1,
+    build_serializable_historical_tactical_motif_review_v1,
+)
 from skat_ai.information_set_replay_coaching_report import (
     build_information_set_replay_coaching_report_v1,
     build_serializable_information_set_replay_coaching_report_v1,
@@ -62,6 +66,12 @@ class HistoricalGameWorkflowDependencies:
         build_serializable_information_set_replay_coaching_report_v1
     )
     build_replay_coaching: Callable[..., Any] = build_historical_replay_coaching_public_summaries
+    build_tactical_motif_review: Callable[..., Any] = (
+        build_historical_tactical_motif_review_v1
+    )
+    serialize_tactical_motif_review: Callable[..., Any] = (
+        build_serializable_historical_tactical_motif_review_v1
+    )
 
 
 _DEFAULT_DEPENDENCIES = HistoricalGameWorkflowDependencies()
@@ -95,7 +105,7 @@ def _build_effective_review_provenance_settings(
     options: HistoricalGameApplicationOptions,
 ) -> dict[str, object]:
     """Returns effective review settings without private random seeds."""
-    return {
+    settings: dict[str, object] = {
         "decision_snapshots": options.decision_snapshots,
         "immediate_review": options.immediate_review,
         "search_review": options.search_review,
@@ -130,6 +140,9 @@ def _build_effective_review_provenance_settings(
         ),
         "use_profile_presets_override": options.use_profile_presets_override,
     }
+    if options.historical_tactical_motif_review:
+        settings["historical_tactical_motif_review"] = True
+    return settings
 
 
 def execute_historical_game_workflow(
@@ -183,6 +196,7 @@ def execute_historical_game_workflow(
         or options.information_set_search_review
         or options.information_set_replay_coaching
         or options.replay_coaching
+        or options.historical_tactical_motif_review
     ):
         snapshot_summary = dependencies.build_snapshots(historical_game_summary)
         if provenance_collector is not None:
@@ -398,6 +412,22 @@ def execute_historical_game_workflow(
         historical_game_summary["historical_search_review_summary"] = search_review_summary
         if provenance_collector is not None:
             provenance_collector.capture_search_summary(search_review_summary)
+
+    if options.historical_tactical_motif_review:
+        if snapshot_summary is None:
+            raise ValueError("Historical decision snapshots were not generated.")
+        tactical_review = dependencies.build_tactical_motif_review(
+            historical_game_result=historical_game_summary,
+            decision_snapshot_summary=snapshot_summary,
+        )
+        tactical_summary = dependencies.serialize_tactical_motif_review(
+            tactical_review
+        )
+        historical_game_summary[
+            "historical_tactical_motif_review_summary"
+        ] = tactical_summary
+        if provenance_collector is not None:
+            provenance_collector.capture_tactical_motif_summary(tactical_summary)
 
     result = {
         "input_file": input_reference,

@@ -189,6 +189,8 @@ The output schema checks the main output structure, including:
 * optional versioned complete historical game review through its focused referenced schema
 * optional versioned Historical Search Review through its strict focused schema
 * optional versioned Historical Replay Coaching through its strict focused schema
+* optional versioned Historical Information-set Replay Coaching and Historical
+  Tactical Motif Review through their strict focused schemas
 * optional historical participant, temporal, per-decision policy, and aggregate profile application through its focused schema
 * the separate versioned `training_dataset_summary` branch through its strict focused schema
 * the separate versioned `training_dataset_preparation_summary` branch through
@@ -256,13 +258,16 @@ information_set_search_comparison.schema.json
 historical_information_set_search_review.schema.json
 information_set_search_evaluation.schema.json
 historical_information_set_replay_coaching.schema.json
+historical_tactical_motif_review.schema.json
 ```
 
 Issue #186 reached 65 Schemas, Issue #189 reached 69, and Issue #190 reused those
-69 while bringing the scenario matrix to 94. Issue #192 adds the final Schema
-above and two append-only scenarios. The current working baseline has 70
-authoritative and byte-identical packaged Schemas, six unchanged Session
-examples, and 96 generated-output scenarios. Package version `0.16.0`,
+69 while bringing the scenario matrix to 94. Issue #192 adds Information-set
+Replay Coaching and two scenarios, reaching 70 Schemas and 96 scenarios. Issue
+#193 changes neither count. Issue #194 adds the final Schema above and two
+append-only scenarios. The current working baseline has 71 authoritative and
+byte-identical packaged Schemas, six unchanged Session examples, and 98
+generated-output scenarios. Package version `0.16.0`,
 Public API contract version `1`, seven Root workflows, and one Console Script
 remain unchanged; the published counts above remain historical Release facts.
 
@@ -378,12 +383,24 @@ historical_information_set_replay_coaching
 historical_party_wide_claim_information_set_replay_coaching
 ```
 
-The current unreleased matrix therefore has 96 scenarios. The additions cover a
+The Issue #192 matrix therefore has 96 scenarios. The additions cover a
 separate Information-set Coaching report and the supported party-wide Claim
 ending with Information-set Coaching. At least one includes opt-in public
 Provenance. Both validate retained Historical Information-set Review reuse,
 decision-time/actual-Card/Outcome separation, complete-Candidate primary
 evidence, diagnostic PIMC/Immediate without fallback, and privacy-safe output.
+
+Issue #194 preserves those first 96 scenarios in order and appends exactly:
+
+```text
+historical_tactical_motif_review_defender_partnership
+historical_party_wide_claim_tactical_motif_review
+```
+
+The current unreleased matrix therefore has 98 scenarios. The additions cover
+complete normal-play Tactical Motif Review with Defender partnership aggregates
+and the exact pre-Claim observation prefix with complete Claim Result
+Provenance.
 
 The scenario matrix is intentionally bounded. It covers representative
 user-facing CLI workflows, including explicit-input live recommendation, JSON

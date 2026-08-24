@@ -176,6 +176,9 @@ HISTORICAL_INFORMATION_SET_REPLAY_COACHING_SCHEMA_PATH = (
     / "schemas"
     / "historical_information_set_replay_coaching.schema.json"
 )
+HISTORICAL_TACTICAL_MOTIF_REVIEW_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "historical_tactical_motif_review.schema.json"
+)
 INFORMATION_SET_SEARCH_EVALUATION_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "information_set_search_evaluation.schema.json"
 )
@@ -3502,6 +3505,80 @@ def check_historical_party_wide_claim_information_set_replay_coaching(
     return errors
 
 
+def check_historical_tactical_motif_review(data: dict[str, Any]) -> list[str]:
+    historical = data.get("historical_game_summary")
+    if not isinstance(historical, dict):
+        return ["expected historical_game_summary"]
+    report = historical.get("historical_tactical_motif_review_summary")
+    if not isinstance(report, dict):
+        return ["expected historical_tactical_motif_review_summary"]
+    errors = []
+    if report["review_method"] != "historical_tactical_motif_review_v1":
+        errors.append("expected Historical Tactical Motif Review method")
+    if report["source_game_id"] != historical["game_id"]:
+        errors.append("expected Historical Tactical Motif source identity")
+    if report["observation_count"] != len(report["observations"]):
+        errors.append("expected exact tactical observation coverage")
+    if (
+        report["complete_observation_count"] + report["partial_observation_count"]
+        != report["observation_count"]
+    ):
+        errors.append("expected exact tactical observation status reconciliation")
+    if sum(item["count"] for item in report["motif_counts"]) != report["motif_occurrence_count"]:
+        errors.append("expected exact tactical motif-count reconciliation")
+    if sum(item["count"] for item in report["family_counts"]) != report["motif_occurrence_count"]:
+        errors.append("expected exact tactical family-count reconciliation")
+    if tuple(
+        len(report[field])
+        for field in (
+            "player_summaries",
+            "role_summaries",
+            "phase_summaries",
+            "contract_summaries",
+        )
+    ) != (3, 2, 3, 1):
+        errors.append("expected complete Tactical Motif scope summaries")
+    if "decision_snapshot_summary" in historical:
+        errors.append("Tactical-only workflow must not emit retained Snapshots")
+    return errors
+
+
+def check_historical_tactical_motif_defender_partnership(
+    data: dict[str, Any],
+) -> list[str]:
+    errors = check_historical_tactical_motif_review(data)
+    report = data["historical_game_summary"].get("historical_tactical_motif_review_summary")
+    if not isinstance(report, dict):
+        return errors
+    partnership_count = next(
+        item["count"]
+        for item in report["family_counts"]
+        if item["motif_family"] == "defender_partnership"
+    )
+    if partnership_count <= 0:
+        errors.append("expected deterministic Defender-partnership motifs")
+    if report["observation_count"] != 30:
+        errors.append("expected all 30 normal-completion observations")
+    return errors
+
+
+def check_historical_party_wide_claim_tactical_motif_review(
+    data: dict[str, Any],
+) -> list[str]:
+    errors = check_historical_tactical_motif_review(data)
+    historical = data["historical_game_summary"]
+    report = historical.get("historical_tactical_motif_review_summary")
+    if not isinstance(report, dict):
+        return errors
+    if report["observation_count"] != 15:
+        errors.append("expected all 15 pre-Claim observations")
+    if historical["historical_game_end_summary"]["kind"] != (
+        "party_wide_all_remaining_tricks_claim"
+    ):
+        errors.append("expected party-wide Claim Tactical Motif context")
+    return errors
+
+
 def check_information_set_search_evaluation(data: dict[str, Any]) -> list[str]:
     summary = data.get("information_set_search_evaluation_summary")
     if not isinstance(summary, dict):
@@ -5557,6 +5634,25 @@ SCENARIOS = (
         expect_quiet_stdout=True,
         include_position_overrides=False,
     ),
+    Scenario(
+        name="historical_tactical_motif_review_defender_partnership",
+        input_path=(PROJECT_ROOT / "examples" / "historical_tactical_motif_review.json"),
+        branch="deterministic Historical Defender-partnership tactical motifs",
+        cli_args=("--historical-tactical-motif-review", "--quiet"),
+        check_output=check_historical_tactical_motif_defender_partnership,
+        expect_quiet_stdout=True,
+        include_position_overrides=False,
+        include_provenance=True,
+    ),
+    Scenario(
+        name="historical_party_wide_claim_tactical_motif_review",
+        input_path=PROJECT_ROOT / "examples" / "historical_party_wide_claim.json",
+        branch="party-wide Claim Historical Tactical Motif Review",
+        cli_args=("--historical-tactical-motif-review", "--quiet"),
+        check_output=check_historical_party_wide_claim_tactical_motif_review,
+        expect_quiet_stdout=True,
+        include_position_overrides=False,
+    ),
 )
 
 
@@ -5684,6 +5780,9 @@ def validate_generated_outputs() -> list[str]:
     )
     historical_information_set_replay_coaching_schema = load_json_file(
         HISTORICAL_INFORMATION_SET_REPLAY_COACHING_SCHEMA_PATH
+    )
+    historical_tactical_motif_review_schema = load_json_file(
+        HISTORICAL_TACTICAL_MOTIF_REVIEW_SCHEMA_PATH
     )
     information_set_search_evaluation_schema = load_json_file(
         INFORMATION_SET_SEARCH_EVALUATION_SCHEMA_PATH
@@ -5914,6 +6013,10 @@ def validate_generated_outputs() -> list[str]:
                 Resource.from_contents(
                     historical_information_set_replay_coaching_schema
                 ),
+            ),
+            (
+                historical_tactical_motif_review_schema["$id"],
+                Resource.from_contents(historical_tactical_motif_review_schema),
             ),
             (
                 information_set_search_evaluation_schema["$id"],

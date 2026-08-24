@@ -71,6 +71,7 @@ def _attachment_sort_key(
         "historical_immediate_review_summary": 6,
         "historical_search_review_summary": 7,
         "historical_information_set_search_review_summary": 7,
+        "historical_tactical_motif_review_summary": 8,
         "replay_coaching/prioritization": 8,
         "replay_coaching/guidance": 9,
         "replay_coaching/report": 10,

@@ -1404,6 +1404,9 @@
         "historical_information_set_replay_coaching_summary": {
           "$ref": "https://example.local/skat-ai/historical_information_set_replay_coaching.schema.json"
         },
+        "historical_tactical_motif_review_summary": {
+          "$ref": "https://example.local/skat-ai/historical_tactical_motif_review.schema.json"
+        },
         "historical_replay_coaching_summary": {
           "$ref": "https://example.local/skat-ai/historical_replay_coaching.schema.json"
         },

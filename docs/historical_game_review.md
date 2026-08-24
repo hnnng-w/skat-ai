@@ -23,10 +23,16 @@ Historical Search Review coaching analysis to add prioritized decisions,
 Turning Points, one-game patterns, recommendations, scope summaries, and isolated
 retrospective outcome context without changing either existing review shape.
 
+Historical Tactical Motif Review is a separate opt-in structural view. It reuses
+the retained Decision Snapshot sequence, attaches the recorded Card only after
+decision-time facts and completed-Trick outcomes only after completion, and runs
+no recommendation, Search, Coaching, or Commentary interpretation. See
+[Tactical motif evidence](tactical_motif_evidence.md).
+
 Issue #168 exposes these existing modes through one private local Match Capture
 Historical action only after strict normal-completion materialization succeeds.
 The caller selects at least one of Decision Snapshots, Immediate Review, Search
-Review, or Replay Coaching, and the browser makes one exact Historical
+Review, either Replay Coaching family, or Tactical Motif Review, and the browser makes one exact Historical
 Application invocation. This private transport does not add a new Historical
 workflow or public Match contract.
 

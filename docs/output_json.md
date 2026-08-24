@@ -281,6 +281,21 @@ advice.
 Final outcome context describes how the recorded game ended. It is not decision-
 time evidence and does not change Coaching classification.
 
+When `--historical-tactical-motif-review` is requested, the historical summary
+adds `historical_tactical_motif_review_summary`. The strict report version is
+`1`, its method is `historical_tactical_motif_review_v1`, and it contains one
+chronological observation per recorded actual Card. Decision Facts precede the
+actual Card, immediate current-winner facts follow the Card, and completed-Trick
+winner/points and outcome motifs appear only after Trick completion.
+
+The report contains exact motif/family counts, complete Player/role/phase/
+contract scopes, complete/partial observation totals, and explicit limitations.
+It never contains complete own hands, complete legal-Card sets, hidden ownership,
+Search Worlds, Commentary, Response Links, quality labels, signaling,
+communication, or causal conclusions. A valid incomplete final Trick yields
+partial observations with null completed-Trick fields; zero recorded Cards yield
+empty observations and complete zero-count scopes.
+
 The recursive public boundary excludes initial/final/private hands, final hidden
 ownership, Skat identities, discards, compatible-world identities and contents,
 private Search states, selected worlds, ownership assignments, exact proof

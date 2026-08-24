@@ -523,6 +523,11 @@ specialized contracts:
 | Replay Coaching recommendation | `search_derived` or `heuristic_analysis` |
 | Information-set Coaching assessment | `search_derived` from retained complete Candidates plus `retrospective_attachment`, `after_actual_play` |
 | Information-set Coaching Outcome Context | existing rule/result origins, `game_end`, `post_game_only` |
+| Tactical Decision Facts | `rule_derived` from retained Historical Snapshots, `current_decision` |
+| Tactical actual Card | `retrospective_attachment`, `after_actual_play` |
+| Tactical complete status, completed-Trick facts, and outcome motifs | `rule_derived`, after the third actual play |
+| Tactical partial status and null completion fields | `rule_derived`, after the last recorded actual play |
+| Tactical motif/family counts and scopes | `rule_derived`, exact deterministic aggregate |
 | Training source field | `external_source` |
 | Generated Dataset partition | `dataset_assignment`, `deterministic_rule` |
 
@@ -537,8 +542,9 @@ and unchanged.
 The internal Application boundary carries live and retrospective Position,
 Historical Review, Historical Search Review, Replay Coaching, Dataset,
 Information-set Search Review/evaluation, Information-set Replay Coaching,
-Preparation, Opponent, Profile, list, comparison, and complete Result
-provenance. Every Root Result ledger is complete and non-legacy. Issue #147
+Historical Tactical Motif Review, Preparation, Opponent, Profile, list,
+comparison, and complete Result provenance. Every Root Result ledger is complete
+and non-legacy. Issue #147
 publishes only one redacted Root Result ledger plus actual-artifact ledgers.
 
 Broader adversarial enforcement outside implemented Application boundaries and

@@ -290,6 +290,31 @@ def print_historical_information_set_search_review_result(
     print_information_set_search_metrics(summary)
 
 
+def print_historical_tactical_motif_review_result(
+    summary: dict[str, Any],
+) -> None:
+    """Prints only safe aggregate tactical-motif observations."""
+    print()
+    print("Historical Tactical Motif Review")
+    print("Source game:", summary["source_game_id"])
+    print("Observations:", summary["observation_count"])
+    print("Complete observations:", summary["complete_observation_count"])
+    print("Partial observations:", summary["partial_observation_count"])
+    print("Motif occurrences:", summary["motif_occurrence_count"])
+    motif_counts = ", ".join(
+        f"{row['motif_type']}={row['count']}"
+        for row in summary["motif_counts"]
+        if row["count"] > 0
+    )
+    family_counts = ", ".join(
+        f"{row['motif_family']}={row['count']}"
+        for row in summary["family_counts"]
+        if row["count"] > 0
+    )
+    print("Motif counts:", motif_counts or "none")
+    print("Family counts:", family_counts or "none")
+
+
 def _count_rows(
     rows: object,
     key_name: str,

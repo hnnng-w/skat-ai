@@ -28,6 +28,9 @@ from skat_ai.match_historical_information_set_analysis import (
 from skat_ai.match_historical_materialization import (
     materialize_match_observed_game_historical_v1,
 )
+from skat_ai.match_historical_tactical_motif_analysis import (
+    reconcile_match_historical_tactical_motif_result_v1,
+)
 from skat_ai.match_player_statistics_preparation import (
     MatchPlayerStatisticsPreparationV1,
     build_match_player_statistics_preparation_v1,
@@ -234,6 +237,11 @@ def execute_match_historical_analysis_v1(
     if not isinstance(summary, dict) or summary.get("game_id") != historical.game_id:
         raise SkatAIInvariantError("Match Historical Result changed Game identity.")
     reconcile_match_historical_information_set_result_v1(
+        summary,
+        game_id=historical.game_id,
+        options=options,
+    )
+    reconcile_match_historical_tactical_motif_result_v1(
         summary,
         game_id=historical.game_id,
         options=options,

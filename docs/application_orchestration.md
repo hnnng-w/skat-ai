@@ -66,6 +66,11 @@ evidence calls no handler, and Match materialization calls no handler. This adds
 no workflow, changes no Application contract, and does not make Match contracts
 public.
 
+Issue #194 adds one default-false Tactical Motif Review option to that existing
+Historical handler and the private Match caller. Historical execution reuses one
+retained Decision Snapshot sequence across every requested attachment and does
+not add a workflow, handler, orchestration version, or public Match contract.
+
 ## Contracts
 
 The main contract values are frozen, slotted, keyword-only dataclasses:
@@ -108,8 +113,8 @@ Profile Preset opt-in and stable opponent bindings, Multi-Step settings, and
 Policy Comparison selection.
 
 `HistoricalGameApplicationOptions` represents snapshot, Immediate Review,
-Historical Search Review, and Replay Coaching selection; Search and Immediate
-settings; and injected-profile policy overrides.
+Historical Search Review, Replay Coaching, and Tactical Motif Review selection;
+Search and Immediate settings; and injected-profile policy overrides.
 
 `TrainingDatasetApplicationOptions` selects exactly one Training Dataset
 operation and its operation-specific partition, Search, aggregation, or export
@@ -123,7 +128,7 @@ The generic dispatcher has one handler for every canonical `WorkflowV1` value:
 | Workflow | Application handler result |
 | --- | --- |
 | `position_analysis` | Existing Position Analysis result, optionally including Multi-Step, Policy Comparison, and live injected-profile application. |
-| `historical_game` | Existing Historical Game result, optionally including snapshots, Immediate Review, Search Review, Replay Coaching, and time-safe injected-profile application. |
+| `historical_game` | Existing Historical Game result, optionally including snapshots, Immediate Review, Search Review, Replay Coaching, Tactical Motif Review, and time-safe injected-profile application. |
 | `training_dataset` | Exactly one of the five Training Dataset operation results. |
 | `training_dataset_preparation` | Existing automatic Training Dataset preparation result. |
 | `opponent_statistics` | Existing normalized Opponent Statistics result. |
@@ -274,7 +279,8 @@ attaches a complete non-legacy ledger for the exact Position Result.
 Retrospective Position execution separates pre-actual input and analysis from
 actual-card assessment. Historical execution attaches decision-time inputs,
 retained Immediate/Search analysis, post-actual assessment, requested aggregate
-summaries, Replay Coaching stages, and a complete non-legacy Historical Result
+summaries, Replay Coaching stages, retained Tactical Decision Facts, after-play
+and completed-Trick tactical stages, and a complete non-legacy Historical Result
 ledger. Dataset, Preparation, Opponent, list, and comparison execution
 attach complete non-legacy input, retained-stage, aggregate, and exact Root
 Result ledgers. A Historical execution with no selected review operation has a

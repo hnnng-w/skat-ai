@@ -26,6 +26,11 @@ Application invocation and one shared retained Information-set Review, preserve
 the existing report lifecycle, and remain separate from one-Decision Match
 Teacher transfer.
 
+Issue #194 subsequently adds a separate `tactical_motif_review` Historical
+control and safe browser projection. It executes through the same one-request,
+one-invocation report lifecycle, requires no Search settings, and makes no
+quality, signaling, communication, or causal claim.
+
 ## Contract identity
 
 The private version-1 contracts cover:
@@ -143,13 +148,19 @@ For an available Game, the caller selects at least one existing mode:
 * Historical Search Review;
 * Replay Coaching;
 * Historical Information-set Search Review; and
-* Information-set Replay Coaching.
+* Information-set Replay Coaching; or
+* Historical Tactical Motif Review.
 
 Every Search Review or Coaching family requires an explicit Search seed and
 accepts the same two Match Search budget profiles. Existing Search Review and
 Replay Coaching form one family; Information-set Review and Information-set
 Coaching form another. Modes from different families cannot be mixed. Decision
 Snapshots and Immediate Review may accompany either family.
+
+Tactical Motif Review is independent of both Search families and may run alone
+or accompany either family. It needs no Search seed, Search Budget, Immediate
+samples, or Profile. The Application reuses the same retained Decision Snapshot
+sequence for every selected attachment rather than replaying the Game.
 
 The complete selected configuration is passed through one Historical
 Application invocation. When both Information-set Review and Coaching are
@@ -160,6 +171,14 @@ assessment evidence; same-selection PIMC and independent Immediate are diagnosti
 only and never provide fallback. Partial, timeout, unavailable, or incomplete
 Candidate evidence is not assessable except for a factual one-legal-Card forced
 move.
+
+The tactical report reconciles exact source Game identity, method, observation
+count, and canonical chronology against the validated Root Result. Its safe view
+contains source identity, complete/partial observation totals, motif and family
+counts, per-Player counts, chronological actual-Card motif rows, and limitations.
+It excludes complete hands, legal-Card sets, hidden ownership, Search Worlds,
+Commentary, Response Links, and quality labels. Browser rendering is escaped and
+runs only after explicit `analyze_historical_game`.
 
 ## Match materialization
 
@@ -321,3 +340,7 @@ Statistics Records, Commentary, and Response Links. The selected-world fixed-
 Policy analysis is not equilibrium, perfect play, calibrated probability, or a
 global-optimality claim. See
 [Information-set Replay Coaching and Match Historical analysis](information_set_replay_coaching_and_match_historical_analysis.md).
+
+Issue #194 does not change that eligibility boundary. Tactical Motif Reports
+remain revision-scoped Historical Reports and cannot be downloaded as Strategy
+Teacher sources. See [Tactical motif evidence](tactical_motif_evidence.md).

@@ -510,15 +510,15 @@ def test_public_package_schema_and_generated_output_boundaries_are_unchanged() -
     ):
         assert name not in api_v1.__all__
         assert name not in session_api.__all__
-    assert len(tuple((PROJECT_ROOT / "schemas").glob("*.schema.json"))) == 70
+    assert len(tuple((PROJECT_ROOT / "schemas").glob("*.schema.json"))) == 71
     assert len(
         tuple(
             (PROJECT_ROOT / "src" / "skat_ai" / "schema_resources").glob(
                 "*.schema.json"
             )
         )
-    ) == 70
-    assert len(SCENARIOS) == 96
+    ) == 71
+    assert len(SCENARIOS) == 98
     pyproject = tomllib.loads(
         (PROJECT_ROOT / "pyproject.toml").read_text(encoding="utf-8")
     )

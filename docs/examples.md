@@ -45,8 +45,11 @@ and two append-only scenarios without adding a Schema, bringing the totals to 69
 Schemas and 94 scenarios without changing the published `v0.16.0` facts above.
 Issue #191 changes neither count. Issue #192 adds one strict Information-set
 Replay Coaching Schema, one Root example, and two append-only scenarios, bringing
-the current working totals to 70 Schemas and 96 scenarios while preserving the
-Issue #190 and published baselines.
+the Issue #192 point-in-time totals to 70 Schemas and 96 scenarios while preserving the
+Issue #190 and published baselines. Issue #193 changes neither count. Issue #194
+adds one strict Historical Tactical Motif Review Schema, one Root example, and
+two append-only scenarios, bringing the current working totals to 71 Schemas and
+98 scenarios.
 
 The historical published `v0.15.0` baseline at commit `ec1c154` contains 63
 authoritative Schemas and 63 Packaged Schema Resources, includes six strict
@@ -599,6 +602,7 @@ right's response is simulated before the local third-hand decision.
 | `historical_grand_open_card_throw.json` | Complete deal, exact 24-play Grand prefix, stable defender throw, confirmed canonical hand, opposing-party assignment, and shared settlement. |
 | `historical_party_wide_claim.json` | Complete deal, exact five-Trick Spades prefix, stable Declarer claimant, bounded exact valid party-wide Proof, diagnostic public summary, and reused Final Settlement. |
 | `historical_information_set_replay_coaching.json` | Complete historical Game configured for separate Information-set Replay Coaching with retained Review reuse, complete-Candidate primary evidence, diagnostic baselines, and no fallback. |
+| `historical_tactical_motif_review.json` | Complete historical Game configured for deterministic structural Tactical Motif Review without Search, quality, signaling, communication, or causal claims. |
 | `historical_grand_defender_open_play_continuation.json` | Complete normal Grand with one timed exact returned defender hand and 30 actual plays. |
 | `historical_grand_defender_open_play_continuation_declarer_concession.json` | Timed public defender hand after play 12, two later plays with exact hand shrinkage, then delegated declarer concession. |
 | `historical_grand_declarer_card_exposure_continuation_defender_concession.json` | Public declarer hand after play 14 followed immediately by delegated defender concession with no post-event card decision. |
@@ -626,6 +630,11 @@ append-only scenarios: one normal Historical Coaching report and one party-wide
 Claim ending with Information-set Coaching. They cover retained Review reuse,
 complete-Candidate-only assessment, diagnostic baselines without fallback,
 Outcome Context isolation, and opt-in public Provenance.
+Issue #194 adds the separate Tactical Motif Review example and appends
+`historical_tactical_motif_review_defender_partnership` and
+`historical_party_wide_claim_tactical_motif_review`. They cover complete
+30-Decision structural evidence including Defender partnership aggregates and
+the exact 15-Decision pre-Claim prefix with complete Claim Result Provenance.
 The two chain examples keep the continuation summary
 separate from the reason-specific terminal summary and retain schema versions `1`.
 

@@ -177,6 +177,7 @@ class MatchHistoricalAnalysisOptionsV1:
 
     match_historical_analysis_options_version: int = MATCH_HISTORICAL_ANALYSIS_OPTIONS_VERSION
     decision_snapshots: bool = False
+    tactical_motif_review: bool = False
     immediate_review: bool = True
     search_review: bool = False
     information_set_search_review: bool = False
@@ -196,6 +197,7 @@ class MatchHistoricalAnalysisOptionsV1:
         )
         for field_name in (
             "decision_snapshots",
+            "tactical_motif_review",
             "immediate_review",
             "search_review",
             "information_set_search_review",
@@ -207,6 +209,7 @@ class MatchHistoricalAnalysisOptionsV1:
                 raise ValueError(f"{field_name} must be a boolean.")
         if not (
             self.decision_snapshots
+            or self.tactical_motif_review
             or self.immediate_review
             or self.search_review
             or self.information_set_search_review
@@ -248,6 +251,7 @@ class MatchHistoricalAnalysisOptionsV1:
                 self.match_historical_analysis_options_version
             ),
             "decision_snapshots": self.decision_snapshots,
+            "tactical_motif_review": self.tactical_motif_review,
             "immediate_review": self.immediate_review,
             "search_review": self.search_review,
             "information_set_search_review": self.information_set_search_review,

@@ -52,6 +52,7 @@ _HISTORICAL_OPTION_NAMES = (
     "information_set_search_review",
     "information_set_replay_coaching",
     "replay_coaching",
+    "historical_tactical_motif_review",
     "search_seed",
     "search_budget_profile",
     "immediate_sample_count",

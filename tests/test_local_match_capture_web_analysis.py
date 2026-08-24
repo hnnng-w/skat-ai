@@ -383,6 +383,51 @@ def test_selected_report_state_recursively_allows_only_rendered_fields() -> None
         "outcome_context": {"private_information_set_outcome": ["CA"]},
         "limitations": [],
     }
+    summary["historical_tactical_motif_review_summary"] = {
+        "review_method": "historical_tactical_motif_review_v1",
+        "source_game_id": historical.game_id,
+        "observation_count": 1,
+        "complete_observation_count": 1,
+        "partial_observation_count": 0,
+        "motif_occurrence_count": 1,
+        "motif_counts": [{"motif_type": "trump_lead", "count": 1}],
+        "family_counts": [{"motif_family": "lead_structure", "count": 1}],
+        "player_summaries": [
+            {
+                "scope_value": "p1",
+                "observation_count": 1,
+                "complete_observation_count": 1,
+                "partial_observation_count": 0,
+                "motif_occurrence_count": 1,
+                "private_player_cards": ["CA"],
+            }
+        ],
+        "observations": [
+            {
+                "decision_time_facts": {
+                    "decision_index": 1,
+                    "trick_number": 1,
+                    "play_index": 1,
+                    "acting_player_id": "p1",
+                    "acting_side": "defenders",
+                    "private_legal_cards": ["CA"],
+                },
+                "actual_card": "CJ",
+                "observation_status": "complete",
+                "motifs": [
+                    {
+                        "motif_type": "trump_lead",
+                        "motif_family": "lead_structure",
+                        "evidence_time": "after_actual_play",
+                        "private_motif_evidence": ["CA"],
+                    }
+                ],
+                "private_observation": ["CA"],
+            }
+        ],
+        "limitations": ["structural_not_quality"],
+        "private_review_cards": ["CA"],
+    }
     historical = replace(
         historical,
         result=ResultDocumentV1(
@@ -420,33 +465,44 @@ def test_selected_report_state_recursively_allows_only_rendered_fields() -> None
         "private_coverage",
         "private_guidance",
         "private_information_set_outcome",
+        "private_player_cards",
+        "private_legal_cards",
+        "private_motif_evidence",
+        "private_review_cards",
     ):
         assert private_field not in serialized_historical
     information_set_details = historical_state["selected_report"]["details"]
-    assert information_set_details["information_set_search_review"][
-        "decision_count"
-    ] == 1
-    assert information_set_details["information_set_replay_coaching"][
-        "coverage"
-    ]["assessable_decision_count"] == 1
+    assert information_set_details["information_set_search_review"]["decision_count"] == 1
+    assert (
+        information_set_details["information_set_replay_coaching"]["coverage"][
+            "assessable_decision_count"
+        ]
+        == 1
+    )
+    assert information_set_details["tactical_motif_review"]["motif_counts"] == [
+        {"motif_type": "trump_lead", "count": 1}
+    ]
     historical_html = render_match_capture_web_page_v1(historical_state)
     assert "Historical Information-set Search Review" in historical_html
     assert "Information-set Replay Coaching" in historical_html
     assert "Assessment status counts" in historical_html
     assert "Same-selection PIMC agreement counts" in historical_html
     assert "Immediate agreement counts" in historical_html
-    assert "Same-selection PIMC and Immediate are diagnostics, never fallback" in (
-        historical_html
-    )
-    assert "It is not equilibrium, calibrated probability, or perfect play." in (
-        historical_html
-    )
+    assert "Historical Tactical Motif Review" in historical_html
+    assert "Chronological motif rows" in historical_html
+    assert "trump lead" in historical_html
+    assert "Same-selection PIMC and Immediate are diagnostics, never fallback" in (historical_html)
+    assert "It is not equilibrium, calibrated probability, or perfect play." in (historical_html)
     for private_field in (
         "private_observation",
         "private_policy",
         "private_coverage",
         "private_guidance",
         "private_information_set_outcome",
+        "private_player_cards",
+        "private_legal_cards",
+        "private_motif_evidence",
+        "private_review_cards",
     ):
         assert private_field not in historical_html
 
@@ -555,6 +611,16 @@ def test_json_analysis_options_are_strict_and_accept_no_custom_budget(
                 search_random_seed=0,
             ),
         )
+    with pytest.raises(ValueError, match="tactical_motif_review must be a boolean"):
+        execute_match_capture_web_analysis_v1(
+            context,
+            _analysis_values(
+                context,
+                "analyze_historical_game",
+                immediate_review=False,
+                tactical_motif_review=1,
+            ),
+        )
     with pytest.raises(ValueError, match="Workspace mutation"):
         apply_match_capture_web_operation_v1(
             context,
@@ -578,6 +644,7 @@ def test_historical_information_set_browser_controls_and_options_are_explicit(
     html = render_match_capture_web_page_v1(state)
     assert 'name="information_set_search_review"' in html
     assert 'name="information_set_replay_coaching"' in html
+    assert 'name="tactical_motif_review"' in html
     assert "PIMC and Immediate are diagnostic baselines with no fallback" in html
     assert "not equilibrium or perfect play" in html
 
@@ -588,6 +655,7 @@ def test_historical_information_set_browser_controls_and_options_are_explicit(
             "analyze_historical_game",
             decision_snapshots=False,
             immediate_review=False,
+            tactical_motif_review=True,
             search_review=False,
             information_set_search_review=True,
             replay_coaching=False,
@@ -603,6 +671,7 @@ def test_historical_information_set_browser_controls_and_options_are_explicit(
     options = report.value.options
     assert options.information_set_search_review is True
     assert options.information_set_replay_coaching is True
+    assert options.tactical_motif_review is True
     assert options.search_random_seed == 29
     assert options.immediate_random_seed == 23
     assert options.use_profile_presets is True

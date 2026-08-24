@@ -44,6 +44,7 @@ def build_match_historical_application_options_v1(
     )
     return HistoricalGameApplicationOptions(
         decision_snapshots=options.decision_snapshots,
+        historical_tactical_motif_review=options.tactical_motif_review,
         immediate_review=options.immediate_review,
         search_review=options.search_review,
         information_set_search_review=options.information_set_search_review,

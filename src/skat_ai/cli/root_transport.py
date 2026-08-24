@@ -26,6 +26,7 @@ from skat_ai.cli.presentation.historical import (
     print_historical_information_set_search_review_result,
     print_historical_replay_coaching_result,
     print_historical_search_review_result,
+    print_historical_tactical_motif_review_result,
 )
 from skat_ai.cli.presentation.historical_lists import (
     print_fixed_three_player_historical_list_comparison_result,
@@ -202,6 +203,7 @@ def run_json_historical_game_analysis(
     historical_information_set_search_review: bool = False,
     historical_information_set_replay_coaching: bool = False,
     historical_replay_coaching: bool = False,
+    historical_tactical_motif_review: bool = False,
     search_seed: int | None = None,
     search_budget_profile: str = HISTORICAL_REVIEW_SEARCH_BUDGET_PROFILE,
     sample_count: int | None = None,
@@ -240,6 +242,9 @@ def run_json_historical_game_analysis(
                     historical_information_set_replay_coaching
                 ),
                 replay_coaching=historical_replay_coaching,
+                historical_tactical_motif_review=(
+                    historical_tactical_motif_review
+                ),
                 search_seed=search_seed,
                 search_budget_profile=search_budget_profile,
                 immediate_sample_count=sample_count,
@@ -289,6 +294,15 @@ def run_json_historical_game_analysis(
             "print_historical_replay_coaching_result",
             print_historical_replay_coaching_result,
         )(historical_game_summary["historical_replay_coaching_summary"])
+    if historical_tactical_motif_review:
+        _dependency(
+            "print_historical_tactical_motif_review_result",
+            print_historical_tactical_motif_review_result,
+        )(
+            historical_game_summary[
+                "historical_tactical_motif_review_summary"
+            ]
+        )
     if output_path is not None:
         print()
         print("Output file written:", output_path)

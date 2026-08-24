@@ -319,10 +319,12 @@ Search-world weights and do not alter bounded Search.
 
 For one strictly available Historical Game, Issue #168 executes the existing
 Historical Application once with at least one selected Snapshot, Immediate
-Review, Search Review, or Replay Coaching mode. Historical Profiles are injected
+Review, Search Review, Replay Coaching, or Tactical Motif Review mode. Historical Profiles are injected
 only for enabled Immediate Review and existing Profile-Preset behavior. This is
 not a claim that Profiles affect Search Review or Coaching. Commentary and
 Response Links remain outside all analysis inputs and Coaching.
+Tactical Motif Review is a separate deterministic structural report, receives no
+Profile or Search settings, and keeps Commentary and Response Links separate.
 
 The Match-wide materialization browser action still invokes no Root workflow. It
 prepares the existing 36-Slot materialization once and presents counts,

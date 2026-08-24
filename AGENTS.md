@@ -198,6 +198,7 @@ Before larger changes, read the relevant documentation:
 * `docs/information_set_search_multi_step_and_policy_comparison.md`
 * `docs/information_set_replay_coaching_and_match_historical_analysis.md`
 * `docs/information_set_search_performance.md`
+* `docs/tactical_motif_evidence.md`
 * `docs/installed_cli.md`
 * `docs/public_field_provenance.md`
 * `docs/examples.md`
@@ -241,8 +242,9 @@ counts or public/versioned surfaces.
 
 Issue #192 adds separate Historical Information-set Replay Coaching, private
 Match Historical Information-set Review and Coaching controls, one strict
-Schema, one Root example, and two append-only scenarios. The current working
-baseline therefore has 70 authoritative and packaged Schemas and 96 scenarios.
+Schema, one Root example, and two append-only scenarios. The working baseline at
+that point therefore has 70 authoritative and packaged Schemas and
+96 scenarios.
 Package version, Public API contract, seven Root workflows, one Console Script,
 Settlement Matrix version `3` with 61 cases, and six Session examples remain
 unchanged.
@@ -252,6 +254,12 @@ corpus, a strict repository-local runner and focused regression tests, and
 documented local reference measurements. It changes no production code, Schema,
 route, profile, Public API, Package version, example, generated scenario, or the
 working counts above.
+
+Issue #194 adds deterministic Historical Tactical Motif Review, private Match
+browser controls, one strict Schema, one Root example, and two append-only
+scenarios. The current working baseline therefore has 71 authoritative and
+packaged Schemas and 98 scenarios. Existing Package/API/workflow/Console-Script/
+Settlement/Session baselines remain unchanged.
 
 The historical published `v0.15.0` GitHub Release has release theme "Local
 EuroSkat 36er Match capture, analysis, and exports" and GitHub Release title
@@ -480,7 +488,10 @@ with Dataset-v2 and Corpus propagation. Issue #192 adds separate Information-set
 Replay Coaching and Match Historical Information-set Review/Coaching with one
 retained Review, no PIMC/Immediate fallback, time-safe fixed Profile Policies,
 and complete Provenance. Issue #193 adds repository-local benchmark evidence
-without changing product behavior or versioned surfaces. Tactical and cross-game Coaching, carefully
+without changing product behavior or versioned surfaces. Issue #194 adds
+deterministic Historical Tactical Motif Review and private Match browser controls
+without changing either Coaching family. Tactical quality assessment and cross-
+game Coaching, carefully
 bounded Player Ratings where approved, broader Provenance and Confidence
 integration, product/runtime performance acceptance gates, cross-machine latency
 guarantees, and the remaining pre-v1 scope
@@ -574,6 +585,10 @@ Major completed areas include:
   PIMC/Immediate without fallback, existing Key Decision/Turning Point/pattern/
   Guidance reuse, isolated Outcome Context, complete Provenance, strict Schema,
   CLI, example, generated scenarios, and private Match Historical controls
+* separate version-1 Historical Tactical Motif Review with one retained Snapshot
+  sequence, exact structural lead/void/Trick-control/Defender-partnership/hand-
+  shape/outcome evidence, strict timing and privacy, complete Provenance, Schema,
+  CLI, example, generated scenarios, and private Match browser controls
 * information-safe one-game Replay Coaching evidence, prioritization, patterns, deterministic recommendations, complete report, public schema, JSON, CLI, examples, and generated-output coverage
 * fixed-three-player 36-position historical-list contracts, aggregation, progression, standings, exact external-lot application, independent-list comparison, public JSON/schema/CLI workflows, examples, and generated-output coverage
 * deterministic public automatic Training Dataset preparation with temporal Known-opponent and Player-disjoint unseen-player assignment, complete or unavailable Plans, lossless materialization, strict schemas, CLI, examples, and generated-output coverage
@@ -737,8 +752,10 @@ Match Historical Information-set Review/Coaching. Issue #193 adds separate local
 benchmark evidence for the unchanged executor. Product/runtime performance
 acceptance gates and latency guarantees remain open. There is no
 cross-decision global Policy, equilibrium, global optimality, or calibrated
-probability claim. Overbid Null replacement selection, tactical
-motif detection, cross-game Coaching, causal
+probability claim. Issue #194 adds deterministic structural Historical Tactical
+Motif Review without quality, intent, signaling, communication, or causal
+classification. Overbid Null replacement selection, tactical quality assessment,
+cross-game Coaching, causal
 attribution, player ratings, and complete field-level information provenance
 remain open before `v1.0.0`. End-to-end local Live and Retrospective Session
 capture is implemented through public file Save/Load, automatic Checkpoints,

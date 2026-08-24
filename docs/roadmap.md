@@ -819,9 +819,10 @@ Implemented:
   evaluation are not implemented.
 * Replay Coaching now has public version-1 evidence, impact, prioritization, one-
   game cross-decision patterns, deterministic actionable recommendations, strict
-  schema/CLI/report output, and isolated retrospective context. Tactical motifs,
-  cross-game player analysis, broader Search, and causal attribution remain
-  unimplemented.
+  schema/CLI/report output, and isolated retrospective context. Separate
+  Historical Tactical Motif Review adds deterministic structural evidence.
+  Tactical quality assessment, cross-game player analysis, broader Search, and
+  causal attribution remain unimplemented.
 
 ### Performance rating
 
@@ -1184,6 +1185,14 @@ corpus, a strict repository-local runner and focused tests, and documented local
 reference measurements. It changes no production code, Schema, route, profile,
 Public API, Package version, example, generated output, or working count.
 
+Issue #194 adds deterministic Historical Tactical Motif Review with one retained
+Decision Snapshot sequence, exact structural lead/void/Trick-control/Defender-
+partnership/hand-shape/outcome evidence, complete Provenance, one strict Schema,
+one Root example, two append-only generated outputs, and private Match browser
+controls. The current working baseline is therefore 71 authoritative and
+packaged Schemas, six Session examples, and 98 generated outputs. Package/API/
+workflow/Console-Script/Settlement baselines remain unchanged.
+
 Deletion and garbage collection, recovery UI, Player Catalog persistence,
 persisted aliases/assertions, merge/split operations, all-revision Player views,
 Human Evidence persistence and public API/Schema transport, Strategy Teacher
@@ -1241,8 +1250,9 @@ Information-set execution and Replay Coaching classification are completed
 separately by Issue #192 through one retained Review, complete-Candidate primary
 evidence, diagnostic PIMC/Immediate without fallback, time-safe fixed Profile
 Policies, and complete Provenance. Issue #193 adds repository-local benchmark
-evidence without changing production behavior or counts. Tactical and cross-game
-Coaching, carefully bounded Player Ratings where approved, broader Provenance and
+evidence without changing production behavior or counts. Issue #194 adds
+deterministic Historical Tactical Motif Review. Tactical quality assessment and
+cross-game Coaching, carefully bounded Player Ratings where approved, broader Provenance and
 Confidence integration, product/runtime performance acceptance gates,
 cross-machine latency guarantees, and the remaining pre-v1 scope audit also
 remain open. See [Information-set Search workflows](information_set_search_workflows.md),
@@ -1324,7 +1334,9 @@ Multi-Step and Policy Comparison integration is completed by Issue #190. Issue
 #191 adds the bounded one-Decision Match/Report/Teacher/Dataset/Corpus path. Issue
 #192 adds separate Information-set Replay Coaching and Match Historical
 Information-set Review/Coaching. Issue #193 supplies bounded repository-local
-benchmark evidence. Complete Strategy-Fusion correction, calibrated quality,
+benchmark evidence. Issue #194 adds separate deterministic Historical Tactical
+Motif Review and Match browser integration without tactical quality, signaling,
+communication, causal, or cross-game claims. Complete Strategy-Fusion correction, calibrated quality,
 product/runtime performance acceptance gates, and latency guarantees remain
 open, so the stronger-search completion gate is not closed.
 
@@ -1442,5 +1454,8 @@ Teacher/Dataset/Corpus propagation without changing schemas or scenarios.
 Issue #192 adds separate Information-set Replay Coaching, Match Historical
 Information-set Review/Coaching, one Schema, one example, and two scenarios.
 Issue #193 adds repository-local benchmark evidence without changing product
-surfaces or counts. Product/runtime performance integration, latency guarantees,
-and the final `v1.0.0` Issue split and architecture remain open.
+surfaces or counts. Issue #194 adds Historical Tactical Motif Review, one Schema,
+one example, and two scenarios, bringing the working baseline to 71 Schemas and
+98 scenarios. Product/runtime performance integration, latency guarantees,
+tactical quality assessment, cross-game Coaching, and the final `v1.0.0` Issue
+split and architecture remain open.

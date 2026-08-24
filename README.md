@@ -89,6 +89,7 @@ official Skat rules arbitration.
 * Optional Historical Search Review with per-decision and aggregate Search-versus-Immediate comparisons
 * Optional complete Historical Replay Coaching Report with Key Decisions, Turning Points, one-game patterns, actionable recommendations, scope summaries, and separately attached retrospective outcome context
 * Separate Historical Information-set Replay Coaching with complete Information-set Candidates as primary evidence, diagnostic PIMC/Immediate baselines, no fallback, and explicit not-assessable coverage
+* Separate deterministic Historical Tactical Motif Review with decision-time facts, after-play and after-Trick evidence, exact structural taxonomy, safe counts, and no quality, signaling, communication, or causal claim
 * Versioned training/evaluation dataset records with provenance and explicit train, validation, and test partitions
 * Deterministic bounded-Search dataset evaluation over selected decision prefixes
 * Optional known-opponent or unseen-player partition policies with deterministic stable-player overlap audits
@@ -533,6 +534,13 @@ Historical Information-set Review, treats PIMC and Immediate as diagnostics with
 no fallback, preserves the existing bounded Coaching path, and adds complete
 internal/public Provenance. See
 [Information-set Replay Coaching and Match Historical analysis](docs/information_set_replay_coaching_and_match_historical_analysis.md).
+
+Issue #194 adds separate deterministic Historical Tactical Motif Review. It
+reuses one retained Decision Snapshot sequence, attaches actual Cards only after
+decision-time facts and completed-Trick outcomes only after completion, and
+exposes explicit Root CLI and private Match browser controls. Existing bounded
+and Information-set Replay Coaching reports remain unchanged. See [Tactical motif
+evidence](docs/tactical_motif_evidence.md).
 
 The facade executes already loaded Root documents without caller transport I/O
 and preserves Root JSON output by default. Its lazy schema backend uses packaged
@@ -1296,8 +1304,8 @@ integration without changing those working counts, Package version, Public API,
 Root workflows, Console Script, or Session examples.
 
 Issue #192 subsequently adds one strict Information-set Replay Coaching Schema,
-one Root example, and two append-only scenarios. The current working totals are
-therefore 70 authoritative and packaged Schemas and 96 scenarios. Package
+one Root example, and two append-only scenarios. Its point-in-time working totals
+are therefore 70 authoritative and packaged Schemas and 96 scenarios. Package
 version, Public API contract, Root workflows, Console Script, Settlement Matrix
 version `3` and 61 cases, and six Session examples remain unchanged.
 
@@ -1306,6 +1314,12 @@ corpus, a strict repository-local runner and focused tests, and documented local
 reference measurements. It changes no production code, Schema, route, profile,
 Public API, Package version, example, or generated scenario, so those working
 counts and published Release facts remain unchanged.
+
+Issue #194 adds one strict Tactical Motif Review Schema, one Root example, and
+two append-only scenarios. The current working totals are therefore 71
+authoritative and packaged Schemas and 98 scenarios. Package version, Public API
+contract, Root workflows, Console Script, Settlement Matrix version `3` and 61
+cases, and six Session examples remain unchanged.
 
 The historical published `v0.15.0` GitHub Release has
 release theme "Local EuroSkat 36er Match capture, analysis, and exports" and
@@ -1524,6 +1538,14 @@ reference timings. It changes no executor, runtime route, Profile, public
 contract, Schema, example, or generated scenario. See [Information-set Search
 performance](docs/information_set_search_performance.md).
 
+Issue #194 adds deterministic structural tactical observations for every
+recorded Historical Card. Decision-time legal-choice counts remain separate from
+the retrospective actual Card and optional completed-Trick outcome. The exact
+lead, void-response, Trick-control, Defender-partnership, hand-shape, and outcome
+taxonomy makes no quality, intent, signaling, communication, or causal claim.
+Existing Replay Coaching remains byte-compatible when the new option is omitted.
+See [Tactical motif evidence](docs/tactical_motif_evidence.md).
+
 Remaining work includes Public Match API/Schema/data workflows, persisted Player
 aliases/assertions, Player merge/split operations, all-revision Player views,
 Player Catalog persistence and public exposure, public/task-specific Dataset
@@ -1531,7 +1553,7 @@ workflows, Dataset-v2 persistence and persisted partition artifacts,
 database/remote deployment, Information-set Search product/runtime performance
 acceptance gates and cross-machine latency guarantees,
 Historical Strategy Teacher Report import,
-tactical motif detection and cross-game Coaching, approved settlement nuance,
+tactical quality assessment and cross-game Coaching, approved settlement nuance,
 additional
 dataset-preparation algorithms or overrides, global optimization, guaranteed
 ratios, Sample- or Player-count balancing, component splitting, broader field-
@@ -1718,8 +1740,11 @@ Runtime execution. Issue #184 adds the private bounded exhaustive exact AND/OR
   Coaching, Match Historical Information-set Review/Coaching, one Schema, one
   example, and two scenarios, bringing the working baseline to 70 Schemas and 96
   scenarios. Issue #193 adds repository-local Information-set Search benchmark
-  evidence without changing those counts or product surfaces. Tactical and cross-game
-  Coaching, carefully bounded Player Ratings where approved, broader Provenance
+  evidence without changing those counts or product surfaces. Issue #194 adds
+  deterministic Historical Tactical Motif Review, one Schema, one example, and
+  two scenarios, bringing the working baseline to 71 Schemas and 98 scenarios.
+  Tactical quality assessment and cross-game Coaching, carefully bounded Player
+  Ratings where approved, broader Provenance
   and Confidence integration, product/runtime performance acceptance gates,
   cross-machine latency guarantees, and the remaining
   pre-v1 scope audit also remain open. The final Issue titles, count,
@@ -1734,6 +1759,8 @@ The Historical integration is documented in [Historical party-wide
   contracts](docs/party_wide_claim_contracts.md), the [Party-wide Claim proof
   executor](docs/party_wide_claim_proof_executor.md), and [Party-wide Claim
   adjudication](docs/party_wide_claim_adjudication.md).
+Historical tactical observations are documented in [Tactical motif
+evidence](docs/tactical_motif_evidence.md).
 
 ## Disclaimer
 

@@ -20,6 +20,9 @@ from skat_ai.match_historical_information_set_analysis import (
 from skat_ai.match_historical_materialization import (
     materialize_match_observed_game_historical_v1,
 )
+from skat_ai.match_historical_tactical_motif_analysis import (
+    build_match_historical_tactical_motif_report_view_v1,
+)
 from skat_ai.match_information_set_search import (
     build_match_information_set_search_report_view_v1,
 )
@@ -622,9 +625,8 @@ def _historical_report_details(value: MatchHistoricalAnalysisResultV1) -> dict[s
     review = summary.get("historical_game_review_summary")
     search = summary.get("historical_search_review_summary")
     coaching = summary.get("historical_replay_coaching_summary")
-    information_set = build_match_historical_information_set_report_view_v1(
-        summary
-    )
+    information_set = build_match_historical_information_set_report_view_v1(summary)
+    tactical_motif_review = build_match_historical_tactical_motif_report_view_v1(summary)
     declaration = record.get("declaration")
     game_result = summary.get("game_result_summary")
     game_value = summary.get("game_value_summary")
@@ -694,6 +696,7 @@ def _historical_report_details(value: MatchHistoricalAnalysisResultV1) -> dict[s
                 None if search is None else _curate_historical_search_summary(search)
             ),
             "replay_coaching": (None if coaching is None else _curate_coaching_summary(coaching)),
+            "tactical_motif_review": tactical_motif_review,
             **information_set,
             "profile_application": (
                 None

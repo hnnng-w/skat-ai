@@ -142,6 +142,7 @@ _JSON_BOOLEAN_FIELDS = {
     "confirm_clear",
     "confirm_clear_snapshot",
     "decision_snapshots",
+    "tactical_motif_review",
     "immediate_review",
     "search_review",
     "information_set_search_review",

@@ -153,21 +153,34 @@ def validate_retrospective_provenance_dependency(
         )
 
 
-def validate_provenance_document_redaction(value: object, *, path: str = "") -> None:
+def validate_provenance_document_redaction(
+    value: object,
+    *,
+    path: str = "",
+    allowed_private_field_names: frozenset[str] = frozenset(),
+) -> None:
     """Rejects engine-private field names from an attachment document."""
     if isinstance(value, Mapping):
         for key, item in value.items():
             current_path = f"{path}/{key}" if path else f"/{key}"
-            if key in _PRIVATE_FIELD_NAMES:
+            if key in _PRIVATE_FIELD_NAMES and key not in allowed_private_field_names:
                 raise SkatAIInformationPolicyError(
                     "Engine-private information cannot enter retrospective provenance.",
                     path=current_path,
                 )
-            validate_provenance_document_redaction(item, path=current_path)
+            validate_provenance_document_redaction(
+                item,
+                path=current_path,
+                allowed_private_field_names=allowed_private_field_names,
+            )
     elif isinstance(value, (list, tuple)):
         for index, item in enumerate(value):
             current_path = f"{path}/{index}" if path else f"/{index}"
-            validate_provenance_document_redaction(item, path=current_path)
+            validate_provenance_document_redaction(
+                item,
+                path=current_path,
+                allowed_private_field_names=allowed_private_field_names,
+            )
 
 
 EntryBuilder = Callable[[str, tuple[str, ...]], FieldProvenanceEntry]
@@ -182,9 +195,13 @@ def build_complete_provenance_attachment(
     entry_builder: EntryBuilder,
     override_entries: tuple[FieldProvenanceEntry, ...] = (),
     validate_entry_use: bool = True,
+    allowed_private_field_names: frozenset[str] = frozenset(),
 ) -> ApplicationProvenanceAttachment:
     """Builds and validates one exact all-leaf non-legacy attachment."""
-    validate_provenance_document_redaction(document)
+    validate_provenance_document_redaction(
+        document,
+        allowed_private_field_names=allowed_private_field_names,
+    )
     overrides = {entry.field_path: entry for entry in override_entries}
     if len(overrides) != len(override_entries):
         raise ValueError("Provenance override paths must be unique.")

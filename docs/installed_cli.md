@@ -135,6 +135,12 @@ defaults to canonical validation/test order and profile `evaluation_v1`;
 repeatable `--search-evaluation-partition` and positive
 `--search-evaluation-max-decisions` retain their existing meanings.
 
+Issue #194 adds Root `--historical-tactical-motif-review`. It accepts only
+Historical Game input, requires no Search settings, and may accompany either
+Replay Coaching family. Installed, module, and Legacy Root invocation produce
+the same strict JSON and aggregate-only human-readable presentation. `--quiet`
+continues to suppress successful presentation without changing file output.
+
 Flat Position input selects
 `recommendation_method: "information_set_search"` and supplies all nine strict
 `information_set_search_settings` fields in JSON. There are no separate flat
