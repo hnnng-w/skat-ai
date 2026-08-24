@@ -777,6 +777,8 @@ python main.py --input examples/training_dataset_normal_play.json --evaluate-bou
 `evaluation_v1`. These profiles are immutable work budgets, not latency
 guarantees. See [Bounded search contracts](docs/bounded_search_contracts.md) and
 [Bounded Search performance](docs/bounded_search_performance.md).
+The separate Information-set Search corpus and local reference measurements are
+documented in [Information-set Search performance](docs/information_set_search_performance.md).
 
 Run immediate analysis with a configured opponent response policy:
 
@@ -1159,6 +1161,7 @@ Detailed documentation is split into topic-specific files:
 * [Hidden-card inference](docs/hidden_card_inference.md)
 * [Bounded search contracts](docs/bounded_search_contracts.md)
 * [Bounded Search performance](docs/bounded_search_performance.md)
+* [Information-set Search performance](docs/information_set_search_performance.md)
 * [Bounded Search post-game review schema](schemas/bounded_search_post_game_review.schema.json)
 * [Historical Search Review schema](schemas/historical_search_review.schema.json)
 * [Historical Replay Coaching schema](schemas/historical_replay_coaching.schema.json)
@@ -1297,6 +1300,12 @@ one Root example, and two append-only scenarios. The current working totals are
 therefore 70 authoritative and packaged Schemas and 96 scenarios. Package
 version, Public API contract, Root workflows, Console Script, Settlement Matrix
 version `3` and 61 cases, and six Session examples remain unchanged.
+
+Issue #193 adds a deterministic synthetic Information-set Search benchmark
+corpus, a strict repository-local runner and focused tests, and documented local
+reference measurements. It changes no production code, Schema, route, profile,
+Public API, Package version, example, or generated scenario, so those working
+counts and published Release facts remain unchanged.
 
 The historical published `v0.15.0` GitHub Release has
 release theme "Local EuroSkat 36er Match capture, analysis, and exports" and
@@ -1451,9 +1460,9 @@ Search remains bounded late-game determinization with a five-remaining-trick
 implementation maximum. It is subject to Strategy Fusion, is not an optimal
 imperfect-information policy or complete-contract Search, and exact compatible-
 world counts do not identify the real deal. Sampled ownership quality is not
-calibrated probability. Benchmark timings are reference measurements rather than
-cross-machine guarantees, and wall-clock timeout activation is machine-
-dependent. Overbid Null remains outside normal Search when no external
+calibrated probability. Bounded-Search and Information-set Search benchmark
+timings are separate local reference measurements rather than cross-machine
+guarantees, and wall-clock timeout activation is machine-dependent. Overbid Null remains outside normal Search when no external
 replacement is available. Immediate remains the omitted default and Search is
 opt-in, so existing omitted-method workflows require no migration.
 
@@ -1508,11 +1517,19 @@ eligible time-safe Profiles affect fixed left/right Policies but never weight or
 select Worlds. The existing bounded-PIMC Replay Coaching path is unchanged. See
 [Information-set Replay Coaching and Match Historical analysis](docs/information_set_replay_coaching_and_match_historical_analysis.md).
 
+Issue #193 adds a strict eight-case synthetic benchmark corpus, frozen
+functional and structural signatures, same-selection PIMC and independent
+Immediate diagnostics, Strategy-Fusion and duplicate-weight checks, and local
+reference timings. It changes no executor, runtime route, Profile, public
+contract, Schema, example, or generated scenario. See [Information-set Search
+performance](docs/information_set_search_performance.md).
+
 Remaining work includes Public Match API/Schema/data workflows, persisted Player
 aliases/assertions, Player merge/split operations, all-revision Player views,
 Player Catalog persistence and public exposure, public/task-specific Dataset
 workflows, Dataset-v2 persistence and persisted partition artifacts,
-database/remote deployment, Information-set Search performance integration,
+database/remote deployment, Information-set Search product/runtime performance
+acceptance gates and cross-machine latency guarantees,
 Historical Strategy Teacher Report import,
 tactical motif detection and cross-game Coaching, approved settlement nuance,
 additional
@@ -1700,9 +1717,11 @@ Runtime execution. Issue #184 adds the private bounded exhaustive exact AND/OR
   without changing those counts. Issue #192 adds separate Information-set Replay
   Coaching, Match Historical Information-set Review/Coaching, one Schema, one
   example, and two scenarios, bringing the working baseline to 70 Schemas and 96
-  scenarios. Performance evidence remains open. Tactical and cross-game
+  scenarios. Issue #193 adds repository-local Information-set Search benchmark
+  evidence without changing those counts or product surfaces. Tactical and cross-game
   Coaching, carefully bounded Player Ratings where approved, broader Provenance
-  and Confidence integration, performance and latency evidence, and the remaining
+  and Confidence integration, product/runtime performance acceptance gates,
+  cross-machine latency guarantees, and the remaining
   pre-v1 scope audit also remain open. The final Issue titles, count,
   architecture, solver design, Rating boundary, Coaching taxonomy, and Release
   date are not finalized. `v1.0.0` remains unready.

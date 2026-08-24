@@ -41,6 +41,12 @@ authoritative and packaged Schemas and 96 scenarios. Package version, Public API
 contract, seven Root workflows, one Console Script, Settlement Matrix version
 `3` with 61 cases, and six Session examples remain unchanged.
 
+Issue #193 adds a deterministic synthetic Information-set Search benchmark
+corpus, a strict repository-local runner and focused regression tests, and
+documented local reference measurements. It changes no production code, Schema,
+route, profile, Public API, Package version, example, generated scenario, or the
+working counts above.
+
 The historical published `v0.15.0` Release points to commit `ec1c154`. Package
 version `0.15.0` requires Python `>=3.13`, retains Public API contract version
 `1` and exactly seven Root workflows, and contains 63 authoritative Schemas, 63
@@ -296,10 +302,11 @@ by Issue #191 together with Dataset-v2 and Corpus propagation. Match Historical
 Information-set execution and Replay Coaching classification are completed
 separately by Issue #192 with retained Review reuse, complete-Candidate primary
 evidence, diagnostic PIMC/Immediate without fallback, fixed time-safe Profile
-Policies, and complete Provenance. Performance evidence remains open. Tactical
-and cross-game Coaching, carefully bounded
+Policies, and complete Provenance. Issue #193 adds repository-local benchmark
+evidence for the unchanged executor. Tactical and cross-game Coaching, carefully bounded
 Player Ratings where approved, broader Provenance and Confidence integration, and
-the remaining pre-v1 scope audit also remain open. Final Issue titles, count,
+product/runtime performance acceptance gates, cross-machine latency guarantees,
+and the remaining pre-v1 scope audit also remain open. Final Issue titles, count,
 architecture, solver design, Rating boundary, Coaching taxonomy, and Release date
 are not finalized. `v1.0.0` remains unready.
 
@@ -381,6 +388,11 @@ performance scoring.
 
 ## skat-ai product matrix
 
+For this matrix, Issue #193 supersedes older broad wording that says Information-
+set Search performance evidence remains open. Repository-local benchmark
+evidence is implemented. Only product/runtime performance integration,
+cross-machine acceptance gates, and latency guarantees remain open.
+
 Issue #115 completes the functional `v0.10.0` bounded-search milestone beyond
 live and Multi-Step use. Flat post-game Search now runs an independent Immediate
 baseline; Historical Search Review and dataset Search-versus-Immediate
@@ -393,15 +405,14 @@ remains `partially_supported`; Issue #115 does not close every stronger-solver
 requirement for v1.0.
 
 The `v0.10.0` milestone is complete, but the general v1.0 stronger-solver
-direction remains only partially supported. Its open requirements include an
-information-set Policy Search extension beyond the flat, Historical Review, and
-Training Dataset evaluation routes; complete Strategy Fusion correction beyond
-the controlled Player; complete-contract solving; calibrated sampled
-probabilities; and latency guarantees. Issues #187 and #188 define and execute the
-private controlled-Player foundation. Issue #189 routes strict flat analysis and
-adds descriptive same-selection PIMC and independent Immediate comparison. It
-does not claim equilibrium, global optimality, a complete-contract solution, or
-calibrated probability.
+direction remains only partially supported. Issues #187 through #192 add the
+private controlled-Player foundation and executor, strict flat, Multi-Step,
+Policy Comparison, Historical Review/evaluation, Match/Teacher/Dataset/Corpus,
+and Replay Coaching/Match Historical integrations. Issue #193 adds bounded
+repository-local benchmark evidence. Complete Strategy-Fusion correction beyond
+the controlled Player, complete-contract solving, calibrated sampled
+probabilities, broader optimal imperfect-information solving, product/runtime
+performance acceptance gates, and latency guarantees remain open.
 
 Issue #120 adds internal Replay Coaching contract version `1`. It separates
 decision-time evidence from retrospective observed-card attachment, reuses one
@@ -661,7 +672,7 @@ maintainer's manual publication. See
 | Immediate simulation | skat-ai product | Not applicable | `supported` | Monte Carlo analysis samples unseen cards, evaluates legal responses with deterministic seeds, and fixes every resolved declared-Ouvert or continuation public hand exactly to its owner with a common seeded unknown-world sequence across Ouvert candidates. | Valid position, hand sizes, sample count, seed, policies, and optional public-hand constraints. | It estimates immediate trick outcomes, not complete-contract expected value or perfect-information play. | Retain legality, reproducibility, perspective, point, Null-objective, side-ownership, declared-Ouvert, continuation, and two-public-hand tests. | v1.0 | Yes |
 | Evidence-constrained hidden-card inference | skat-ai product | Not applicable | `supported` | `hidden_card_inference.py` derives immutable exact constraints only from the local hand, exact public hands, legitimately known skat, attributed public ownership, and confirmed legal failure to follow the `get_effective_suit` category. Evidence starts after the proving play, persists without retroactive effect, and feeds exact DP compatible-world counts, marginals, uniform labeled-assignment sampling, and uncalibrated concentration labels (`confirmed`, `high >= 0.85`, `medium >= 0.65`, `low`). Immediate candidates share one model and compatible-world sequence; Multi-Step samples one compatible root and may derive later public evidence; Policy Comparison shares one model/root with immutable copies. | Concrete attributed public history or historical replay, valid hand sizes, and any exact public-hand or legitimate skat facts visible at the decision. Current-trick evidence requires a concrete leader/order. | Tactical choices, bidding/declaration behavior, profiles, concessions, timing, future play, final result/value/overbid/settlement, complete post-game hands, and unattributed legacy play are excluded. This is not behavioral, Bayesian, calibrated, learned, broader tactical inference, or proof of the real deal. | Retain Suit/Grand/Null effective-category, chronology, provenance, contradiction, zero-world, exact DP count/marginal, uniform deterministic sampling, confidence-boundary, common-candidate, coherent-root, shared-policy-root, later-evidence, historical leakage, strict-schema, and privacy tests. | v1.0 bounded requirement complete | Yes |
 | Bounded search contracts | skat-ai product | Not applicable | `partially_supported` | Version-1 information, exact-state, transition, budget, utility, aggregate-result, privacy, and strict schema contracts are implemented. `perfect_information_minimax_v1` solves one exact late Suit, Grand, or normal non-overbid Null world. `compatible_world_minimax_v1` evaluates a frozen compatible-world sequence with global nodes, per-world depth/cache, common-prefix stopping, and equal duplicate-draw weight. Explicit flat live routing, opt-in Multi-Step/Policy Comparison, flat post-game comparison with an independent Immediate baseline, Historical Search Review, and bounded-Search dataset evaluation are integrated. Historical output reconciles decision/status/coverage/agreement/quality/performance metrics; evaluation defaults to validation/test, supports one stable global decision cap, and preserves zero-decision records. `interactive_v1`, `historical_review_v1`, and `evaluation_v1` are immutable work profiles. Independent exhaustive fixtures show strict Search improvement over Immediate in Suit, Grand, and Null, while 32/64/128-draw fixtures provide bounded convergence evidence. A deterministic Suit/Grand/Null corpus records reproducible structural work and local elapsed measurements. | A safe live or flat retrospective local view, reconstructed historical snapshot, or validated training dataset; an explicit non-boolean integer Search seed; and an explicit flat budget or named immutable historical/evaluation profile. Suit and Grand require bid and matadors; Null requires a bid no greater than its fixed value. | Search remains limited to late positions; overbid Null replacement selection remains unsupported. Compatible-world aggregation is determinization-based and subject to strategy fusion, so exhaustive aggregation is not an optimal imperfect-information policy proof. Sampled quality evidence is not calibrated, and benchmark timings provide no latency guarantee. Direct exact aborts expose zero completed candidates; compatible incomplete work can recommend only from a qualified exact common prefix. Existing omitted-method Immediate behavior is unchanged. Exact hands, out-of-play cards, assignments, states, hashes, derived seeds, per-world values, caches, branches, and principal variations are not serialized. The broader stronger-solver v1.0 gate remains open. | Retain exact-state/transition invariants, terminal-input precedence, late-game limits, Suit/Grand/all Null variants, exact and sampled independent references, 32/64/128 convergence, duplicate weighting, all perspectives/root seats, budget boundaries, prefix thresholds, deterministic seed domains, information safety, profile immutability, flat/historical/evaluation comparison arithmetic, zero-decision preservation, strict schemas, generated examples, benchmark reproducibility, and no-latency/no-policy-proof wording. | v0.10.0 bounded retrospective/evaluation evidence; v1.0 broader stronger-solver completion | Yes |
-| Information-set Search | skat-ai product | Not applicable | `partially_supported` | Issues #187 and #188 define and execute the private three-Trick controlled-Player selected-world best response. Issue #189 adds strict flat `information_set_search` with exactly nine settings, safe aggregate Results, no Live baseline or fallback, descriptive same-selection PIMC and independently seeded Immediate retrospective comparison, separate Historical Review and Training Dataset evaluation, retained-stage Provenance, CLI, four Schemas, one example, and four scenarios. Issue #190 adds strict Multi-Step and Policy Comparison version `1`: a domain-separated child seed and fresh public-state Search at each local decision, private independent coherent execution, no Search World or controlled-Policy reuse, no fallback, safe nested Decisions, 16-field diagnostics, append-once-last ordering, shared-root independent path copies, stopped-row ineligibility, existing ranking, and retained-Result complete Provenance. Issue #191 adds bounded one-Decision Match analysis, exact Report-source transfer, Strategy Teacher Evidence, Dataset-v2 joins, and Corpus propagation. Issue #192 adds separate Information-set Replay Coaching and Match Historical Information-set Review/Coaching. Existing `auto` remains unchanged. | A safe eligible Position, Historical decision Snapshot, Training Dataset-v1 Record, supported live Multi-Step local decision, or strict Match Decision/Historical materialization; explicit deterministic fixed left/right Policies; an explicit Search seed; and a valid bounded Budget or mapped existing work profile. | This is not a cross-decision global Policy, equilibrium, global optimality, complete-contract solving, calibrated probability, complete Strategy-Fusion correction, or a latency guarantee. Exact Worlds, hidden hands, Observations, controlled Policy tables, caches, and derived seeds remain private. Performance integration remains open. | Retain equal-Observation common action, ordered selected-world reuse, duplicate weight, fixed Policies, exact counters, no-fallback semantics, same-selection comparison, actual-Card cutoff, Historical/Dataset ordering, per-decision seed/fresh-Search isolation, safe Decision/diagnostic shapes, append-once-last ordering, eligibility/ranking, privacy, complete Provenance, Schema, CLI, example, and scenario coverage. | v1.0 broader solver and performance gates remain open; Issue #192 integrations complete | Yes |
+| Information-set Search | skat-ai product | Not applicable | `partially_supported` | Issues #187 and #188 define and execute the private three-Trick controlled-Player selected-world best response. Issue #189 adds strict flat `information_set_search` with exactly nine settings, safe aggregate Results, no Live baseline or fallback, descriptive same-selection PIMC and independently seeded Immediate retrospective comparison, separate Historical Review and Training Dataset evaluation, retained-stage Provenance, CLI, four Schemas, one example, and four scenarios. Issue #190 adds strict Multi-Step and Policy Comparison version `1`: a domain-separated child seed and fresh public-state Search at each local decision, private independent coherent execution, no Search World or controlled-Policy reuse, no fallback, safe nested Decisions, 16-field diagnostics, append-once-last ordering, shared-root independent path copies, stopped-row ineligibility, existing ranking, and retained-Result complete Provenance. Issue #191 adds bounded one-Decision Match analysis, exact Report-source transfer, Strategy Teacher Evidence, Dataset-v2 joins, and Corpus propagation. Issue #192 adds separate Information-set Replay Coaching and Match Historical Information-set Review/Coaching. Issue #193 adds bounded repository-local benchmark evidence for the unchanged executor. Existing `auto` remains unchanged. | A safe eligible Position, Historical decision Snapshot, Training Dataset-v1 Record, supported live Multi-Step local decision, or strict Match Decision/Historical materialization; explicit deterministic fixed left/right Policies; an explicit Search seed; and a valid bounded Budget or mapped existing work profile. | This is not a cross-decision global Policy, equilibrium, global optimality, complete-contract solving, calibrated probability, complete Strategy-Fusion correction, or a latency guarantee. Exact Worlds, hidden hands, Observations, controlled Policy tables, caches, and derived seeds remain private. Product/runtime performance acceptance gates and cross-machine latency guarantees remain open. | Retain equal-Observation common action, ordered selected-world reuse, duplicate weight, fixed Policies, exact counters, no-fallback semantics, same-selection comparison, actual-Card cutoff, Historical/Dataset ordering, per-decision seed/fresh-Search isolation, safe Decision/diagnostic shapes, append-once-last ordering, eligibility/ranking, privacy, complete Provenance, Schema, CLI, example, and scenario coverage. | v1.0 broader solver and performance gates remain open; Issue #193 benchmark evidence complete | Yes |
 | Multi-step simulation | skat-ai product | Not applicable | `partially_supported` | Sequential local actions and selected opponent-turn preparations are serialized against one private immutable root ownership assignment per path; preparation and completion share the world, cards are removed only from their owner, the hypothetical skat stays fixed, one or two exact public hands remain reconciled, and confirmed structural evidence constrains the sampled root. Strict `information_set_search` now performs fresh public-state Search per local decision and stops without fallback when no recommendation exists. | Valid position, step count, hand sizes, seed, policies, optional public-hand constraints, and available attributed public evidence; Information-set Search additionally requires its exact settings and effective fixed Policies. | Some valid phases still stop as `unsupported_turn_phase`; the sampled root is one compatible hypothetical execution world, not exhaustive search or proof of the real deal. Information-set Search adds no cross-decision global Policy. | Retain every canonical phase, ownership/removal, fixed-skat, no-resampling, inference constraints, later visible evidence, all public-hand sources and coexistence, privacy, deterministic-stream, per-decision Search isolation, strict stop, and state/point continuity tests. | v1.0 | Yes |
 | Card recommendations | skat-ai product | Not applicable | `supported` | Immediate expected value remains the omitted default. Explicit flat live or retrospective methods add strict `bounded_search` and Search-first `auto` using `compatible_world_minimax_v1`; qualified partial/timeout Search recommendations remain usable, and auto fallback is explicit. | A current local decision and Immediate settings; Search methods additionally require a separate seed and complete requested budget. | Immediate remains a bounded one-trick heuristic. Compatible-world Search is late-game, determinization-based, subject to strategy fusion, and not proof of an optimal imperfect-information policy. | Retain legal-candidate, perspective, method routing, strict/fallback, independent retrospective baseline, report separation, deterministic-seed, tie, objective, privacy, schema, example, and CLI tests. | v1.0 | Yes |
 | Opponent policies | skat-ai product | Not applicable | `supported` | Global, left/right, preset, CLI, lead, response, and defender heuristics affect immediate and multi-step paths; Policy Comparison samples one compatible root and gives equal independent immutable copies to all policy paths. Local card-selection policies receive public decision-time state rather than private root ownership. | Policy settings, concrete side/perspective, and public ownership where applicable. | Policies remain simplified rule-based behavior; exact structural inference adds no behavioral/Bayesian tactic, policy, or optimality claim. | Retain precedence, controlled effects, equal shared-root setup, independent path evolution, identical public constraints, decision-policy privacy, and no-new-policy tests. | v1.0 | Yes |
@@ -689,11 +700,20 @@ Coaching now reuses one retained Review, assesses complete Candidate evidence
 without PIMC/Immediate fallback, reuses existing deterministic Coaching logic,
 isolates Outcome Context, and exposes complete Provenance. Private Match
 Historical Review/Coaching uses one Application invocation and time-safe Profile-
-derived fixed Policies without World weighting. Performance evidence, tactical
-and cross-game Coaching, Historical Teacher import, and broader solver work
-remain open. See
+derived fixed Policies without World weighting. Tactical and cross-game
+Coaching, Historical Teacher import, and broader solver work remain open. Issue
+#193 adds
+strict eight-case corpus covering all six supported contract variants, both
+roles, all three turn phases, one through three unresolved Tricks, all profiles,
+and exhaustive and sampled selection. Tests freeze Information-set, PIMC,
+Immediate, comparison, structural, Strategy-Fusion, and duplicate-weight
+signatures; validate timing-output shape without elapsed thresholds; preserve
+fixture privacy; and verify the existing bounded-PIMC benchmark and public/count
+baselines are unchanged. Product/runtime gates and latency guarantees remain
+open. See
 [Match Information-set Search and Strategy Teacher Evidence](match_information_set_search_and_strategy_teacher.md)
-and [Information-set Replay Coaching and Match Historical analysis](information_set_replay_coaching_and_match_historical_analysis.md).
+and [Information-set Replay Coaching and Match Historical analysis](information_set_replay_coaching_and_match_historical_analysis.md),
+plus [Information-set Search performance](information_set_search_performance.md).
 
 ## Interpretations and unresolved rule questions
 

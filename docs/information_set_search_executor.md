@@ -199,10 +199,13 @@ exact source transfer, and focused Strategy Teacher/Dataset/Corpus propagation
 without changing this executor. Issue #192 separately adds Match Historical
 Information-set execution and Replay Coaching classification from one retained
 Review. Complete Candidate sets are primary evidence, PIMC and Immediate are
-diagnostic only, and no fallback or executor change is introduced. Performance
-baselines remain separate. There is no cross-
+diagnostic only, and no fallback or executor change is introduced. Issue #193
+adds a separate repository-local benchmark over this unchanged executor, with
+same-selection PIMC and independent Immediate retained as descriptive
+diagnostics. Its local timings are not runtime gates or latency guarantees. There is no cross-
 decision global Policy, equilibrium, global-optimality, or calibrated-probability
 claim. See [Information-set Search workflows](information_set_search_workflows.md)
 and [Information-set Search Multi-Step and Policy Comparison](information_set_search_multi_step_and_policy_comparison.md),
 plus [Match Information-set Search and Strategy Teacher Evidence](match_information_set_search_and_strategy_teacher.md),
 and [Information-set Replay Coaching and Match Historical analysis](information_set_replay_coaching_and_match_historical_analysis.md).
+The separate evidence is documented in [Information-set Search performance](information_set_search_performance.md).

@@ -197,6 +197,7 @@ Before larger changes, read the relevant documentation:
 * `docs/information_set_search_workflows.md`
 * `docs/information_set_search_multi_step_and_policy_comparison.md`
 * `docs/information_set_replay_coaching_and_match_historical_analysis.md`
+* `docs/information_set_search_performance.md`
 * `docs/installed_cli.md`
 * `docs/public_field_provenance.md`
 * `docs/examples.md`
@@ -245,6 +246,12 @@ baseline therefore has 70 authoritative and packaged Schemas and 96 scenarios.
 Package version, Public API contract, seven Root workflows, one Console Script,
 Settlement Matrix version `3` with 61 cases, and six Session examples remain
 unchanged.
+
+Issue #193 adds a deterministic synthetic Information-set Search benchmark
+corpus, a strict repository-local runner and focused regression tests, and
+documented local reference measurements. It changes no production code, Schema,
+route, profile, Public API, Package version, example, generated scenario, or the
+working counts above.
 
 The historical published `v0.15.0` GitHub Release has release theme "Local
 EuroSkat 36er Match capture, analysis, and exports" and GitHub Release title
@@ -472,10 +479,11 @@ Teacher are integrated for the bounded one-Decision path by Issue #191 together
 with Dataset-v2 and Corpus propagation. Issue #192 adds separate Information-set
 Replay Coaching and Match Historical Information-set Review/Coaching with one
 retained Review, no PIMC/Immediate fallback, time-safe fixed Profile Policies,
-and complete Provenance. Performance evidence remains open, along with tactical
-and cross-game Coaching, carefully
+and complete Provenance. Issue #193 adds repository-local benchmark evidence
+without changing product behavior or versioned surfaces. Tactical and cross-game Coaching, carefully
 bounded Player Ratings where approved, broader Provenance and Confidence
-integration, performance and latency evidence, and the remaining pre-v1 scope
+integration, product/runtime performance acceptance gates, cross-machine latency
+guarantees, and the remaining pre-v1 scope
 audit. These areas remain open. The final Issue titles, count, architecture,
 solver design, Rating boundary, Coaching taxonomy, and Release date are not
 finalized. `v1.0.0` remains unready, and no production model is planned.
@@ -557,6 +565,10 @@ Major completed areas include:
   and generated-output coverage, plus strict Multi-Step and Policy Comparison
   integration with per-decision Search isolation, safe Decisions/diagnostics,
   no fallback, shared coherent comparison setup, and complete Provenance
+* deterministic synthetic Information-set Search benchmark coverage with strict
+  loading, frozen functional and structural signatures, Strategy-Fusion and
+  duplicate-weight diagnostics, and local reference timings without elapsed-time
+  gates
 * separate version-1 Information-set Replay Coaching with retained Historical
   Information-set Review reuse, complete Candidate-only assessment, diagnostic
   PIMC/Immediate without fallback, existing Key Decision/Turning Point/pattern/
@@ -721,8 +733,9 @@ activation is machine-dependent. Flat, Historical Review, and Training Dataset
 evaluation routing plus strict Multi-Step and Policy Comparison integration are
 implemented. Issue #191 adds the bounded one-Decision Match/Report/Teacher/
 Dataset/Corpus path. Issue #192 adds separate Information-set Replay Coaching and
-Match Historical Information-set Review/Coaching. Performance integration
-remains open. There is no
+Match Historical Information-set Review/Coaching. Issue #193 adds separate local
+benchmark evidence for the unchanged executor. Product/runtime performance
+acceptance gates and latency guarantees remain open. There is no
 cross-decision global Policy, equilibrium, global optimality, or calibrated
 probability claim. Overbid Null replacement selection, tactical
 motif detection, cross-game Coaching, causal

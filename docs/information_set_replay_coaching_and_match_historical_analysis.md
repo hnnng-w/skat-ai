@@ -414,6 +414,10 @@ or statistical significance. Information-set Search enforces one common action
 for equal controlled-Player Observations only over the selected bounded sequence;
 fixed opponents remain model Policies.
 
+Issue #193 separately benchmarks the unchanged executor on a synthetic local
+corpus. Those measurements are not Coaching runtime gates, cross-machine
+thresholds, or latency promises.
+
 ## Open work
 
 The following remain open:
@@ -425,7 +429,8 @@ The following remain open:
   transfer;
 * automatic Coaching execution or Capture-to-Corpus transfer;
 * Information-set-aware `auto` and dedicated Information-set budget profiles;
-* performance and latency gates;
+* product/runtime performance acceptance gates and cross-machine latency
+  guarantees;
 * complete Strategy-Fusion correction; and
 * complete-contract or equilibrium solving.
 
@@ -433,3 +438,4 @@ See [Information-set Search contracts](information_set_search_contracts.md),
 [Information-set Search workflows](information_set_search_workflows.md),
 [Match analysis and exports](match_analysis_and_exports.md), and
 [Match Information-set Search and Strategy Teacher Evidence](match_information_set_search_and_strategy_teacher.md).
+See also [Information-set Search performance](information_set_search_performance.md).

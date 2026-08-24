@@ -414,6 +414,10 @@ Implemented:
 * Immutable `interactive_v1`, `historical_review_v1`, and `evaluation_v1` work-budget profiles
 * Independent exhaustive Suit, Grand, and Null strict-improvement fixtures plus 32/64/128-draw convergence evidence
 * Deterministic Suit/Grand/Null benchmark corpus and measured performance documentation with no calibrated latency guarantee
+* Separate deterministic eight-case Information-set Search benchmark corpus,
+  strict local runner, frozen functional and structural signatures,
+  Strategy-Fusion and duplicate-weight diagnostics, focused tests, and measured
+  local reference documentation without elapsed-time gates
 
 ### Game history and scoring
 
@@ -800,11 +804,13 @@ Implemented:
   Search-versus-Immediate dataset evaluation now use immutable versioned work
   profiles. Search remains bounded late-game determinization, sampled quality is
   not calibrated, and measured performance provides no latency guarantee.
-* Information-set Search is integrated into strict Multi-Step and Policy
-  Comparison with a private independent coherent execution World and no cross-
-  decision Search World or controlled-Policy reuse. It does not provide a global
-  Policy, equilibrium, global optimality, calibrated probabilities, Match or
-  Teacher/Coaching integration, or performance evidence.
+* Information-set Search is integrated across flat, Multi-Step, Policy
+  Comparison, Historical Review/evaluation, one-Decision Match/Teacher/Dataset/
+  Corpus, and Match Historical/Replay Coaching boundaries. Issue #193 adds
+  repository-local benchmark evidence. It still does not provide a global
+  Policy, equilibrium, global optimality, calibrated probability, complete
+  Strategy-Fusion correction, product/runtime performance gate, or latency
+  guarantee.
 * Complete Known-opponent and unseen-player plans can be generated, validated,
   and losslessly materialized through the public mode-derived workflow. It has no
   new algorithms, algorithm selector or override, default weights, CLI overrides,
@@ -1173,6 +1179,11 @@ generated outputs. Package version, Public API contract, seven Root workflows,
 one Console Script, and Settlement Matrix version `3` with 61 cases remain
 unchanged.
 
+Issue #193 adds a deterministic synthetic Information-set Search benchmark
+corpus, a strict repository-local runner and focused tests, and documented local
+reference measurements. It changes no production code, Schema, route, profile,
+Public API, Package version, example, generated output, or working count.
+
 Deletion and garbage collection, recovery UI, Player Catalog persistence,
 persisted aliases/assertions, merge/split operations, all-revision Player views,
 Human Evidence persistence and public API/Schema transport, Strategy Teacher
@@ -1229,11 +1240,14 @@ by Issue #191 together with Dataset-v2 and Corpus propagation. Match Historical
 Information-set execution and Replay Coaching classification are completed
 separately by Issue #192 through one retained Review, complete-Candidate primary
 evidence, diagnostic PIMC/Immediate without fallback, time-safe fixed Profile
-Policies, and complete Provenance. Performance evidence remains open. Tactical
-and cross-game Coaching, carefully bounded Player Ratings where approved, broader
-Provenance and Confidence integration, and the remaining pre-v1 scope audit also
-remain open. See [Information-set Search workflows](information_set_search_workflows.md)
-and [Information-set Search Multi-Step and Policy Comparison](information_set_search_multi_step_and_policy_comparison.md).
+Policies, and complete Provenance. Issue #193 adds repository-local benchmark
+evidence without changing production behavior or counts. Tactical and cross-game
+Coaching, carefully bounded Player Ratings where approved, broader Provenance and
+Confidence integration, product/runtime performance acceptance gates,
+cross-machine latency guarantees, and the remaining pre-v1 scope audit also
+remain open. See [Information-set Search workflows](information_set_search_workflows.md),
+[Information-set Search Multi-Step and Policy Comparison](information_set_search_multi_step_and_policy_comparison.md),
+and [Information-set Search performance](information_set_search_performance.md).
 Final Issue titles, count, architecture, solver design, Rating boundary, Coaching
 taxonomy, and Release date are not finalized. `v1.0.0` remains unready.
 
@@ -1309,9 +1323,10 @@ evaluation, safe output, Provenance, CLI, Schemas, example, and scenarios.
 Multi-Step and Policy Comparison integration is completed by Issue #190. Issue
 #191 adds the bounded one-Decision Match/Report/Teacher/Dataset/Corpus path. Issue
 #192 adds separate Information-set Replay Coaching and Match Historical
-Information-set Review/Coaching. Complete Strategy-Fusion correction, calibrated
-quality, and performance evidence remain open, so the stronger-search completion
-gate is not closed.
+Information-set Review/Coaching. Issue #193 supplies bounded repository-local
+benchmark evidence. Complete Strategy-Fusion correction, calibrated quality,
+product/runtime performance acceptance gates, and latency guarantees remain
+open, so the stronger-search completion gate is not closed.
 
 The published `v0.11.0` milestone is complete through functional Issue #124, and
 Issue #125 completed release preparation. The milestone establishes the
@@ -1426,5 +1441,6 @@ Issue #191 adds strict one-Decision Match/Report execution and focused
 Teacher/Dataset/Corpus propagation without changing schemas or scenarios.
 Issue #192 adds separate Information-set Replay Coaching, Match Historical
 Information-set Review/Coaching, one Schema, one example, and two scenarios.
-Performance integration and the final `v1.0.0` Issue split and architecture
-remain open.
+Issue #193 adds repository-local benchmark evidence without changing product
+surfaces or counts. Product/runtime performance integration, latency guarantees,
+and the final `v1.0.0` Issue split and architecture remain open.

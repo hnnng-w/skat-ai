@@ -780,18 +780,22 @@ provenance, without changing `auto`. Issue #191 adds strict one-Decision Match
 Capture execution, revision-scoped Reports and exact transfer, focused Strategy
 Teacher Evidence, Dataset-v2 propagation, Summary counts, and existing local
 Corpus workflow support. At that Issue #191 baseline, Replay Coaching
-classification and performance integration remained open. Issue #192 adds
+classification and performance evidence remained open. Issue #192 adds
 separate Information-set Replay Coaching
 and private Match Historical Information-set Review/Coaching. It reuses one
 retained Review, permits only complete Candidate evidence except factual forced
 moves, treats PIMC and Immediate as diagnostics without fallback, and retains
-time-safe Profile-derived fixed Policies without World weighting. Performance
-integration remains open. See [Information-set Search contracts](information_set_search_contracts.md),
+time-safe Profile-derived fixed Policies without World weighting. Issue #193
+adds a strict synthetic corpus, frozen functional and structural signatures,
+focused regression tests, and repository-local reference timings for the
+unchanged executor. Product/runtime performance acceptance gates and latency
+guarantees remain open. See [Information-set Search contracts](information_set_search_contracts.md),
 the [Information-set Search executor](information_set_search_executor.md),
 [Information-set Search workflows](information_set_search_workflows.md), and
 [Information-set Search Multi-Step and Policy Comparison](information_set_search_multi_step_and_policy_comparison.md),
 plus [Match Information-set Search and Strategy Teacher Evidence](match_information_set_search_and_strategy_teacher.md).
 See also [Information-set Replay Coaching and Match Historical analysis](information_set_replay_coaching_and_match_historical_analysis.md).
+The benchmark boundary is documented in [Information-set Search performance](information_set_search_performance.md).
 
 Immediate Analysis is available only when the normalized input state has
 `next_player = "me"` and the game has not ended. Opponent-turn input keeps the
@@ -1064,6 +1068,12 @@ Important regression areas:
 * left/right opponent policy behavior
 * schema validation
 * exact hidden-card evidence, contradictions, DP counts and marginals, uniform sampling, workflow sharing, historical leakage control, and output privacy
+* strict Information-set Search benchmark loading, the eight-case contract/role/
+  turn/depth/profile matrix, frozen functional and structural signatures,
+  same-selection PIMC and independent Immediate diagnostics, Strategy-Fusion
+  common-action behavior, duplicate sampled-world weighting, timing-output shape
+  without elapsed-time thresholds, fixture privacy, and unchanged package/count
+  boundaries
 * immutable Session Players, Commands, Logs, revisions, mode relationships,
   Diagnostics, readiness, Transition Results, serialization, revision-zero
   creation, full replay, conflicts, atomic rejection, phase advancement,

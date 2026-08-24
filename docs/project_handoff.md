@@ -667,15 +667,20 @@ Implemented in the current unreleased baseline:
   game method counts, and existing local Corpus workflow support from Issue #191;
 * separate Information-set Replay Coaching and private Match Historical
   Information-set Review/Coaching through one retained Review and one Historical
-  Application invocation from Issue #192.
+  Application invocation from Issue #192; and
+* a strict eight-case synthetic benchmark corpus, frozen functional and
+  structural signatures, Strategy-Fusion and duplicate-weight diagnostics,
+  focused tests, and documented local measurements from Issue #193.
 
 Existing `auto` remains PIMC then Immediate, and no `information_set_auto`
-exists. Performance integration remains open. There is no
+exists. Product/runtime performance acceptance gates and latency guarantees
+remain open. There is no
 cross-decision global Policy, equilibrium, global-optimality, complete-contract,
 or calibrated-probability claim. See [Information-set Search Multi-Step and
 Policy Comparison](information_set_search_multi_step_and_policy_comparison.md)
 and [Match Information-set Search and Strategy Teacher Evidence](match_information_set_search_and_strategy_teacher.md),
-plus [Information-set Replay Coaching and Match Historical analysis](information_set_replay_coaching_and_match_historical_analysis.md).
+plus [Information-set Replay Coaching and Match Historical analysis](information_set_replay_coaching_and_match_historical_analysis.md)
+and [Information-set Search performance](information_set_search_performance.md).
 
 ### Game history and scoring
 
@@ -1455,6 +1460,7 @@ Main documentation files:
 * `docs/hidden_card_inference.md`
 * `docs/bounded_search_contracts.md`
 * `docs/bounded_search_performance.md`
+* `docs/information_set_search_performance.md`
 * `docs/replay_coaching_contracts.md`
 * `docs/historical_opponent_profiles.md`
 * `docs/training_data.md`
@@ -1542,6 +1548,11 @@ current working totals are 70 authoritative and packaged Schemas and 96
 scenarios. Package/API/workflow/Console-Script/Session baselines and Settlement
 Matrix version `3` with 61 cases remain unchanged.
 
+Issue #193 adds a deterministic synthetic Information-set Search benchmark
+corpus, a strict repository-local runner and focused tests, and documented local
+reference measurements. It changes no production code, Schema, route, profile,
+Public API, Package version, example, generated scenario, or working count.
+
 Historical published `v0.15.0` Release theme: "Local EuroSkat 36er Match
 capture, analysis, and exports".
 
@@ -1603,8 +1614,10 @@ Decision path by Issue #191 together with Dataset-v2 and Corpus propagation.
 Issue #192 adds separate Information-set Replay Coaching and private Match
 Historical Information-set Review/Coaching with retained Review reuse,
 complete-Candidate primary evidence, diagnostic PIMC/Immediate without fallback,
-time-safe fixed Profile Policies, and complete Provenance. Performance evidence
-remains open. Tactical and cross-game Coaching, carefully
+time-safe fixed Profile Policies, and complete Provenance. Issue #193 adds
+repository-local benchmark evidence without changing production behavior.
+Product/runtime performance acceptance gates and latency guarantees remain open.
+Tactical and cross-game Coaching, carefully
 bounded Player Ratings where approved, broader Provenance and Confidence
 integration, and the remaining pre-v1 scope audit also remain open. Final Issue
 titles, count, architecture, solver design, Rating boundary, Coaching taxonomy,
@@ -2065,8 +2078,9 @@ Completed implementation scope:
   Multi-Step and Policy Comparison integration with per-decision Search isolation
   and unchanged `auto`. Issue #191 adds the bounded one-Decision Match/Report/
   Teacher/Dataset/Corpus path. Issue #192 adds separate Information-set Replay
-  Coaching and Match Historical Information-set Review/Coaching. Performance
-  integration remains open.
+  Coaching and Match Historical Information-set Review/Coaching. Issue #193 adds
+  repository-local benchmark evidence. Product/runtime performance acceptance
+  gates and latency guarantees remain open.
   Compatible-world Minimax evaluates the frozen selected
   sequence and aggregates one exact common prefix, but it is determinization-based
   and subject to strategy fusion. Neither method is an optimal imperfect-
@@ -2180,8 +2194,9 @@ and scenario coverage. Issue #190 completes Multi-Step and Policy Comparison
 without changing existing `auto`. Issue #191 completes the bounded one-Decision
 Match/Report/Teacher/Dataset/Corpus path. Issue #192 completes separate
 Information-set Replay Coaching and Match Historical Information-set
-Review/Coaching. Later work should decide performance evidence integration,
-tactical and cross-game Coaching, and Historical Teacher import.
+Review/Coaching. Issue #193 completes repository-local benchmark evidence. Later
+work should decide product/runtime performance acceptance gates and latency
+requirements, tactical and cross-game Coaching, and Historical Teacher import.
 Continue keeping immutable imported
 Workspace Snapshots separate from future persisted or task-specific derived
 artifacts.

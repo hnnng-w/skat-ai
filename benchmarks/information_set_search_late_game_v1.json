@@ -1,0 +1,1128 @@
+{
+  "schema_version": 1,
+  "corpus_name": "information_set_search_late_game_v1",
+  "cases": [
+    {
+      "name": "clubs_declarer_lead_sampled_three_tricks",
+      "declaration": {
+        "game_type": "clubs",
+        "hand_game": true,
+        "ouvert": false,
+        "schneider_announced": false,
+        "schwarz_announced": false,
+        "matadors": 4,
+        "bid_value": 18
+      },
+      "actor": {
+        "player_role": "declarer",
+        "declarer_player": "me",
+        "turn_phase": "lead"
+      },
+      "fixture": {
+        "initial_hands": {
+          "me": ["HJ", "H10", "S9", "DJ", "CJ", "C10", "D7", "H7", "CK", "SJ"],
+          "left": ["HK", "DA", "CA", "DQ", "S7", "HQ", "D8", "DK", "H9", "SA"],
+          "right": ["HA", "H8", "S8", "D9", "SQ", "C8", "C9", "S10", "D10", "CQ"]
+        },
+        "skat": ["SK", "C7"],
+        "initial_next_player": "me",
+        "replayed_cards": [
+          "C10", "CA", "CQ", "SA", "S10", "S9", "S7", "SQ", "CK", "CJ", "HK",
+          "C9", "SJ", "HQ", "C8", "H10", "H9", "HA", "S8", "HJ", "DA"
+        ],
+        "public_hand_players": []
+      },
+      "profile_name": "historical_review_v1",
+      "world_selection_seed": 101,
+      "immediate_seed": 201,
+      "immediate_sample_count": 100,
+      "immediate_use_basic_opponent_strategy": false,
+      "immediate_response_policy_by_player": null,
+      "fixed_player_policies": [
+        {
+          "player": "left",
+          "lead_policy": "lowest_point",
+          "response_policy": "lowest_point",
+          "tie_policy": "first_canonical_preferred_card"
+        },
+        {
+          "player": "right",
+          "lead_policy": "lowest_point",
+          "response_policy": "lowest_point",
+          "tie_policy": "first_canonical_preferred_card"
+        }
+      ],
+      "expected_information_set_signature": {
+        "status": "complete",
+        "stop_reason": "completed",
+        "world_coverage": "sampled_compatible_worlds",
+        "policy_claim": "exact_selected_world_policy",
+        "policy_consistency": "controlled_player_information_set_consistent",
+        "recommended_card": "D7",
+        "compatible_world_count": 200,
+        "candidate_results": [
+          {
+            "card": "D7",
+            "rank": 1,
+            "is_recommended": true,
+            "completed_world_count": 64,
+            "local_contract_success_count": 0,
+            "local_contract_success_rate": 0.0,
+            "mean_local_side_game_score": -144.0,
+            "mean_local_side_card_point_margin": -19.75
+          },
+          {
+            "card": "H7",
+            "rank": 2,
+            "is_recommended": false,
+            "completed_world_count": 64,
+            "local_contract_success_count": 0,
+            "local_contract_success_rate": 0.0,
+            "mean_local_side_game_score": -144.0,
+            "mean_local_side_card_point_margin": -21.65625
+          },
+          {
+            "card": "DJ",
+            "rank": 3,
+            "is_recommended": false,
+            "completed_world_count": 64,
+            "local_contract_success_count": 0,
+            "local_contract_success_rate": 0.0,
+            "mean_local_side_game_score": -144.0,
+            "mean_local_side_card_point_margin": -37.15625
+          }
+        ],
+        "depth_reached": 9,
+        "state_nodes_evaluated": 1948,
+        "information_sets_evaluated": 262,
+        "controlled_policy_decisions": 262,
+        "fixed_policy_decisions": 1256,
+        "selected_world_count": 64,
+        "completed_world_count": 64,
+        "sampled_world_count": 64,
+        "unique_sampled_world_count": 55
+      },
+      "expected_same_selection_pimc_signature": {
+        "status": "complete",
+        "stop_reason": "completed",
+        "world_coverage": "sampled_compatible_worlds",
+        "recommended_card": "D7",
+        "compatible_world_count": 200,
+        "candidate_results": [
+          {
+            "card": "D7",
+            "rank": 1,
+            "is_recommended": true,
+            "completed_world_count": 64,
+            "local_contract_success_count": 0,
+            "local_contract_success_rate": 0.0,
+            "mean_local_side_game_score": -144.0,
+            "mean_local_side_card_point_margin": -39.6875
+          },
+          {
+            "card": "DJ",
+            "rank": 2,
+            "is_recommended": false,
+            "completed_world_count": 64,
+            "local_contract_success_count": 0,
+            "local_contract_success_rate": 0.0,
+            "mean_local_side_game_score": -144.0,
+            "mean_local_side_card_point_margin": -40.1875
+          },
+          {
+            "card": "H7",
+            "rank": 3,
+            "is_recommended": false,
+            "completed_world_count": 64,
+            "local_contract_success_count": 0,
+            "local_contract_success_rate": 0.0,
+            "mean_local_side_game_score": -144.0,
+            "mean_local_side_card_point_margin": -40.75
+          }
+        ],
+        "depth_reached": 9,
+        "nodes_expanded": 13308,
+        "selected_world_count": 64,
+        "completed_world_count": 64,
+        "sampled_world_count": 64,
+        "unique_sampled_world_count": 55
+      },
+      "expected_immediate_signature": {
+        "recommended_card": "DJ",
+        "candidate_order": ["H7", "DJ", "D7"]
+      },
+      "expected_descriptive_comparison": {
+        "information_set_pimc_same_card": true,
+        "information_set_immediate_same_card": false,
+        "pimc_immediate_same_card": false,
+        "information_set_rank_of_pimc_card": 1,
+        "pimc_rank_of_information_set_card": 1
+      },
+      "expected_strategy_fusion_diagnostic": null,
+      "expected_sampled_duplicate_diagnostic": null
+    },
+    {
+      "name": "grand_defender_second_seat_exhaustive_two_tricks",
+      "declaration": {
+        "game_type": "grand",
+        "hand_game": false,
+        "ouvert": false,
+        "schneider_announced": false,
+        "schwarz_announced": false,
+        "matadors": 2,
+        "bid_value": 24
+      },
+      "actor": {
+        "player_role": "defender",
+        "declarer_player": "left",
+        "turn_phase": "second_seat"
+      },
+      "fixture": {
+        "initial_hands": {
+          "me": ["CK", "HA", "D9", "S10", "HQ", "C7", "D7", "D10", "SJ", "CQ"],
+          "left": ["DQ", "HJ", "H10", "H7", "S8", "S9", "C8", "H8", "DJ", "DK"],
+          "right": ["SK", "SQ", "D8", "HK", "H9", "CJ", "CA", "C10", "SA", "DA"]
+        },
+        "skat": ["S7", "C9"],
+        "initial_next_player": "me",
+        "replayed_cards": [
+          "CK", "C8", "CA", "C10", "CQ", "S9", "CJ", "SJ", "HJ", "SA", "S10",
+          "S8", "SK", "C7", "H10", "SQ", "HA", "H8", "HK", "HQ", "H7", "H9",
+          "D10", "DK", "DA"
+        ],
+        "public_hand_players": []
+      },
+      "profile_name": "historical_review_v1",
+      "world_selection_seed": 102,
+      "immediate_seed": 202,
+      "immediate_sample_count": 100,
+      "immediate_use_basic_opponent_strategy": false,
+      "immediate_response_policy_by_player": null,
+      "fixed_player_policies": [
+        {
+          "player": "left",
+          "lead_policy": "lowest_point",
+          "response_policy": "lowest_point",
+          "tie_policy": "first_canonical_preferred_card"
+        },
+        {
+          "player": "right",
+          "lead_policy": "lowest_point",
+          "response_policy": "lowest_point",
+          "tie_policy": "first_canonical_preferred_card"
+        }
+      ],
+      "expected_information_set_signature": {
+        "status": "complete",
+        "stop_reason": "completed",
+        "world_coverage": "all_compatible_worlds",
+        "policy_claim": "exact_selected_world_policy",
+        "policy_consistency": "controlled_player_information_set_consistent",
+        "recommended_card": "D9",
+        "compatible_world_count": 9,
+        "candidate_results": [
+          {
+            "card": "D9",
+            "rank": 1,
+            "is_recommended": true,
+            "completed_world_count": 9,
+            "local_contract_success_count": 9,
+            "local_contract_success_rate": 1.0,
+            "mean_local_side_game_score": 208.0,
+            "mean_local_side_card_point_margin": 114.44444444444444
+          },
+          {
+            "card": "D7",
+            "rank": 2,
+            "is_recommended": false,
+            "completed_world_count": 9,
+            "local_contract_success_count": 9,
+            "local_contract_success_rate": 1.0,
+            "mean_local_side_game_score": 208.0,
+            "mean_local_side_card_point_margin": 114.44444444444444
+          }
+        ],
+        "depth_reached": 5,
+        "state_nodes_evaluated": 99,
+        "information_sets_evaluated": 15,
+        "controlled_policy_decisions": 15,
+        "fixed_policy_decisions": 54,
+        "selected_world_count": 9,
+        "completed_world_count": 9,
+        "sampled_world_count": 0,
+        "unique_sampled_world_count": 0
+      },
+      "expected_same_selection_pimc_signature": {
+        "status": "complete",
+        "stop_reason": "completed",
+        "world_coverage": "all_compatible_worlds",
+        "recommended_card": "D9",
+        "compatible_world_count": 9,
+        "candidate_results": [
+          {
+            "card": "D9",
+            "rank": 1,
+            "is_recommended": true,
+            "completed_world_count": 9,
+            "local_contract_success_count": 9,
+            "local_contract_success_rate": 1.0,
+            "mean_local_side_game_score": 208.0,
+            "mean_local_side_card_point_margin": 114.44444444444444
+          },
+          {
+            "card": "D7",
+            "rank": 2,
+            "is_recommended": false,
+            "completed_world_count": 9,
+            "local_contract_success_count": 9,
+            "local_contract_success_rate": 1.0,
+            "mean_local_side_game_score": 208.0,
+            "mean_local_side_card_point_margin": 114.44444444444444
+          }
+        ],
+        "depth_reached": 5,
+        "nodes_expanded": 108,
+        "selected_world_count": 9,
+        "completed_world_count": 9,
+        "sampled_world_count": 0,
+        "unique_sampled_world_count": 0
+      },
+      "expected_immediate_signature": {
+        "recommended_card": "D9",
+        "candidate_order": ["D9", "D7"]
+      },
+      "expected_descriptive_comparison": {
+        "information_set_pimc_same_card": true,
+        "information_set_immediate_same_card": true,
+        "pimc_immediate_same_card": true,
+        "information_set_rank_of_pimc_card": 1,
+        "pimc_rank_of_information_set_card": 1
+      },
+      "expected_strategy_fusion_diagnostic": null,
+      "expected_sampled_duplicate_diagnostic": null
+    },
+    {
+      "name": "null_defender_third_seat_exhaustive_one_trick",
+      "declaration": {
+        "game_type": "null",
+        "hand_game": false,
+        "ouvert": false,
+        "schneider_announced": false,
+        "schwarz_announced": false,
+        "matadors": null,
+        "bid_value": 23
+      },
+      "actor": {
+        "player_role": "defender",
+        "declarer_player": "left",
+        "turn_phase": "third_seat"
+      },
+      "fixture": {
+        "initial_hands": {
+          "me": ["HA", "D10", "HK", "D7", "D9", "HJ", "CA", "CJ", "SK", "C7"],
+          "left": ["S8", "H10", "H8", "DJ", "S7", "SJ", "S9", "DQ", "C10", "DA"],
+          "right": ["C8", "HQ", "SA", "S10", "H9", "H7", "C9", "DK", "SQ", "D8"]
+        },
+        "skat": ["CK", "CQ"],
+        "initial_next_player": "me",
+        "replayed_cards": [
+          "CA", "C10", "C9", "CJ", "SJ", "C8", "C7", "S9", "SA", "SK", "S8", "S10",
+          "HA", "H10", "HQ", "HK", "H8", "H9", "HJ", "S7", "H7", "D10", "DA", "DK",
+          "DQ", "D8", "D9", "DJ", "SQ"
+        ],
+        "public_hand_players": []
+      },
+      "profile_name": "interactive_v1",
+      "world_selection_seed": 103,
+      "immediate_seed": 203,
+      "immediate_sample_count": 100,
+      "immediate_use_basic_opponent_strategy": false,
+      "immediate_response_policy_by_player": null,
+      "fixed_player_policies": [
+        {
+          "player": "left",
+          "lead_policy": "lowest_point",
+          "response_policy": "lowest_point",
+          "tie_policy": "first_canonical_preferred_card"
+        },
+        {
+          "player": "right",
+          "lead_policy": "lowest_point",
+          "response_policy": "lowest_point",
+          "tie_policy": "first_canonical_preferred_card"
+        }
+      ],
+      "expected_information_set_signature": {
+        "status": "complete",
+        "stop_reason": "completed",
+        "world_coverage": "all_compatible_worlds",
+        "policy_claim": "exact_selected_world_policy",
+        "policy_consistency": "controlled_player_information_set_consistent",
+        "recommended_card": "D7",
+        "compatible_world_count": 1,
+        "candidate_results": [
+          {
+            "card": "D7",
+            "rank": 1,
+            "is_recommended": true,
+            "completed_world_count": 1,
+            "local_contract_success_count": 1,
+            "local_contract_success_rate": 1.0,
+            "mean_local_side_game_score": 46.0,
+            "mean_local_side_card_point_margin": null
+          }
+        ],
+        "depth_reached": 1,
+        "state_nodes_evaluated": 2,
+        "information_sets_evaluated": 1,
+        "controlled_policy_decisions": 1,
+        "fixed_policy_decisions": 0,
+        "selected_world_count": 1,
+        "completed_world_count": 1,
+        "sampled_world_count": 0,
+        "unique_sampled_world_count": 0
+      },
+      "expected_same_selection_pimc_signature": {
+        "status": "complete",
+        "stop_reason": "completed",
+        "world_coverage": "all_compatible_worlds",
+        "recommended_card": "D7",
+        "compatible_world_count": 1,
+        "candidate_results": [
+          {
+            "card": "D7",
+            "rank": 1,
+            "is_recommended": true,
+            "completed_world_count": 1,
+            "local_contract_success_count": 1,
+            "local_contract_success_rate": 1.0,
+            "mean_local_side_game_score": 46.0,
+            "mean_local_side_card_point_margin": null
+          }
+        ],
+        "depth_reached": 1,
+        "nodes_expanded": 2,
+        "selected_world_count": 1,
+        "completed_world_count": 1,
+        "sampled_world_count": 0,
+        "unique_sampled_world_count": 0
+      },
+      "expected_immediate_signature": {
+        "recommended_card": "D7",
+        "candidate_order": ["D7"]
+      },
+      "expected_descriptive_comparison": {
+        "information_set_pimc_same_card": true,
+        "information_set_immediate_same_card": true,
+        "pimc_immediate_same_card": true,
+        "information_set_rank_of_pimc_card": 1,
+        "pimc_rank_of_information_set_card": 1
+      },
+      "expected_strategy_fusion_diagnostic": null,
+      "expected_sampled_duplicate_diagnostic": null
+    },
+    {
+      "name": "null_hand_declarer_lead_exhaustive_two_tricks",
+      "declaration": {
+        "game_type": "null",
+        "hand_game": true,
+        "ouvert": false,
+        "schneider_announced": false,
+        "schwarz_announced": false,
+        "matadors": null,
+        "bid_value": 35
+      },
+      "actor": {
+        "player_role": "declarer",
+        "declarer_player": "me",
+        "turn_phase": "lead"
+      },
+      "fixture": {
+        "initial_hands": {
+          "me": ["DK", "H10", "SQ", "SK", "DJ", "C10", "C9", "CJ", "C7", "HA"],
+          "left": ["S10", "HQ", "D8", "S9", "H8", "CA", "H9", "D9", "C8", "SJ"],
+          "right": ["HJ", "H7", "S8", "S7", "CQ", "D7", "CK", "DA", "D10", "DQ"]
+        },
+        "skat": ["HK", "SA"],
+        "initial_next_player": "me",
+        "replayed_cards": [
+          "C10", "CA", "CK", "C8", "CQ", "CJ", "S8", "SK", "S10", "C9", "SJ", "S7",
+          "C7", "S9", "HJ", "SQ", "HQ", "H7", "HA", "H9", "DA", "H10", "H8", "D10"
+        ],
+        "public_hand_players": []
+      },
+      "profile_name": "evaluation_v1",
+      "world_selection_seed": 104,
+      "immediate_seed": 204,
+      "immediate_sample_count": 100,
+      "immediate_use_basic_opponent_strategy": false,
+      "immediate_response_policy_by_player": null,
+      "fixed_player_policies": [
+        {
+          "player": "left",
+          "lead_policy": "lowest_point",
+          "response_policy": "lowest_point",
+          "tie_policy": "first_canonical_preferred_card"
+        },
+        {
+          "player": "right",
+          "lead_policy": "lowest_point",
+          "response_policy": "lowest_point",
+          "tie_policy": "first_canonical_preferred_card"
+        }
+      ],
+      "expected_information_set_signature": {
+        "status": "complete",
+        "stop_reason": "completed",
+        "world_coverage": "all_compatible_worlds",
+        "policy_claim": "exact_selected_world_policy",
+        "policy_consistency": "controlled_player_information_set_consistent",
+        "recommended_card": "DK",
+        "compatible_world_count": 18,
+        "candidate_results": [
+          {
+            "card": "DK",
+            "rank": 1,
+            "is_recommended": true,
+            "completed_world_count": 18,
+            "local_contract_success_count": 0,
+            "local_contract_success_rate": 0.0,
+            "mean_local_side_game_score": -70.0,
+            "mean_local_side_card_point_margin": null
+          },
+          {
+            "card": "DJ",
+            "rank": 2,
+            "is_recommended": false,
+            "completed_world_count": 18,
+            "local_contract_success_count": 0,
+            "local_contract_success_rate": 0.0,
+            "mean_local_side_game_score": -70.0,
+            "mean_local_side_card_point_margin": null
+          }
+        ],
+        "depth_reached": 6,
+        "state_nodes_evaluated": 234,
+        "information_sets_evaluated": 18,
+        "controlled_policy_decisions": 18,
+        "fixed_policy_decisions": 144,
+        "selected_world_count": 18,
+        "completed_world_count": 18,
+        "sampled_world_count": 0,
+        "unique_sampled_world_count": 0
+      },
+      "expected_same_selection_pimc_signature": {
+        "status": "complete",
+        "stop_reason": "completed",
+        "world_coverage": "all_compatible_worlds",
+        "recommended_card": "DK",
+        "compatible_world_count": 18,
+        "candidate_results": [
+          {
+            "card": "DK",
+            "rank": 1,
+            "is_recommended": true,
+            "completed_world_count": 18,
+            "local_contract_success_count": 0,
+            "local_contract_success_rate": 0.0,
+            "mean_local_side_game_score": -70.0,
+            "mean_local_side_card_point_margin": null
+          },
+          {
+            "card": "DJ",
+            "rank": 2,
+            "is_recommended": false,
+            "completed_world_count": 18,
+            "local_contract_success_count": 0,
+            "local_contract_success_rate": 0.0,
+            "mean_local_side_game_score": -70.0,
+            "mean_local_side_card_point_margin": null
+          }
+        ],
+        "depth_reached": 6,
+        "nodes_expanded": 435,
+        "selected_world_count": 18,
+        "completed_world_count": 18,
+        "sampled_world_count": 0,
+        "unique_sampled_world_count": 0
+      },
+      "expected_immediate_signature": {
+        "recommended_card": "DJ",
+        "candidate_order": ["DK", "DJ"]
+      },
+      "expected_descriptive_comparison": {
+        "information_set_pimc_same_card": true,
+        "information_set_immediate_same_card": false,
+        "pimc_immediate_same_card": false,
+        "information_set_rank_of_pimc_card": 1,
+        "pimc_rank_of_information_set_card": 1
+      },
+      "expected_strategy_fusion_diagnostic": null,
+      "expected_sampled_duplicate_diagnostic": null
+    },
+    {
+      "name": "null_ouvert_defender_second_seat_sampled_two_tricks",
+      "declaration": {
+        "game_type": "null",
+        "hand_game": false,
+        "ouvert": true,
+        "schneider_announced": false,
+        "schwarz_announced": false,
+        "matadors": null,
+        "bid_value": 46
+      },
+      "actor": {
+        "player_role": "defender",
+        "declarer_player": "left",
+        "turn_phase": "second_seat"
+      },
+      "fixture": {
+        "initial_hands": {
+          "me": ["CQ", "C7", "D9", "HJ", "HQ", "C9", "CA", "SK", "S8", "DK"],
+          "left": ["H10", "H9", "DQ", "H7", "CK", "H8", "CJ", "D10", "C8", "HK"],
+          "right": ["SQ", "D8", "S10", "SJ", "S7", "HA", "SA", "C10", "S9", "DJ"]
+        },
+        "skat": ["D7", "DA"],
+        "initial_next_player": "me",
+        "replayed_cards": [
+          "CA", "CK", "C10", "CQ", "CJ", "SA", "C9", "C8", "S10", "C7", "H10", "SQ",
+          "SK", "HK", "SJ", "S8", "H9", "S9", "S7", "HQ", "H8", "HA", "HJ", "H7", "DJ"
+        ],
+        "public_hand_players": ["left"]
+      },
+      "profile_name": "interactive_v1",
+      "world_selection_seed": 105,
+      "immediate_seed": 205,
+      "immediate_sample_count": 100,
+      "immediate_use_basic_opponent_strategy": false,
+      "immediate_response_policy_by_player": null,
+      "fixed_player_policies": [
+        {
+          "player": "left",
+          "lead_policy": "lowest_point",
+          "response_policy": "lowest_point",
+          "tie_policy": "first_canonical_preferred_card"
+        },
+        {
+          "player": "right",
+          "lead_policy": "lowest_point",
+          "response_policy": "lowest_point",
+          "tie_policy": "first_canonical_preferred_card"
+        }
+      ],
+      "expected_information_set_signature": {
+        "status": "complete",
+        "stop_reason": "completed",
+        "world_coverage": "all_compatible_worlds",
+        "policy_claim": "exact_selected_world_policy",
+        "policy_consistency": "controlled_player_information_set_consistent",
+        "recommended_card": "D9",
+        "compatible_world_count": 3,
+        "candidate_results": [
+          {
+            "card": "D9",
+            "rank": 1,
+            "is_recommended": true,
+            "completed_world_count": 3,
+            "local_contract_success_count": 3,
+            "local_contract_success_rate": 1.0,
+            "mean_local_side_game_score": 92.0,
+            "mean_local_side_card_point_margin": null
+          },
+          {
+            "card": "DK",
+            "rank": 2,
+            "is_recommended": false,
+            "completed_world_count": 3,
+            "local_contract_success_count": 2,
+            "local_contract_success_rate": 0.6666666666666666,
+            "mean_local_side_game_score": 46.0,
+            "mean_local_side_card_point_margin": null
+          }
+        ],
+        "depth_reached": 5,
+        "state_nodes_evaluated": 33,
+        "information_sets_evaluated": 5,
+        "controlled_policy_decisions": 5,
+        "fixed_policy_decisions": 18,
+        "selected_world_count": 3,
+        "completed_world_count": 3,
+        "sampled_world_count": 0,
+        "unique_sampled_world_count": 0
+      },
+      "expected_same_selection_pimc_signature": {
+        "status": "complete",
+        "stop_reason": "completed",
+        "world_coverage": "all_compatible_worlds",
+        "recommended_card": "DK",
+        "compatible_world_count": 3,
+        "candidate_results": [
+          {
+            "card": "DK",
+            "rank": 1,
+            "is_recommended": true,
+            "completed_world_count": 3,
+            "local_contract_success_count": 2,
+            "local_contract_success_rate": 0.6666666666666666,
+            "mean_local_side_game_score": 46.0,
+            "mean_local_side_card_point_margin": null
+          },
+          {
+            "card": "D9",
+            "rank": 2,
+            "is_recommended": false,
+            "completed_world_count": 3,
+            "local_contract_success_count": 0,
+            "local_contract_success_rate": 0.0,
+            "mean_local_side_game_score": -46.0,
+            "mean_local_side_card_point_margin": null
+          }
+        ],
+        "depth_reached": 5,
+        "nodes_expanded": 55,
+        "selected_world_count": 3,
+        "completed_world_count": 3,
+        "sampled_world_count": 0,
+        "unique_sampled_world_count": 0
+      },
+      "expected_immediate_signature": {
+        "recommended_card": "D9",
+        "candidate_order": ["DK", "D9"]
+      },
+      "expected_descriptive_comparison": {
+        "information_set_pimc_same_card": false,
+        "information_set_immediate_same_card": true,
+        "pimc_immediate_same_card": false,
+        "information_set_rank_of_pimc_card": 2,
+        "pimc_rank_of_information_set_card": 2
+      },
+      "expected_strategy_fusion_diagnostic": null,
+      "expected_sampled_duplicate_diagnostic": null
+    },
+    {
+      "name": "null_hand_ouvert_declarer_third_seat_exhaustive_one_trick",
+      "declaration": {
+        "game_type": "null",
+        "hand_game": true,
+        "ouvert": true,
+        "schneider_announced": false,
+        "schwarz_announced": false,
+        "matadors": null,
+        "bid_value": 59
+      },
+      "actor": {
+        "player_role": "declarer",
+        "declarer_player": "me",
+        "turn_phase": "third_seat"
+      },
+      "fixture": {
+        "initial_hands": {
+          "me": ["HA", "D10", "HK", "D7", "D9", "HJ", "CA", "CJ", "SK", "C7"],
+          "left": ["S8", "H10", "H8", "DJ", "S7", "SJ", "S9", "DQ", "C10", "DA"],
+          "right": ["C8", "HQ", "SA", "S10", "H9", "H7", "C9", "DK", "SQ", "D8"]
+        },
+        "skat": ["CK", "CQ"],
+        "initial_next_player": "me",
+        "replayed_cards": [
+          "CA", "C10", "C9", "CJ", "SJ", "C8", "C7", "S9", "SA", "SK", "S8", "S10",
+          "HA", "H10", "HQ", "HK", "H8", "H9", "HJ", "S7", "H7", "D10", "DA", "DK",
+          "DQ", "D8", "D9", "DJ", "SQ"
+        ],
+        "public_hand_players": ["me"]
+      },
+      "profile_name": "interactive_v1",
+      "world_selection_seed": 106,
+      "immediate_seed": 206,
+      "immediate_sample_count": 100,
+      "immediate_use_basic_opponent_strategy": false,
+      "immediate_response_policy_by_player": null,
+      "fixed_player_policies": [
+        {
+          "player": "left",
+          "lead_policy": "lowest_point",
+          "response_policy": "lowest_point",
+          "tie_policy": "first_canonical_preferred_card"
+        },
+        {
+          "player": "right",
+          "lead_policy": "lowest_point",
+          "response_policy": "lowest_point",
+          "tie_policy": "first_canonical_preferred_card"
+        }
+      ],
+      "expected_information_set_signature": {
+        "status": "complete",
+        "stop_reason": "completed",
+        "world_coverage": "all_compatible_worlds",
+        "policy_claim": "exact_selected_world_policy",
+        "policy_consistency": "controlled_player_information_set_consistent",
+        "recommended_card": "D7",
+        "compatible_world_count": 1,
+        "candidate_results": [
+          {
+            "card": "D7",
+            "rank": 1,
+            "is_recommended": true,
+            "completed_world_count": 1,
+            "local_contract_success_count": 0,
+            "local_contract_success_rate": 0.0,
+            "mean_local_side_game_score": -118.0,
+            "mean_local_side_card_point_margin": null
+          }
+        ],
+        "depth_reached": 1,
+        "state_nodes_evaluated": 2,
+        "information_sets_evaluated": 1,
+        "controlled_policy_decisions": 1,
+        "fixed_policy_decisions": 0,
+        "selected_world_count": 1,
+        "completed_world_count": 1,
+        "sampled_world_count": 0,
+        "unique_sampled_world_count": 0
+      },
+      "expected_same_selection_pimc_signature": {
+        "status": "complete",
+        "stop_reason": "completed",
+        "world_coverage": "all_compatible_worlds",
+        "recommended_card": "D7",
+        "compatible_world_count": 1,
+        "candidate_results": [
+          {
+            "card": "D7",
+            "rank": 1,
+            "is_recommended": true,
+            "completed_world_count": 1,
+            "local_contract_success_count": 0,
+            "local_contract_success_rate": 0.0,
+            "mean_local_side_game_score": -118.0,
+            "mean_local_side_card_point_margin": null
+          }
+        ],
+        "depth_reached": 1,
+        "nodes_expanded": 2,
+        "selected_world_count": 1,
+        "completed_world_count": 1,
+        "sampled_world_count": 0,
+        "unique_sampled_world_count": 0
+      },
+      "expected_immediate_signature": {
+        "recommended_card": "D7",
+        "candidate_order": ["D7"]
+      },
+      "expected_descriptive_comparison": {
+        "information_set_pimc_same_card": true,
+        "information_set_immediate_same_card": true,
+        "pimc_immediate_same_card": true,
+        "information_set_rank_of_pimc_card": 1,
+        "pimc_rank_of_information_set_card": 1
+      },
+      "expected_strategy_fusion_diagnostic": null,
+      "expected_sampled_duplicate_diagnostic": null
+    },
+    {
+      "name": "clubs_strategy_fusion_sampled_two_tricks",
+      "declaration": {
+        "game_type": "clubs",
+        "hand_game": true,
+        "ouvert": false,
+        "schneider_announced": false,
+        "schwarz_announced": false,
+        "matadors": 2,
+        "bid_value": 18
+      },
+      "actor": {
+        "player_role": "declarer",
+        "declarer_player": "me",
+        "turn_phase": "lead"
+      },
+      "fixture": {
+        "initial_hands": {
+          "me": ["HQ", "C8", "S10", "HJ", "DA", "H8", "DQ", "C10", "SK", "DJ"],
+          "left": ["CQ", "S9", "CK", "C9", "HK", "D10", "H7", "H10", "C7", "S8"],
+          "right": ["D7", "S7", "DK", "CA", "SJ", "CJ", "SQ", "D9", "HA", "H9"]
+        },
+        "skat": ["SA", "D8"],
+        "initial_next_player": "me",
+        "replayed_cards": [
+          "C10", "CK", "CA", "CJ", "C8", "CQ", "SQ", "S10", "S9", "SK", "S8", "S7",
+          "HQ", "H10", "HA", "SJ", "HJ", "C9", "H9", "H8", "HK", "C7", "DK", "DJ"
+        ],
+        "public_hand_players": []
+      },
+      "profile_name": "interactive_v1",
+      "world_selection_seed": 107,
+      "immediate_seed": 207,
+      "immediate_sample_count": 100,
+      "immediate_use_basic_opponent_strategy": false,
+      "immediate_response_policy_by_player": null,
+      "fixed_player_policies": [
+        {
+          "player": "left",
+          "lead_policy": "lowest_point",
+          "response_policy": "lowest_point",
+          "tie_policy": "first_canonical_preferred_card"
+        },
+        {
+          "player": "right",
+          "lead_policy": "lowest_point",
+          "response_policy": "lowest_point",
+          "tie_policy": "first_canonical_preferred_card"
+        }
+      ],
+      "expected_information_set_signature": {
+        "status": "complete",
+        "stop_reason": "completed",
+        "world_coverage": "sampled_compatible_worlds",
+        "policy_claim": "exact_selected_world_policy",
+        "policy_consistency": "controlled_player_information_set_consistent",
+        "recommended_card": "DA",
+        "compatible_world_count": 90,
+        "candidate_results": [
+          {
+            "card": "DA",
+            "rank": 1,
+            "is_recommended": true,
+            "completed_world_count": 32,
+            "local_contract_success_count": 0,
+            "local_contract_success_rate": 0.0,
+            "mean_local_side_game_score": -96.0,
+            "mean_local_side_card_point_margin": -13.375
+          },
+          {
+            "card": "DQ",
+            "rank": 2,
+            "is_recommended": false,
+            "completed_world_count": 32,
+            "local_contract_success_count": 0,
+            "local_contract_success_rate": 0.0,
+            "mean_local_side_game_score": -101.25,
+            "mean_local_side_card_point_margin": -23.8125
+          }
+        ],
+        "depth_reached": 6,
+        "state_nodes_evaluated": 390,
+        "information_sets_evaluated": 32,
+        "controlled_policy_decisions": 32,
+        "fixed_policy_decisions": 240,
+        "selected_world_count": 32,
+        "completed_world_count": 32,
+        "sampled_world_count": 32,
+        "unique_sampled_world_count": 30
+      },
+      "expected_same_selection_pimc_signature": {
+        "status": "complete",
+        "stop_reason": "completed",
+        "world_coverage": "sampled_compatible_worlds",
+        "recommended_card": "DA",
+        "compatible_world_count": 90,
+        "candidate_results": [
+          {
+            "card": "DA",
+            "rank": 1,
+            "is_recommended": true,
+            "completed_world_count": 32,
+            "local_contract_success_count": 0,
+            "local_contract_success_rate": 0.0,
+            "mean_local_side_game_score": -96.0,
+            "mean_local_side_card_point_margin": -13.375
+          },
+          {
+            "card": "DQ",
+            "rank": 2,
+            "is_recommended": false,
+            "completed_world_count": 32,
+            "local_contract_success_count": 0,
+            "local_contract_success_rate": 0.0,
+            "mean_local_side_game_score": -101.25,
+            "mean_local_side_card_point_margin": -31.8125
+          }
+        ],
+        "depth_reached": 6,
+        "nodes_expanded": 662,
+        "selected_world_count": 32,
+        "completed_world_count": 32,
+        "sampled_world_count": 32,
+        "unique_sampled_world_count": 30
+      },
+      "expected_immediate_signature": {
+        "recommended_card": "DA",
+        "candidate_order": ["DA", "DQ"]
+      },
+      "expected_descriptive_comparison": {
+        "information_set_pimc_same_card": true,
+        "information_set_immediate_same_card": true,
+        "pimc_immediate_same_card": true,
+        "information_set_rank_of_pimc_card": 1,
+        "pimc_rank_of_information_set_card": 1
+      },
+      "expected_strategy_fusion_diagnostic": {
+        "equal_controlled_root_observation": true,
+        "selected_world_count": 32,
+        "unique_exact_worlds_evaluated": 30,
+        "distinct_world_preferred_card_count": 2,
+        "world_preferred_card_counts": [
+          {"card": "DA", "count": 30},
+          {"card": "DQ", "count": 2}
+        ],
+        "information_set_common_root_card": "DA",
+        "information_set_root_decision_count": 1,
+        "information_set_root_reached_world_count": 32
+      },
+      "expected_sampled_duplicate_diagnostic": null
+    },
+    {
+      "name": "grand_sampled_duplicate_weight_two_tricks",
+      "declaration": {
+        "game_type": "grand",
+        "hand_game": false,
+        "ouvert": false,
+        "schneider_announced": false,
+        "schwarz_announced": false,
+        "matadors": 1,
+        "bid_value": 24
+      },
+      "actor": {
+        "player_role": "defender",
+        "declarer_player": "left",
+        "turn_phase": "lead"
+      },
+      "fixture": {
+        "initial_hands": {
+          "me": ["CQ", "C7", "D9", "HJ", "HQ", "C9", "CA", "SK", "S8", "DK"],
+          "left": ["H10", "H9", "DQ", "H7", "CK", "H8", "CJ", "D10", "C8", "HK"],
+          "right": ["SQ", "D8", "S10", "SJ", "S7", "HA", "SA", "C10", "S9", "DJ"]
+        },
+        "skat": ["D7", "DA"],
+        "initial_next_player": "me",
+        "replayed_cards": [
+          "CA", "CK", "C10", "CQ", "C8", "SA", "C9", "CJ", "S10", "H10", "HA", "HQ",
+          "SQ", "SK", "HK", "C7", "H9", "SJ", "S9", "S8", "H8", "S7", "HJ", "H7"
+        ],
+        "public_hand_players": []
+      },
+      "profile_name": "interactive_v1",
+      "world_selection_seed": 108,
+      "immediate_seed": 208,
+      "immediate_sample_count": 100,
+      "immediate_use_basic_opponent_strategy": false,
+      "immediate_response_policy_by_player": null,
+      "fixed_player_policies": [
+        {
+          "player": "left",
+          "lead_policy": "lowest_point",
+          "response_policy": "lowest_point",
+          "tie_policy": "first_canonical_preferred_card"
+        },
+        {
+          "player": "right",
+          "lead_policy": "lowest_point",
+          "response_policy": "lowest_point",
+          "tie_policy": "first_canonical_preferred_card"
+        }
+      ],
+      "expected_information_set_signature": {
+        "status": "complete",
+        "stop_reason": "completed",
+        "world_coverage": "sampled_compatible_worlds",
+        "policy_claim": "exact_selected_world_policy",
+        "policy_consistency": "controlled_player_information_set_consistent",
+        "recommended_card": "DK",
+        "compatible_world_count": 90,
+        "candidate_results": [
+          {
+            "card": "DK",
+            "rank": 1,
+            "is_recommended": true,
+            "completed_world_count": 32,
+            "local_contract_success_count": 32,
+            "local_contract_success_rate": 1.0,
+            "mean_local_side_game_score": 115.5,
+            "mean_local_side_card_point_margin": 57.5
+          },
+          {
+            "card": "D9",
+            "rank": 2,
+            "is_recommended": false,
+            "completed_world_count": 32,
+            "local_contract_success_count": 32,
+            "local_contract_success_rate": 1.0,
+            "mean_local_side_game_score": 114.0,
+            "mean_local_side_card_point_margin": 52.875
+          }
+        ],
+        "depth_reached": 6,
+        "state_nodes_evaluated": 364,
+        "information_sets_evaluated": 30,
+        "controlled_policy_decisions": 30,
+        "fixed_policy_decisions": 224,
+        "selected_world_count": 32,
+        "completed_world_count": 32,
+        "sampled_world_count": 32,
+        "unique_sampled_world_count": 28
+      },
+      "expected_same_selection_pimc_signature": {
+        "status": "complete",
+        "stop_reason": "completed",
+        "world_coverage": "sampled_compatible_worlds",
+        "recommended_card": "DK",
+        "compatible_world_count": 90,
+        "candidate_results": [
+          {
+            "card": "DK",
+            "rank": 1,
+            "is_recommended": true,
+            "completed_world_count": 32,
+            "local_contract_success_count": 32,
+            "local_contract_success_rate": 1.0,
+            "mean_local_side_game_score": 123.0,
+            "mean_local_side_card_point_margin": 58.9375
+          },
+          {
+            "card": "D9",
+            "rank": 2,
+            "is_recommended": false,
+            "completed_world_count": 32,
+            "local_contract_success_count": 32,
+            "local_contract_success_rate": 1.0,
+            "mean_local_side_game_score": 112.5,
+            "mean_local_side_card_point_margin": 57.5
+          }
+        ],
+        "depth_reached": 6,
+        "nodes_expanded": 769,
+        "selected_world_count": 32,
+        "completed_world_count": 32,
+        "sampled_world_count": 32,
+        "unique_sampled_world_count": 28
+      },
+      "expected_immediate_signature": {
+        "recommended_card": "DK",
+        "candidate_order": ["DK", "D9"]
+      },
+      "expected_descriptive_comparison": {
+        "information_set_pimc_same_card": true,
+        "information_set_immediate_same_card": true,
+        "pimc_immediate_same_card": true,
+        "information_set_rank_of_pimc_card": 1,
+        "pimc_rank_of_information_set_card": 1
+      },
+      "expected_strategy_fusion_diagnostic": null,
+      "expected_sampled_duplicate_diagnostic": {
+        "sampled_world_count": 32,
+        "unique_sampled_world_count": 28,
+        "duplicate_draw_count": 4,
+        "maximum_draw_multiplicity": 2,
+        "multiplicity_histogram": [
+          {"multiplicity": 1, "world_count": 24},
+          {"multiplicity": 2, "world_count": 4}
+        ],
+        "candidate_completed_world_counts": [
+          {"card": "DK", "count": 32},
+          {"card": "D9", "count": 32}
+        ],
+        "root_reached_world_count": 32,
+        "selected_draw_weight_preserved": true
+      }
+    }
+  ]
+}

@@ -98,9 +98,10 @@ The normal Search implementation maximum remains five unresolved tricks.
 Issues #187 and #188 define and execute the separate private three-Trick
 Information-set Search. Issue #189 routes it through flat and retrospective
 workflows and maps the existing named work profiles for Historical Review and
-Training Dataset evaluation, but adds no Information-set benchmark corpus,
-timing measurement, calibrated quality comparison, or latency evidence. This
-corpus continues to measure only `compatible_world_minimax_v1`.
+Training Dataset evaluation. Issue #193 adds a separate strict Information-set
+benchmark corpus and documented local reference measurements without changing
+this corpus. See [Information-set Search performance](information_set_search_performance.md).
+This corpus continues to measure only `compatible_world_minimax_v1`.
 Overbid Null remains outside normal Search because Search does not select its
 external Suit or Grand replacement.
 No benchmark result changes the project's lack of a machine-learning model,

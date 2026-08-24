@@ -210,6 +210,10 @@ append-only scenarios, bringing the current unreleased totals to 70 Schemas, six
 Session examples, and 96 scenarios. The published `v0.16.0` totals remain
 historical Release facts.
 
+Issue #193 adds only a synthetic benchmark corpus, repository-local runner,
+focused tests, and performance documentation. It adds no Schema, example,
+generated scenario, route, profile, Public API, Package version, or count change.
+
 ## Integration boundary
 
 Issue #190 completes only Multi-Step and Policy Comparison integration. Issue
@@ -219,9 +223,13 @@ propagation, cross-game Summary counts, and existing local Corpus workflow
 support. It adds no Root workflow, Public API, Schema, example, or generated
 scenario. Issue #192 separately adds Match Historical Information-set Review and
 Coaching plus complete-Candidate-only Replay Coaching with diagnostic PIMC and
-Immediate and no fallback. Performance integration and `auto` remain unchanged.
+Immediate and no fallback. Issue #193 adds separate local benchmark evidence
+only. Production routing, product/runtime performance gates, existing profiles,
+and `auto` remain unchanged.
 See [Match Information-set Search and Strategy Teacher Evidence](match_information_set_search_and_strategy_teacher.md)
 and [Information-set Replay Coaching and Match Historical analysis](information_set_replay_coaching_and_match_historical_analysis.md).
+See [Information-set Search performance](information_set_search_performance.md)
+for the benchmark corpus, frozen evidence, local measurements, and limitations.
 
 The implementation remains limited to at most three unresolved Tricks and to the
 selected Compatible-world sequence under supplied fixed Policies. Exact

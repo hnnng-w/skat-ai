@@ -42,6 +42,12 @@ authoritative and packaged Schemas and 96 scenarios. Package version, Public API
 contract, seven Root workflows, one Console Script, Settlement Matrix version
 `3` with 61 cases, and six Session examples remain unchanged.
 
+Issue #193 adds a deterministic synthetic Information-set Search benchmark
+corpus, a strict repository-local runner and focused regression tests, and
+documented local reference measurements. It changes no production code, Schema,
+route, profile, Public API, Package version, example, generated scenario, or the
+working counts above.
+
 The historical published `v0.15.0` Release points to commit `ec1c154`. Package
 version `0.15.0` requires Python 3.13 or newer, retains Public API contract
 version `1` and exactly seven Root workflows, and contains 63 authoritative
@@ -262,11 +268,13 @@ Capture, Match Analysis Reports, and Strategy Teacher are integrated for the
 bounded one-Decision path by Issue #191 together with Dataset-v2 and Corpus
 propagation. Issue #192 separately adds Match Historical Information-set
 Review/Coaching and complete-Candidate-only Information-set Replay Coaching with
-diagnostic PIMC/Immediate and no fallback. Broader Strategy-Fusion correction and
-performance evidence remain open.
+diagnostic PIMC/Immediate and no fallback. Issue #193 adds repository-local
+benchmark evidence for the unchanged executor. Broader Strategy-Fusion
+correction remains open.
 Tactical and cross-game Coaching, carefully bounded Player Ratings where
-approved, broader Provenance and Confidence integration, performance and latency
-evidence, and the remaining pre-v1 scope audit also remain open. Final Issue
+approved, broader Provenance and Confidence integration, product/runtime
+performance acceptance gates, cross-machine latency guarantees, and the
+remaining pre-v1 scope audit also remain open. Final Issue
 titles, count, architecture, solver design, Rating boundary, Coaching taxonomy,
 and Release date are not finalized. `v1.0.0` remains unready.
 
@@ -403,13 +411,16 @@ The following directions are required for `v1.0.0`:
   `auto`. Issue #191 adds the bounded one-Decision Match/Report/Teacher/Dataset/
   Corpus path. Issue #192 adds separate Match Historical Information-set
   Review/Coaching and Information-set Replay Coaching with retained Review reuse
-  and no baseline fallback. Calibrated sampled quality, broader optimal imperfect-
-  information policy solving, performance evidence, and a latency guarantee
+  and no baseline fallback. Issue #193 adds a strict synthetic benchmark corpus,
+  focused tests, and documented local reference measurements for the unchanged
+  executor. Calibrated sampled quality, broader optimal imperfect-information
+  policy solving, product/runtime performance acceptance gates, and latency guarantees
   remain open. The functional `v0.10.0` milestone is complete, but these broader
   stronger-solver requirements are not. See
   [Bounded search contracts](bounded_search_contracts.md) and the
   [Information-set Search workflows](information_set_search_workflows.md), plus
-  [Information-set Search Multi-Step and Policy Comparison](information_set_search_multi_step_and_policy_comparison.md).
+  [Information-set Search Multi-Step and Policy Comparison](information_set_search_multi_step_and_policy_comparison.md)
+  and [Information-set Search performance](information_set_search_performance.md).
 * Preserve one coherent hidden-world assignment across each simulated path.
   Multi-Step and shared-root Policy Comparison now satisfy this bounded
   execution-consistency requirement; stronger search remains a separate open
@@ -554,6 +565,11 @@ Every gate below must have automated evidence unless it explicitly names a
 manual release artifact. A feature field or example without source behavior,
 validation, and tests does not satisfy a gate.
 
+For the table below, Issue #193 supersedes older broad wording that says
+Information-set Search performance evidence remains open. Repository-local
+benchmark evidence is implemented. Product/runtime performance integration,
+cross-machine acceptance gates, and latency guarantees remain open.
+
 For the Search gate, Issue #114 added opt-in live Multi-Step and Policy
 Comparison routing to the flat strict/auto baseline described in the compact
 table. Issue #115 adds flat post-game Search, information-safe Historical Search
@@ -573,8 +589,9 @@ Provenance. Issue #191 subsequently adds the bounded one-Decision Match/Report/
 Teacher/Dataset/Corpus path with no new Schema or scenario. At that point, Match
 Historical Information-set execution and Replay Coaching classification remained
 open; both are completed separately by Issue #192 with one new Schema and two
-scenarios. Performance
-evidence and the broader solver gate remain open.
+scenarios. Issue #193 completes bounded repository-local benchmark evidence.
+Product/runtime performance gates, latency guarantees, and the broader solver
+gate remain open.
 
 Issues #156 and #157 supersede older rows below that call the Public Session API,
 Session Provenance/Schema, public file transport, automatic/actual-card
@@ -602,7 +619,7 @@ GUI/platform/cloud/encryption layers remain open.
 | Structured output stability | Every stable output branch has a documented versioned schema, deterministic serialization, explicit unavailable/incomplete states, and compatibility tests; public `field_provenance` is strict, opt-in, versioned independently, and omitted by default; intentional breaking changes are recorded before release. |
 | Simulation behavior | Seeded immediate and multi-step simulations are reproducible, play only legal cards, preserve one coherent hidden-card ownership assignment across a simulated path, never reuse cards, maintain point/trick ownership exactly once, and terminate every canonical phase with a documented reason. Multi-Step now preserves one immutable private root per path with owner-aware removals and a fixed hypothetical skat; Policy Comparison uses one shared root with equal independent immutable path copies. Unsupported phases remain explicit. |
 | Search and hidden-card inference | The stronger-search portion remains open. Version-1 contracts and `perfect_information_minimax_v1` reproducibly solve one fully specified non-terminal Suit, Grand, or normal non-overbid Null exact state for the current actor, limited by the lower of five remaining tricks and the request. All four Null variants use exact completed-trick ownership, fixed-value settlement, no card-point secondary objective, and require a bid no greater than the fixed value; overbid Null replacement selection remains unsupported. Canonical full-window root values, deterministic below-root Alpha-Beta, invocation-local exact-only cache reuse, declarer-versus-cooperating-defenders utility, existing settlement reuse, explicit node/depth/timeout outcomes, and complete-versus-zero-completion claims are implemented without partial direct-world recommendations. Private Search spaces count structural compatible worlds with or without void evidence, canonically enumerate bounded complete spaces, deterministically sample larger spaces IID with replacement while retaining duplicates, materialize strict exact states, and freeze one common legal-root order. `compatible_world_minimax_v1` evaluates that order with the shared exact evaluator, one global node budget, per-world depth reset and cache, one global post-selection timeout, and first-incomplete-world common-prefix aggregation. Duplicate draws retain equal repeated weight. Complete exhaustive coverage is exact across all compatible worlds; sampled completion is exact only per selected sample, and partial results are exact only over their completed prefix. The method is determinization-based, is subject to strategy fusion, and does not prove an optimal imperfect-information policy. Explicit flat ongoing live routing implements `immediate_expected_value`, strict `bounded_search`, and Search-first `auto` fallback, with input/output schemas, CLI summaries, report and Immediate/Search seed separation, attributed-history and declared-Ouvert/continuation public-hand authorization, and privacy-safe deterministic examples. Remaining Search work includes Match Capture and Match Analysis Report integration, Strategy Teacher and Replay Coaching classification, default/production budgets, latency/performance evidence, broader Strategy-Fusion correction, and release preparation. The bounded inference portion is implemented: only local/exact public ownership, legitimate skat, attributed public play, and confirmed legal failure to follow constrain exact compatible assignments; chronology, contradiction rejection, DP counts/marginals, uniform sampling, uncalibrated confidence, historical leakage controls, and privacy-safe output are tested. |
-| Information-set Search | Issue #189 provides strict flat `information_set_search` with exactly nine settings, no Live baseline or fallback, safe aggregate Results, descriptive same-selection PIMC and independently seeded Immediate retrospective comparison, separate Historical Review and Training Dataset evaluation, retained-stage Provenance, CLI, Schemas, example, and generated scenarios. Issue #190 completes strict Multi-Step and Policy Comparison version `1`: every local decision derives a domain-separated child seed, runs fresh public-state Search independently of the private coherent execution World, reuses no Search World or controlled Policy, and stops without fallback; safe Decisions, nested Results, exact 16-field diagnostics, append-once-last ordering, shared-root independent path copies, stopped-row ineligibility, existing ranking, and retained-Result complete Provenance are implemented. Issue #191 adds bounded one-Decision Match analysis, exact Report-source transfer, Strategy Teacher Evidence, Dataset-v2 joins, and Corpus propagation. Issue #192 adds separate Information-set Replay Coaching and Match Historical Information-set Review/Coaching. Fixed left/right Policies derive from existing effective settings; `random_legal` and role-invalid Policies are unavailable. Existing `auto` is unchanged and no `information_set_auto` exists. Exact Worlds, hidden hands, Observations, controlled Policy tables, caches, and derived seeds remain private. This is not a cross-decision global Policy, equilibrium, global optimality, calibrated probability, complete Strategy-Fusion correction, complete-contract solving, or a latency guarantee. Performance evidence remains open. |
+| Information-set Search | Issue #189 provides strict flat `information_set_search` with exactly nine settings, no Live baseline or fallback, safe aggregate Results, descriptive same-selection PIMC and independently seeded Immediate retrospective comparison, separate Historical Review and Training Dataset evaluation, retained-stage Provenance, CLI, Schemas, example, and generated scenarios. Issue #190 completes strict Multi-Step and Policy Comparison version `1`: every local decision derives a domain-separated child seed, runs fresh public-state Search independently of the private coherent execution World, reuses no Search World or controlled Policy, and stops without fallback; safe Decisions, nested Results, exact 16-field diagnostics, append-once-last ordering, shared-root independent path copies, stopped-row ineligibility, existing ranking, and retained-Result complete Provenance are implemented. Issue #191 adds bounded one-Decision Match analysis, exact Report-source transfer, Strategy Teacher Evidence, Dataset-v2 joins, and Corpus propagation. Issue #192 adds separate Information-set Replay Coaching and Match Historical Information-set Review/Coaching. Issue #193 adds a strict synthetic benchmark corpus, frozen functional and structural signatures, focused tests, and local reference measurements for the unchanged executor. Fixed left/right Policies derive from existing effective settings; `random_legal` and role-invalid Policies are unavailable. Existing `auto` is unchanged and no `information_set_auto` exists. Exact Worlds, hidden hands, Observations, controlled Policy tables, caches, and derived seeds remain private. This is not a cross-decision global Policy, equilibrium, global optimality, calibrated probability, complete Strategy-Fusion correction, complete-contract solving, product/runtime performance gate, or latency guarantee. |
 | Ouvert-aware simulation | Historical and live Ouvert analysis uses legitimately exposed cards in recommendation simulation, never treats unexposed cards as public, and has deterministic contract- and perspective-specific tests. |
 | Recommendation behavior | Recommendations always select from legal candidates, use the documented Suit/Grand or Null objective, preserve player-side perspective, expose enough evidence to reproduce ranking, and have deterministic tie behavior under fixed settings. |
 | Opponent modeling | Every supported global and left/right rule-based policy has documented semantics, precedence, and controlled tests proving its effect in each analysis path where it is claimed to apply; no policy is described as learned. External and historical statistics preserve stable identity and provenance, and strict time-safe historical application never uses a capture from the target game or later. |
@@ -627,9 +644,12 @@ Historical and Replay Coaching gap: the separate Coaching path uses complete
 Information-set Candidates as primary evidence, treats PIMC/Immediate as
 diagnostics without fallback, and reuses one retained Review; private Match
 Historical controls use one Application invocation and time-safe fixed Policies.
-Performance evidence remains open. See
+Issue #193 adds repository-local benchmark evidence for the unchanged executor.
+Product/runtime performance acceptance gates and latency guarantees remain open.
+See
 [Match Information-set Search and Strategy Teacher Evidence](match_information_set_search_and_strategy_teacher.md)
-and [Information-set Replay Coaching and Match Historical analysis](information_set_replay_coaching_and_match_historical_analysis.md).
+and [Information-set Replay Coaching and Match Historical analysis](information_set_replay_coaching_and_match_historical_analysis.md),
+plus [Information-set Search performance](information_set_search_performance.md).
 
 The historical-game workflow satisfies deal-through-settlement for
 `normal_completion`, exact-prefix declarer and defender concessions,
@@ -785,6 +805,10 @@ behavior. See
 Issue #192 adds the separate Information-set Replay Coaching and Match Historical
 Information-set Review/Coaching path without changing that one-Decision Teacher
 flow. See [Information-set Replay Coaching and Match Historical analysis](information_set_replay_coaching_and_match_historical_analysis.md).
+
+Issue #193 adds the separate synthetic benchmark corpus, runner, focused tests,
+and local reference measurements without changing production behavior. See
+[Information-set Search performance](information_set_search_performance.md).
 
 ## Release decision rule
 

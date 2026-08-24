@@ -9,7 +9,9 @@ retrospective, Historical Review, and Training Dataset evaluation boundaries.
 Issue #190 adds strict Multi-Step and Policy Comparison integration version `1`.
 Issue #191 adds the private one-Decision Match/Teacher/Dataset/Corpus path, and
 Issue #192 adds separate Information-set Replay Coaching plus Match Historical
-Information-set Review/Coaching.
+Information-set Review/Coaching. Issue #193 adds repository-local benchmark,
+test, and documentation evidence without changing these contracts or production
+behavior.
 
 The existing `compatible_world_minimax_v1` method evaluates each selected exact
 Compatible World separately. A future action can therefore differ between two
@@ -32,7 +34,9 @@ one-Decision Match path, exact Report-source transfer, focused Strategy Teacher
 Evidence, Dataset-v2 propagation, Summary counts, and existing local Corpus
 workflow support. Issue #192 subsequently adds separate Replay Coaching
 classification from one retained Historical Information-set Review and private
-Match Historical execution. Performance integration remains absent.
+Match Historical execution. Issue #193 adds repository-local benchmark evidence
+only; product/runtime performance integration and latency guarantees remain
+absent.
 
 ## Versioned values
 
@@ -279,7 +283,9 @@ the algorithm, public Schemas, examples, or generated scenarios. Match Historica
 Information-set execution and Replay Coaching classification are added
 separately by Issue #192. They reuse the retained Review and complete Candidate
 aggregates without changing this algorithm; PIMC and Immediate remain diagnostic
-and provide no fallback. Performance evidence remains outside this integration.
+and provide no fallback. Issue #193 benchmarks the unchanged contracts and
+executor separately. It adds no runtime route, profile, public contract,
+performance gate, or latency guarantee.
 There is no cross-decision global Policy, equilibrium, global optimality, or
 calibrated-probability claim.
 
@@ -292,4 +298,5 @@ for the Issue-#190 integration boundary. See
 [Match Information-set Search and Strategy Teacher Evidence](match_information_set_search_and_strategy_teacher.md)
 for Issue #191. See
 [Information-set Replay Coaching and Match Historical analysis](information_set_replay_coaching_and_match_historical_analysis.md)
-for Issue #192.
+for Issue #192. See [Information-set Search performance](information_set_search_performance.md)
+for the separate Issue-#193 benchmark evidence and its interpretation boundary.
