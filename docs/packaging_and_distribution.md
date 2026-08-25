@@ -3,8 +3,9 @@
 This document defines the installation-ready Package artifacts introduced by
 Issue #141, the installed interfaces added by Issue #142, and the Issue #157
 clean-install coverage for stable Session file transport and end-to-end Session
-capture. The repository-root Legacy CLI remains supported through at least
-`v1.0.0`.
+capture. Issue #200 freezes the repository-root Legacy CLI for Package 1.x; any
+removal can occur no earlier than `2.0.0` after a prior warning and migration
+note.
 
 ## Build metadata
 
@@ -290,6 +291,15 @@ step exists. No CI step uploads or publishes an artifact.
 
 ## Remaining boundaries
 
+For the bounded v1 Package, release acceptance uses CPython 3.13 on Windows 11
+through Windows PowerShell 5.1 and on Ubuntu through the equivalent GitHub Actions
+commands. Package metadata remains `>=3.13`, but no broader Python-version,
+macOS, hardware, named-browser, or cross-machine latency matrix is claimed. The
+final v1 clean-install gate must exercise all seven Root workflows from both
+Wheel and sdist; current distribution smoke uses one compact Root example while
+repository tests cover all seven, so that broader clean-install evidence remains
+a follow-up gate.
+
 Issue #142 added the installed `skat-ai` command and `python -m skat_ai` without a
 public schema-resource API, new workflow, Root-output metadata, Provenance field,
 Package-version change, or Package publication. Issue #147 subsequently added
@@ -299,8 +309,9 @@ functional `v0.14.0` Session milestone, and Issue #158 completed Package version
 at commit `d5589f8` has 63 authoritative and packaged Schemas and 85 generated-
 output scenarios, while the historical `v0.13.0` 77 scenarios remain unchanged.
 
-The Package license decision remains unresolved, so no license
-metadata is declared. Package and release publication remain human-controlled. Session
+The Package license decision remains unresolved and is a v1
+`product_decision_required` blocker, so no license metadata is declared. Package
+and release publication remain human-controlled. Session
 file paths are caller-selected; no default directory, second Console Script,
 remote browser deployment, online-platform adapter, cloud synchronization,
 distributed locking, encryption/key management, or automatic backup policy is
@@ -330,3 +341,6 @@ the build backend, Package Data, or non-Package contract versions. The maintaine
 published `v0.17.0` manually on 2026-08-25 at `8187fbe`; Issue #199 synchronizes
 the post-publication documentation only. GitHub Releases is authoritative, and
 no Package-index or PyPI publication is claimed.
+
+The authoritative v1 packaging, platform, license, and distribution matrix is in
+the [v1.0 scope and traceability audit](v1_0_scope_and_traceability_audit.md).

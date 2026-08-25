@@ -187,6 +187,7 @@ Before larger changes, read the relevant documentation:
 
 * `README.md`
 * `docs/v0_17_release_readiness_audit.md`
+* `docs/v1_0_scope_and_traceability_audit.md`
 * `docs/project_handoff.md`
 * `docs/roadmap.md`
 * `docs/architecture.md`
@@ -545,19 +546,16 @@ version `2`. Issue #196 adds separate deterministic Tactical Cross-game Coaching
 from exact retained Tactical/Teacher evidence, complete-Search-only consensus,
 bounded repeated cross-Game focus and fixed Guidance, and a tenth current browser
 download without changing Dataset version `2`. Issue #193 satisfies the bounded
-v0.17.0 performance-evidence contract. Broader tactical quality outside retained
-complete-Search evidence, carefully bounded Player Ratings where approved,
-broader Provenance and Confidence integration, production performance criteria,
-cross-machine latency guarantees, and the remaining pre-v1 scope audit remain
-later decisions rather than v0.17.0 Release blockers. Issues #182 through #196
+v0.17.0 performance-evidence contract. Issues #182 through #196
 are the frozen functional history. Issue #197 completes the documentation-only
 scope and Release-readiness audit, and Issue #198 prepares Package `0.17.0` and
 the Release candidate without product behavior changes. The maintainer published
 `v0.17.0` on 2026-08-25 at `8187fbe`, and Issue #199 synchronizes that publication
-without product functionality. The active next planning milestone is `v1.0.0`;
-it is planning-only and not ready, and the next action is a separate v1 scope and
-traceability audit. No v1 Release title, theme, Issue sequence, implementation
-architecture, or date is frozen, and no production model is planned.
+without product functionality. Issue #200 freezes the bounded `v1.0.0` scope,
+classifies all 53 required traceability rows, and records seven blockers plus the
+exact #201 through #207 follow-up sequence without changing product code.
+`v1.0.0` is not ready; the next action is Issue #201. No v1 Release title, theme,
+date, tag, publication commit, or production model is frozen.
 
 Major completed areas include:
 
@@ -667,7 +665,7 @@ Major completed areas include:
 * deterministic public automatic Training Dataset preparation with temporal Known-opponent and Player-disjoint unseen-player assignment, complete or unavailable Plans, lossless materialization, strict schemas, CLI, examples, and generated-output coverage
 * stable public API contract version 1 with exact exports, immutable JSON Request and Result wrappers, compatibility metadata, public errors, and legacy Root CLI compatibility
 * internal field-level information provenance contract version 1 with immutable sidecar ledgers, deterministic coverage auditing, dependency and temporal validation, context-use policy, public redaction, and safe serialization
-* internal Application orchestration version 1 with immutable contracts and options, seven in-memory workflow handlers, five isolated Training Dataset operations, injected Opponent Statistics, auxiliary artifacts, no-I/O dispatch, and legacy CLI transport parity
+* internal Application orchestration version 1 with immutable contracts and options, seven in-memory workflow handlers, six isolated Training Dataset operations, injected Opponent Statistics, auxiliary artifacts, no-I/O dispatch, and legacy CLI transport parity
 * executable public Python API version 1 with immutable direct options, all-seven-workflow execution, separate artifacts, lazy Package Resource schema validation, and stable boundary errors
 * installation-ready Setuptools Wheel and sdist artifacts with byte-identical packaged schemas, typing metadata, Package version export, and clean-install validation
 * Package-owned installed and module CLI entry points with canonical parsing, direct Application execution, Legacy Root compatibility, and clean Wheel/sdist command validation
@@ -823,8 +821,10 @@ evaluation routing plus strict Multi-Step and Policy Comparison integration are
 implemented. Issue #191 adds the bounded one-Decision Match/Report/Teacher/
 Dataset/Corpus path. Issue #192 adds separate Information-set Replay Coaching and
 Match Historical Information-set Review/Coaching. Issue #193 adds separate local
-benchmark evidence for the unchanged executor. Product/runtime performance
-acceptance gates and latency guarantees remain open. There is no
+benchmark evidence for the unchanged executor. Performance acceptance for v1 is
+the deterministic functional and structural-work contract; fresh supported-
+platform evidence remains required, while latency guarantees are not a v1 gate.
+There is no
 cross-decision global Policy, equilibrium, global optimality, or calibrated
 probability claim. Issue #194 adds deterministic structural Historical Tactical
 Motif Review without quality, intent, signaling, communication, or causal
@@ -834,13 +834,15 @@ changing Dataset version `2`. Issue #196 adds bounded deterministic Tactical
 Cross-game Coaching from exact retained Tactical/Teacher evidence without a truth
 or Player-rating claim. Overbid Null replacement selection, broader tactical
 quality assessment outside retained complete-Search evidence, causal
-attribution, player ratings, and complete field-level information provenance
-remain open before `v1.0.0`. End-to-end local Live and Retrospective Session
+attribution, and player ratings are not required for v1; complete internal
+field-level information provenance remains the Issue #202 implementation gate.
+End-to-end local Live and Retrospective Session
 capture is implemented through public file Save/Load, automatic Checkpoints,
 accepted-Log actual-card observation, isolated review, explicit analysis, the
 12-subcommand CLI, and Assistant. Session GUI/browser UI, online-platform adapters,
 cloud synchronization, distributed locking, encryption/key management, and
-automatic backup policy remain open. The historical published `v0.14.0` baseline
+automatic backup policy remain absent and are not v1 requirements. The
+historical published `v0.14.0` baseline
 has 63 authoritative and byte-identical packaged Schemas and 85 generated-output
 scenarios; the historical published `v0.13.0` baseline remains 62 Schemas and 77
 scenarios. The historical published `v0.16.0` and `v0.15.0` Packages preserve
@@ -882,7 +884,8 @@ garbage collection, Player Catalog or Human Evidence persistence,
 persisted aliases/assertions, merge/split operations, all-revision views,
 public Human or Strategy Teacher Evidence API transport, automatic Report
 capture, Historical Report import, Dataset-v2 persistence, task builders,
-persisted partition artifacts, and model training remain open. Session State itself contains no path
+persisted partition artifacts, and model training remain absent and are not v1
+requirements. Session State itself contains no path
 or fingerprint; those values belong only to the private persistence boundary.
 No learned model, model-training workflow, hosted website, browser extension,
 remote browser deployment, four-player support, or claim of complete official
@@ -905,7 +908,9 @@ rule coverage exists.
 The authoritative rules and product audit is in
 [`docs/requirements_traceability.md`](docs/requirements_traceability.md). The
 requirements and completion gates for `v1.0.0` are in
-[`docs/v1_scope.md`](docs/v1_scope.md).
+[`docs/v1_scope.md`](docs/v1_scope.md). The authoritative bounded v1
+classifications, blockers, and ordered follow-up plan are in
+[`docs/v1_0_scope_and_traceability_audit.md`](docs/v1_0_scope_and_traceability_audit.md).
 
 Do not describe undecided future areas as permanently out of scope. Four-player
 tables are the only unconditional exclusion; other candidate areas use the

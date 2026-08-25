@@ -404,6 +404,13 @@ complete normal-play Tactical Motif Review with Defender partnership aggregates
 and the exact pre-Claim observation prefix with complete Claim Result
 Provenance.
 
+Issue #200 freezes the current 71 authoritative filenames, `$id` values, bytes,
+and 71 packaged mirrors as the intended v1 Schema set. It also freezes the six
+Session examples and ordered 98-scenario matrix unless a later blocker changes
+stable public behavior. No current blocker is expected to require a new Schema or
+scenario. Private Match, Corpus, and Learning Dataset-v2 values remain outside
+the public Schema set.
+
 The scenario matrix is intentionally bounded. It covers representative
 user-facing CLI workflows, including explicit-input live recommendation, JSON
 output writing, quiet JSON-output automation, local and opponent-turn Multi-Step

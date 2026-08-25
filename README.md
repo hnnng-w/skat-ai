@@ -176,7 +176,7 @@ official Skat rules arbitration.
 * Minimal Package-Root exports: `api`, `errors`, and `__version__`
 * Internal Application orchestration version `1` with immutable invocations,
   options, results, external documents, and auxiliary artifacts
-* Generic no-I/O dispatch for all seven Root workflows, including five isolated
+* Generic no-I/O dispatch for all seven Root workflows, including six isolated
   Training Dataset operations and optional injected Opponent Statistics
 * Executable `parse_request`, `execute`, `execute_document`, and
   `serialize_result` facade functions for all seven workflows
@@ -1292,6 +1292,7 @@ Detailed documentation is split into topic-specific files:
 * [Architecture](docs/architecture.md)
 * [Requirements traceability](docs/requirements_traceability.md)
 * [v1.0 scope](docs/v1_scope.md)
+* [v1.0 scope and traceability audit](docs/v1_0_scope_and_traceability_audit.md)
 * [Roadmap](docs/roadmap.md)
 * [Project handoff](docs/project_handoff.md)
 
@@ -1635,26 +1636,21 @@ The Human, Strategy Teacher, and Tactical families remain separate; Dataset
 version `2` remains unchanged. See [Learning Corpus Tactical Motif evidence and
 summaries](docs/learning_corpus_tactical_motif_evidence_and_summaries.md).
 
-Remaining work includes Public Match API/Schema/data workflows, persisted Player
-aliases/assertions, Player merge/split operations, all-revision Player views,
-Player Catalog persistence and public exposure, public/task-specific Dataset
-workflows, Dataset-v2 persistence and persisted partition artifacts,
-database/remote deployment, Information-set Search product/runtime performance
-acceptance gates and cross-machine latency guarantees,
-Historical Strategy Teacher Report import,
-broader tactical quality assessment outside retained complete-Search evidence,
-Player-rating boundaries, approved settlement nuance,
-additional
-dataset-preparation algorithms or overrides, global optimization, guaranteed
-ratios, Sample- or Player-count balancing, component splitting, broader field-
-level provenance enforcement, and GUI/browser or online-platform Session
-integration beyond the completed local end-to-end Issue #150 through #157
-  capture milestone. The approved party-wide all-remaining-Tricks Claim now has
+Issue #200 freezes the bounded v1 scope. Public Match/Corpus/Dataset-v2 surfaces,
+derived persistence, broader Player Ratings and tactical-quality claims,
+cross-machine latency guarantees, and Session GUI work are not v1 requirements;
+broader solver, auction, learned-model, and hosted/remote work is post-v1. The
+remaining v1 blockers are exhaustive official-rule evidence, internal end-to-end
+Provenance enforcement, canonical Multi-Step phase closure, a human Package
+license decision, final installation/platform evidence, final readiness evidence,
+and Package `1.0.0` Release preparation. The approved party-wide all-remaining-
+Tricks Claim now has
   private structured contracts, complete Evidence, exact-state preparation,
   bounded exhaustive proof execution, valid-proof adjudication, and Historical-
   only Final Settlement runtime integration with strict public diagnostic output,
   Provenance, CLI, Review/Coaching, Dataset, list, and statistics compatibility.
-  Flat Position, Session, Match Capture, and Corpus Claim entry remain open.
+  Flat Position, Session, Match Capture, and Corpus Claim entry are accepted v1
+  limitations.
   Specific future-Trick Claims, defender-open-play proof beyond five
 unresolved Tricks, multiple continuation events, arbitrary event streams, and
 the other documented durable v1 Claim exclusions are `not_supported_v1`.
@@ -1840,23 +1836,24 @@ Runtime execution. Issue #184 adds the private bounded exhaustive exact AND/OR
   adds exact Tactical/Teacher joins, deterministic complete-Search-only repeated
   cross-Game Coaching, atomic third-family publication, and a tenth download
   without changing those counts or Dataset version `2`. Issue #193 satisfies the
-  bounded v0.17.0 performance-evidence contract; production acceptance gates and
-  cross-machine latency guarantees remain later v1 decisions rather than Release
-  blockers. Broader tactical quality assessment, carefully bounded Player
-  Ratings where approved, broader Provenance and Confidence integration, and the
-  remaining pre-v1 scope audit remain open. Issues #182 through #196 are the
+  bounded v0.17.0 performance-evidence contract. Issue #200 accepts deterministic
+  functional/structural performance for v1, classifies latency guarantees and
+  broader tactical/Rating work as not required, and retains broader internal
+  Provenance as a blocker. Issues #182 through #196 are the
   frozen functional history. Issue #197 completes the documentation-only scope
   and Release-readiness audit, and Issue #198 prepares Package `0.17.0` and the
   Release candidate without product behavior changes. The maintainer published
   `v0.17.0` on 2026-08-25 at `8187fbe`, and Issue #199 synchronizes the
-  publication without product functionality. The active next planning milestone
-  is `v1.0.0`; it is planning-only and not ready. The next action is a separate
-  v1 scope and traceability audit, not a frozen title, theme, Issue sequence,
-  implementation architecture, or Release date.
+  publication without product functionality. Issue #200 freezes the bounded
+  `v1.0.0` scope, seven blockers, and the exact #201 through #207 sequence. The
+  milestone is not ready; Issue #201 is next. No v1 Release title, theme, date,
+  tag, or publication commit is frozen.
 
 Current support and known limitations are tracked in the
 [requirements traceability matrix](docs/requirements_traceability.md). Product
 scope and completion gates are defined in the [v1.0 scope](docs/v1_scope.md).
+The authoritative required-row classifications, blockers, and ordered follow-up
+plan are in the [v1.0 scope and traceability audit](docs/v1_0_scope_and_traceability_audit.md).
 The Historical integration is documented in [Historical party-wide
   Claim](docs/historical_party_wide_claim.md). The private boundary is documented in [Party-wide Claim
   contracts](docs/party_wide_claim_contracts.md), the [Party-wide Claim proof

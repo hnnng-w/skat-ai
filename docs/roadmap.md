@@ -287,7 +287,7 @@ Implemented:
 * Frozen, slotted, keyword-only invocations, workflow options, external
   documents, results, and auxiliary artifacts with defensive JSON immutability
 * Generic transport-free dispatch across all seven canonical Root workflows
-* Exactly five isolated Training Dataset operations
+* Exactly six isolated Training Dataset operations
 * Optional already-loaded Opponent Statistics injection for Position Analysis
   and Historical Game execution
 * Optional `opponent_statistics_input` auxiliary export artifact kept outside the
@@ -1298,12 +1298,10 @@ Counts without changing Dataset version `2`. Issue #196 adds separate
 deterministic Tactical Cross-game Coaching from exact retained Tactical/Teacher
 evidence, complete-Search-only consensus, bounded repeated cross-Game focus and
 fixed Guidance, and one tenth Corpus download without changing Dataset version
-`2`. Issue #193 satisfies the bounded v0.17.0 performance-evidence contract;
-production acceptance criteria and cross-machine latency guarantees remain later
-v1 decisions rather than Release blockers. Broader tactical quality outside
-retained complete-Search evidence, carefully bounded Player Ratings where
-approved, broader Provenance and Confidence integration, and the remaining pre-
-v1 scope audit also remain open. See [Information-set Search workflows](information_set_search_workflows.md),
+`2`. Issue #193 satisfies the bounded v0.17.0 performance-evidence contract.
+Issue #200 accepts deterministic functional/structural performance for v1,
+classifies latency guarantees and broader tactical/Rating work as not required,
+and retains broader internal Provenance as a blocker. See [Information-set Search workflows](information_set_search_workflows.md),
 [Information-set Search Multi-Step and Policy Comparison](information_set_search_multi_step_and_policy_comparison.md),
 and [Information-set Search performance](information_set_search_performance.md).
 Issues #182 through #196 are the frozen functional history. Issue #197 completes
@@ -1321,20 +1319,19 @@ authoritative audit of current ISkO, SkWO, and skat-ai product support. The
 [v1.0 scope](v1_scope.md) defines required product directions, unresolved
 implementation details, and testable completion gates.
 
-`v1.0.0` remains planning-only and not ready after the published `v0.17.0`
-Package baseline through
-internal Match metadata, observed-Game and
-commentary, persistent Workspace, rapid-entry Application, private local browser
-and autosave transport, Match-bound Statistics editing and time-safe Profile
-preparation, Decision/Historical/Training-source/fixed-list materialization,
-explicit analysis, ephemeral reports, and authenticated local downloads.
-A separate audit of both documents must precede its final Issue sequence or
-implementation architecture.
+Issue #200 completes the separate scope and traceability audit. The exact bounded
+v1 scope now accepts the current Claim/Settlement, bounded PIMC and selected-world
+Information-set Search, one-game and private bounded Coaching, structural Tactical
+evidence, and private Match/Corpus/Dataset-v2 surfaces. Broader tactical truth,
+Player Ratings, latency guarantees, public Match/Corpus/Dataset-v2 surfaces, and
+derived persistence are not v1 requirements. Broader solver, auction,
+learned-model, and hosted/remote work is post-v1.
 
-Before `v1.0.0`, the project still requires broader tactical quality and Coaching
-beyond Issue #196's retained complete-Search slice, remaining approved settlement
-nuance, and broader field-level provenance
-enforcement. End-to-end local Live and Retrospective Session capture is complete
+Before `v1.0.0`, the project still requires exhaustive official-rule evidence,
+internal load-to-serialization Provenance enforcement, canonical Multi-Step phase
+closure, a human Package license decision, final installation/platform evidence,
+final readiness evidence, and Package `1.0.0` Release preparation. End-to-end
+local Live and Retrospective Session capture is complete
 through Issues #150 through #157, including public files, automatic Checkpoints,
 accepted-Log observation, isolated review, explicit analysis, all 12 CLI
 subcommands, and the Assistant. The executable
@@ -1358,9 +1355,9 @@ is implemented through delegation to the existing terminal cases. Claims,
 Concessions, and Final Settlement remain partially supported. See
 [Claim and Settlement v1 boundaries](claim_and_settlement_v1_boundaries.md).
 
-Full auction modeling, learned opponent profiles, machine-learning card-decision
-models, and online-platform, hosted-browser, or browser-extension adapters are
-planned after `v1.0.0`. Formal
+Full auction modeling, broader solver work, learned opponent profiles,
+machine-learning card-decision models, and online-platform, hosted-browser, or
+browser-extension adapters are planned after `v1.0.0`. Formal
 series aggregation, tournament management, and official federation report
 formats are not required. Four-player tables are the only unconditional
 exclusion.
@@ -1391,9 +1388,10 @@ Multi-Step and Policy Comparison integration is completed by Issue #190. Issue
 Information-set Review/Coaching. Issue #193 supplies bounded repository-local
 benchmark evidence. Issue #194 adds separate deterministic Historical Tactical
 Motif Review and Match browser integration without tactical quality, signaling,
-communication, causal, or cross-game claims. Complete Strategy-Fusion correction, calibrated quality,
-product/runtime performance acceptance gates, and latency guarantees remain
-open, so the stronger-search completion gate is not closed.
+communication, causal, or cross-game claims. Issue #200 accepts this bounded
+selected-world contract as the v1 solver boundary. Complete Strategy-Fusion
+correction and calibrated quality are post-v1; latency guarantees are not
+required.
 
 The published `v0.11.0` milestone is complete through functional Issue #124, and
 Issue #125 completed release preparation. The milestone establishes the
@@ -1520,9 +1518,7 @@ changing those counts or Dataset version `2`. Issues #182 through #196 are the
 frozen v0.17.0 functional history, Issue #197 is the completed documentation-only
 audit, and Issue #198 prepares the Package candidate without product behavior
 changes. The maintainer published it on 2026-08-25 at `8187fbe`, and Issue #199
-synchronizes that publication without product functionality. The active next
-planning milestone is `v1.0.0`; its separate scope and traceability audit is the
-next action. Production performance criteria, latency
-guarantees, broader tactical
-quality/Coaching, Player-rating boundaries, and the final `v1.0.0` Issue split
-and architecture remain later work rather than v0.17.0 Release blockers.
+synchronizes that publication without product functionality. Issue #200 freezes
+the bounded `v1.0.0` scope, seven blockers, and exact #201 through #207 sequence.
+`v1.0.0` remains unready, and Issue #201 is next. No v1 Release title, theme,
+date, tag, or publication commit is frozen.

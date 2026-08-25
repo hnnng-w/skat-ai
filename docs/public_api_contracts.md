@@ -311,8 +311,9 @@ only raw `ValueError` and `OSError` that cross its public boundary.
 ## CLI compatibility
 
 Installed `skat-ai`, module `python -m skat_ai`, and Legacy `python main.py`
-share one Package-owned CLI implementation. Root `python main.py` remains
-supported through at least `v1.0.0`. Issue #157 adds the same 12-subcommand
+share one Package-owned CLI implementation. Issue #200 freezes Root
+`python main.py` support throughout Package 1.x; removal can occur no earlier
+than `2.0.0` under the deprecation policy. Issue #157 adds the same 12-subcommand
 `session` family to all three forms through a separate parser, including
 automatic exact Checkpoint collection, explicit Position analysis, Checkpoint-
 based post-game review, Historical finalization, and the phase-aware Assistant.
@@ -342,11 +343,12 @@ retain `1`.
 
 ## Deprecation Policy
 
-No version-1 public name may be removed or renamed before `v1.0.0`. Additive
+No version-1 public name may be removed or renamed during Package 1.x. Additive
 public names and optional fields with defaults are allowed. A future removal
-after `v1.0.0` requires a documented replacement, a migration note, and a prior
-release that emits `SkatAIDeprecationWarning`. Internal imports receive no such
-guarantee. No deprecation warning is emitted now.
+requires a documented replacement, a migration note, and at least one prior
+published 1.x release that emits `SkatAIDeprecationWarning`; removal can occur no
+earlier than Package `2.0.0`. Internal imports receive no such guarantee. No
+deprecation warning is emitted now.
 
 ## Package Version
 
@@ -364,9 +366,10 @@ maintainer's manual publication at commit `d5589f8`.
 ## Remaining Work
 
 Issue #147 implements bounded public Root Result and actual-artifact provenance.
-Broader field-level enforcement and public exposure of consumed-input, decision,
-and intermediate-stage attachments remain open before `v1.0.0`. Provenance does
-not integrate or replace existing Confidence contracts.
+Public exposure of consumed-input, Decision, and intermediate-stage attachments
+is not required for v1. The remaining v1 Provenance blocker is internal loading,
+authorized retained-stage linkage, and final serialization enforcement across all
+seven workflows. Provenance does not integrate or replace Confidence.
 
 Issues #150 through #155 implement the internal Session contracts, deterministic
 transitions, Request export, immutable pre-Play Checkpoints, history editing,
@@ -381,11 +384,12 @@ Schemas and 85 generated-output scenarios; the current Package version is
 `0.17.0`, while the historical published `v0.13.0` baseline remains unchanged. Existing non-
 Session Root API users require no migration.
 
-Public Session GUI and browser UI, online-platform adapters, browser extensions, website
-scraping, automatic cloud synchronization, distributed locking, encryption and
-key management, and automatic backup policy remain open. Broader end-to-end
-field-level provenance enforcement and unrelated pre-v1 Search, Claim,
-Settlement, and Coaching gaps also remain open.
+Public Session GUI and browser UI, online-platform adapters, browser extensions,
+website scraping, automatic cloud synchronization, distributed locking,
+encryption and key management, and automatic backup policy remain absent and are
+not v1 requirements. Issue #200 accepts the bounded Search, Claim, Settlement,
+and Coaching contracts; only broader internal field-level provenance enforcement
+remains a pre-v1 implementation gate under Issue #202.
 
 Internal Application orchestration version `1`, no-I/O execution for all seven
 Root workflows, legacy CLI transport parity, and auxiliary artifacts are

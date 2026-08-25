@@ -66,7 +66,7 @@ descriptive video or manual source metadata
     -> separate loopback-only Learning Corpus CLI and browser over one explicit root
     -> strict Workspace/Decision-Report uploads and explicit Current selection
     -> process-local atomic exact preparation and ten authenticated canonical downloads
-    -> later Public Match API/Schema/data workflow
+    -> frozen private local Match/Corpus/Dataset-v2 v1 boundary
 ```
 
 The game platform is separate from the media source, and the perspective Player
@@ -134,6 +134,13 @@ product behavior. The maintainer published `v0.17.0` manually on 2026-08-25 at
 changing product functionality. It is the current and latest stable GitHub
 Release; GitHub Releases remains authoritative, and no Package-index or PyPI
 publication is claimed.
+
+Issue #200 freezes the existing private local Match, Capture, Corpus, and
+Dataset-v2 architecture as the v1 boundary. No Public Match/Corpus/Dataset-v2
+API, Schema, Root workflow, or derived persistence is required for v1. The
+remaining architecture changes before v1 are limited to internal load-to-final-
+serialization Provenance enforcement and canonical Multi-Step phase closure.
+Broader solvers and hosted/remote integration are post-v1.
 
 Issues #160 through #168 form the published `v0.15.0` Package baseline, and Issue
 #169 updated only Package/release metadata and documentation to complete Release
@@ -864,8 +871,9 @@ time-safe Profile-derived fixed Policies without World weighting. Issue #193
 adds a strict synthetic corpus, frozen functional and structural signatures,
 focused regression tests, and repository-local reference timings for the
 unchanged executor. This satisfies the bounded v0.17.0 performance-evidence
-contract; product SLA and cross-machine latency guarantees remain later v1
-decisions rather than Release blockers. See [Information-set Search contracts](information_set_search_contracts.md),
+contract. Issue #200 accepts that deterministic functional and structural-work
+evidence for v1; product SLA and cross-machine latency guarantees are not v1
+requirements. See [Information-set Search contracts](information_set_search_contracts.md),
 the [Information-set Search executor](information_set_search_executor.md),
 [Information-set Search workflows](information_set_search_workflows.md), and
 [Information-set Search Multi-Step and Policy Comparison](information_set_search_multi_step_and_policy_comparison.md),
@@ -1208,4 +1216,6 @@ Current design principles:
 
 Requirements and rule-source ownership are mapped in
 [Requirements traceability](requirements_traceability.md). The target product
-boundary is defined in [v1.0 scope](v1_scope.md).
+boundary is defined in [v1.0 scope](v1_scope.md), and the authoritative bounded
+classifications and blockers are frozen in the
+[v1.0 scope and traceability audit](v1_0_scope_and_traceability_audit.md).

@@ -91,7 +91,7 @@ The project focuses on:
   complete post-redaction coverage, and opt-in API/CLI Root output
 * internal Application orchestration version `1` with immutable invocations,
   workflow options, injected external documents, results, and auxiliary
-  artifacts; generic no-I/O dispatch for all seven Root workflows; five isolated
+  artifacts; generic no-I/O dispatch for all seven Root workflows; six isolated
   Training Dataset operations; and legacy CLI transport parity
 * executable public Python API version `1` with immutable direct workflow
   options, all-seven-workflow Application execution, separate artifacts, lazy
@@ -1105,7 +1105,7 @@ Implemented:
   * transport-free Historical Game, review, Search, Coaching, and time-safe
     Opponent Statistics application
 * `application/training_dataset_workflow.py`
-  * five isolated Training Dataset operations and optional export artifact
+  * six isolated Training Dataset operations and optional export artifact
 * `application/simple_workflows.py`
   * transport-free preparation, statistics, list, and comparison handlers
 
@@ -1527,6 +1527,7 @@ Main documentation files:
 * `docs/party_wide_claim_proof_executor.md`
 * `docs/v0_17_release_readiness_audit.md`
 * `docs/v1_scope.md`
+* `docs/v1_0_scope_and_traceability_audit.md`
 * `docs/roadmap.md`
 * `docs/project_handoff.md`
 
@@ -1702,18 +1703,16 @@ at least two Games, retains at most five fixed-Guidance focus areas per Player,
 and keeps zero-count Players in Catalog order. It executes no analysis and makes
 no truth, perfect-play, Player-rating, intent, communication, causal, or
 significance claim.
-Issue #193 satisfies the bounded v0.17.0 performance-evidence contract.
-Production performance criteria and cross-machine latency guarantees remain
-later v1 decisions rather than Release blockers. Broader tactical quality
-assessment outside retained complete-Search evidence, carefully bounded Player
-Ratings where approved, broader Provenance and Confidence integration, and the
-remaining pre-v1 scope audit also remain open. Issues #182 through #196 are the
+Issue #193 satisfies the bounded v0.17.0 performance-evidence contract. Issue
+#200 accepts deterministic functional/structural performance for v1, classifies
+latency guarantees and broader tactical/Rating work as not required, and retains
+broader internal Provenance as a blocker. Issues #182 through #196 are the
 frozen functional history. Issue #197 completes the documentation-only audit,
 and Issue #198 prepares Package `0.17.0` and the Release candidate without
 product behavior changes. The maintainer published `v0.17.0` on 2026-08-25 at
 `8187fbe`, and Issue #199 synchronizes that publication without product
-functionality. `v1.0.0` is the active planning milestone but remains planning-
-only and not ready. The next action is a separate v1 scope and traceability audit.
+functionality. Issue #200 freezes the bounded `v1.0.0` scope and exact #201
+through #207 sequence. The milestone remains not ready, and Issue #201 is next.
 
 Historical published Package milestone: `v0.15.0`, providing usable manual post-
 game capture of one EuroSkat 36er Standard Match from descriptive video evidence.
@@ -2173,8 +2172,9 @@ Completed implementation scope:
   Teacher/Dataset/Corpus path. Issue #192 adds separate Information-set Replay
   Coaching and Match Historical Information-set Review/Coaching. Issue #193 adds
   repository-local benchmark evidence and satisfies the bounded v0.17.0
-  performance-evidence contract. Production acceptance criteria and cross-machine
-  latency guarantees remain later v1 decisions rather than Release blockers.
+  performance-evidence contract. Issue #200 accepts deterministic functional and
+  structural-work evidence for v1; cross-machine latency guarantees are not v1
+  requirements, while fresh supported-platform evidence remains required.
   Compatible-world Minimax evaluates the frozen selected
   sequence and aggregates one exact common prefix, but it is determinization-based
   and subject to strategy fusion. Neither method is an optimal imperfect-
@@ -2208,8 +2208,8 @@ Completed implementation scope:
   scopes from Current Match Snapshots. Issue #196 adds bounded deterministic
   cross-Game focus from unanimous retained complete-Search Teacher evidence.
   Tactical quality beyond that exact evidence, broader interpreted cross-game
-  patterns, Player Ratings, broader Search, and causal attribution remain
-  unimplemented.
+  patterns, Player Ratings, and causal attribution remain unimplemented and are
+  not v1 requirements; broader Search is post-v1.
 * Immutable Live and Retrospective Session contracts plus deterministic
   Command application, replay, phase advancement, projection, incremental
   validation, readiness, canonical Retrospective Historical and information-safe
@@ -2226,7 +2226,8 @@ Completed implementation scope:
   outputs are implemented. Export-only operations execute no workflow, and the
   reusable Application still has only seven Root workflows. Session GUI/browser UI,
   online-platform adapters, cloud synchronization, distributed locking,
-  encryption/key management, and automatic backups remain open.
+  encryption/key management, and automatic backups remain absent and are not v1
+  requirements.
 * Opponent behavior and confidence remain heuristic and rule-based; behavioral evaluation does not prove stronger play.
 * No learned model or model-training workflow exists.
 * Match Capture contains identity/metadata, evidence-aware observed Games and
@@ -2287,26 +2288,25 @@ Completed implementation scope:
   and public transport, Strategy Teacher persistence and public transport,
   Dataset-v2 persistence, task builders, persisted partition artifacts, derived
   artifact persistence, automatic Report capture, Historical Report import, and
-  public exposure remain open. Database/remote/cloud/collaboration,
-  evaluation, ratings, and model training also remain open.
+  public exposure remain absent and are not v1 requirements. Database deployment,
+  evaluation, and Ratings beyond the accepted bounded contracts are not v1
+  requirements; remote/cloud/collaboration and model training are post-v1.
 * The product supports fixed three-player tables only; four-player tables are unconditionally out of scope.
 
 ## Next recommended action
 
-Perform the separate v1 scope and traceability audit. The published functional
-history is frozen as Issues #182 through #196, Issue #197 is the completed scope
-and Release-readiness audit, Issue #198 prepared Package `0.17.0` without product
-behavior changes, and the maintainer published it on 2026-08-25 at `8187fbe`.
-Issue #199 synchronizes that publication without product functionality. The
-active next milestone is `v1.0.0`, but it remains planning-only and not ready; no
-Release title, theme, Issue sequence, implementation architecture, or date is
-frozen.
+Begin Issue #201, the exhaustive official-rule evidence closure. Issue #200
+freezes all 53 required-row classifications, seven blockers, and the exact #201
+through #207 sequence. The published functional history remains Issues #182
+through #196; Issues #197 through #199 remain audit, Release preparation, and
+publication synchronization only. `v1.0.0` is not ready, and no Release title,
+theme, date, tag, or publication commit is frozen.
 
-Continue keeping immutable imported Workspace Snapshots separate from future
-persisted or task-specific derived artifacts. Production performance criteria,
-broader tactical quality assessment, Player-rating boundaries, Historical
-Teacher import, and the complete v1 scope audit remain later work. `v1.0.0`
-remains unready.
+Keep immutable imported Workspace Snapshots separate from derived artifacts.
+Public Match/Corpus/Dataset-v2 surfaces, derived persistence, broader Player
+Ratings and tactical truth, latency guarantees, Session GUI, database deployment,
+and Historical Teacher import are not v1 requirements. Broader solver, auction,
+learned-model, and hosted/remote work is post-v1.
 
 Do not infer automatic newest selection, fuzzy Player merging, cross-revision
 Decision lineage, deletion, garbage collection, Human Evidence persistence,
@@ -2319,8 +2319,9 @@ planned.
 ## Open future topics
 
 The approved pre-`v1.0.0`, post-`v1.0.0`, not-required, and excluded product
-areas are recorded in [v1.0 scope](v1_scope.md). Four-player tables remain the
-only unconditional exclusion.
+areas are recorded in [v1.0 scope](v1_scope.md) and frozen by the
+[v1.0 scope and traceability audit](v1_0_scope_and_traceability_audit.md).
+Four-player tables remain the only unconditional exclusion.
 
 ## New-thread starter instruction
 

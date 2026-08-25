@@ -351,18 +351,15 @@ game Counts without changing Dataset version `2`. Issue #196 adds separate
 deterministic Tactical Cross-game Coaching from exact retained Tactical/Teacher
 evidence, complete-Search-only consensus, bounded repeated cross-Game focus and
 fixed Guidance, and a tenth Corpus download without changing Dataset version
-`2`. Issue #193 satisfies the bounded v0.17.0 performance-evidence contract;
-production acceptance criteria and cross-machine latency guarantees remain later
-v1 decisions rather than Release blockers. Broader tactical quality outside
-retained complete-Search evidence, carefully bounded Player Ratings where
-approved, broader Provenance and Confidence integration, and the remaining pre-
-v1 scope audit also remain open. Issues #182 through #196 are the frozen
+`2`. Issue #193 satisfies the bounded v0.17.0 performance-evidence contract.
+Issues #182 through #196 are the frozen
 functional history. Issue #197 completes the documentation-only audit, and Issue
 #198 prepares Package `0.17.0` and the Release candidate without product behavior
 changes. The maintainer published `v0.17.0` on 2026-08-25 at `8187fbe`; Issue
-#199 synchronizes the publication without product functionality. `v1.0.0` is the
-active planning milestone but remains planning-only and not ready. The next
-action is a separate v1 scope and traceability audit.
+#199 synchronizes the publication without product functionality. Issue #200
+freezes the bounded `v1.0.0` scope, classifies all 53 required rows, and records
+seven blockers plus the exact #201 through #207 sequence. `v1.0.0` is not ready;
+Issue #201 is the next action.
 
 ## Status vocabulary
 
@@ -379,6 +376,13 @@ Only these values are used in the `Current status` column:
 * `decision_required`: product intent is not sufficiently defined.
 
 An output field alone is not evidence of support.
+
+Issue #200 applies its separate v1 Gate vocabulary to every row whose `Required
+before v1.0` cell contains `Yes`. The authoritative ledger contains 53 rows: 12
+`satisfied`, 34 `satisfied_with_approved_bounded_scope`, 3
+`evidence_required`, 3 `implementation_required`, and 1
+`product_decision_required`. No required row is unclassified. See the
+[v1.0 scope and traceability audit](v1_0_scope_and_traceability_audit.md).
 
 ## ISkO individual-game matrix
 
@@ -444,9 +448,9 @@ performance scoring.
 
 For this matrix, Issue #193 supersedes older broad wording that says Information-
 set Search performance evidence remains open. Repository-local benchmark
-evidence implements the bounded v0.17.0 performance contract. Production
-performance criteria, cross-machine acceptance gates, and latency guarantees
-remain later v1 decisions and do not block v0.17.0 Release preparation.
+evidence implements the bounded v0.17.0 performance contract. Issue #200 accepts
+deterministic functional and structural-work evidence for v1; fresh supported-
+platform evidence remains required, and latency guarantees are not a v1 gate.
 
 Issue #115 completes the functional `v0.10.0` bounded-search milestone beyond
 live and Multi-Step use. Flat post-game Search now runs an independent Immediate
@@ -459,15 +463,15 @@ optimal imperfect-information policy guarantee. The bounded-search row therefore
 remains `partially_supported`; Issue #115 does not close every stronger-solver
 requirement for v1.0.
 
-The `v0.10.0` milestone is complete, but the general v1.0 stronger-solver
-direction remains only partially supported. Issues #187 through #192 add the
+The `v0.10.0` milestone is complete. Stronger solver directions remain only
+partially supported but are post-v1. Issues #187 through #192 add the
 private controlled-Player foundation and executor, strict flat, Multi-Step,
 Policy Comparison, Historical Review/evaluation, Match/Teacher/Dataset/Corpus,
 and Replay Coaching/Match Historical integrations. Issue #193 adds bounded
 repository-local benchmark evidence. Complete Strategy-Fusion correction beyond
 the controlled Player, complete-contract solving, calibrated sampled
-probabilities, broader optimal imperfect-information solving, product/runtime
-performance acceptance gates, and latency guarantees remain open.
+probabilities, and broader optimal imperfect-information solving remain post-v1;
+product/runtime latency guarantees are not required.
 
 Issue #120 adds internal Replay Coaching contract version `1`. It separates
 decision-time evidence from retrospective observed-card attachment, reuses one
@@ -721,7 +725,7 @@ maintainer's manual publication. See
 | Local Match Capture browser and CLI transport | skat-ai product | Not applicable | `supported` | Issues #165 and #166 add the private Web/Protocol/Capture CLI and 19 capture/statistics operations. Issue #168 appends three explicit analysis/materialization operations for 22 total, curated report pages, ephemeral report navigation, and authenticated downloads under Web Protocol version `1`. Issue #192 adds Information-set controls and safe rendering within the existing Historical analysis operation. Issue #194 adds the Tactical Motif checkbox, strict form/JSON boolean handling, escaped aggregate/chronological rendering, explicit noncausal warnings, and private-field redaction. | One explicit Workspace path with existing parent, startup token/cookie, exact local origin, selected position, expected revision, and operation form or JSON body. | Private local transport only. No remote bind, account/encryption claim, external request, Public Match API/Schema/Root workflow, new Capture CLI option, Player Catalog browser operation, database/cloud/backup, or source integration. | Retain versions/routes/options, no-JavaScript forms, 36 positions, all capture/Statistics/analysis flows, explicit-only execution, autosave/conflicts/Reload, security/privacy, one Console Script, the historical published `v0.16.0` 63/85 baseline, and the published `v0.17.0` 71/98 baseline. | v0.15.0 published bounded local transport complete | Yes |
 | Public Session APIs | skat-ai product | Not applicable | `supported` | Stable `skat_ai.api.v1.session` version `1` preserves the first 52 exports and appends Decision Observation, Checkpoint Review Export, and `files`; twelve one-call in-memory operations, strict Command parsing, typed Results, optional complete returned-value provenance, and standalone Schema validation are implemented. Stable `skat_ai.api.v1.session.files` version `1` exposes exact path-free Save/Load Results over strict persistence. | Existing typed Session values or strict JSON-object Command/persistence mappings; caller-supplied file path and expected fingerprint for Save. | No Session Root workflow, automatic analysis after every Command, persisted analysis Result, default path, GUI, platform adapter, cloud synchronization, distributed lock, encryption, or automatic backup. | Retain exact export order/identity, operation/value pairs, observation/review isolation, file Result discrimination, normal statuses, one-call delegation, default provenance omission, strict Schema, 71-Schema parity, and clean-install execution. | v0.14.0 bounded public interface complete | Yes |
 | Stable public Python and installed CLI contract | skat-ai product | Not applicable | `supported` | API contract version `1` defines seven Root workflows. Installed, module, and Legacy forms preserve Root parity, the 12-subcommand Session parser, Issue #165 leading private `capture` dispatch, and Issue #179 leading private `corpus` dispatch through one Console Script. Capture and Corpus stay internal and outside `WorkflowV1` and public exports. Issue #189 adds Root Information-set modes; Issue #190 uses existing Multi-Step/comparison fields; Issue #192 adds the Historical Information-set Coaching option; Issue #194 adds the Historical Tactical Motif Review option and CLI flag without adding a workflow or Console Script. | Root JSON; explicit Session path/documents; one explicit Match Workspace path for Capture; or one explicit Learning Corpus root for Corpus. | Broader Domain-error migration, license selection, hosted/platform/cloud/encryption integration, and end-to-end field enforcement remain open. | Retain `corpus -> capture -> session -> Root`, exact existing Root/Session parsers and exact Capture/Corpus parsers, seven workflows, 12 Session subcommands, one Console Script, public exports, Legacy seams, import direction, clean installs, 71 Schemas, and 98 scenarios. | v0.14.0 public interface plus v0.15.0 private Capture and v0.16.0 private Corpus transports | Yes |
-| Field-level information provenance | skat-ai product | Not applicable | `partially_supported` | Internal contract version `1` defines RFC 6901 paths, immutable ledgers, exact coverage, dependencies, Information Use Context, redaction, serialization, and Confidence separation. All seven workflows have complete non-legacy Root Result ledgers. Public version `1` exposes one explicitly mapped redacted Root Result plus actual artifacts, uses scopes `root_result_without_field_provenance` and `artifact_document`, and requires complete recomputed coverage. | A supported Application invocation with matching retained sidecars; public exposure additionally requires API or CLI opt-in. | Public consumed-input, decision, intermediate-stage, and unredacted attachments are intentionally absent. Broader loading and end-to-end field enforcement remain incomplete; Confidence and specialized source provenance remain separate. | Retain internal enforcement plus public immutable types, seven Result mappings, actual-artifact mapping, redaction and coverage recomputation, strict Schema, default omission, API/CLI parity, privacy rejection, and 77 generated outputs. | v0.13.0 bounded public contract complete; broader v1.0 enforcement open | Yes |
+| Field-level information provenance | skat-ai product | Not applicable | `partially_supported` | Internal contract version `1` defines RFC 6901 paths, immutable ledgers, exact coverage, dependencies, Information Use Context, redaction, serialization, and Confidence separation. All seven workflows have complete non-legacy Root Result ledgers. Public version `1` exposes one explicitly mapped redacted Root Result plus actual artifacts, uses scopes `root_result_without_field_provenance` and `artifact_document`, and requires complete recomputed coverage. | A supported Application invocation with matching retained sidecars; public exposure additionally requires API or CLI opt-in. | Public consumed-input, decision, intermediate-stage, and unredacted attachments are intentionally absent. Broader loading and end-to-end field enforcement remain incomplete; Confidence and specialized source provenance remain separate. | Retain internal enforcement plus public immutable types, seven Result mappings, actual-artifact mapping, redaction and coverage recomputation, strict Schema, default omission, API/CLI parity, privacy rejection, and the seven dedicated Provenance scenarios inside the current 98 generated outputs. | v0.13.0 bounded public contract complete; broader v1.0 enforcement open | Yes |
 | Interactive Session capture | skat-ai product | Not applicable | `supported` | Issues #150 through #156 provide immutable fixed-three-player Session contracts, deterministic transitions/replay, information-safe Position and canonical Historical export, frozen Checkpoints, Undo/correction/lineage, strict persistence, stable Public API/Provenance, and standalone Schema. Issue #157 adds public file transport, accepted-Log actual-card observation, isolated review Requests, automatic exact Checkpoints, all 12 installed/module/Legacy CLI subcommands, explicit Position/Historical execution, Assistant capture, six examples, and eight scenarios. | Caller-supplied Session identity, three seated Players, Mode/local Player, typed expected-revision Commands, explicit file path, and operation-specific Position/Historical options. | The bounded local capture workflow adds no GUI/browser UI, platform adapter, cloud synchronization, distributed lock, collaborative merge, encryption/key management, automatic backup, default path, natural-language interpretation, or eighth Root workflow. | Retain Live information restrictions, Retrospective exact ownership, replay/readiness, history edits, CAS persistence, observation/review isolation, collection deduplication, privacy/Exit Codes, invocation parity, clean installs, six examples, and the published 85 Session-era scenarios plus current append-only additions. | v0.14.0 published bounded capture complete | Yes |
 | Private Session persistence and resume | skat-ai product | Not applicable | `supported` | The immutable version-1 document, strict codec, accepted-Log replay, fingerprints, canonical Checkpoints, recomputed lineage, optimistic `saved`/`unchanged`/`conflict` writes, and same-directory atomic replacement remain authoritative. Issue #157 exposes strict path-free public Save/Load Results and CLI load-operate-CAS-save orchestration without changing the document. | One replay-valid State, optional canonical Checkpoints, explicit existing parent/path, and expected current content fingerprint or null for an expected missing target. | No distributed lock, directory creation, merge/retry, recovery migration, encryption, access control, cloud synchronization, or automatic backup policy. Analysis Results, observations, and review Requests are not persisted. | Retain private contract/codec/file tests plus public file identity, one-call delegation, strict errors, path omission, conflict-without-replacement, and CLI mutation tests. | v0.14.0 bounded persistence scope complete | Yes |
 | Live information boundaries | skat-ai product | Not applicable | `partially_supported` | Existing broad enforcement remains, and live Position Application execution validates complete pre-selection decision ledgers and attaches a complete exact Result ledger. Declared Ouvert and both continuation branches authorize only their exact current public hands. Issue #147 can expose the redacted complete `position_result` with recomputed coverage. Accepted 4.4.5 proof hands, other hands, hidden skat, future cards, private worlds, and derived seeds remain unavailable. | Explicit mode, local perspective, verifiable public history, valid declared-Ouvert or continuation public hands, effective seed-free settings, and the exact Application Result. | General position input still trusts supplied context. The public sidecar covers the final Root Result, not every load or decision boundary. | Retain decision-time enforcement, all-leaf accounting, dependency rejection/redaction, Ouvert and continuation exceptions, hidden proof evidence, post-game and private-world leakage, public Result opt-in, determinism, and call counts. | v1.0 | Yes |
@@ -749,6 +753,10 @@ maintainer's manual publication. See
 | Generated-output validation | skat-ai product | Not applicable | `supported` | The published `v0.17.0` matrix generates, semantically checks, and schema-validates 98 deterministic scenarios. Issue #186 preserves the historical published `v0.16.0` first 85 and appends three Historical Claim scenarios; Issue #189 appends four Information-set Search scenarios; Issue #190 appends Multi-Step and Policy Comparison scenarios; Issue #192 appends two Information-set Replay Coaching scenarios; Issue #194 preserves those first 96 and appends two Tactical Motif Review scenarios. Historical published `v0.13.0`, `v0.12.0`, `v0.11.0`, and `v0.10.0` counts remain 77, 70, 64, and 59. | Repository examples/fixtures, 71 schemas, and deterministic Root/Session CLI settings. | The matrix is representative rather than exhaustive; append-only additions do not rewrite historical published Release evidence. | Keep active and published counts explicit; retain prior order and add deterministic coverage for each stable user-facing branch. | v1.0 | Yes |
 | Release and regression checks | skat-ai product | Not applicable | `supported` | `scripts/check.ps1` and CI run Ruff, 71-Schema parity, Root/Session examples, 98 scenarios, Wheel/sdist inspection, clean API/Root/Session/Capture/Corpus CLI and browser smoke, and pytest on Python 3.13. | Development dependencies and supported platform tooling. | Passing checks proves tested behavior, not complete ISkO/SkWO compliance or Package-index publication; GitHub Releases is the authoritative publication record. | Require clean local/CI checks, exact Capture/Corpus resources, one Console Script, installed/module/Legacy/API parity, and human-controlled publication. | v1.0 | Yes |
 
+The Field-level information provenance row's reference to 77 outputs is its
+historical `v0.13.0` introduction evidence. The current and frozen v1 baseline is
+the append-only 98-scenario matrix.
+
 The complete-game row's absent cross-game analysis is scoped to the public
 Historical workflow. Issues #195 and #196 separately provide private Current-
 Snapshot Tactical cross-game Counts and bounded Coaching. Likewise, the Tactical
@@ -765,8 +773,8 @@ without PIMC/Immediate fallback, reuses existing deterministic Coaching logic,
 isolates Outcome Context, and exposes complete Provenance. Private Match
 Historical Review/Coaching uses one Application invocation and time-safe Profile-
 derived fixed Policies without World weighting. Broader tactical quality and
-Coaching outside retained complete-Search evidence, Historical Teacher import,
-and broader solver work remain open. Issue
+Coaching outside retained complete-Search evidence and Historical Teacher import
+are not v1 requirements; broader solver work is post-v1. Issue
 #193 adds
 strict eight-case corpus covering all six supported contract variants, both
 roles, all three turn phases, one through three unresolved Tricks, all profiles,
@@ -778,7 +786,8 @@ baselines are unchanged. Production criteria and latency guarantees remain later
 v1 decisions and do not block v0.17.0 Release preparation. Issue #194 adds
 deterministic Historical Tactical Motif Review and private
 Match browser controls; tactical quality, intent, signaling, communication,
-and causal classification remain open. Issue #195 adds separate private Current-
+and causal classification remain absent and are not v1 requirements. Issue #195
+adds separate private Current-
 Snapshot Evidence and exact descriptive cross-game Counts, but no trait, rate,
 quality, significance, communication, causal, Teacher/Dataset interpretation, or
 cross-game Coaching inside Issue #195 artifacts. Issue #196 adds a separate
@@ -838,4 +847,6 @@ Tactical Motif evidence and summaries](learning_corpus_tactical_motif_evidence_a
   format. Any such format needs a named external authority and conformance
   source.
 
-See [v1.0 scope](v1_scope.md) for product classifications and completion gates.
+See [v1.0 scope](v1_scope.md) for product classifications and completion gates,
+and the [v1.0 scope and traceability audit](v1_0_scope_and_traceability_audit.md)
+for the authoritative required-row ledger, blockers, and ordered Issue plan.

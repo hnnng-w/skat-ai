@@ -437,3 +437,13 @@ Post-publication synchronization:
 v1.0.0:
     planning only; not ready
 ```
+
+## Issue #200 v1 follow-up
+
+This document remains the historical `v0.17.0` audit. Issue #200 subsequently
+freezes the bounded v1 scope in the
+[v1.0 scope and traceability audit](v1_0_scope_and_traceability_audit.md). It
+accepts the current bounded Claim, Search, Coaching, Tactical, Match, Corpus, and
+Dataset-v2 boundaries; classifies all 53 required rows; records seven exact
+blockers; and freezes the #201 through #207 sequence. It does not change any
+`v0.17.0` Release evidence above.

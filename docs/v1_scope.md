@@ -313,26 +313,25 @@ propagation. Issue #192 separately adds Match Historical Information-set
 Review/Coaching and complete-Candidate-only Information-set Replay Coaching with
 diagnostic PIMC/Immediate and no fallback. Issue #193 adds repository-local
 benchmark evidence for the unchanged executor. Broader Strategy-Fusion
-correction remains open.
+correction is post-v1.
 Issue #194 adds deterministic Historical Tactical Motif Review without changing
 either Coaching family. Issue #195 adds separate Current-Snapshot Tactical Motif
 Evidence and exact descriptive cross-game Counts without changing Dataset
 version `2`. Issue #196 adds separate deterministic Tactical Cross-game Coaching
 from exact retained Tactical/Teacher evidence, complete-Search-only consensus,
 bounded repeated cross-Game focus and fixed Guidance, and a tenth Corpus download
-without changing Dataset version `2`. Broader tactical quality and Coaching
-outside retained complete-Search evidence, carefully bounded Player Ratings where
-approved, broader Provenance and Confidence integration, production performance
-criteria, cross-machine latency guarantees, and the remaining pre-v1 scope audit
-also remain later v1 work rather than v0.17.0 Release blockers. Issue #193
+without changing Dataset version `2`. Issue #200 classifies broader tactical/
+Rating work and latency guarantees as not required for v1, accepts deterministic
+functional/structural performance, and retains broader internal Provenance as a
+blocker. Issue #193
 satisfies the bounded v0.17.0 performance-evidence contract. Issues #182 through
 #196 are the frozen functional history. Issue #197 completes the documentation-
 only audit, and Issue #198 prepares Package `0.17.0` and the Release candidate
 without product behavior changes. The maintainer published `v0.17.0` on
 2026-08-25 at `8187fbe`, and Issue #199 synchronizes that publication without
-product functionality. `v1.0.0` is the active planning milestone, but it remains
-planning-only and not ready. The next action is a separate v1 scope and
-traceability audit.
+product functionality. Issue #200 freezes the bounded `v1.0.0` scope, classifies
+every required traceability row, and records seven blockers plus the exact #201
+through #207 sequence. The milestone remains not ready, and Issue #201 is next.
 
 The November 2022 ISkO and SkWO publication is the normative source for official
 rules and competition behavior. Product capabilities such as simulation,
@@ -450,8 +449,8 @@ The following directions are required for `v1.0.0`:
   the existing version-1 dataset and audit; unavailable results succeed with
   explicit null dataset/audit and no partial Plan. This bounded requirement is
   implemented without model training or automatic evaluation.
-* Add stronger search or solver functionality with documented information,
-  quality, determinism, and latency contracts. Version-1 information, private
+* Preserve the bounded stronger Search and solver functionality with documented
+  information, quality, determinism, and budget contracts. Version-1 information, private
   exact complete-world state, deterministic legal transition, eligibility,
   budget, utility, result, exactness, privacy, and standalone-schema contracts,
   bounded `perfect_information_minimax_v1`, compatible-world Minimax and
@@ -472,18 +471,18 @@ The following directions are required for `v1.0.0`:
   Review/Coaching and Information-set Replay Coaching with retained Review reuse
   and no baseline fallback. Issue #193 adds a strict synthetic benchmark corpus,
   focused tests, and documented local reference measurements for the unchanged
-  executor. Calibrated sampled quality, broader optimal imperfect-information
-  policy solving, product/runtime performance acceptance gates, and latency guarantees
-  remain open. The functional `v0.10.0` milestone is complete, but these broader
-  stronger-solver requirements are not. See
+  executor. Issue #200 accepts deterministic functional and structural-work
+  evidence as the bounded v1 performance contract. Broader solvers, calibrated
+  probabilities, complete-contract Search, and wider bounds are post-v1.
+  Cross-machine latency guarantees and dedicated production Budget profiles are
+  not required. See
   [Bounded search contracts](bounded_search_contracts.md) and the
   [Information-set Search workflows](information_set_search_workflows.md), plus
   [Information-set Search Multi-Step and Policy Comparison](information_set_search_multi_step_and_policy_comparison.md)
   and [Information-set Search performance](information_set_search_performance.md).
 * Preserve one coherent hidden-world assignment across each simulated path.
   Multi-Step and shared-root Policy Comparison now satisfy this bounded
-  execution-consistency requirement; stronger search remains a separate open
-  gate.
+  execution-consistency requirement; broader Search is post-v1.
 * Preserve bounded information-safe hidden-card inference with explicit allowed
   evidence and confidence semantics. Issue #104 satisfies this gate using only
   exact decision-time ownership and confirmed legal failure-to-follow evidence,
@@ -531,8 +530,8 @@ The following directions are required for `v1.0.0`:
   transport, actual-card observation and isolated review, automatic Checkpoints,
   all 12 CLI subcommands, explicit analysis/finalization, the Assistant, six
   examples, and eight scenarios. The bounded local end-to-end capture direction
-  is implemented; Session GUI/browser UI and platform/cloud/encryption integration remain
-  open.
+  is implemented; Session GUI/browser UI and platform/cloud/encryption integration
+  are not v1 requirements.
 * Support usable manual post-game Match capture for one EuroSkat 36er Standard
   Match from descriptive video evidence. Issue #160 implements internal
   version-1 source, timecode, named-format registry, participant, optional Player
@@ -561,11 +560,10 @@ The following directions are required for `v1.0.0`:
   Evidence, exact Decision Report Strategy Teacher Evidence, one unpartitioned
   task-neutral Learning Dataset version `2`, group-safe partition preparation,
   descriptive exact-Count cross-game summaries, and the private local one-root
-  Corpus/Dataset-v2 browser workflow
-  without changing
-  Workspace authority. Public Match API, Match Schema/data workflow,
-  public/persisted Player Catalog, public/task-specific Dataset workflows,
-  Dataset-v2 persistence and database/remote deployment remain open.
+  Corpus/Dataset-v2 browser workflow without changing Workspace authority.
+  Public Match/Corpus/Dataset-v2 APIs and Schemas, Player Catalog and derived-
+  artifact persistence, and database deployment are not v1 requirements.
+  Hosted/remote deployment is post-v1.
   YouTube and EuroSkat integration are not required before v1.0.
 * Provide a stable library API and installed CLI/package interface. Public API
   contract version `1`, immutable JSON documents, compatibility metadata, stable
@@ -602,6 +600,8 @@ approved:
 * Machine-learning models for the engine's own card decisions.
 * Online-platform adapters, browser extensions, or hosted/remote browser
   integration.
+* Broader solver algorithms, complete-contract Search, wider Information-set
+  bounds, equilibrium/CFR research, and calibrated probabilities.
 
 ## Not required
 
@@ -612,6 +612,12 @@ These areas are not required for the intended product:
   formal series model.
 * Tournament management.
 * Official federation list or report formats.
+* Public Match, Corpus, or Learning Dataset-v2 APIs or Schemas.
+* Player Catalog, Dataset-v2, Tactical, or Coaching derived persistence.
+* Automatic Report capture, Historical Report import, and database deployment.
+* Broader Player Ratings, tactical-truth classification, and causal attribution.
+* Session GUI/browser UI, cross-machine latency guarantees, dedicated production
+  Budget profiles, and pre-v1 persisted-document migration tooling.
 
 ## Unconditional exclusion
 
@@ -627,9 +633,17 @@ validation, and tests does not satisfy a gate.
 For the table below, Issue #193 supersedes older broad wording that says
 Information-set Search performance evidence remains open. Repository-local
 benchmark evidence implements the bounded v0.17.0 performance contract.
-Production performance criteria, cross-machine acceptance gates, and latency
-guarantees remain later v1 decisions and do not block v0.17.0 Release
-preparation.
+Issue #200 accepts deterministic functional and structural work as the bounded v1
+performance contract. Final Windows and Ubuntu candidate evidence remains
+required; cross-machine latency guarantees are not required.
+
+Issue #200 supersedes any pre-audit completion-row wording below that calls an
+accepted bounded limitation open before v1. Bounded solver, Claim, Settlement,
+Coaching, Tactical, private-surface, persistence, and Rating boundaries are
+accepted, post-v1, or not required exactly as classified in the Issue #200 audit.
+In the historical completion rows below, `open`, `absent`, or `unsupported`
+continues to describe factual capability only; it is not a v1 blocker unless the
+Issue #200 ledger classifies it as one.
 
 For the Search gate, Issue #114 added opt-in live Multi-Step and Policy
 Comparison routing to the flat strict/auto baseline described in the compact
@@ -640,7 +654,8 @@ decisions use domain-separated private child seeds while future-private facts
 remain outside the reconstructed Search view. Sampled quality is not calibrated,
 the determinization aggregate is not an optimal imperfect-information policy,
 and measured wall time is not a latency guarantee. The functional `v0.10.0`
-milestone is complete, but the stronger-search gate is not closed.
+milestone and Issues #187 through #193 satisfy the approved bounded v1 solver
+gate. Broader solver directions are post-v1.
 
 Issue #190 completes only strict Information-set Search Multi-Step and Policy
 Comparison integration. It adds fresh per-decision public-state Search, private
@@ -651,8 +666,8 @@ Teacher/Dataset/Corpus path with no new Schema or scenario. At that point, Match
 Historical Information-set execution and Replay Coaching classification remained
 open; both are completed separately by Issue #192 with one new Schema and two
 scenarios. Issue #193 completes bounded repository-local benchmark evidence.
-Product/runtime performance gates, latency guarantees, and the broader solver
-gate remain open.
+Final supported-platform evidence remains required. Latency guarantees are not a
+v1 gate, and broader solver directions are post-v1.
 
 Issues #156 and #157 supersede older rows below that call the Public Session API,
 Session Provenance/Schema, public file transport, automatic/actual-card
@@ -661,7 +676,7 @@ The published `v0.14.0` baseline validates 63 Schemas, six Session examples, 85
 generated outputs, and 5,892 pytest tests; the historical published `v0.13.0`
 baseline remains 62 Schemas and 77 outputs. Issue #158 completed Release
 preparation before manual maintainer publication.
-GUI/platform/cloud/encryption layers remain open.
+GUI/platform/cloud/encryption layers are not v1 requirements.
 
 | Area | Observable completion condition |
 | --- | --- |
@@ -674,8 +689,8 @@ GUI/platform/cloud/encryption layers remain open.
 | Live-position analysis | Every canonical three-player turn phase is either analyzed when the local player acts or advances through a documented opponent-preparation path; unsupported states fail explicitly without mutating the supplied position. |
 | Live information control | Internal field-provenance contract version `1` defines RFC 6901 paths, immutable entries and sidecar ledgers, deterministic coverage auditing, dependency and temporal validation, Information Use Context, engine-private redaction, safe serialization, and Confidence separation. Application propagation enforces complete live and retrospective decision/stage ledgers and complete non-legacy Root Results across all seven workflows. Public version `1` exposes one explicitly mapped redacted Root Result plus actual artifacts under scopes `root_result_without_field_provenance` and `artifact_document`, with complete recomputed coverage and no consumed-input, decision, intermediate-stage, or unredacted exposure. Completion still requires broader loading, matador, review, serialization, and end-to-end enforcement. |
 | Post-game analysis | A legal actual card can be compared with all legal alternatives for Suit, Grand, and Null from declarer and defender perspectives; unavailable and invalid cases have stable schema-valid output and focused tests. |
-| Complete-game retrospective analysis and coaching | A complete historical record can be replayed in order, each eligible decision is reconstructed using only information available then, rule/result/settlement summaries and actionable coaching explanations are produced, and end-to-end tests detect future-information leakage and event-order corruption. Public Replay Coaching version 1 exposes information-safe evidence, prioritization, patterns, recommendations, scope summaries, and isolated outcome context through a strict schema and CLI. Separate Tactical Motif Review version 1 reuses one retained Snapshot sequence and exposes exact structural lead/void/Trick-control/Defender-partnership/hand-shape/outcome evidence through strict Schema, CLI, Provenance, and Match controls. It is not a quality, intent, signaling, communication, causal, or cross-game analysis. Broader tactical Coaching, stronger Search, ratings, and causal attribution remain absent, so this bounded one-game report does not close the broader gate. |
-| Complete-game historical representation | A versioned schema and Runtime model represent stable game/player IDs, fixed seats, initial deal, final bid/declaration facts, Skat pickup/discards or Hand state, every play, structured Claims/concessions and approved additional end reasons, final result, and Settlement; valid records round-trip and inconsistent ownership, order, legality, totals, or outcomes are rejected. Matrix version `3` preserves all 61 cases and marks the approved bounded party-wide Claim `supported_as_is`. Historical Game input, strict Schemas, valid-proof-only execution, diagnostic public output, Provenance, CLI, Review/Coaching, Dataset, list, and statistics integration are implemented; invalid or unavailable proof rejects the terminal record. Runtime `GameShortening`, flat Position, Session, Match Capture, and Corpus Claim entry remain absent. Claims and Final Settlement remain `partially_supported` beyond this bounded slice. |
+| Complete-game retrospective analysis and coaching | A complete historical record can be replayed in order, each eligible decision is reconstructed using only information available then, rule/result/settlement summaries and actionable coaching explanations are produced, and end-to-end tests detect future-information leakage and event-order corruption. Public Replay Coaching version 1 exposes information-safe evidence, prioritization, patterns, recommendations, scope summaries, and isolated outcome context through a strict schema and CLI. Separate Tactical Motif Review version 1 reuses one retained Snapshot sequence and exposes exact structural lead/void/Trick-control/Defender-partnership/hand-shape/outcome evidence through strict Schema, CLI, Provenance, and Match controls. It is not a quality, intent, signaling, communication, causal, or cross-game analysis. Issue #200 accepts this bounded v1 gate; broader Search is post-v1, while broader tactical quality, Ratings, and causal attribution are not required. |
+| Complete-game historical representation | A versioned schema and Runtime model represent stable game/player IDs, fixed seats, initial deal, final bid/declaration facts, Skat pickup/discards or Hand state, every play, structured Claims/concessions and approved additional end reasons, final result, and Settlement; valid records round-trip and inconsistent ownership, order, legality, totals, or outcomes are rejected. Matrix version `3` preserves all 61 cases and marks the approved bounded party-wide Claim `supported_as_is`. Historical Game input, strict Schemas, valid-proof-only execution, diagnostic public output, Provenance, CLI, Review/Coaching, Dataset, list, and statistics integration are implemented; invalid or unavailable proof rejects the terminal record. Runtime `GameShortening`, flat Position, Session, Match Capture, and Corpus Claim entry remain absent and are not v1 requirements. Issue #200 accepts the bounded Claim and Final Settlement slice as the complete v1 boundary. |
 | Training-data representation | A versioned schema links a complete historical game to provenance, labels/targets, feature-generation version, explicit training/evaluation partition, and optional partition policy; conversion and exact-player overlap audits are deterministic, and tests reject duplicates, missing provenance, invalid labels, partition leakage, and declared unseen-player overlap. Public version-1 unpartitioned requests add explicit weights, split-safe facts, deterministic fingerprints/seeds, complete/unavailable Plans, strict temporal or player-disjoint proof, exact Record-count arithmetic, lossless materialization, exact temporal Known-opponent assignment generation, and deterministic locally optimized whole-component unseen-player assignment. Strict root input/output schemas, fixed mode dispatch, file-only CLI options, three examples, and complete/unavailable generated scenarios cover the bounded workflow without generating samples, training a model, or automatically evaluating it. |
 | Input validation | JSON Schema and runtime validation agree on public types, bounds, enums, and cross-field requirements for every stable input branch; parity tests cover malformed and contradictory records. |
 | Public Session interface | The stable Session subnamespace preserves the first 52 names exactly and appends six observation/review names plus `files`; twelve operation/value pairs, persistence mappings, optional provenance, and complete Results validate through the standalone packaged Session Schema. The independently versioned file subnamespace exposes exact path-free Save/Load Results. Export and review-export wrappers execute no analysis. |
@@ -714,9 +729,10 @@ Information-set Candidates as primary evidence, treats PIMC/Immediate as
 diagnostics without fallback, and reuses one retained Review; private Match
 Historical controls use one Application invocation and time-safe fixed Policies.
 Issue #193 adds repository-local benchmark evidence for the unchanged executor
-and satisfies the bounded v0.17.0 performance-evidence contract. Production
-acceptance criteria and latency guarantees remain later v1 decisions and do not
-retroactively block the published v0.17.0 Release.
+and satisfies the bounded v0.17.0 performance-evidence contract. Issue #200
+accepts the deterministic functional/structural contract for v1. Final Windows
+and Ubuntu candidate evidence remains required; latency guarantees are not a v1
+gate and do not retroactively block the published v0.17.0 Release.
 See
 [Match Information-set Search and Strategy Teacher Evidence](match_information_set_search_and_strategy_teacher.md)
 and [Information-set Replay Coaching and Match Historical analysis](information_set_replay_coaching_and_match_historical_analysis.md),
@@ -853,9 +869,9 @@ per-decision budget and domain-separated child seed, then executes the card in a
 separate coherent world. Output includes privacy-safe decision, summary,
 eligibility, and compact comparison diagnostics. Flat post-game Search,
 Historical Search Review, bounded dataset evaluation, immutable profiles, and a
-local performance baseline are implemented. Calibrated sampled quality, a true
-imperfect-information policy, and guaranteed latency remain open, so this is
-evidence toward, not completion of, the stronger-search gate. See
+local performance baseline are implemented. Issue #200 accepts this as the
+bounded v1 solver gate. Calibrated sampled quality and broader imperfect-
+information policy solving are post-v1; guaranteed latency is not required. See
 [Bounded search contracts](bounded_search_contracts.md).
 
 Issue #190 applies the separate controlled-Player Information-set executor at
@@ -899,6 +915,10 @@ It changes no Dataset version `2` or Package/API/Schema/example/scenario count.
 See [Learning Corpus Tactical Cross-game Coaching](learning_corpus_tactical_cross_game_coaching.md).
 
 ## Release decision rule
+
+The authoritative Issue #200 status ledger, accepted limitations, exact seven
+blockers, and ordered #201 through #207 plan are in the
+[v1.0 scope and traceability audit](v1_0_scope_and_traceability_audit.md).
 
 `v1.0.0` is not ready while any required gate lacks evidence, any validation or
 test listed for a v1.0-required traceability row remains incomplete, any such
