@@ -51,6 +51,7 @@ def _state(context: LearningCorpusWebContextV1) -> dict[str, Any]:
         "prepared": (
             context.prepared_artifacts is not None
             and context.tactical_prepared_artifacts is not None
+            and context.tactical_coaching_prepared_artifacts is not None
         ),
         "context_generation": context.generation,
     }

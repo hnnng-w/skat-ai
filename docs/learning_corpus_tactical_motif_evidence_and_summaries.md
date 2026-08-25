@@ -259,12 +259,12 @@ no claim about:
   significance;
 * Strategy Teacher quality, Teacher preference, model readiness, or model
   training;
-* cross-game Coaching, Guidance, or Recommendations.
+* cross-game Coaching, Guidance, or Recommendations inside Issue #195 artifacts.
 
 The actual Card is observed behavior, not ground truth. Missing Decisions are
-explicit skips and are never imputed. Future cross-game Coaching remains a
-separate product capability requiring separately approved evidence,
-interpretation, quality, and recommendation contracts.
+explicit skips and are never imputed. Issue #196 supplies a separate exact
+Tactical/Teacher join and bounded complete-Search Coaching contract without
+mutating or reinterpreting these structural source artifacts.
 
 ## Learning Dataset version 2 compatibility
 
@@ -276,7 +276,8 @@ Human Evidence Collection, and Strategy Teacher Evidence Collection.
 
 Human, Strategy Teacher, and Tactical Evidence may describe the same source
 Decision through separate exact identities, but Issue #195 creates no cross-
-family join. Existing Dataset-v2 bytes change only when their existing sources
+family join. Issue #196 performs a separate private Coaching join outside the
+Dataset. Existing Dataset-v2 bytes change only when their existing sources
 change, not because Tactical preparation is enabled.
 
 ## Explicit process-local preparation
@@ -294,30 +295,34 @@ preparation trigger. It now builds, once and in order:
 8. Current-Snapshot Tactical Motif Evidence Collection.
 9. Tactical Motif Cross-game Summary from that exact Collection and Player
    Catalog.
+10. Tactical Cross-game Coaching Report from the exact retained Tactical,
+    Strategy Teacher, and Player Catalog values.
 
 The first seven Issue #179 artifacts and their contracts are unchanged. The two
 Tactical artifacts are held in a separate immutable process-local family but are
-published with the existing family as one complete prepared generation.
+published with the existing family and the separate Coaching family as one
+complete prepared generation.
 Preparation executes no Match Analysis, Position, Historical, Training Dataset,
-Search, Coaching, Profile derivation, or other Root workflow.
+Search, Profile derivation, or other Root workflow. Coaching construction uses
+only retained evidence and executes no analysis or Tactical detection.
 
 ## Atomic publication and invalidation
 
 Preparation runs outside the synchronized context lock. Before publication, it
 rechecks the exact retained Store object, Catalog revision, Catalog content
 fingerprint, Strategy Teacher source-store revision, and context generation. A
-change to any source returns `source_changed` with HTTP `409`, invalidates both
-prepared families, and publishes neither. There is no retry or partial Tactical-
-only or Dataset-only publication.
+change to any source returns `source_changed` with HTTP `409`, invalidates all
+three prepared families, and publishes none. There is no retry or partial
+Tactical-only, Coaching-only, or Dataset-only publication.
 
-Successful publication requires both families to share the exact Catalog
+Successful publication requires all three families to share the exact Catalog
 revision and content fingerprint, and requires the Tactical Summary to use the
 same Player Catalog fingerprint as the existing prepared family. Applied
 Workspace import, applied Current-selection change, applied Strategy source add/
 remove/clear, successful Reload, source change during preparation, and shutdown
-invalidate both families together. No-change/conflicted operations and failed
-Reload preserve both still-matching families. A successful preparation replaces
-both with the new exact generation.
+invalidate all three families together. No-change/conflicted operations and
+failed Reload preserve all still-matching families. A successful preparation
+replaces all three with the new exact generation.
 
 Downloads verify the retained Store object, context generation, Strategy source
 revision, Catalog revision/content fingerprint, and shared Player Catalog
@@ -344,11 +349,11 @@ ownership, Commentary, Strategy Teacher values, source JSON, fingerprints, or
 paths. The dashboard remains a private minimized projection, not a public
 redaction boundary.
 
-## Nine authenticated downloads
+## Tactical authenticated downloads
 
 Issue #179 historically introduced seven authenticated canonical downloads.
-Issue #195 adds exactly two more, bringing the current prepared set to nine. The
-new routes are:
+Issue #195 adds exactly two more, bringing its prepared baseline to nine. Issue
+#196 adds a separate tenth Coaching download without changing these two routes:
 
 | Artifact | Route | Filename suffix |
 | --- | --- | --- |
@@ -386,6 +391,10 @@ make downloads public or provide multi-user authorization.
 The Evidence Collection, Cross-game Summary, prepared wrapper, and downloads are
 never added to `catalog.json`, Match Snapshot objects, source Workspaces, or
 another persisted file. They disappear on invalidation or server shutdown.
+The separate Coaching artifact consumes exact retained values but does not alter
+these bytes or identities. See [Learning Corpus Tactical Cross-game
+Coaching](learning_corpus_tactical_cross_game_coaching.md).
 Deletion, garbage collection, derived-artifact persistence, Public API/Schema
-transport, Dataset-v2 joins, tactical quality assessment, and cross-game
-Coaching remain separate future work.
+transport, Dataset-v2 joins, broader tactical quality beyond retained complete-
+Search evidence, Player Ratings, and causal interpretation remain separate future
+work.

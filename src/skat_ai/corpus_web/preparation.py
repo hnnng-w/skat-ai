@@ -9,6 +9,9 @@ from skat_ai.learning_corpus_player_catalog import (
 from skat_ai.learning_corpus_strategy_teacher_builder import (
     build_learning_corpus_strategy_teacher_evidence_collection_v1,
 )
+from skat_ai.learning_corpus_tactical_cross_game_coaching import (
+    build_learning_corpus_tactical_cross_game_coaching_report_v1,
+)
 from skat_ai.learning_corpus_tactical_motif_builder import (
     build_learning_corpus_tactical_motif_evidence_collection_v1,
 )
@@ -30,6 +33,7 @@ from skat_ai.learning_dataset_v2_summary_builder import (
 from .context import LearningCorpusWebContextV1
 from .contracts import (
     LearningCorpusPreparedArtifactsV1,
+    LearningCorpusTacticalCoachingPreparedArtifactsV1,
     LearningCorpusTacticalPreparedArtifactsV1,
     LearningCorpusWebResultV1,
 )
@@ -156,6 +160,29 @@ def prepare_learning_corpus_artifacts_web_v1(
         tactical_motif_collection=tactical_motif_collection,
         tactical_motif_cross_game_summary=tactical_motif_cross_game_summary,
     )
+    tactical_cross_game_coaching_report = (
+        build_learning_corpus_tactical_cross_game_coaching_report_v1(
+            player_catalog=player_catalog,
+            strategy_teacher_collection=strategy_teacher_evidence,
+            tactical_motif_collection=tactical_motif_collection,
+            tactical_motif_cross_game_summary=tactical_motif_cross_game_summary,
+        )
+    )
+    tactical_coaching_prepared = LearningCorpusTacticalCoachingPreparedArtifactsV1(
+        source_catalog_revision=catalog_revision,
+        source_catalog_content_fingerprint=catalog_content_fingerprint,
+        player_catalog_fingerprint=player_catalog.player_catalog_fingerprint,
+        strategy_teacher_collection_fingerprint=(
+            strategy_teacher_evidence.strategy_teacher_collection_fingerprint
+        ),
+        tactical_motif_collection_fingerprint=(
+            tactical_motif_collection.tactical_motif_collection_fingerprint
+        ),
+        tactical_motif_cross_game_summary_fingerprint=(
+            tactical_motif_cross_game_summary.tactical_motif_cross_game_summary_fingerprint
+        ),
+        tactical_cross_game_coaching_report=tactical_cross_game_coaching_report,
+    )
 
     with context.lock:
         current_store = context.store
@@ -185,6 +212,7 @@ def prepare_learning_corpus_artifacts_web_v1(
         context.publish_prepared(
             prepared,
             tactical_prepared,
+            tactical_coaching_prepared,
             store=store,
             source_revision=source_revision,
             generation=generation,
@@ -208,6 +236,19 @@ def prepare_learning_corpus_artifacts_web_v1(
                 ),
                 "tactical_motif_occurrence_count": (
                     tactical_motif_collection.motif_occurrence_count
+                ),
+                "tactical_coaching_status": tactical_cross_game_coaching_report.status,
+                "tactical_coaching_decision_count": (
+                    tactical_cross_game_coaching_report.decision_summary_count
+                ),
+                "tactical_coaching_teacher_assessment_count": (
+                    tactical_cross_game_coaching_report.teacher_assessment_count
+                ),
+                "tactical_coaching_focus_area_count": (
+                    tactical_cross_game_coaching_report.focus_area_count
+                ),
+                "tactical_coaching_player_with_focus_count": (
+                    tactical_cross_game_coaching_report.player_with_focus_count
                 ),
             },
         )

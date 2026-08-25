@@ -360,3 +360,12 @@ Dataset version `2`, every Dataset identity/byte, and both partition algorithms
 remain unchanged. Human, Strategy Teacher, and Tactical Evidence may reference
 the same source Decision but Issue #195 creates no cross-family join. See
 [Learning Corpus Tactical Motif evidence and summaries](learning_corpus_tactical_motif_evidence_and_summaries.md).
+
+Issue #196 exact-joins that separate Tactical family with Strategy Teacher
+Evidence only in a separate private Tactical Cross-game Coaching Report. The join
+does not feed this Dataset, and Coaching IDs, Assessments, Decision consensus,
+focus areas, Guidance, Counts, and fingerprints are not Dataset sources, pools,
+Records, evidence families, targets, labels, Features, tasks, partitions, or
+Summary fields. Dataset version `2`, every identity/byte, and both partition
+algorithms remain unchanged. See [Learning Corpus Tactical Cross-game
+Coaching](learning_corpus_tactical_cross_game_coaching.md).

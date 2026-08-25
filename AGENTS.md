@@ -75,6 +75,10 @@ The project focuses on:
 * private internal exact-Count Tactical Motif cross-game summaries with global,
   Player, role, seat, phase, contract, distinct-Game, distinct-Match, and bounded
   recurrence scopes without trait, quality, causal, or significance claims
+* private internal deterministic Tactical Cross-game Coaching with exact
+  Tactical/Teacher joins, retained exact Assessments, semantic Decision
+  consensus, complete-Search-only repeated cross-Game focus, bounded Player
+  Reports, and fixed Guidance without truth, trait, Rating, or causal claims
 * private internal Current-Snapshot-only unpartitioned Learning Dataset version
   `2` with information-safe Decision State, separate observed behavior, time-safe
   Player Context, exact Teacher/Commentary/Response joins, skipped and unjoined
@@ -89,7 +93,7 @@ The project focuses on:
   root, strict Workspace and executed-Decision Report-source uploads, explicit
   Current selection, bounded process-local sources, exact unlocked artifact
   preparation, atomic generation-safe publication, minimized presentation, and
-  nine authenticated canonical
+  ten authenticated canonical
   downloads without derived persistence or public contracts
 * JSON input/output for regression-friendly testing
 
@@ -202,6 +206,7 @@ Before larger changes, read the relevant documentation:
 * `docs/learning_dataset_v2.md`
 * `docs/learning_corpus_browser_workflows.md`
 * `docs/learning_corpus_tactical_motif_evidence_and_summaries.md`
+* `docs/learning_corpus_tactical_cross_game_coaching.md`
 * `docs/information_set_search_workflows.md`
 * `docs/information_set_search_multi_step_and_policy_comparison.md`
 * `docs/information_set_replay_coaching_and_match_historical_analysis.md`
@@ -275,6 +280,14 @@ process-local Corpus preparation, minimized presentation, and two authenticated
 canonical downloads. It changes no Package/API/workflow/Console-Script/Schema/
 example/generated-scenario/Session/Dataset-v2 baseline, so the working counts
 above remain unchanged.
+
+Issue #196 adds private deterministic Tactical Cross-game Coaching from exact
+Tactical/Teacher joins, one Assessment per exact Teacher Report, semantic
+Decision consensus, complete-Search-only repeated cross-Game focus, bounded
+fixed Guidance, atomic third-family Corpus publication, minimized aggregate
+presentation, and a tenth authenticated canonical download. It changes no
+Package/API/workflow/Console-Script/Schema/example/generated-scenario/Session/
+Dataset-v2 baseline, so the working counts above remain unchanged.
 
 The historical published `v0.15.0` GitHub Release has release theme "Local
 EuroSkat 36er Match capture, analysis, and exports" and GitHub Release title
@@ -508,8 +521,12 @@ deterministic Historical Tactical Motif Review and private Match browser control
 without changing either Coaching family. Issue #195 reuses that exact detector
 for separate Current-Snapshot-only Corpus Evidence, exact descriptive cross-game
 summaries, and nine current browser downloads without changing Learning Dataset
-version `2`. Tactical quality assessment and cross-game Coaching, carefully
-bounded Player Ratings where approved, broader Provenance and Confidence
+version `2`. Issue #196 adds separate deterministic Tactical Cross-game Coaching
+from exact retained Tactical/Teacher evidence, complete-Search-only consensus,
+bounded repeated cross-Game focus and fixed Guidance, and a tenth current browser
+download without changing Dataset version `2`. Broader tactical quality outside
+retained complete-Search evidence, carefully bounded Player Ratings where
+approved, broader Provenance and Confidence
 integration, product/runtime performance acceptance gates, cross-machine latency
 guarantees, and the remaining pre-v1 scope
 audit. These areas remain open. The final Issue titles, count, architecture,
@@ -613,6 +630,12 @@ Major completed areas include:
 * private exact-Count Tactical Motif cross-game global, Player, role, seat,
   phase, contract, distinct-Game, distinct-Match, and recurrence summaries
   without rates, traits, quality, significance, causal, or communication claims
+* private deterministic Tactical Cross-game Coaching with one retained
+  Assessment per exact Teacher Report, exact semantic Decision consensus,
+  unanimous complete-Search-only focus eligibility, at-least-two-Decision and
+  at-least-two-Game thresholds, at most five fixed-Guidance focus areas per
+  Player, zero-count Catalog-order Player Reports, and no truth, perfect-play,
+  Rating, intent, communication, causal, or significance claim
 * information-safe one-game Replay Coaching evidence, prioritization, patterns, deterministic recommendations, complete report, public schema, JSON, CLI, examples, and generated-output coverage
 * fixed-three-player 36-position historical-list contracts, aggregation, progression, standings, exact external-lot application, independent-list comparison, public JSON/schema/CLI workflows, examples, and generated-output coverage
 * deterministic public automatic Training Dataset preparation with temporal Known-opponent and Player-disjoint unseen-player assignment, complete or unavailable Plans, lossless materialization, strict schemas, CLI, examples, and generated-output coverage
@@ -743,8 +766,8 @@ Major completed areas include:
 * internal local Learning Corpus Web, Protocol, and CLI version `1` with one
   explicit root, caller-ID initialization, strict 16-MiB uploads, optimistic
   import/selection, max-2,048 process-local Report sources, explicit source-safe
-  preparation, atomic existing-plus-Tactical publication, minimized no-JavaScript
-  presentation, loopback security, and nine canonical downloads without derived
+  preparation, atomic existing-plus-Tactical-plus-Coaching publication, minimized
+  no-JavaScript presentation, loopback security, and ten canonical downloads without derived
   persistence
 * updated README, docs, roadmap, and project handoff
 
@@ -781,8 +804,10 @@ probability claim. Issue #194 adds deterministic structural Historical Tactical
 Motif Review without quality, intent, signaling, communication, or causal
 classification. Issue #195 adds separate descriptive cross-game Tactical Motif
 counts and bounded recurrence scopes without making those classifications or
-changing Dataset version `2`. Overbid Null replacement selection, tactical
-quality assessment, cross-game Coaching, causal
+changing Dataset version `2`. Issue #196 adds bounded deterministic Tactical
+Cross-game Coaching from exact retained Tactical/Teacher evidence without a truth
+or Player-rating claim. Overbid Null replacement selection, broader tactical
+quality assessment outside retained complete-Search evidence, causal
 attribution, player ratings, and complete field-level information provenance
 remain open before `v1.0.0`. End-to-end local Live and Retrospective Session
 capture is implemented through public file Save/Load, automatic Checkpoints,
@@ -819,11 +844,14 @@ Report-source transfer, Dataset-v2 preparation, summaries, and downloads are now
 available through the private local `corpus` browser workflow. The derived Player
 Catalog and Statistics history, Human and Strategy Teacher Evidence, Dataset-v2,
 partition Results, Dataset-v2 Summary, Tactical Motif Evidence, and Tactical
-Motif Cross-game Summary remain process-local and non-persisted; there is no
+Motif Cross-game Summary, and Tactical Cross-game Coaching remain process-local
+and non-persisted; there is no
 Public API, Schema, example, or generated scenario for Issue #195. Focused
 Information-set Teacher Evidence still propagates through the existing Dataset-v2
 joins and Summary counts; the separate Tactical family leaves Dataset version `2`
-unchanged and brings the current authenticated download set from seven to nine.
+unchanged. Issue #196 adds the separate exact Coaching join without changing
+Dataset version `2` and brings the current authenticated download set from nine
+to ten.
 Deletion,
 garbage collection, Player Catalog or Human Evidence persistence,
 persisted aliases/assertions, merge/split operations, all-revision views,

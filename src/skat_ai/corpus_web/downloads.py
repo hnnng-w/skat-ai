@@ -13,6 +13,10 @@ from skat_ai.learning_corpus_strategy_teacher_export import (
     build_learning_corpus_strategy_teacher_evidence_export_v1,
     serialize_learning_corpus_strategy_teacher_evidence_export_v1,
 )
+from skat_ai.learning_corpus_tactical_coaching_export import (
+    build_learning_corpus_tactical_cross_game_coaching_export_v1,
+    serialize_learning_corpus_tactical_cross_game_coaching_export_v1,
+)
 from skat_ai.learning_corpus_tactical_motif_export import (
     build_learning_corpus_tactical_motif_cross_game_summary_export_v1,
     build_learning_corpus_tactical_motif_evidence_export_v1,
@@ -35,6 +39,7 @@ from skat_ai.learning_dataset_v2_summary_export import (
 from .context import LearningCorpusWebContextV1
 from .contracts import (
     LearningCorpusPreparedArtifactsV1,
+    LearningCorpusTacticalCoachingPreparedArtifactsV1,
     LearningCorpusTacticalPreparedArtifactsV1,
 )
 
@@ -51,9 +56,13 @@ LEARNING_CORPUS_TACTICAL_PREPARED_DOWNLOAD_KINDS: Final[tuple[str, ...]] = (
     "tactical_motif_evidence",
     "tactical_motif_cross_game_summary",
 )
+LEARNING_CORPUS_TACTICAL_COACHING_PREPARED_DOWNLOAD_KINDS: Final[
+    tuple[str, ...]
+] = ("tactical_cross_game_coaching",)
 LEARNING_CORPUS_ALL_PREPARED_DOWNLOAD_KINDS: Final[tuple[str, ...]] = (
     *LEARNING_CORPUS_PREPARED_DOWNLOAD_KINDS,
     *LEARNING_CORPUS_TACTICAL_PREPARED_DOWNLOAD_KINDS,
+    *LEARNING_CORPUS_TACTICAL_COACHING_PREPARED_DOWNLOAD_KINDS,
 )
 LEARNING_CORPUS_PREPARED_DOWNLOAD_UNAVAILABLE_REASONS: Final[tuple[str, ...]] = (
     "missing",
@@ -70,6 +79,7 @@ _KIND_SUFFIX = {
     "cross_game_summary": "cross-game-summary",
     "tactical_motif_evidence": "tactical-motif-evidence",
     "tactical_motif_cross_game_summary": "tactical-motif-cross-game-summary",
+    "tactical_cross_game_coaching": "tactical-cross-game-coaching",
 }
 _UNSAFE_FILENAME_RUN = re.compile(r"[^A-Za-z0-9._-]+")
 
@@ -139,6 +149,7 @@ def _canonical_pretty_json_bytes(value: object) -> bytes:
 def _download_value(
     prepared: LearningCorpusPreparedArtifactsV1,
     tactical: LearningCorpusTacticalPreparedArtifactsV1,
+    coaching: LearningCorpusTacticalCoachingPreparedArtifactsV1,
     kind: str,
 ) -> tuple[str, str, bytes]:
     if kind == "player_catalog":
@@ -209,6 +220,14 @@ def _download_value(
                 export
             ),
         )
+    if kind == "tactical_cross_game_coaching":
+        report = coaching.tactical_cross_game_coaching_report
+        export = build_learning_corpus_tactical_cross_game_coaching_export_v1(report)
+        return (
+            report.corpus_id,
+            export.export_id,
+            serialize_learning_corpus_tactical_cross_game_coaching_export_v1(export),
+        )
     raise ValueError("kind must identify one prepared artifact.")
 
 
@@ -225,7 +244,8 @@ def build_learning_corpus_prepared_download_v1(
     with context.lock:
         prepared = context.prepared_artifacts
         tactical = context.tactical_prepared_artifacts
-        if prepared is None or tactical is None:
+        coaching = context.tactical_coaching_prepared_artifacts
+        if prepared is None or tactical is None or coaching is None:
             raise LearningCorpusPreparedDownloadUnavailableError("missing")
         store = context.store
         mismatch = (
@@ -240,10 +260,29 @@ def build_learning_corpus_prepared_download_v1(
             != store.document.content_fingerprint
             or tactical.player_catalog_fingerprint
             != prepared.player_catalog.player_catalog_fingerprint
+            or coaching.source_catalog_revision != store.document.catalog.revision
+            or coaching.source_catalog_content_fingerprint
+            != store.document.content_fingerprint
+            or coaching.player_catalog_fingerprint
+            != prepared.player_catalog.player_catalog_fingerprint
+            or coaching.strategy_teacher_collection_fingerprint
+            != prepared.strategy_teacher_evidence.strategy_teacher_collection_fingerprint
+            or coaching.tactical_motif_collection_fingerprint
+            != tactical.tactical_motif_collection.tactical_motif_collection_fingerprint
+            or coaching.tactical_motif_cross_game_summary_fingerprint
+            != (
+                tactical.tactical_motif_cross_game_summary
+                .tactical_motif_cross_game_summary_fingerprint
+            )
         )
         if mismatch:
             raise LearningCorpusPreparedDownloadUnavailableError("source_mismatch")
-        source_id, identity, content = _download_value(prepared, tactical, kind)
+        source_id, identity, content = _download_value(
+            prepared,
+            tactical,
+            coaching,
+            kind,
+        )
         return LearningCorpusPreparedDownloadV1(
             kind=kind,
             filename=build_learning_corpus_artifact_filename_v1(

@@ -11,7 +11,8 @@ from .contracts import LEARNING_CORPUS_WEB_VERSION
 def _prepared_state(context: LearningCorpusWebContextV1) -> dict[str, Any] | None:
     prepared = context.prepared_artifacts
     tactical = context.tactical_prepared_artifacts
-    if prepared is None or tactical is None:
+    coaching = context.tactical_coaching_prepared_artifacts
+    if prepared is None or tactical is None or coaching is None:
         return None
     dataset = prepared.learning_dataset
     summary = prepared.cross_game_summary
@@ -52,6 +53,19 @@ def _prepared_state(context: LearningCorpusWebContextV1) -> dict[str, Any] | Non
         ),
         "tactical_cross_game_recurrence_count": len(
             tactical.tactical_motif_cross_game_summary.recurrences
+        ),
+        "tactical_coaching_status": coaching.tactical_cross_game_coaching_report.status,
+        "tactical_coaching_decision_count": (
+            coaching.tactical_cross_game_coaching_report.decision_summary_count
+        ),
+        "tactical_coaching_teacher_assessment_count": (
+            coaching.tactical_cross_game_coaching_report.teacher_assessment_count
+        ),
+        "tactical_coaching_focus_area_count": (
+            coaching.tactical_cross_game_coaching_report.focus_area_count
+        ),
+        "tactical_coaching_player_with_focus_count": (
+            coaching.tactical_cross_game_coaching_report.player_with_focus_count
         ),
         "players": [
             {

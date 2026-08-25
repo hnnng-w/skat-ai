@@ -13,6 +13,7 @@ from skat_ai.learning_corpus_persistence_contracts import (
 
 from .contracts import (
     LearningCorpusPreparedArtifactsV1,
+    LearningCorpusTacticalCoachingPreparedArtifactsV1,
     LearningCorpusTacticalPreparedArtifactsV1,
 )
 from .source_store import LearningCorpusStrategyTeacherSourceStoreV1
@@ -36,6 +37,9 @@ class LearningCorpusWebContextV1:
         default=None,
         repr=False,
     )
+    tactical_coaching_prepared_artifacts: (
+        LearningCorpusTacticalCoachingPreparedArtifactsV1 | None
+    ) = field(default=None, repr=False)
     generation: int = 0
     lock: threading.RLock = field(default_factory=threading.RLock, repr=False)
     _prepared_store: LearningCorpusStoreResumeResultV1 | None = field(
@@ -86,6 +90,7 @@ class LearningCorpusWebContextV1:
     def _invalidate_prepared_locked(self) -> None:
         self.prepared_artifacts = None
         self.tactical_prepared_artifacts = None
+        self.tactical_coaching_prepared_artifacts = None
         self._prepared_store = None
         self._prepared_generation = None
         self._prepared_source_revision = None
@@ -117,6 +122,7 @@ class LearningCorpusWebContextV1:
         self,
         artifacts: LearningCorpusPreparedArtifactsV1,
         tactical_artifacts: LearningCorpusTacticalPreparedArtifactsV1,
+        tactical_coaching_artifacts: LearningCorpusTacticalCoachingPreparedArtifactsV1,
         *,
         store: LearningCorpusStoreResumeResultV1,
         source_revision: int,
@@ -127,15 +133,38 @@ class LearningCorpusWebContextV1:
         if type(tactical_artifacts) is not LearningCorpusTacticalPreparedArtifactsV1:
             raise ValueError("tactical_artifacts must be exact Tactical Prepared Artifacts.")
         if (
+            type(tactical_coaching_artifacts)
+            is not LearningCorpusTacticalCoachingPreparedArtifactsV1
+        ):
+            raise ValueError(
+                "tactical_coaching_artifacts must be exact Tactical Coaching Prepared Artifacts."
+            )
+        if (
             artifacts.source_catalog_revision != tactical_artifacts.source_catalog_revision
+            or artifacts.source_catalog_revision
+            != tactical_coaching_artifacts.source_catalog_revision
             or artifacts.source_catalog_content_fingerprint
             != tactical_artifacts.source_catalog_content_fingerprint
+            or artifacts.source_catalog_content_fingerprint
+            != tactical_coaching_artifacts.source_catalog_content_fingerprint
             or artifacts.player_catalog.player_catalog_fingerprint
             != tactical_artifacts.player_catalog_fingerprint
+            or artifacts.player_catalog.player_catalog_fingerprint
+            != tactical_coaching_artifacts.player_catalog_fingerprint
+            or artifacts.strategy_teacher_evidence.strategy_teacher_collection_fingerprint
+            != tactical_coaching_artifacts.strategy_teacher_collection_fingerprint
+            or tactical_artifacts.tactical_motif_collection.tactical_motif_collection_fingerprint
+            != tactical_coaching_artifacts.tactical_motif_collection_fingerprint
+            or (
+                tactical_artifacts.tactical_motif_cross_game_summary
+                .tactical_motif_cross_game_summary_fingerprint
+            )
+            != tactical_coaching_artifacts.tactical_motif_cross_game_summary_fingerprint
         ):
             raise ValueError("Prepared artifact families must use one exact source.")
         self.prepared_artifacts = artifacts
         self.tactical_prepared_artifacts = tactical_artifacts
+        self.tactical_coaching_prepared_artifacts = tactical_coaching_artifacts
         self._prepared_store = store
         self._prepared_source_revision = source_revision
         self._prepared_generation = generation

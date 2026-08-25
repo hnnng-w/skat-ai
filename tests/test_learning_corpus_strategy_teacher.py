@@ -77,12 +77,14 @@ def _source_bundle(
     recommendation_method="immediate_expected_value",
     decision_index=1,
     match_id="match-teacher",
+    match_position=3,
     search_random_seed=None,
     search_budget_profile="historical_review_v1",
     use_profile_presets=True,
     dependencies=None,
+    workspace=None,
 ):
-    workspace = _complete_workspace(definition=_definition(match_id=match_id))
+    workspace = workspace or _complete_workspace(definition=_definition(match_id=match_id))
     snapshot = _snapshot(workspace)
     options = MatchDecisionAnalysisOptionsV1(
         recommendation_method=recommendation_method,
@@ -93,7 +95,7 @@ def _source_bundle(
     )
     result = execute_match_decision_analysis_v1(
         workspace,
-        match_position=3,
+        match_position=match_position,
         decision_index=decision_index,
         options=options,
         dependencies=dependencies,

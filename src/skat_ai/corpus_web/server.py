@@ -69,6 +69,7 @@ _DOWNLOAD_ROUTES = {
     "/downloads/tactical-motif-cross-game-summary.json": (
         "tactical_motif_cross_game_summary"
     ),
+    "/downloads/tactical-cross-game-coaching.json": "tactical_cross_game_coaching",
 }
 _FORM_OPERATIONS = {
     "initialize_corpus": {"operation", "corpus_id"},

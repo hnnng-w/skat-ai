@@ -16,6 +16,7 @@ from skat_ai.corpus_web.contracts import (
     LEARNING_CORPUS_PREPARED_ARTIFACTS_VERSION,
     LEARNING_CORPUS_STRATEGY_SOURCE_BINDING_STATUSES,
     LEARNING_CORPUS_STRATEGY_SOURCE_STORE_VERSION,
+    LEARNING_CORPUS_TACTICAL_COACHING_PREPARED_ARTIFACTS_VERSION,
     LEARNING_CORPUS_TACTICAL_PREPARED_ARTIFACTS_VERSION,
     LEARNING_CORPUS_WEB_ASSET_POLICY,
     LEARNING_CORPUS_WEB_DOWNLOAD_POLICY,
@@ -40,6 +41,7 @@ from skat_ai.corpus_web.contracts import (
 from skat_ai.corpus_web.downloads import (
     LEARNING_CORPUS_ALL_PREPARED_DOWNLOAD_KINDS,
     LEARNING_CORPUS_PREPARED_DOWNLOAD_KINDS,
+    LEARNING_CORPUS_TACTICAL_COACHING_PREPARED_DOWNLOAD_KINDS,
     LEARNING_CORPUS_TACTICAL_PREPARED_DOWNLOAD_KINDS,
     LearningCorpusPreparedDownloadUnavailableError,
     build_learning_corpus_artifact_filename_v1,
@@ -115,6 +117,7 @@ def _prepare_empty(context: LearningCorpusWebContextV1, dataset_id="dataset-web"
     assert result.status == "prepared"
     assert context.prepared_artifacts is not None
     assert context.tactical_prepared_artifacts is not None
+    assert context.tactical_coaching_prepared_artifacts is not None
     return context.prepared_artifacts
 
 
@@ -134,7 +137,8 @@ def test_versions_vocabularies_policies_and_limits_are_exact() -> None:
         LEARNING_CORPUS_STRATEGY_SOURCE_STORE_VERSION,
         LEARNING_CORPUS_PREPARED_ARTIFACTS_VERSION,
         LEARNING_CORPUS_TACTICAL_PREPARED_ARTIFACTS_VERSION,
-    ) == (1, 1, 1, 1, 1)
+        LEARNING_CORPUS_TACTICAL_COACHING_PREPARED_ARTIFACTS_VERSION,
+    ) == (1, 1, 1, 1, 1, 1)
     assert LEARNING_CORPUS_WEB_OPERATIONS == (
         "initialize_corpus",
         "reload_corpus",
@@ -252,6 +256,7 @@ def test_context_startup_initialization_reload_and_shutdown(tmp_path: Path) -> N
     assert reopened.strategy_source_store.sources == ()
     assert reopened.prepared_artifacts is None
     assert reopened.tactical_prepared_artifacts is None
+    assert reopened.tactical_coaching_prepared_artifacts is None
 
 
 def test_source_store_duplicate_limit_order_and_classification(
@@ -391,6 +396,8 @@ def test_workspace_import_selection_conflicts_and_invalidation(
     prepared = _prepare_empty(context, "dataset-before-import")
     tactical_prepared = context.tactical_prepared_artifacts
     assert tactical_prepared is not None
+    coaching_prepared = context.tactical_coaching_prepared_artifacts
+    assert coaching_prepared is not None
     generation = context.generation
     workspace_path = tmp_path / "uploaded-workspace.json"
     _save_workspace(workspace_path, workspace)
@@ -419,6 +426,7 @@ def test_workspace_import_selection_conflicts_and_invalidation(
     assert imported.status == "applied"
     assert context.prepared_artifacts is None
     assert context.tactical_prepared_artifacts is None
+    assert context.tactical_coaching_prepared_artifacts is None
     assert context.generation == generation + 1
     assert context.store is not None
     first_snapshot = build_learning_corpus_match_snapshot_v1(
@@ -427,6 +435,7 @@ def test_workspace_import_selection_conflicts_and_invalidation(
 
     context.prepared_artifacts = prepared
     context.tactical_prepared_artifacts = tactical_prepared
+    context.tactical_coaching_prepared_artifacts = coaching_prepared
     generation = context.generation
     duplicate = import_match_workspace_into_learning_corpus_web_v1(
         context,
@@ -438,6 +447,7 @@ def test_workspace_import_selection_conflicts_and_invalidation(
     assert duplicate.status == "unchanged"
     assert context.prepared_artifacts is prepared
     assert context.tactical_prepared_artifacts is tactical_prepared
+    assert context.tactical_coaching_prepared_artifacts is coaching_prepared
     assert context.generation == generation
     conflict = import_match_workspace_into_learning_corpus_web_v1(
         context,
@@ -450,6 +460,7 @@ def test_workspace_import_selection_conflicts_and_invalidation(
     assert conflict.http_status == 409
     assert context.prepared_artifacts is prepared
     assert context.tactical_prepared_artifacts is tactical_prepared
+    assert context.tactical_coaching_prepared_artifacts is coaching_prepared
 
     changed = replace_match_workspace_definition_v1(
         workspace,
@@ -477,6 +488,7 @@ def test_workspace_import_selection_conflicts_and_invalidation(
 
     context.prepared_artifacts = prepared
     context.tactical_prepared_artifacts = tactical_prepared
+    context.tactical_coaching_prepared_artifacts = coaching_prepared
     selected = select_current_learning_corpus_snapshot_web_v1(
         context,
         match_id=changed_snapshot.match_id,
@@ -486,6 +498,7 @@ def test_workspace_import_selection_conflicts_and_invalidation(
     assert selected.status == "applied"
     assert context.prepared_artifacts is None
     assert context.tactical_prepared_artifacts is None
+    assert context.tactical_coaching_prepared_artifacts is None
     generation = context.generation
     unchanged = select_current_learning_corpus_snapshot_web_v1(
         context,
@@ -506,6 +519,8 @@ def test_persistence_conflict_does_not_replace_or_invalidate_context(
     prepared = _prepare_empty(context, "dataset-conflict")
     tactical_prepared = context.tactical_prepared_artifacts
     assert tactical_prepared is not None
+    coaching_prepared = context.tactical_coaching_prepared_artifacts
+    assert coaching_prepared is not None
     assert context.store is not None
     original_store = context.store
     replacement = build_learning_corpus_catalog_persistence_document_v1(
@@ -532,6 +547,7 @@ def test_persistence_conflict_does_not_replace_or_invalidate_context(
     assert context.store is original_store
     assert context.prepared_artifacts is prepared
     assert context.tactical_prepared_artifacts is tactical_prepared
+    assert context.tactical_coaching_prepared_artifacts is coaching_prepared
     assert context.generation == generation
 
 
@@ -550,6 +566,7 @@ def test_preparation_contract_exact_counts_unlocked_and_source_changed(
         "build_learning_dataset_v2_cross_game_summary_v1",
         "build_learning_corpus_tactical_motif_evidence_collection_v1",
         "build_learning_corpus_tactical_motif_cross_game_summary_v1",
+        "build_learning_corpus_tactical_cross_game_coaching_report_v1",
     )
     originals = {name: getattr(preparation_module, name) for name in function_names}
     counts = {name: 0 for name in function_names}
@@ -597,11 +614,14 @@ def test_preparation_contract_exact_counts_unlocked_and_source_changed(
         "build_learning_dataset_v2_cross_game_summary_v1": 1,
         "build_learning_corpus_tactical_motif_evidence_collection_v1": 1,
         "build_learning_corpus_tactical_motif_cross_game_summary_v1": 1,
+        "build_learning_corpus_tactical_cross_game_coaching_report_v1": 1,
     }
     prepared = context.prepared_artifacts
     assert prepared is not None
     tactical_prepared = context.tactical_prepared_artifacts
     assert tactical_prepared is not None
+    coaching_prepared = context.tactical_coaching_prepared_artifacts
+    assert coaching_prepared is not None
     assert tuple(field.name for field in fields(prepared)) == (
         "learning_corpus_prepared_artifacts_version",
         "source_catalog_revision",
@@ -635,6 +655,17 @@ def test_preparation_contract_exact_counts_unlocked_and_source_changed(
     assert tactical_prepared.tactical_motif_cross_game_summary.collection_status == (
         "empty"
     )
+    assert tuple(field.name for field in fields(coaching_prepared)) == (
+        "learning_corpus_tactical_coaching_prepared_artifacts_version",
+        "source_catalog_revision",
+        "source_catalog_content_fingerprint",
+        "player_catalog_fingerprint",
+        "strategy_teacher_collection_fingerprint",
+        "tactical_motif_collection_fingerprint",
+        "tactical_motif_cross_game_summary_fingerprint",
+        "tactical_cross_game_coaching_report",
+    )
+    assert coaching_prepared.tactical_cross_game_coaching_report.status == "empty"
     with pytest.raises(FrozenInstanceError):
         prepared.dataset_id = "changed"
     with pytest.raises(ValueError, match="integer and not a boolean"):
@@ -649,6 +680,7 @@ def test_preparation_contract_exact_counts_unlocked_and_source_changed(
         )
 
     original_player_builder = originals["build_learning_corpus_player_catalog_v1"]
+    newer_wrappers = {}
 
     def reload_and_publish_newer_during_build(store):
         context.reload()
@@ -667,6 +699,11 @@ def test_preparation_contract_exact_counts_unlocked_and_source_changed(
             test_weight=1,
         )
         assert newer.status == "prepared"
+        newer_wrappers.update(
+            prepared=context.prepared_artifacts,
+            tactical=context.tactical_prepared_artifacts,
+            coaching=context.tactical_coaching_prepared_artifacts,
+        )
         return original_player_builder(store)
 
     monkeypatch.setattr(
@@ -687,7 +724,9 @@ def test_preparation_contract_exact_counts_unlocked_and_source_changed(
     assert changed.http_status == 409
     assert context.prepared_artifacts is not None
     assert context.prepared_artifacts.dataset_id == "dataset-newer"
-    assert context.tactical_prepared_artifacts is not None
+    assert context.prepared_artifacts is newer_wrappers["prepared"]
+    assert context.tactical_prepared_artifacts is newer_wrappers["tactical"]
+    assert context.tactical_coaching_prepared_artifacts is newer_wrappers["coaching"]
 
 
 def test_all_downloads_are_deterministic_and_do_not_rebuild_sources(
@@ -707,6 +746,7 @@ def test_all_downloads_are_deterministic_and_do_not_rebuild_sources(
         "build_learning_dataset_v2_cross_game_summary_v1",
         "build_learning_corpus_tactical_motif_evidence_collection_v1",
         "build_learning_corpus_tactical_motif_cross_game_summary_v1",
+        "build_learning_corpus_tactical_cross_game_coaching_report_v1",
     ):
         monkeypatch.setattr(
             preparation_module,
@@ -738,10 +778,13 @@ def test_all_downloads_are_deterministic_and_do_not_rebuild_sources(
         "tactical_motif_evidence",
         "tactical_motif_cross_game_summary",
     )
+    assert LEARNING_CORPUS_TACTICAL_COACHING_PREPARED_DOWNLOAD_KINDS == (
+        "tactical_cross_game_coaching",
+    )
     assert tuple(item.kind for item in first) == (
         LEARNING_CORPUS_ALL_PREPARED_DOWNLOAD_KINDS
     )
-    assert len({item.filename for item in first}) == 9
+    assert len({item.filename for item in first}) == 10
     for item in first:
         assert item.filename.isascii()
         assert "/" not in item.filename and "\\" not in item.filename

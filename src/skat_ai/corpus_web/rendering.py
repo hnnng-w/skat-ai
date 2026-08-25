@@ -220,6 +220,23 @@ def _preparation(state: dict[str, Any]) -> str:
                     ("Tactical motif occurrences", prepared["tactical_motif_occurrence_count"]),
                     ("Tactical Players", prepared["tactical_cross_game_player_count"]),
                     ("Tactical recurrences", prepared["tactical_cross_game_recurrence_count"]),
+                    ("Tactical Coaching status", prepared["tactical_coaching_status"]),
+                    (
+                        "Tactical Coaching Decisions",
+                        prepared["tactical_coaching_decision_count"],
+                    ),
+                    (
+                        "Tactical Coaching Teacher Assessments",
+                        prepared["tactical_coaching_teacher_assessment_count"],
+                    ),
+                    (
+                        "Tactical Coaching focus areas",
+                        prepared["tactical_coaching_focus_area_count"],
+                    ),
+                    (
+                        "Tactical Coaching Players with focus",
+                        prepared["tactical_coaching_player_with_focus_count"],
+                    ),
                 )
             )
         }</dl>
@@ -237,6 +254,10 @@ def _preparation(state: dict[str, Any]) -> str:
             (
                 "Tactical Motif Cross-game Summary",
                 "tactical-motif-cross-game-summary.json",
+            ),
+            (
+                "Tactical Cross-game Coaching",
+                "tactical-cross-game-coaching.json",
             ),
         )
         downloads = (

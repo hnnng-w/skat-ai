@@ -11,6 +11,12 @@ Catalog. It does not add a field, source, join, Coverage family, or Count to thi
 Dataset-v2 Summary contract. See [Learning Corpus Tactical Motif evidence and
 summaries](learning_corpus_tactical_motif_evidence_and_summaries.md).
 
+Issue #196 adds another separate private Tactical Cross-game Coaching Report over
+exact Tactical and Strategy Teacher values. Its Assessments, Decision consensus,
+focus areas, Guidance, and Counts do not alter this Dataset-v2 Summary source,
+field, Coverage, readiness, identity, or export contract. See [Learning Corpus
+Tactical Cross-game Coaching](learning_corpus_tactical_cross_game_coaching.md).
+
 ## Source boundary
 
 `build_learning_dataset_v2_cross_game_summary_v1()` consumes exact in-memory
@@ -319,3 +325,8 @@ reports exact motif occurrences, distinct Games and Matches, Player and scope
 Counts, and bounded recurrence scopes. Those values are not Dataset readiness,
 communication interpretation, Strategy Teacher evidence, a rate, quality score,
 trait, causal claim, or cross-game Coaching result.
+
+Issue #196 supplies that separate bounded Coaching result without changing this
+Summary. It does not reinterpret Dataset Communication or Strategy Counts, add a
+Dataset quality field, or make a Player-rating, ground-truth, causal, or model-
+readiness claim.

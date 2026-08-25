@@ -62,9 +62,10 @@ descriptive video or manual source metadata
     -> Dataset Coverage and supplied-partition-readiness summaries with path-free export
     -> separate Current-Snapshot-only Tactical Motif Evidence or explicit skips
     -> exact global, Player, scope, distinct-Game/Match, and recurrence Counts
+    -> exact Tactical/Teacher joins and bounded Tactical Cross-game Coaching
     -> separate loopback-only Learning Corpus CLI and browser over one explicit root
     -> strict Workspace/Decision-Report uploads and explicit Current selection
-    -> process-local atomic exact preparation and nine authenticated canonical downloads
+    -> process-local atomic exact preparation and ten authenticated canonical downloads
     -> later Public Match API/Schema/data workflow
 ```
 
@@ -111,6 +112,19 @@ families atomically after one generation/source check, renders only minimized
 Tactical counts, and adds two authenticated path-free downloads for nine current
 artifacts. It adds no persistence, Public API, Schema, Root workflow, example, or
 generated-output scenario.
+
+Issue #196 composes a third process-local Tactical Cross-game Coaching family
+from the exact retained Tactical and Strategy Teacher values. It preserves every
+exact Teacher Assessment, deduplicates only Decision consensus by existing
+semantic fingerprint, limits actionable consensus to unanimous distinct-
+semantic complete-Search evidence, and requires repeated below-best Decisions
+across at least two Games. Player Reports retain exact Catalog order, including
+zero-count Players, and at most five fixed-Guidance focus areas per Player. The
+builder executes no analysis or detector. All three prepared families publish
+and invalidate atomically, the dashboard exposes aggregate Coaching Counts only,
+and one authenticated path-free download brings the current set to ten. Learning
+Dataset version `2`, Dataset-v2 Summary, persistence, Public API, Schema, Root
+workflow, example, and generated-output contracts remain unchanged.
 
 Issues #160 through #168 form the published `v0.15.0` Package baseline, and Issue
 #169 updated only Package/release metadata and documentation to complete Release
@@ -524,6 +538,10 @@ public files, automatic collection, execution, and Assistant behavior.
 | `src/skat_ai/learning_corpus_tactical_motif_builder.py` | Safe Match Decision-state reconstruction and exact shared Tactical detector reuse without Historical execution. |
 | `src/skat_ai/learning_corpus_tactical_motif_summary.py` | Exact global, Player, role, seat, phase, contract, distinct-Game/Match, and bounded recurrence summaries without interpretation. |
 | `src/skat_ai/learning_corpus_tactical_motif_export.py` | Builder-independent private Tactical Evidence/Summary export identities and canonical path-free JSON bytes. |
+| `src/skat_ai/learning_corpus_tactical_coaching_contracts.py` | Immutable exact Teacher Assessment, Decision Summary, focus, Player Report, Coaching Report, policy, limitation, and identity contracts. |
+| `src/skat_ai/learning_corpus_tactical_coaching_assessment.py` | Exact Tactical/Teacher joins and retained-method assessment without analysis execution. |
+| `src/skat_ai/learning_corpus_tactical_cross_game_coaching.py` | Semantic Decision consensus, repeated cross-Game thresholds, bounded priority, fixed Guidance, and Player Catalog ordering. |
+| `src/skat_ai/learning_corpus_tactical_coaching_export.py` | Builder-independent private Tactical Coaching export identity and canonical path-free JSON bytes. |
 | `src/skat_ai/match_analysis_report_source_export.py` | Exact executed Decision Report source envelope and canonical private transfer bytes. |
 | `src/skat_ai/match_analysis_report_source_codec.py` | Strict complete Report/Request/Result reconstruction and canonical identity verification for uploads. |
 | `src/skat_ai/corpus_web/` | Private one-root context, strict uploads, optimistic operations, bounded process-local sources, unlocked preparation, minimized rendering, authenticated downloads, security, and HTTP lifecycle. |
@@ -567,7 +585,8 @@ integration, or tournament-management behavior. See
 [Learning Dataset version 2](learning_dataset_v2.md),
 [Learning Dataset version 2 partition preparation](learning_dataset_v2_partition_preparation.md),
 [Learning Dataset version 2 cross-game summaries](learning_dataset_v2_cross_game_summaries.md),
-[Learning Corpus Tactical Motif evidence and summaries](learning_corpus_tactical_motif_evidence_and_summaries.md), and
+[Learning Corpus Tactical Motif evidence and summaries](learning_corpus_tactical_motif_evidence_and_summaries.md),
+[Learning Corpus Tactical Cross-game Coaching](learning_corpus_tactical_cross_game_coaching.md), and
 [Learning Corpus browser workflows](learning_corpus_browser_workflows.md).
 
 Validation is split between JSON Schema and Python validation:

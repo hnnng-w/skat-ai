@@ -251,3 +251,12 @@ Issue #178 separately summarizes exact method, status, semantic-duplicate, and
 Recommendation/observed-Card equality Counts without inspecting Candidate metrics
 for grouping or selecting a Teacher. See
 [Learning Dataset version 2 cross-game summaries](learning_dataset_v2_cross_game_summaries.md).
+
+Issue #196 separately exact-joins every retained current Teacher Report to
+Tactical Evidence, preserves one Assessment per exact Report, and deduplicates
+only Decision consensus by the existing semantic Teacher fingerprint. It neither
+changes nor ranks the source collection, chooses a preferred Teacher, or executes
+analysis. Only unanimous distinct-semantic complete-Search Assessments can
+qualify for bounded repeated cross-Game focus; Immediate, partial, timeout,
+unavailable, not-assessable, and mixed evidence remains descriptive. See
+[Learning Corpus Tactical Cross-game Coaching](learning_corpus_tactical_cross_game_coaching.md).

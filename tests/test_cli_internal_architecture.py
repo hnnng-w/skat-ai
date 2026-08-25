@@ -626,6 +626,40 @@ def test_corpus_web_layering_and_execution_boundaries() -> None:
     assert "skat_ai.corpus_web" not in capture_text
 
 
+def test_tactical_coaching_core_is_private_transport_and_io_free() -> None:
+    paths = [
+        *sorted(SOURCE_ROOT.glob("learning_corpus_tactical_coaching_*.py")),
+        SOURCE_ROOT / "learning_corpus_tactical_cross_game_coaching.py",
+    ]
+    forbidden = (
+        "http",
+        "pathlib",
+        "socket",
+        "urllib",
+        "skat_ai.api",
+        "skat_ai.capture_web",
+        "skat_ai.cli",
+        "skat_ai.corpus_web",
+    )
+    violations = []
+    for path in paths:
+        tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Import):
+                imported = tuple(alias.name for alias in node.names)
+            elif isinstance(node, ast.ImportFrom):
+                imported = (node.module or "",)
+            else:
+                continue
+            for module_name in imported:
+                if any(
+                    module_name == blocked or module_name.startswith(f"{blocked}.")
+                    for blocked in forbidden
+                ):
+                    violations.append((path.relative_to(PROJECT_ROOT), node.lineno, module_name))
+    assert violations == []
+
+
 def test_root_presentation_modules_are_transport_and_execution_free() -> None:
     presentation_root = SOURCE_ROOT / "cli" / "presentation"
     forbidden_modules = {

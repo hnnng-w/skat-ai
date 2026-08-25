@@ -91,6 +91,7 @@ official Skat rules arbitration.
 * Separate Historical Information-set Replay Coaching with complete Information-set Candidates as primary evidence, diagnostic PIMC/Immediate baselines, no fallback, and explicit not-assessable coverage
 * Separate deterministic Historical Tactical Motif Review with decision-time facts, after-play and after-Trick evidence, exact structural taxonomy, safe counts, and no quality, signaling, communication, or causal claim
 * Separate Current-Match-Snapshot-only Learning Corpus Tactical Motif Evidence with exact Evidence-or-skip coverage and descriptive cross-game recurrence Counts without trait, quality, rate, significance, or causal claims
+* Private deterministic Tactical Cross-game Coaching from exact Tactical/Teacher joins, complete-Search-only consensus, repeated cross-Game thresholds, and bounded fixed Guidance without a ground-truth, Player-rating, or causal claim
 * Versioned training/evaluation dataset records with provenance and explicit train, validation, and test partitions
 * Deterministic bounded-Search dataset evaluation over selected decision prefixes
 * Optional known-opponent or unseen-player partition policies with deterministic stable-player overlap audits
@@ -527,7 +528,8 @@ Start it with
 [Learning Dataset version 2](docs/learning_dataset_v2.md),
 [Learning Dataset version 2 partition preparation](docs/learning_dataset_v2_partition_preparation.md),
 [Learning Dataset version 2 cross-game summaries](docs/learning_dataset_v2_cross_game_summaries.md),
-[Learning Corpus Tactical Motif evidence and summaries](docs/learning_corpus_tactical_motif_evidence_and_summaries.md), and
+[Learning Corpus Tactical Motif evidence and summaries](docs/learning_corpus_tactical_motif_evidence_and_summaries.md),
+[Learning Corpus Tactical Cross-game Coaching](docs/learning_corpus_tactical_cross_game_coaching.md), and
 [Learning Corpus browser workflows](docs/learning_corpus_browser_workflows.md).
 
 Issue #192 adds separate Information-set Replay Coaching and private Match
@@ -567,6 +569,28 @@ Both exports remain deterministic, path-free, private, loopback-authenticated,
 and non-persisted. Issue #195 adds no Package/API/workflow/Console-Script/Schema/
 example/generated-scenario or Dataset-v2 contract change. See [Learning Corpus
 Tactical Motif evidence and summaries](docs/learning_corpus_tactical_motif_evidence_and_summaries.md).
+
+Issue #196 adds a separate deterministic Tactical Cross-game Coaching artifact.
+It exact-joins Tactical Evidence with every method-bound Strategy Teacher Report,
+keeps exact Reports while counting equal semantic Teachers once per Decision,
+and permits a focus only when every distinct semantic complete-Search Teacher
+ranks the observed Card below an alternative on at least two Decisions in at
+least two Games. Mixed, Immediate-only, partial, timeout, unavailable, and
+not-assessable evidence remains descriptive. One Player Report is retained for
+every Player Catalog entry, at most five focus areas are selected by fixed
+objective-impact priority, and fixed Guidance makes no ground-truth, perfect-
+play, Player-rating, intent, communication, causal, or significance claim.
+
+The existing preparation action atomically publishes the existing, Tactical,
+and Coaching families and exposes only aggregate Coaching Counts on the private
+dashboard. The tenth authenticated canonical download is:
+
+* `/downloads/tactical-cross-game-coaching.json`
+
+The report is process-local, deterministic, path-free, and non-persisted. Issue
+#196 changes no Package/API/workflow/Console-Script/Schema/example/generated-
+scenario, Learning Dataset version `2`, or Dataset-v2 Summary contract. See
+[Learning Corpus Tactical Cross-game Coaching](docs/learning_corpus_tactical_cross_game_coaching.md).
 
 The facade executes already loaded Root documents without caller transport I/O
 and preserves Root JSON output by default. Its lazy schema backend uses packaged
@@ -1147,6 +1171,7 @@ Detailed documentation is split into topic-specific files:
 * [Learning Dataset version 2 partition preparation](docs/learning_dataset_v2_partition_preparation.md)
 * [Learning Dataset version 2 cross-game summaries](docs/learning_dataset_v2_cross_game_summaries.md)
 * [Learning Corpus Tactical Motif evidence and summaries](docs/learning_corpus_tactical_motif_evidence_and_summaries.md)
+* [Learning Corpus Tactical Cross-game Coaching](docs/learning_corpus_tactical_cross_game_coaching.md)
 * [Learning Corpus browser workflows](docs/learning_corpus_browser_workflows.md)
 * [Incremental Session transitions](docs/incremental_session_transitions.md)
 * [Retrospective Session export](docs/retrospective_session_export.md)
@@ -1596,7 +1621,8 @@ workflows, Dataset-v2 persistence and persisted partition artifacts,
 database/remote deployment, Information-set Search product/runtime performance
 acceptance gates and cross-machine latency guarantees,
 Historical Strategy Teacher Report import,
-tactical quality assessment and cross-game Coaching, approved settlement nuance,
+broader tactical quality assessment outside retained complete-Search evidence,
+Player-rating boundaries, approved settlement nuance,
 additional
 dataset-preparation algorithms or overrides, global optimization, guaranteed
 ratios, Sample- or Player-count balancing, component splitting, broader field-
@@ -1788,9 +1814,11 @@ Runtime execution. Issue #184 adds the private bounded exhaustive exact AND/OR
   two scenarios, bringing the working baseline to 71 Schemas and 98 scenarios.
   Issue #195 adds separate private Current-Snapshot Tactical Motif Evidence,
   descriptive cross-game summaries, atomic browser preparation, and two more
-  downloads without changing those counts or Dataset version `2`. Tactical
-  quality assessment and cross-game Coaching, carefully bounded Player
-  Ratings where approved, broader Provenance
+  downloads without changing those counts or Dataset version `2`. Issue #196
+  adds exact Tactical/Teacher joins, deterministic complete-Search-only repeated
+  cross-Game Coaching, atomic third-family publication, and a tenth download
+  without changing those counts or Dataset version `2`. Broader tactical quality
+  assessment, carefully bounded Player Ratings where approved, broader Provenance
   and Confidence integration, product/runtime performance acceptance gates,
   cross-machine latency guarantees, and the remaining
   pre-v1 scope audit also remain open. The final Issue titles, count,

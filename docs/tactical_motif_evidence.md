@@ -252,3 +252,14 @@ intent, signaling, communication, causality, significance, a Player trait, or
 Coaching. Human, Strategy Teacher, and Tactical Evidence remain separate, and
 Learning Dataset version `2` is unchanged. See [Learning Corpus Tactical Motif
 evidence and summaries](learning_corpus_tactical_motif_evidence_and_summaries.md).
+
+Issue #196 consumes those exact retained observations in a separate private
+Tactical Cross-game Coaching artifact. It exact-joins Strategy Teacher Evidence,
+preserves one Assessment per exact Teacher Report, counts semantic duplicates
+once for Decision consensus, and permits bounded repeated cross-Game focus only
+for unanimous complete-Search below-best evidence. Immediate, partial,
+unavailable, and mixed evidence remains descriptive. The detector, observations,
+taxonomy, Summary, Dataset version `2`, and existing Coaching families remain
+unchanged. Fixed Guidance makes no ground-truth, perfect-play, trait, Rating,
+intent, signaling, communication, causal, or significance claim. See [Learning
+Corpus Tactical Cross-game Coaching](learning_corpus_tactical_cross_game_coaching.md).

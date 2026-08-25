@@ -1270,8 +1270,12 @@ Policies, and complete Provenance. Issue #193 adds repository-local benchmark
 evidence without changing production behavior or counts. Issue #194 adds
 deterministic Historical Tactical Motif Review. Issue #195 adds separate
 Current-Snapshot-only Tactical Motif Evidence and exact descriptive cross-game
-Counts without changing Dataset version `2`. Tactical quality assessment and
-cross-game Coaching, carefully bounded Player Ratings where approved, broader Provenance and
+Counts without changing Dataset version `2`. Issue #196 adds separate
+deterministic Tactical Cross-game Coaching from exact retained Tactical/Teacher
+evidence, complete-Search-only consensus, bounded repeated cross-Game focus and
+fixed Guidance, and one tenth Corpus download without changing Dataset version
+`2`. Broader tactical quality outside retained complete-Search evidence,
+carefully bounded Player Ratings where approved, broader Provenance and
 Confidence integration, product/runtime performance acceptance gates,
 cross-machine latency guarantees, and the remaining pre-v1 scope audit also
 remain open. See [Information-set Search workflows](information_set_search_workflows.md),
@@ -1296,8 +1300,9 @@ explicit analysis, ephemeral reports, and authenticated local downloads.
 A separate audit of both documents must precede its final Issue sequence or
 implementation architecture.
 
-Before `v1.0.0`, the project still requires tactical and cross-game Coaching,
-remaining approved settlement nuance, and broader field-level provenance
+Before `v1.0.0`, the project still requires broader tactical quality and Coaching
+beyond Issue #196's retained complete-Search slice, remaining approved settlement
+nuance, and broader field-level provenance
 enforcement. End-to-end local Live and Retrospective Session capture is complete
 through Issues #150 through #157, including public files, automatic Checkpoints,
 accepted-Log observation, isolated review, explicit analysis, all 12 CLI
@@ -1477,6 +1482,8 @@ surfaces or counts. Issue #194 adds Historical Tactical Motif Review, one Schema
 one example, and two scenarios, bringing the working baseline to 71 Schemas and
 98 scenarios. Issue #195 adds separate private Current-Snapshot Tactical Motif
 Evidence, exact descriptive cross-game summaries, and current nine-download
-Corpus integration without changing those counts. Product/runtime performance
-integration, latency guarantees, tactical quality assessment, cross-game
-Coaching, and the final `v1.0.0` Issue split and architecture remain open.
+Corpus integration without changing those counts. Issue #196 adds separate
+bounded deterministic Tactical Cross-game Coaching and a tenth download without
+changing those counts or Dataset version `2`. Product/runtime performance
+integration, latency guarantees, broader tactical quality/Coaching, Player-rating
+boundaries, and the final `v1.0.0` Issue split and architecture remain open.

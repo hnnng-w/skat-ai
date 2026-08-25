@@ -28,6 +28,14 @@ Strategy Teacher, and Tactical Evidence remain separate; Learning Dataset
 version `2` remains unchanged. No Package/API/workflow/Console-Script/Schema/
 example/generated-output count changes.
 
+Issue #196 adds one separate deterministic Tactical Cross-game Coaching artifact
+from exact retained Tactical Motif and Strategy Teacher Evidence. It adds one
+authenticated canonical download, bringing the current set to ten, while
+preserving the historical Issue #179 seven-artifact and Issue #195 nine-artifact
+chains. All three prepared families publish and invalidate atomically. Learning
+Dataset version `2`, public/versioned surfaces, and existing counts remain
+unchanged.
+
 ## CLI startup
 
 The Learning Corpus browser is a separate private command family available in
@@ -290,12 +298,15 @@ following exact values in this order:
    Decision represented by exact Evidence or an explicit skip.
 9. Tactical Motif Cross-game Summary using that exact Collection and the exact
    Player Catalog from step 1.
+10. Tactical Cross-game Coaching Report using the exact retained Tactical
+    Collection/Summary, Strategy Teacher Collection, and Player Catalog.
 
 Each source artifact is built once; the partition Request builder and partition
 preparation each run once per mode. Empty or insufficient source data can
 produce valid Dataset or partition `empty`/`unavailable` states. Preparation
 does not execute Match Analysis, Position, Historical, Training Dataset,
-Search, Coaching, Profile derivation, or another Root workflow.
+Search, Profile derivation, or another Root workflow. Step 10 assesses retained
+Teacher values only and executes no analysis, Search, or Tactical detection.
 
 The existing Strategy Teacher step carries focused Information-set Evidence
 through the existing Dataset-v2 joins and cross-game Summary. The first seven
@@ -345,6 +356,13 @@ source change clears both wrappers; successful preparation replaces both; a
 no-change/conflicted operation preserves both when their sources still match.
 There is no Tactical-only retry or partial publication.
 
+Issue #196 adds a third immutable prepared wrapper. It must retain the same
+Catalog revision/content fingerprint, Player Catalog fingerprint, exact Strategy
+Teacher collection fingerprint, Tactical collection fingerprint, and Tactical
+Summary fingerprint used by the Coaching Report. Publication, invalidation,
+preservation, and replacement always apply to all three wrappers. There is no
+Coaching-only preparation, retry, or partial publication.
+
 ## Dashboard privacy
 
 The server-rendered dashboard is a minimized path-free projection, not a public
@@ -360,6 +378,11 @@ recurrence count. It does not expose individual observations, actual Cards,
 per-Player motif counts, recurrence identities, complete hands, legal-Card sets,
 Commentary, Strategy Teacher values, fingerprints, or paths.
 
+For Coaching, it adds only report status, Decision count, Teacher Assessment
+count, focus-area count, and Player-with-focus count. It does not expose Player
+focus rows, Guidance, motifs, Cards, ranks, aggregate metrics, source identities,
+fingerprints, or paths.
+
 Dashboard state and HTML omit:
 
 * the Corpus root and every caller/server filesystem path;
@@ -373,11 +396,12 @@ The retained Corpus, uploaded Report sources, prepared values, and downloads are
 still private local unredacted data. Minimized presentation does not make those
 values public or non-sensitive.
 
-## Nine authenticated downloads
+## Ten authenticated downloads
 
 Issue #179 historically introduced the first seven downloads below. Issue #195
-adds the final two, so after successful current preparation the browser exposes
-exactly nine downloads in this order:
+added two Tactical downloads, and Issue #196 adds the final Coaching download,
+so after successful current preparation the browser exposes exactly ten
+downloads in this order:
 
 | Artifact | Route | Filename suffix |
 | --- | --- | --- |
@@ -390,6 +414,7 @@ exactly nine downloads in this order:
 | Cross-game Summary | `/downloads/cross-game-summary.json` | `cross-game-summary` |
 | Tactical Motif Evidence | `/downloads/tactical-motif-evidence.json` | `tactical-motif-evidence` |
 | Tactical Motif Cross-game Summary | `/downloads/tactical-motif-cross-game-summary.json` | `tactical-motif-cross-game-summary` |
+| Tactical Cross-game Coaching | `/downloads/tactical-cross-game-coaching.json` | `tactical-cross-game-coaching` |
 
 Filenames are exactly:
 
@@ -399,7 +424,7 @@ Filenames are exactly:
 
 Player Catalog, Human Evidence, and Strategy Teacher Evidence use `corpus_id` as
 the source ID. Learning Dataset v2, both partition Results, and the Summary use
-`dataset_id`. Both Tactical artifacts use `corpus_id`. Unsafe filename runs
+`dataset_id`. Both Tactical artifacts and Coaching use `corpus_id`. Unsafe filename runs
 become `-`; leading/trailing `.`, `_`, and `-`
 are removed; the readable source portion is limited to 64 ASCII characters; an
 empty safe value becomes `artifact`. Player Catalog uses its Catalog fingerprint
@@ -452,7 +477,7 @@ deployment, or multi-user access control.
 ## Lifetime and open boundaries
 
 The loaded Corpus Store points to persistent exact Catalog and Match Snapshot
-objects under the explicit root. Strategy Teacher Report sources and all nine
+objects under the explicit root. Strategy Teacher Report sources and all ten
 prepared artifacts exist only for the current server process. Server shutdown
 clears both process-local stores and closes the HTTP server; it does not delete
 or modify persisted Corpus content.
@@ -467,9 +492,16 @@ Issue #195 likewise persists no Tactical Motif Evidence Collection, Tactical
 Motif Cross-game Summary, prepared wrapper, or download. Its exact occurrence,
 distinct-Game, distinct-Match, Player, role, seat, phase, contract, and recurrence
 Counts make no trait, rate, quality, correctness, significance, intent,
-communication, causal, or Coaching claim. Cross-game Coaching and tactical
-quality assessment remain separate future work. See [Learning Corpus Tactical
+communication, causal, or Coaching claim. Issue #196 consumes these observations
+without changing them. See [Learning Corpus Tactical
 Motif evidence and summaries](learning_corpus_tactical_motif_evidence_and_summaries.md).
+
+Issue #196 persists no Coaching Report, prepared wrapper, or download. Its
+retained complete-Search comparison is a bounded Teacher assessment, not a
+ground-truth, perfect-play, Player-rating, intent, communication, causal, or
+significance claim. Human Commentary and Response Links remain unconsumed, and
+Dataset version `2` remains unchanged. See [Learning Corpus Tactical Cross-game
+Coaching](learning_corpus_tactical_cross_game_coaching.md).
 
 Deletion, garbage collection, recovery, persisted aliases/assertions,
 merge/split, all-revision Player views, derived artifact persistence, automatic
@@ -492,4 +524,5 @@ See [Learning Corpus identity and Catalogs](learning_corpus_identity_and_catalog
 [Learning Dataset version 2 partition preparation](learning_dataset_v2_partition_preparation.md),
 [Learning Dataset version 2 cross-game summaries](learning_dataset_v2_cross_game_summaries.md),
 [Learning Corpus Tactical Motif evidence and summaries](learning_corpus_tactical_motif_evidence_and_summaries.md),
+[Learning Corpus Tactical Cross-game Coaching](learning_corpus_tactical_cross_game_coaching.md),
 and [Match analysis and exports](match_analysis_and_exports.md).
