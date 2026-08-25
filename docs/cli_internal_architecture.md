@@ -252,4 +252,6 @@ without changing the then-current Package version `0.15.0`, seven Root workflows
 or the one Console Script. Issue #180 changes only Package version and matching
 release expectations to `0.16.0`.
 Issue #198 later changes only Package version and matching Release-candidate
-expectations to `0.17.0`.
+expectations to `0.17.0`. The maintainer published `v0.17.0` on 2026-08-25 at
+`8187fbe`; Issue #199 synchronizes that publication without changing CLI
+architecture or behavior.

@@ -509,7 +509,7 @@ published `v0.16.0` manually on 2026-08-18 at commit `91b1360`, and Issue #181
 synchronizes publication status. GitHub Releases is the authoritative
 publication record; no Package-index or PyPI publication is claimed.
 
-Issue #191 extends the prepared `v0.17.0` baseline with strict one-Decision Match
+Issue #191 extends the published `v0.17.0` baseline with strict one-Decision Match
 `information_set_search`, safe revision-scoped diagnostics, exact Report-source
 transfer, focused Current-Snapshot Strategy Teacher Evidence, existing Dataset-v2
 joins and cross-game method counts, and the unchanged local Corpus preparation
@@ -1325,22 +1325,29 @@ The test suite also validates JSON files in `examples/`. If an example contains 
 
 ## Project status
 
-The current published stable and latest stable GitHub Release is `v0.16.0`, with
-Release theme "Learning-ready behavior and communication data" and GitHub
-Release title "v0.16.0 — Learning-ready behavior and communication data". It was
-published manually by the maintainer on 2026-08-18 at commit `91b1360`. Package
-version `0.16.0` requires Python 3.13 or newer, retains Public API contract
-version `1`, exactly seven Root workflows, and the one
-`skat-ai = skat_ai.cli:main` Console Script, contains 63 authoritative Schemas
-and 63 Packaged Schema Resources, includes six Session examples, validates 85
-deterministic generated-output scenarios, and passes 6,925 pytest tests in
-1083.48s. Issues #171 through #179 complete the functional milestone, Issue #180
-completed Release preparation without product behavior changes, and Issue #181
-synchronizes publication status without changing product behavior. GitHub
-Releases is the authoritative publication record; no Package-index or PyPI
-publication is claimed.
+The current published stable and latest stable GitHub Release is `v0.17.0`, with
+Release theme "Rules, Search, Coaching, and performance closure" and GitHub
+Release title "v0.17.0 — Rules, Search, Coaching, and performance closure". The
+maintainer published it manually on 2026-08-25 at commit
+`8187fbe684559f9c0c2ba444be1bf33950359ad2` (`8187fbe`). Package version
+`0.17.0` requires Python `>=3.13`, retains Public API contract version `1`,
+exactly seven Root workflows, and the one `skat-ai = skat_ai.cli:main` Console
+Script. The published baseline has Settlement Normative Matrix version `3` with
+61 cases, 71 authoritative Schemas, 71 Packaged Schema Resources, six Session
+examples, 98 deterministic generated outputs, ten private Corpus prepared
+downloads, and 7,479 passing pytest tests in 921.96s. GitHub Releases is the
+authoritative publication record; no Package-index or PyPI publication is
+claimed.
 
-The prepared `v0.17.0` Package baseline uses Package version `0.17.0`, Python
+The historical published `v0.16.0 — Learning-ready behavior and communication
+data` baseline was published manually by the maintainer on 2026-08-18 at commit
+`91b1360`. It contains 63 authoritative Schemas, 63 Packaged Schema Resources,
+six Session examples, 85 deterministic generated outputs, and 6,925 passing
+pytest tests in 1083.48s. Issues #171 through #179 complete that functional
+milestone, Issue #180 completed Release preparation, and Issue #181 synchronized
+publication status without product behavior changes.
+
+The published `v0.17.0` functional history uses Package version `0.17.0`, Python
 `>=3.13`, Public API contract version `1`, exactly seven Root workflows, one
 Console Script, and six Session examples. Issue #186 updates the Settlement
 Normative Matrix to version `3` with the same 61 cases and adds the Historical-
@@ -1368,7 +1375,7 @@ Public API, Package version, example, or generated scenario, so those working
 counts and published Release facts remain unchanged.
 
 Issue #194 adds one strict Tactical Motif Review Schema, one Root example, and
-two append-only scenarios. The prepared totals are therefore 71
+two append-only scenarios. The final published totals are therefore 71
 authoritative and packaged Schemas and 98 scenarios. Package version, Public API
 contract, Root workflows, Console Script, Settlement Matrix version `3` and 61
 cases, and six Session examples remain unchanged.
@@ -1388,12 +1395,10 @@ examples, and 98 scenarios.
 Issue #197 records the documentation-only scope and Release-readiness audit.
 Issue #198 changes only Package metadata, current version expectations,
 Changelog, and Release-candidate documentation to prepare `v0.17.0` without
-product behavior changes. Publication remains pending and manual; the current
-published stable Release remains `v0.16.0` at commit `91b1360`, GitHub Releases
-remains authoritative, and no Package-index or PyPI publication is claimed.
-The prepared candidate has 71 authoritative and packaged Schemas, six Session
-examples, 98 generated outputs, ten private Corpus downloads, and 7,479 passing
-pytest tests.
+product behavior changes. The maintainer subsequently published `v0.17.0` on
+2026-08-25 at `8187fbe`, and Issue #199 performs only the post-publication
+documentation synchronization. Issues #182 through #196 are the functional
+milestone; Issues #197, #198, and #199 add no product functionality.
 
 The historical published `v0.15.0` GitHub Release has
 release theme "Local EuroSkat 36er Match capture, analysis, and exports" and
@@ -1759,8 +1764,8 @@ architecture still require focused scope and traceability review.
 Issue #169 completed Release preparation, the maintainer published `v0.15.0`
 manually at commit `ec1c154`, and Issue #170 synchronized publication status.
 
-The current published Package milestone is `v0.16.0 — Learning-ready behavior and
-communication data`. Issue #171 establishes its private internal content-addressed Match
+The historical published Package milestone `v0.16.0 — Learning-ready behavior
+and communication data` remains the origin of Issue #171's private internal content-addressed Match
 Snapshot, Player Observation, observed-Game fingerprint, Snapshot-scoped
 reference, lightweight Catalog, explicit current-selection, and duplicate/
 revision-classification foundation. Issue #172 adds deterministic private Corpus
@@ -1842,8 +1847,12 @@ Runtime execution. Issue #184 adds the private bounded exhaustive exact AND/OR
   remaining pre-v1 scope audit remain open. Issues #182 through #196 are the
   frozen functional history. Issue #197 completes the documentation-only scope
   and Release-readiness audit, and Issue #198 prepares Package `0.17.0` and the
-  Release candidate without product behavior changes. Publication remains a
-  pending manual maintainer action. `v1.0.0` remains unready.
+  Release candidate without product behavior changes. The maintainer published
+  `v0.17.0` on 2026-08-25 at `8187fbe`, and Issue #199 synchronizes the
+  publication without product functionality. The active next planning milestone
+  is `v1.0.0`; it is planning-only and not ready. The next action is a separate
+  v1 scope and traceability audit, not a frozen title, theme, Issue sequence,
+  implementation architecture, or Release date.
 
 Current support and known limitations are tracked in the
 [requirements traceability matrix](docs/requirements_traceability.md). Product

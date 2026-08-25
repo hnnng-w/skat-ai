@@ -24,7 +24,7 @@ Run the full project check:
 .\scripts\check.ps1
 ```
 
-The current published `v0.16.0` baseline at commit `91b1360` contains 63
+The historical published `v0.16.0` baseline at commit `91b1360` contains 63
 authoritative Schemas and 63 Packaged Schema Resources, includes six strict
 Session examples, validates 85 deterministic generated-output scenarios, and
 passes 6,925 pytest tests in 1083.48s. Issues #171 through #179 complete the
@@ -34,8 +34,9 @@ status after manual maintainer publication on 2026-08-18. GitHub Releases is the
 authoritative publication record; no Package-index or PyPI publication is
 claimed.
 
-The prepared `v0.17.0` Package baseline uses Package version `0.17.0`, Public
-API contract version `1`, seven Root workflows, one Console Script, and six
+The current published `v0.17.0` Package baseline at commit `8187fbe` uses Package
+version `0.17.0`, Python `>=3.13`, Public API contract version `1`, seven Root
+workflows, one Console Script, and six
 Session examples. Issue #186 adds two authoritative and packaged Historical
 Claim Schemas plus three append-only generated-output scenarios, bringing the
 working totals to 65 Schemas and 88 scenarios. Issue #189 adds four authoritative
@@ -48,8 +49,9 @@ Replay Coaching Schema, one Root example, and two append-only scenarios, bringin
 the Issue #192 point-in-time totals to 70 Schemas and 96 scenarios while preserving the
 Issue #190 and published baselines. Issue #193 changes neither count. Issue #194
 adds one strict Historical Tactical Motif Review Schema, one Root example, and
-two append-only scenarios, bringing the prepared totals to 71 Schemas and
-98 scenarios.
+two append-only scenarios, bringing the published totals to 71 Schemas and
+98 scenarios. The maintainer published `v0.17.0` on 2026-08-25; Issue #199
+synchronizes that publication without changing examples or scenarios.
 
 The historical published `v0.15.0` baseline at commit `ec1c154` contains 63
 authoritative Schemas and 63 Packaged Schema Resources, includes six strict
@@ -770,8 +772,8 @@ artifact provenance.
 Eight Issue #157 scenarios then append Live creation, apply/resume, analysis with
 automatic Checkpoint, observed-card review, Undo/partial Correction, persistence
 conflict, Retrospective export, and Retrospective finalization. The first 77
-remain unchanged and the current published `v0.16.0` and historical published
-`v0.15.0` and `v0.14.0` totals are 85. Session operation JSON
+remain unchanged and the historical published `v0.16.0`, `v0.15.0`, and
+`v0.14.0` totals are 85. Session operation JSON
 uses `session.schema.json`; executed Position/Historical output uses
 `output.schema.json`.
 Issue #186 appends three Historical Claim scenarios, Issue #189 appends four
@@ -783,9 +785,9 @@ baseline. Issue #192 preserves those 94 definitions and order, then appends
 `historical_party_wide_claim_information_set_replay_coaching`. Issue #194
 preserves those 96 definitions and order, then appends
 `historical_tactical_motif_review_defender_partnership` and
-`historical_party_wide_claim_tactical_motif_review`. The prepared `v0.17.0` total
-is 98; the published 85-scenario facts remain unchanged. Issue #198 changes no
-example or generated-scenario definition.
+`historical_party_wide_claim_tactical_motif_review`. The published `v0.17.0`
+total is 98; the historical published 85-scenario facts remain unchanged. Issues
+#198 and #199 change no example or generated-scenario definition.
 The behavioral match
 comparison does not evaluate recommendation quality or strategic strength.
 

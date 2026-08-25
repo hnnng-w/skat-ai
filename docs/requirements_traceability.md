@@ -1,24 +1,28 @@
 # Requirements traceability
 
 This document is the authoritative audit of current rule and product support.
-It preserves the published `v0.15.0`, `v0.14.0`, `v0.13.0`, `v0.12.0`,
-`v0.11.0`, `v0.10.0`, and `v0.9.0` release baselines as historical evidence and
-does not claim complete compliance with the official rules. The current
-published stable and latest stable GitHub Release is `v0.16.0`, with release
-theme "Learning-ready behavior and communication data" and GitHub Release title
-"v0.16.0 — Learning-ready behavior and communication data". It was published
-manually by the maintainer on 2026-08-18 at commit `91b1360`. Package version
-`0.16.0` requires Python `>=3.13`, retains Public API contract version `1`, seven
-Root workflows, and the one `skat-ai = skat_ai.cli:main` Console Script. It
-contains 63 authoritative Schemas, 63 Packaged Schema Resources, six Session
-examples, 85 deterministic generated-output scenarios, and 6,925 passing pytest
-tests in 1083.48s. Functional Issues #171 through #179 complete the milestone,
-Issue #180 completed Release preparation, and Issue #181 synchronizes
-publication status without changing product behavior. GitHub Releases is the
-authoritative publication record; no Package-index or PyPI publication is
+It preserves published Release baselines as historical evidence and does not
+claim complete compliance with the official rules. The current published stable
+and latest stable GitHub Release is `v0.17.0`, with Release theme "Rules, Search,
+Coaching, and performance closure" and GitHub Release title "v0.17.0 — Rules,
+Search, Coaching, and performance closure". The maintainer published it manually
+on 2026-08-25 at commit `8187fbe684559f9c0c2ba444be1bf33950359ad2`
+(`8187fbe`). Package version `0.17.0` requires Python `>=3.13`, retains Public API
+contract version `1`, seven Root workflows, and one Console Script. The baseline
+has Matrix version `3` with 61 cases, 71 authoritative Schemas, 71 Packaged
+Schema Resources, six Session examples, 98 generated outputs, ten private Corpus
+prepared downloads, and 7,479 passing pytest tests in 921.96s. GitHub Releases is
+the authoritative publication record; no Package-index or PyPI publication is
 claimed.
 
-The prepared `v0.17.0` Package baseline uses Package version `0.17.0`, Python
+The historical published `v0.16.0 — Learning-ready behavior and communication
+data` baseline was published manually on 2026-08-18 at commit `91b1360`. It has
+63 authoritative and packaged Schemas, six Session examples, 85 generated
+outputs, and 6,925 passing pytest tests in 1083.48s. Functional Issues #171
+through #179 complete that milestone, Issue #180 completed Release preparation,
+and Issue #181 synchronized publication status without product functionality.
+
+The published `v0.17.0` functional history uses Package version `0.17.0`, Python
 `>=3.13`, Public API contract version `1`, seven Root workflows, one Console
 Script, and six Session examples. Issue #186 updates the Settlement Normative
 Matrix to version `3` with the same 61 cases, completes the approved Claim
@@ -49,7 +53,7 @@ working counts above.
 
 Issue #194 adds deterministic Historical Tactical Motif Review, private Match
 browser controls, one strict Schema, one Root example, and two append-only
-scenarios. The prepared totals are 71 authoritative and packaged Schemas
+scenarios. The final published totals are 71 authoritative and packaged Schemas
 and 98 scenarios. Existing Package/API/workflow/Console-Script/Settlement/
 Session baselines remain unchanged.
 
@@ -67,12 +71,11 @@ examples, and 98 scenarios.
 
 Issue #197 records the documentation-only scope and Release-readiness audit.
 Issue #198 changes only Package metadata, current version expectations,
-Changelog, and Release-candidate documentation. Publication remains pending and
-manual; the published stable Release remains `v0.16.0` at `91b1360`, and no
-Package-index or PyPI publication is claimed.
-The prepared candidate has 71 authoritative and packaged Schemas, six Session
-examples, 98 generated outputs, ten private Corpus downloads, and 7,479 passing
-pytest tests.
+Changelog, and Release-candidate documentation. The maintainer subsequently
+published `v0.17.0` on 2026-08-25 at `8187fbe`, and Issue #199 synchronizes that
+publication without product functionality. Issues #182 through #196 are the
+functional milestone; Issues #197, #198, and #199 are documentation, audit, and
+Release-state work only.
 
 The historical published `v0.15.0` Release points to commit `ec1c154`. Package
 version `0.15.0` requires Python `>=3.13`, retains Public API contract version
@@ -241,8 +244,8 @@ persistence and public/task-specific partition workflows, database/remote deploy
 YouTube/EuroSkat integration, and broader pre-v1 work remain open. `v1.0.0`
 remains unready.
 
-The current published Package milestone is `v0.16.0 — Learning-ready behavior and
-communication data`. Issue #171 implements the first private internal identity foundation:
+The historical published Package milestone `v0.16.0 — Learning-ready behavior
+and communication data` implements the first private internal identity foundation in Issue #171:
 content-addressed exact Workspace Match Snapshots, Player Observations,
 observed-Game fingerprints, Snapshot-scoped closed references, lightweight
 Catalog entries, explicit current selections, and duplicate/revision
@@ -356,7 +359,10 @@ approved, broader Provenance and Confidence integration, and the remaining pre-
 v1 scope audit also remain open. Issues #182 through #196 are the frozen
 functional history. Issue #197 completes the documentation-only audit, and Issue
 #198 prepares Package `0.17.0` and the Release candidate without product behavior
-changes. Publication remains pending. `v1.0.0` remains unready.
+changes. The maintainer published `v0.17.0` on 2026-08-25 at `8187fbe`; Issue
+#199 synchronizes the publication without product functionality. `v1.0.0` is the
+active planning milestone but remains planning-only and not ready. The next
+action is a separate v1 scope and traceability audit.
 
 ## Status vocabulary
 
@@ -712,7 +718,7 @@ maintainer's manual publication. See
 | Rapid post-game Match Capture Application services | skat-ai product | Not applicable | `partially_supported` | Issue #164 defines transport-free rapid-entry services; Issue #165 maps browser mutations to them. Issues #166 through #168 remain separate Statistics, preparation, analysis, report, and export layers. | One loaded Workspace, selected position, exact revision, and operation-specific observed evidence. | Capture services themselves still perform no I/O, analysis, or downstream preparation. Bounded Card candidates do not assert ownership or legality. Public Match API/Schema/data workflow, tactical interpretation, and AI commentary remain absent. | Retain service identities, direct mutation delegation, conflict precedence, atomic batches, automatic actors/indexes, no hidden completion, and import direction. | v0.15.0 functional local transport complete | Yes |
 | Match review and materialization preparation | skat-ai product | Not applicable | `supported` | Issue #167 defines information-safe Decision preparation, strict normal-completion Historical materialization, unpartitioned Training sources, and complete fixed-list aggregation. Issue #168 exposes explicit private preparation reports and canonical downloads while materialization itself executes no workflow. | One validated Workspace; exact acting hand per Decision; strict complete Deal for Historical/Training; complete 36-Slot evidence for list aggregation; optional exact lot order. | Preparation itself applies no policy and executes no workflow. No Dataset Plan/partition/sample, list comparison, persisted report, Public Match export/API/Schema, or media-offset timestamp derivation exists. | Retain Decision/Historical evidence separation, actual-Card cutoff, Skat/Ouvert visibility, canonical round trips, Match time, Passed Deals, Commentary isolation, counts, standings, unresolved lot, and twelve round ends. | v0.15.0 bounded internal preparation complete | Yes |
 | Match analysis and private exports | skat-ai product | Not applicable | `supported` | Issue #168 adds explicit one-Decision Immediate/Search/Auto Position execution from prepared snapshots; strict selected-mode Historical execution; eligible actor-relative Profile application through existing supported behavior; one exact Application invocation; deterministic SHA-256 reports capped at eight; and authenticated canonical Root/Historical/Training/list downloads. Issue #191 adds strict one-Decision Information-set Search and source transfer. Issue #192 adds separate Historical Information-set Review/Coaching controls, one shared retained Review, one Historical Application invocation, safe rendering, and time-safe Profile-derived fixed Policies. Issue #194 adds separate Tactical Motif Review, strict source/chronology reconciliation, and a curated safe report view without Search or Profile injection. | Explicit authenticated action, exact expected revision, selected preparable Decision or strict Historical Game, deterministic options/seeds where needed, and optional eligible Match Statistics. | No automatic analysis, Workspace report persistence, Profile weighting or World selection, Commentary interpretation, Historical Strategy Teacher source transfer, Public Match API/Schema/Root/CLI, tactical quality/signaling/communication/causal inference, calibrated ML, optimal hidden-information Search, or full official-rule claim. | Retain normal unavailability, actor exclusion, disabled/nonactionable Profile behavior, family exclusivity, shared Review/Snapshot reuse, one-call execution, tactical reconciliation, no-workflow materialization, privacy, canonical bytes/names, stale/concurrent invalidation, and bounded/no-fallback/noncausal limitations. | v0.15.0 published bounded Match analysis plus Issue #192 Information-set Historical and Issue #194 Tactical Motif integration | Yes |
-| Local Match Capture browser and CLI transport | skat-ai product | Not applicable | `supported` | Issues #165 and #166 add the private Web/Protocol/Capture CLI and 19 capture/statistics operations. Issue #168 appends three explicit analysis/materialization operations for 22 total, curated report pages, ephemeral report navigation, and authenticated downloads under Web Protocol version `1`. Issue #192 adds Information-set controls and safe rendering within the existing Historical analysis operation. Issue #194 adds the Tactical Motif checkbox, strict form/JSON boolean handling, escaped aggregate/chronological rendering, explicit noncausal warnings, and private-field redaction. | One explicit Workspace path with existing parent, startup token/cookie, exact local origin, selected position, expected revision, and operation form or JSON body. | Private local transport only. No remote bind, account/encryption claim, external request, Public Match API/Schema/Root workflow, new Capture CLI option, Player Catalog browser operation, database/cloud/backup, or source integration. | Retain versions/routes/options, no-JavaScript forms, 36 positions, all capture/Statistics/analysis flows, explicit-only execution, autosave/conflicts/Reload, security/privacy, one Console Script, the published `v0.16.0` 63/85 baseline, and the prepared `v0.17.0` 71/98 baseline. | v0.15.0 published bounded local transport complete | Yes |
+| Local Match Capture browser and CLI transport | skat-ai product | Not applicable | `supported` | Issues #165 and #166 add the private Web/Protocol/Capture CLI and 19 capture/statistics operations. Issue #168 appends three explicit analysis/materialization operations for 22 total, curated report pages, ephemeral report navigation, and authenticated downloads under Web Protocol version `1`. Issue #192 adds Information-set controls and safe rendering within the existing Historical analysis operation. Issue #194 adds the Tactical Motif checkbox, strict form/JSON boolean handling, escaped aggregate/chronological rendering, explicit noncausal warnings, and private-field redaction. | One explicit Workspace path with existing parent, startup token/cookie, exact local origin, selected position, expected revision, and operation form or JSON body. | Private local transport only. No remote bind, account/encryption claim, external request, Public Match API/Schema/Root workflow, new Capture CLI option, Player Catalog browser operation, database/cloud/backup, or source integration. | Retain versions/routes/options, no-JavaScript forms, 36 positions, all capture/Statistics/analysis flows, explicit-only execution, autosave/conflicts/Reload, security/privacy, one Console Script, the historical published `v0.16.0` 63/85 baseline, and the published `v0.17.0` 71/98 baseline. | v0.15.0 published bounded local transport complete | Yes |
 | Public Session APIs | skat-ai product | Not applicable | `supported` | Stable `skat_ai.api.v1.session` version `1` preserves the first 52 exports and appends Decision Observation, Checkpoint Review Export, and `files`; twelve one-call in-memory operations, strict Command parsing, typed Results, optional complete returned-value provenance, and standalone Schema validation are implemented. Stable `skat_ai.api.v1.session.files` version `1` exposes exact path-free Save/Load Results over strict persistence. | Existing typed Session values or strict JSON-object Command/persistence mappings; caller-supplied file path and expected fingerprint for Save. | No Session Root workflow, automatic analysis after every Command, persisted analysis Result, default path, GUI, platform adapter, cloud synchronization, distributed lock, encryption, or automatic backup. | Retain exact export order/identity, operation/value pairs, observation/review isolation, file Result discrimination, normal statuses, one-call delegation, default provenance omission, strict Schema, 71-Schema parity, and clean-install execution. | v0.14.0 bounded public interface complete | Yes |
 | Stable public Python and installed CLI contract | skat-ai product | Not applicable | `supported` | API contract version `1` defines seven Root workflows. Installed, module, and Legacy forms preserve Root parity, the 12-subcommand Session parser, Issue #165 leading private `capture` dispatch, and Issue #179 leading private `corpus` dispatch through one Console Script. Capture and Corpus stay internal and outside `WorkflowV1` and public exports. Issue #189 adds Root Information-set modes; Issue #190 uses existing Multi-Step/comparison fields; Issue #192 adds the Historical Information-set Coaching option; Issue #194 adds the Historical Tactical Motif Review option and CLI flag without adding a workflow or Console Script. | Root JSON; explicit Session path/documents; one explicit Match Workspace path for Capture; or one explicit Learning Corpus root for Corpus. | Broader Domain-error migration, license selection, hosted/platform/cloud/encryption integration, and end-to-end field enforcement remain open. | Retain `corpus -> capture -> session -> Root`, exact existing Root/Session parsers and exact Capture/Corpus parsers, seven workflows, 12 Session subcommands, one Console Script, public exports, Legacy seams, import direction, clean installs, 71 Schemas, and 98 scenarios. | v0.14.0 public interface plus v0.15.0 private Capture and v0.16.0 private Corpus transports | Yes |
 | Field-level information provenance | skat-ai product | Not applicable | `partially_supported` | Internal contract version `1` defines RFC 6901 paths, immutable ledgers, exact coverage, dependencies, Information Use Context, redaction, serialization, and Confidence separation. All seven workflows have complete non-legacy Root Result ledgers. Public version `1` exposes one explicitly mapped redacted Root Result plus actual artifacts, uses scopes `root_result_without_field_provenance` and `artifact_document`, and requires complete recomputed coverage. | A supported Application invocation with matching retained sidecars; public exposure additionally requires API or CLI opt-in. | Public consumed-input, decision, intermediate-stage, and unredacted attachments are intentionally absent. Broader loading and end-to-end field enforcement remain incomplete; Confidence and specialized source provenance remain separate. | Retain internal enforcement plus public immutable types, seven Result mappings, actual-artifact mapping, redaction and coverage recomputation, strict Schema, default omission, API/CLI parity, privacy rejection, and 77 generated outputs. | v0.13.0 bounded public contract complete; broader v1.0 enforcement open | Yes |
@@ -740,7 +746,7 @@ maintainer's manual publication. See
 | Rolling opponent-policy evaluation | skat-ai product | Not applicable | `supported` | A dedicated known-opponent workflow builds strict game-start as-of profiles from every supported source reason, evaluates each actual zero-through-30 target card against ordered policy-equivalent preferred candidates and exact choices, retains zero-decision targets, and reports baseline, actionable-only paired, participant coverage, and bounded breakdown metrics. | Timestamped supported source and target games with stable player overlap, disjoint partition names, and unspecified or `known_opponent` dataset intent. | Behavioral matching does not predict terminal events or measure strategic strength, recommendation quality, optimal play, unseen-player generalization, or statistical significance. | Retain temporal/target exclusion, identity and seat remapping, prefix parity, event isolation, participant coverage, baseline, preferred/exact matching, actionable pairing, zero decisions, reconciliation, schema, CLI, and isolation tests. | v1.0 bounded requirement complete | Yes |
 | Learned opponent models | skat-ai product | Not applicable | `not_supported` | No learned model exists; current profiles and policies are deterministic and rule-based. | Approved historical features, model artifact, versioning, and inference contract. | Training, evaluation, deployment, fallback, and explainability details are not designed. | Define separate post-v1.0 acceptance criteria before implementation. | Post-v1.0 | No |
 | Machine-learning model training | skat-ai product | Not applicable | `not_supported` | No training pipeline exists. | Approved dataset, target, evaluation protocol, reproducibility, and artifact policy. | Historical training-data representation does not itself authorize model training. | Define separate post-v1.0 card-decision model acceptance criteria before implementation. | Post-v1.0 | No |
-| Generated-output validation | skat-ai product | Not applicable | `supported` | The prepared `v0.17.0` matrix generates, semantically checks, and schema-validates 98 deterministic scenarios. Issue #186 preserves the published `v0.16.0` first 85 and appends three Historical Claim scenarios; Issue #189 appends four Information-set Search scenarios; Issue #190 appends Multi-Step and Policy Comparison scenarios; Issue #192 appends two Information-set Replay Coaching scenarios; Issue #194 preserves those first 96 and appends two Tactical Motif Review scenarios. Historical published `v0.13.0`, `v0.12.0`, `v0.11.0`, and `v0.10.0` counts remain 77, 70, 64, and 59. | Repository examples/fixtures, 71 schemas, and deterministic Root/Session CLI settings. | The matrix is representative rather than exhaustive; append-only additions do not rewrite historical published Release evidence. | Keep active and published counts explicit; retain prior order and add deterministic coverage for each stable user-facing branch. | v1.0 | Yes |
+| Generated-output validation | skat-ai product | Not applicable | `supported` | The published `v0.17.0` matrix generates, semantically checks, and schema-validates 98 deterministic scenarios. Issue #186 preserves the historical published `v0.16.0` first 85 and appends three Historical Claim scenarios; Issue #189 appends four Information-set Search scenarios; Issue #190 appends Multi-Step and Policy Comparison scenarios; Issue #192 appends two Information-set Replay Coaching scenarios; Issue #194 preserves those first 96 and appends two Tactical Motif Review scenarios. Historical published `v0.13.0`, `v0.12.0`, `v0.11.0`, and `v0.10.0` counts remain 77, 70, 64, and 59. | Repository examples/fixtures, 71 schemas, and deterministic Root/Session CLI settings. | The matrix is representative rather than exhaustive; append-only additions do not rewrite historical published Release evidence. | Keep active and published counts explicit; retain prior order and add deterministic coverage for each stable user-facing branch. | v1.0 | Yes |
 | Release and regression checks | skat-ai product | Not applicable | `supported` | `scripts/check.ps1` and CI run Ruff, 71-Schema parity, Root/Session examples, 98 scenarios, Wheel/sdist inspection, clean API/Root/Session/Capture/Corpus CLI and browser smoke, and pytest on Python 3.13. | Development dependencies and supported platform tooling. | Passing checks proves tested behavior, not complete ISkO/SkWO compliance or Package-index publication; GitHub Releases is the authoritative publication record. | Require clean local/CI checks, exact Capture/Corpus resources, one Console Script, installed/module/Legacy/API parity, and human-controlled publication. | v1.0 | Yes |
 
 The complete-game row's absent cross-game analysis is scoped to the public

@@ -46,35 +46,46 @@ Title:
 ```
 
 Issue #197 itself did not change the Package version, create a tag, publish a
-Release, or add final Release notes. Issue #198 subsequently prepares the
-Package and Release candidate without publication.
+Release, or add final Release notes. Issue #198 subsequently prepared the
+Package and Release candidate without publication. The maintainer later
+published the Release on 2026-08-25 at `8187fbe`, and Issue #199 synchronizes the
+post-publication documentation without product functionality.
 
 ## Published Release state
 
-The current published stable and latest stable GitHub Release remains:
+The current published stable and latest stable GitHub Release is:
 
 ```text
 Release:
-    v0.16.0
+    v0.17.0
 
 Publication commit:
-    91b1360
+    8187fbe684559f9c0c2ba444be1bf33950359ad2 (8187fbe)
+
+Publication date:
+    2026-08-25
 
 Release theme:
-    Learning-ready behavior and communication data
+    Rules, Search, Coaching, and performance closure
 ```
 
 That published Package requires Python `>=3.13`, retains Public API contract
-version `1`, exactly seven Root workflows, and one Console Script. Its historical
-validation baseline is 63 authoritative Schemas, 63 Packaged Schema Resources,
-six Session examples, 85 generated-output scenarios, and 6,925 passing pytest
-tests in 1083.48s. These facts are not replaced by current working counts.
+version `1`, exactly seven Root workflows, and one Console Script. Its baseline
+has Matrix version `3` with 61 cases, 71 authoritative and packaged Schemas, six
+Session examples, 98 generated outputs, ten private Corpus prepared downloads,
+and 7,479 passing pytest tests in 921.96s.
 
-## Prepared Release-candidate state
+The historical published `v0.16.0 — Learning-ready behavior and communication
+data` baseline remains at commit `91b1360`, published on 2026-08-18. It has 63
+authoritative and packaged Schemas, six Session examples, 85 generated outputs,
+and 6,925 passing pytest tests in 1083.48s. These historical facts are not
+replaced by the `v0.17.0` counts.
 
-Issue #198 changes only Package metadata, current Package-version expectations,
-the Changelog, and current Release-candidate documentation. The resulting state
-is:
+## Historical prepared Release-candidate state
+
+Issue #198 changed only Package metadata, current Package-version expectations,
+the Changelog, and Release-candidate documentation. At completion of Issue #198,
+the resulting point-in-time state was:
 
 ```text
 Package baseline:
@@ -93,9 +104,7 @@ v1.0.0:
     not ready
 ```
 
-Publication remains a manual maintainer action. No `v0.17.0` tag or GitHub
-Release exists yet, and no Package-index or PyPI publication is claimed.
-The prepared candidate retains Python `>=3.13`, Public API contract version `1`,
+That historical candidate retained Python `>=3.13`, Public API contract version `1`,
 seven Root workflows, one Console Script, Matrix version `3` with 61 cases, 71
 authoritative and packaged Schemas, six Session examples, 98 generated outputs,
 ten private Corpus downloads, and 7,479 passing pytest tests.
@@ -395,13 +404,14 @@ Issue #198.
 
 ## Release-preparation completion
 
-Issue #198 prepares `v0.17.0`: it updates Package metadata and current version
-expectations, adds the frozen Changelog structure, reconciles final Release-
-candidate documentation, and reruns Release-preparation validation. It changes no
+Issue #198 prepared `v0.17.0`: it updated Package metadata and current version
+expectations, added the frozen Changelog structure, reconciled final Release-
+candidate documentation, and reran Release-preparation validation. It changed no
 product code, behavior, dependency, build backend, Package Data, Schema, example,
 generated output, benchmark value, persistence format, or non-Package contract
-version. Tagging and GitHub Release publication remain later manual maintainer
-actions.
+version. Tagging and GitHub Release publication were later manual maintainer
+actions. The maintainer published the Release on 2026-08-25 at `8187fbe`; Issue
+#199 changes only post-publication documentation.
 
 ## Release-readiness conclusion
 
@@ -416,11 +426,14 @@ Package baseline:
     0.17.0
 
 Published stable Release:
-    v0.16.0 at 91b1360
+    v0.17.0 at 8187fbe
 
 v0.17.0 publication:
-    pending
+    completed manually on 2026-08-25
+
+Post-publication synchronization:
+    Issue #199, documentation only
 
 v1.0.0:
-    not ready
+    planning only; not ready
 ```

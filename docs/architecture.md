@@ -127,10 +127,13 @@ Dataset version `2`, Dataset-v2 Summary, persistence, Public API, Schema, Root
 workflow, example, and generated-output contracts remain unchanged.
 
 Issue #197 records the documentation-only `v0.17.0` scope and Release-readiness
-audit. Issue #198 prepares Package `0.17.0`, matching expectations, Changelog,
+audit. Issue #198 prepared Package `0.17.0`, matching expectations, Changelog,
 and Release-candidate documentation without changing this architecture or any
-product behavior. Publication remains pending and manual; the published stable
-Release remains `v0.16.0` at `91b1360`.
+product behavior. The maintainer published `v0.17.0` manually on 2026-08-25 at
+`8187fbe`, and Issue #199 synchronizes the post-publication documentation without
+changing product functionality. It is the current and latest stable GitHub
+Release; GitHub Releases remains authoritative, and no Package-index or PyPI
+publication is claimed.
 
 Issues #160 through #168 form the published `v0.15.0` Package baseline, and Issue
 #169 updated only Package/release metadata and documentation to complete Release

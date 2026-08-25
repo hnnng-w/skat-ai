@@ -4,22 +4,26 @@ This document defines the product requirements and observable completion gates
 for `skat-ai` `v1.0.0`. Current implementation status remains in
 [Requirements traceability](requirements_traceability.md).
 
-The current published stable and latest stable GitHub Release is `v0.16.0`, with
-release theme "Learning-ready behavior and communication data" and GitHub
-Release title "v0.16.0 — Learning-ready behavior and communication data". It was
-published manually by the maintainer on 2026-08-18 at commit `91b1360`. Package
-version `0.16.0` requires Python 3.13 or newer, retains Public API contract
-version `1`, exactly seven Root workflows, and the one
-`skat-ai = skat_ai.cli:main` Console Script. It contains 63 authoritative
-Schemas, 63 Packaged Schema Resources, six Session examples, 85 deterministic
-generated-output scenarios, and 6,925 passing pytest tests in 1083.48s. Issues
-#171 through #179 complete the functional milestone, Issue #180 completed
-Release preparation without product behavior changes, and Issue #181
-synchronizes publication status without changing product behavior. GitHub
-Releases is the authoritative publication record; no Package-index or PyPI
-publication is claimed.
+The current published stable and latest stable GitHub Release is `v0.17.0`, with
+Release theme "Rules, Search, Coaching, and performance closure" and GitHub
+Release title "v0.17.0 — Rules, Search, Coaching, and performance closure". The
+maintainer published it manually on 2026-08-25 at commit
+`8187fbe684559f9c0c2ba444be1bf33950359ad2` (`8187fbe`). Package version
+`0.17.0` requires Python `>=3.13`, retains Public API contract version `1`, seven
+Root workflows, and one Console Script. The published baseline has Matrix version
+`3` with 61 cases, 71 authoritative and packaged Schemas, six Session examples,
+98 generated outputs, ten private Corpus prepared downloads, and 7,479 passing
+pytest tests in 921.96s. GitHub Releases is the authoritative publication record;
+no Package-index or PyPI publication is claimed.
 
-The prepared `v0.17.0` Package baseline uses Package version `0.17.0`, Python
+The historical published `v0.16.0 — Learning-ready behavior and communication
+data` baseline was published manually on 2026-08-18 at commit `91b1360`. It has
+63 authoritative and packaged Schemas, six Session examples, 85 generated
+outputs, and 6,925 passing pytest tests in 1083.48s. Issues #171 through #179
+complete that functional milestone, Issue #180 completed Release preparation,
+and Issue #181 synchronized publication status without product functionality.
+
+The published `v0.17.0` functional history uses Package version `0.17.0`, Python
 `>=3.13`, Public API contract version `1`, seven Root workflows, one Console
 Script, and six Session examples. Issue #186 updates the Settlement Normative
 Matrix to version `3` with the same 61 cases, completes the approved Claim
@@ -50,7 +54,7 @@ working counts above.
 
 Issue #194 adds deterministic Historical Tactical Motif Review, private Match
 browser controls, one strict Schema, one Root example, and two append-only
-scenarios. The prepared totals are 71 authoritative and packaged Schemas
+scenarios. The final published totals are 71 authoritative and packaged Schemas
 and 98 scenarios. Existing Package/API/workflow/Console-Script/Settlement/
 Session baselines remain unchanged.
 
@@ -69,12 +73,10 @@ examples, and 98 scenarios.
 
 Issue #197 records the documentation-only scope and Release-readiness audit.
 Issue #198 changes only Package metadata, current version expectations,
-Changelog, and Release-candidate documentation. Publication remains pending and
-manual; the published stable Release remains `v0.16.0` at `91b1360`, and no
-Package-index or PyPI publication is claimed.
-The prepared candidate has 71 authoritative and packaged Schemas, six Session
-examples, 98 generated outputs, ten private Corpus downloads, and 7,479 passing
-pytest tests.
+Changelog, and Release-candidate documentation. The maintainer subsequently
+published `v0.17.0` on 2026-08-25 at `8187fbe`, and Issue #199 synchronizes that
+publication without product functionality. Issues #182 through #196 are the
+functional milestone; Issues #197, #198, and #199 add no product functionality.
 
 The historical published `v0.15.0` Release points to commit `ec1c154`. Package
 version `0.15.0` requires Python 3.13 or newer, retains Public API contract
@@ -216,8 +218,8 @@ remains unready, and its final planning still
 requires a separate audit of this document and
 [Requirements traceability](requirements_traceability.md).
 
-The current published Package milestone is `v0.16.0 — Learning-ready behavior and
-communication data`. Issue #171 defines its first private internal foundation: immutable
+The historical published Package milestone `v0.16.0 — Learning-ready behavior
+and communication data` defines its first private internal foundation in Issue #171: immutable
 content-addressed copies of exact Workspace persistence documents, exact Player
 Observations, observed-Game fingerprints, Snapshot-scoped closed references,
 lightweight Catalog entries, explicit current-Match selections, and non-mutating
@@ -326,8 +328,11 @@ also remain later v1 work rather than v0.17.0 Release blockers. Issue #193
 satisfies the bounded v0.17.0 performance-evidence contract. Issues #182 through
 #196 are the frozen functional history. Issue #197 completes the documentation-
 only audit, and Issue #198 prepares Package `0.17.0` and the Release candidate
-without product behavior changes. Publication remains pending. `v1.0.0` remains
-unready.
+without product behavior changes. The maintainer published `v0.17.0` on
+2026-08-25 at `8187fbe`, and Issue #199 synchronizes that publication without
+product functionality. `v1.0.0` is the active planning milestone, but it remains
+planning-only and not ready. The next action is a separate v1 scope and
+traceability audit.
 
 The November 2022 ISkO and SkWO publication is the normative source for official
 rules and competition behavior. Product capabilities such as simulation,
@@ -690,11 +695,11 @@ GUI/platform/cloud/encryption layers remain open.
 | Session history editing | Version-1 contracts and behavior provide four Undo statuses, five Correction statuses, four Checkpoint relationships, strict-prefix reconstruction, exact suffix reporting, valid partial States, and deterministic replay. Public wrappers and CLI Undo/Correction with CAS Save and automatic resulting-State Checkpoints are implemented. Automatic Redo, arbitrary Log surgery, branching, and merge remain open. |
 | Private Session persistence and resume | The private version-1 document/codec/file boundary provides deterministic State/content fingerprints, strict typed reconstruction and accepted-Log replay, canonical Checkpoints, recomputed lineage, canonical UTF-8 files, optimistic outcomes, and atomic replacement. Stable public Save/Load and all-three-form CLI orchestration preserve those semantics and omit paths from Results. Distributed locking, migration, merge/retry, encryption, cloud sync, and automatic backup remain open. |
 | Examples | Examples cover each supported Root contract family and six strict Session creation/Command/correction/persistence documents; every example passes its applicable Schema and semantic validation. |
-| Generated-output validation | The prepared `v0.17.0` matrix has 98 scenarios: the published `v0.16.0` and historical published `v0.15.0` and `v0.14.0` 85 remain unchanged, followed by three Issue #186 Historical Claim scenarios, four Issue #189 Information-set Search scenarios, two Issue #190 Multi-Step/Policy Comparison scenarios, two Issue #192 Information-set Replay Coaching scenarios, and two Issue #194 Tactical Motif Review scenarios. The historical published `v0.13.0` first 77 and historical published `v0.12.0` 70 remain Release evidence. |
+| Generated-output validation | The published `v0.17.0` matrix has 98 scenarios: the historical published `v0.16.0`, `v0.15.0`, and `v0.14.0` 85 remain unchanged, followed by three Issue #186 Historical Claim scenarios, four Issue #189 Information-set Search scenarios, two Issue #190 Multi-Step/Policy Comparison scenarios, two Issue #192 Information-set Replay Coaching scenarios, and two Issue #194 Tactical Motif Review scenarios. The historical published `v0.13.0` first 77 and historical published `v0.12.0` 70 remain Release evidence. |
 | Python 3.13 | `pyproject.toml` requires Python 3.13 or newer, Ruff targets `py313`, GitHub Actions uses Python 3.13, Editable, Wheel, and sdist installation succeed on Python 3.13, and the full check passes there without a version matrix. |
-| Regression testing | Ruff, 71-Schema packaged parity, Root and Session example validation, 98-scenario generated-output validation, distribution build and clean-install API/installed/module Root, Session, Capture, and Corpus CLI validation remain the prepared `v0.17.0` gates. The prepared Package passes 7,479 pytest tests. The current published `v0.16.0` Package passes 6,925 tests with its historical 63-Schema and 85-scenario baseline. The historical published `v0.15.0` Package baseline passed 6,510 tests, and the published `v0.14.0` baseline remains historical evidence for 5,892 tests. |
+| Regression testing | Ruff, 71-Schema packaged parity, Root and Session example validation, 98-scenario generated-output validation, distribution build and clean-install API/installed/module Root, Session, Capture, and Corpus CLI validation are the published `v0.17.0` gates. The published Package passes 7,479 tests in 921.96s. The historical published `v0.16.0` Package passes 6,925 tests in 1083.48s with its 63-Schema and 85-scenario baseline. The historical published `v0.15.0` Package baseline passed 6,510 tests, and the published `v0.14.0` baseline remains historical evidence for 5,892 tests. |
 | Documentation | README, public field provenance, installed CLI, packaging, architecture, input/output, scoring, game-end, overbid, performance, examples, schema validation, roadmap, handoff, traceability, and scope documentation agree with behavior, rule ownership, stable fields, limitations, Python baseline, and release baseline. |
-| Release hygiene | The human-reviewed release candidate has only intended changes; Package metadata and Changelog use the approved `v0.17.0` version; `git diff --check` and the full check pass; the tag and GitHub Release are created by a human only after those facts are verified. |
+| Release hygiene | The human-reviewed `v0.17.0` candidate had only intended changes; Package metadata and Changelog used the approved version; `git diff --check` and the full check passed; the human maintainer created the tag and GitHub Release on 2026-08-25 at `8187fbe`. Issue #199 synchronizes that publication without product changes. |
 
 The complete-game row's absent cross-game analysis is scoped to the public
 Historical workflow. Issues #195 and #196 separately provide private Current-
@@ -711,7 +716,7 @@ Historical controls use one Application invocation and time-safe fixed Policies.
 Issue #193 adds repository-local benchmark evidence for the unchanged executor
 and satisfies the bounded v0.17.0 performance-evidence contract. Production
 acceptance criteria and latency guarantees remain later v1 decisions and do not
-block v0.17.0 Release preparation.
+retroactively block the published v0.17.0 Release.
 See
 [Match Information-set Search and Strategy Teacher Evidence](match_information_set_search_and_strategy_teacher.md)
 and [Information-set Replay Coaching and Match Historical analysis](information_set_replay_coaching_and_match_historical_analysis.md),

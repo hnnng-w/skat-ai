@@ -28,7 +28,7 @@ Decision Teacher path in this document remains unchanged.
 
 Issue #193 changes neither count, and Issue #194 adds one Tactical Motif Review
 Schema and two scenarios. The
-prepared baseline is 71 Schemas and 98 scenarios; the one-Decision Teacher
+published baseline is 71 Schemas and 98 scenarios; the one-Decision Teacher
 path remains unchanged.
 
 ## Match execution

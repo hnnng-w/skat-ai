@@ -865,24 +865,25 @@ Implemented:
 
 ### v0.17.0: Rules, Search, Coaching, and performance closure
 
-The prepared Package candidate completes functional Issues #182 through #196,
-the documentation-only scope and Release-readiness audit in Issue #197, and
-Release preparation in Issue #198. Package version `0.17.0` requires Python 3.13
+The current published stable and latest stable GitHub Release completes
+functional Issues #182 through #196, the documentation-only scope and Release-
+readiness audit in Issue #197, and Release preparation in Issue #198. Issue #199
+subsequently synchronizes post-publication documentation without changing that
+published baseline. Package version `0.17.0` requires Python 3.13
 or newer, retains Public API contract version `1`, exactly seven Root workflows,
 and one Console Script, contains 71 authoritative and packaged Schemas, includes
 six unchanged Session examples, validates 98 deterministic generated outputs,
-and passes 7,479 pytest tests.
+and passes 7,479 pytest tests in 921.96s.
 
 The Release theme is "Rules, Search, Coaching, and performance closure", and the
-prepared GitHub Release title is
-"v0.17.0 — Rules, Search, Coaching, and performance closure". Publication remains
-a manual maintainer action. No `v0.17.0` tag or GitHub Release is claimed; the
-published stable Release remains `v0.16.0` at `91b1360`, GitHub Releases remains
+GitHub Release title is "v0.17.0 — Rules, Search, Coaching, and performance
+closure". The maintainer published it manually on 2026-08-25 at commit
+`8187fbe684559f9c0c2ba444be1bf33950359ad2` (`8187fbe`). GitHub Releases remains
 authoritative, and no Package-index or PyPI publication is claimed.
 
 ### v0.16.0: Learning-ready behavior and communication data
 
-The current published stable and latest stable GitHub Release completes
+The historical published `v0.16.0` Release completes
 functional Issues #171 through #179. Issue #180 completed Release preparation.
 Its Release theme is "Learning-ready behavior and communication data", and its
 GitHub Release title is
@@ -1072,7 +1073,7 @@ remains pending.
 
 ## Published Package milestone: v0.16.0
 
-`v0.16.0 — Learning-ready behavior and communication data` is the current
+`v0.16.0 — Learning-ready behavior and communication data` is a historical
 published Package milestone. Issues #171 through #179 establish and connect its private internal
 foundations:
 
@@ -1184,7 +1185,7 @@ Issue #181 synchronizes publication status without product functionality. The
 Package preserves 63 authoritative and packaged Schemas, six Session examples,
 85 generated outputs, and 6,925 pytest tests.
 
-The prepared `v0.17.0` Package baseline uses Package version `0.17.0`, Public
+The published `v0.17.0` Package baseline uses Package version `0.17.0`, Public
 API contract version `1`, seven Root workflows, one Console Script, and six
 Session examples. Issue #186 updates the Matrix to version `3` with the same 61
 cases. Issue #189 adds four Information-set Search Schemas, one example, and four
@@ -1200,7 +1201,7 @@ Schema, example, generated output, Public API, persistence, or new command.
 
 Issue #192 subsequently adds separate Information-set Replay Coaching, private
 Match Historical Information-set Review/Coaching, one strict Schema, one Root
-example, and two append-only generated outputs. The prepared baseline is
+example, and two append-only generated outputs. Its point-in-time baseline is
 therefore 70 authoritative and packaged Schemas, six Session examples, and 96
 generated outputs. Package version, Public API contract, seven Root workflows,
 one Console Script, and Settlement Matrix version `3` with 61 cases remain
@@ -1215,7 +1216,7 @@ Issue #194 adds deterministic Historical Tactical Motif Review with one retained
 Decision Snapshot sequence, exact structural lead/void/Trick-control/Defender-
 partnership/hand-shape/outcome evidence, complete Provenance, one strict Schema,
 one Root example, two append-only generated outputs, and private Match browser
-controls. The prepared baseline is therefore 71 authoritative and
+controls. The final published baseline is therefore 71 authoritative and
 packaged Schemas, six Session examples, and 98 generated outputs. Package/API/
 workflow/Console-Script/Settlement baselines remain unchanged.
 
@@ -1253,7 +1254,7 @@ exposure remain open. No production model is planned for this milestone. See
 [Learning Corpus Tactical Motif evidence and summaries](learning_corpus_tactical_motif_evidence_and_summaries.md), and
 [Learning Corpus browser workflows](learning_corpus_browser_workflows.md).
 
-## Prepared Package milestone: v0.17.0
+## Published Package milestone: v0.17.0
 
 `v0.17.0 — Rules, Search, Coaching, and performance closure` is functionally
 complete through Issue #196. Issue #182 closes the v1 Claim product-decision gate through
@@ -1308,8 +1309,9 @@ and [Information-set Search performance](information_set_search_performance.md).
 Issues #182 through #196 are the frozen functional history. Issue #197 completes
 the documentation-only scope and Release-readiness audit, and Issue #198 prepares
 Package `0.17.0`, the Changelog, current expectations, and Release-candidate
-documentation without product behavior changes. Publication remains pending and
-manual. `v1.0.0` remains unready. See the
+documentation without product behavior changes. The maintainer published
+`v0.17.0` on 2026-08-25 at `8187fbe`, and Issue #199 synchronizes that
+publication without product functionality. `v1.0.0` remains unready. See the
 [v0.17.0 scope and Release-readiness audit](v0_17_release_readiness_audit.md).
 
 ## Later planning milestone: v1.0.0
@@ -1319,7 +1321,8 @@ authoritative audit of current ISkO, SkWO, and skat-ai product support. The
 [v1.0 scope](v1_scope.md) defines required product directions, unresolved
 implementation details, and testable completion gates.
 
-`v1.0.0` remains not ready after the prepared `v0.17.0` Package baseline through
+`v1.0.0` remains planning-only and not ready after the published `v0.17.0`
+Package baseline through
 internal Match metadata, observed-Game and
 commentary, persistent Workspace, rapid-entry Application, private local browser
 and autosave transport, Match-bound Statistics editing and time-safe Profile
@@ -1470,8 +1473,8 @@ Recommended cleanup areas:
 ## GitHub issue status
 
 Issue tracking should continue to use small, focused follow-ups. New issues
-should distinguish the current published stable `v0.16.0` Release from the
-historical published `v0.15.0` and `v0.14.0` Releases,
+should distinguish the current published stable `v0.17.0` Release from the
+historical published `v0.16.0`, `v0.15.0`, and `v0.14.0` Releases,
 Match Capture work through internal Issues #160, #161, #163, and #164 plus
 private browser/Statistics Issues #165 and #166 and internal materialization
 Issue #167 and functional completion Issue #168, historical
@@ -1482,7 +1485,7 @@ historical 63-Schema, six-Session-example, 85-scenario, and 5,892-test `v0.14.0`
 baseline, functional Issues #160 through #168, completed Release-preparation
 Issue #169, publication-synchronization Issue #170, the historical published
 63-Schema, six-Session-example, 85-scenario, and 6,510-test `v0.15.0` baseline,
-the current published `v0.16.0` Package and Issues #171-#179 identity, Catalog, persistence,
+the historical published `v0.16.0` Package and Issues #171-#179 identity, Catalog, persistence,
 Workspace-import, Player Catalog, Statistics-history, Human Evidence, and
 Strategy Teacher Evidence plus Learning Dataset-v2, partition, descriptive
 cross-game Summary, and functional private local browser workflow,
@@ -1490,8 +1493,8 @@ requirements
 explicitly required for `v1.0.0`, planned post-v1.0 work, not-required workflows,
 and unconditional exclusions. Functional private local `v0.16.0` work is
 complete through Issue #179, Issue #180 completed Release preparation, and Issue
-#181 synchronizes the manual publication at commit `91b1360`. The active
-`v0.17.0` direction begins with Issue #182's completed Claim and Settlement
+#181 synchronizes the manual publication at commit `91b1360`. The published
+`v0.17.0` functional history begins with Issue #182's completed Claim and Settlement
 boundary audit, Issue #183's private contracts and exact-state preparation, and
 Issue #184's bounded exhaustive proof execution. Issue #185 adds private
 adjudication and existing Final Settlement composition. Issue #186 adds the
@@ -1516,7 +1519,10 @@ bounded deterministic Tactical Cross-game Coaching and a tenth download without
 changing those counts or Dataset version `2`. Issues #182 through #196 are the
 frozen v0.17.0 functional history, Issue #197 is the completed documentation-only
 audit, and Issue #198 prepares the Package candidate without product behavior
-changes. Publication remains pending. Production performance criteria, latency
+changes. The maintainer published it on 2026-08-25 at `8187fbe`, and Issue #199
+synchronizes that publication without product functionality. The active next
+planning milestone is `v1.0.0`; its separate scope and traceability audit is the
+next action. Production performance criteria, latency
 guarantees, broader tactical
 quality/Coaching, Player-rating boundaries, and the final `v1.0.0` Issue split
 and architecture remain later work rather than v0.17.0 Release blockers.

@@ -224,21 +224,31 @@ Do not assume old behavior if documentation or tests say otherwise.
 
 ## Current release state
 
-The current published stable and latest stable GitHub Release is `v0.16.0`, with
-release theme "Learning-ready behavior and communication data" and GitHub
-Release title "v0.16.0 — Learning-ready behavior and communication data". It was
-published manually by the maintainer on 2026-08-18 at commit `91b1360`. Package
-version `0.16.0` requires Python `>=3.13`, retains Public API contract version
-`1`, exactly seven Engine Root workflows, and the one
-`skat-ai = skat_ai.cli:main` Console Script, and contains 63 authoritative
-Schemas, 63 Packaged Schema Resources, six Session examples, 85 deterministic
-generated-output scenarios, and 6,925 passing pytest tests in 1083.48s. Issues
-#171 through #179 complete the functional milestone, Issue #180 completed
-Release preparation, and Issue #181 synchronizes publication status without
-changing product behavior. GitHub Releases is the authoritative publication
-record; no Package-index or PyPI publication is claimed.
+The current published stable and latest stable GitHub Release is `v0.17.0`, with
+release theme "Rules, Search, Coaching, and performance closure" and GitHub
+Release title "v0.17.0 — Rules, Search, Coaching, and performance closure". The
+maintainer published it manually on 2026-08-25 at commit
+`8187fbe684559f9c0c2ba444be1bf33950359ad2` (`8187fbe`). Package version
+`0.17.0` requires Python `>=3.13`, retains Public API contract version `1`,
+exactly seven Root workflows, and the one `skat-ai = skat_ai.cli:main` Console
+Script. The published baseline has Settlement Normative Matrix version `3` with
+61 cases, 71 authoritative Schemas, 71 Packaged Schema Resources, six Session
+examples, 98 deterministic generated outputs, ten private Corpus prepared
+downloads, and 7,479 passing pytest tests in 921.96s. GitHub Releases is the
+authoritative publication record; no Package-index or PyPI publication is
+claimed.
 
-The prepared `v0.17.0` Package baseline uses Package version `0.17.0`, Python
+The historical published `v0.16.0 — Learning-ready behavior and communication
+data` baseline was published manually by the maintainer on 2026-08-18 at commit
+`91b1360`. Package version `0.16.0` requires Python `>=3.13`, retains Public API
+contract version `1`, exactly seven Root workflows, and one Console Script. It
+contains 63 authoritative Schemas, 63 Packaged Schema Resources, six Session
+examples, 85 deterministic generated outputs, and 6,925 passing pytest tests in
+1083.48s. Issues #171 through #179 complete that functional milestone, Issue
+#180 completed Release preparation, and Issue #181 synchronized publication
+status without changing product behavior.
+
+The published `v0.17.0` functional history uses Package version `0.17.0`, Python
 `>=3.13`, Public API contract version `1`, exactly seven Root workflows, one
 Console Script, and six Session examples. Issue #186 updates the Settlement
 Normative Matrix to version `3` with the same 61 cases and implements the approved
@@ -271,7 +281,7 @@ working counts above.
 
 Issue #194 adds deterministic Historical Tactical Motif Review, private Match
 browser controls, one strict Schema, one Root example, and two append-only
-scenarios. The prepared baseline therefore has 71 authoritative and
+scenarios. The final published baseline therefore has 71 authoritative and
 packaged Schemas and 98 scenarios. Existing Package/API/workflow/Console-Script/
 Settlement/Session baselines remain unchanged.
 
@@ -293,12 +303,10 @@ Dataset-v2 baseline, so the working counts above remain unchanged.
 Issue #197 records the documentation-only scope and Release-readiness audit.
 Issue #198 changes only Package metadata, current version expectations,
 Changelog, and Release-candidate documentation to prepare `v0.17.0` without
-product behavior changes. Publication remains pending and manual; the current
-published stable Release remains `v0.16.0` at commit `91b1360`, GitHub Releases
-remains authoritative, and no Package-index or PyPI publication is claimed.
-The prepared candidate has 71 authoritative and packaged Schemas, six Session
-examples, 98 generated outputs, ten private Corpus downloads, and 7,479 passing
-pytest tests.
+product behavior changes. The maintainer subsequently published `v0.17.0` on
+2026-08-25 at `8187fbe`, and Issue #199 performs only the post-publication
+documentation synchronization. Issues #182 through #196 are the functional
+milestone; Issues #197, #198, and #199 add no product functionality.
 
 The historical published `v0.15.0` GitHub Release has release theme "Local
 EuroSkat 36er Match capture, analysis, and exports" and GitHub Release title
@@ -544,9 +552,12 @@ cross-machine latency guarantees, and the remaining pre-v1 scope audit remain
 later decisions rather than v0.17.0 Release blockers. Issues #182 through #196
 are the frozen functional history. Issue #197 completes the documentation-only
 scope and Release-readiness audit, and Issue #198 prepares Package `0.17.0` and
-the Release candidate without product behavior changes. Publication remains a
-pending manual maintainer action. `v1.0.0` remains unready, and no production
-model is planned.
+the Release candidate without product behavior changes. The maintainer published
+`v0.17.0` on 2026-08-25 at `8187fbe`, and Issue #199 synchronizes that publication
+without product functionality. The active next planning milestone is `v1.0.0`;
+it is planning-only and not ready, and the next action is a separate v1 scope and
+traceability audit. No v1 Release title, theme, Issue sequence, implementation
+architecture, or date is frozen, and no production model is planned.
 
 Major completed areas include:
 
@@ -832,9 +843,8 @@ cloud synchronization, distributed locking, encryption/key management, and
 automatic backup policy remain open. The historical published `v0.14.0` baseline
 has 63 authoritative and byte-identical packaged Schemas and 85 generated-output
 scenarios; the historical published `v0.13.0` baseline remains 62 Schemas and 77
-scenarios. The historical published `v0.15.0` baseline and current published
-`v0.16.0` Package preserve the 63-Schema, six-Session-example, and 85-scenario
-sets.
+scenarios. The historical published `v0.16.0` and `v0.15.0` Packages preserve
+the 63-Schema, six-Session-example, and 85-scenario sets.
 Match Capture now contains identity/metadata, individual evidence-aware observed
 Games and commentary, persistent internal 36-position Workspaces,
 transport-free rapid-entry Application services, and the private local no-JSON

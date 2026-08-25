@@ -301,11 +301,10 @@ download kind, automatic connection, or persistence is introduced.
 Match Capture Web, Web Protocol, and Capture CLI are independent internal
 version-1 contracts. `capture` is a transport command family, not an eighth Root
 workflow. The historical published Match Capture Package baseline is `0.15.0`;
-the current published Package baseline is `0.16.0`. The seven Root workflows,
-Public APIs, 63 Schemas, six Session examples, and 85 generated-output scenarios
-are unchanged across those published baselines. The prepared current Package
-candidate is `0.17.0`; it preserves the workflow, API, and Session-example
-counts while using the 71-Schema and 98-scenario baseline below.
+the historical published Learning Corpus Package baseline is `0.16.0`. The
+current published Package baseline is `0.17.0` at `8187fbe`; it preserves seven
+Root workflows, Public API contract version `1`, and six Session examples while
+using the 71-Schema and 98-scenario baseline below.
 
 The Issue #190 working baseline had 69 authoritative and packaged Schemas and 94
 generated-output scenarios. Issue #191 changes neither count and adds only the
@@ -313,7 +312,7 @@ private one-Decision Match Information-set path and existing Corpus transfer.
 Issue #192 adds Match Historical Information-set Review/Coaching, one Schema, one
 example, and two scenarios. Issue #193 adds benchmark evidence without changing
 those counts. Issue #194 adds Historical Tactical Motif Review, one Schema, one
-example, and two scenarios. The prepared totals are 71 Schemas and 98
+example, and two scenarios. The final published totals are 71 Schemas and 98
 scenarios, with six unchanged Session examples. See
 [Match Information-set Search and Strategy Teacher Evidence](match_information_set_search_and_strategy_teacher.md).
 

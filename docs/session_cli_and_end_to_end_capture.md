@@ -441,8 +441,9 @@ Save/Load, installed and module Session help, `new`/`apply`/`show`, Session-
 triggered Position analysis, observation/review, Retrospective finalization, and
 an injected-I/O Assistant smoke flow. Legacy parity is validated from the
 repository checkout. There is still exactly one Console Script, and Package
-version is `0.17.0`. The prepared current repository totals are 71 authoritative
-and packaged Schemas and 98 generated outputs.
+version is `0.17.0`. The published `v0.17.0` totals are 71 authoritative and
+packaged Schemas and 98 generated outputs; Issue #199 changes no Session
+contract, example, or scenario.
 
 Issue #157 adds no GUI or browser UI, online-platform adapter, browser extension,
 website scraping, cloud synchronization, distributed lock, collaborative merge,

@@ -76,7 +76,9 @@ JavaScript are Package Data; its process-local Report sources, prepared artifact
 and downloads are not. Issue #180 changes only Package version and matching
 release expectations to `0.16.0`.
 Issue #198 changes only Package version and matching Release-candidate
-expectations to `0.17.0`; publication remains manual and pending.
+expectations to `0.17.0`. The maintainer subsequently published `v0.17.0` on
+2026-08-25 at `8187fbe`, and Issue #199 synchronizes that publication without
+changing Package metadata or behavior.
 
 ## Building artifacts
 
@@ -105,14 +107,14 @@ the check finishes. It does not publish either artifact.
 ## Schema resources
 
 The 71 files under repository `schemas/` are the authoritative JSON Schemas for
-the prepared `v0.17.0` Package baseline.
+the published `v0.17.0` Package baseline.
 Issue #156 adds strict standalone `session.schema.json`; Issue #157 extends that
 same file for Session creation, file API, observation, and review contracts
 without adding a 64th Schema. Wheel and sdist contain its byte-identical Package
-Resource mirror. The current published `v0.16.0` and historical published
-`v0.15.0` and `v0.14.0` baselines have 63 Schemas; the historical published
-`v0.13.0` baseline remains at 62 Schemas. Issues #186, #189, #192, and #194 add
-the eight prepared `v0.17.0` Schemas.
+Resource mirror. The historical published `v0.16.0`, `v0.15.0`, and `v0.14.0`
+baselines have 63 Schemas; the historical published `v0.13.0` baseline remains
+at 62 Schemas. Issues #186, #189, #192, and #194 add the eight published
+`v0.17.0` Schemas.
 Every `*.schema.json` file is mirrored without transformation into:
 
 ```text
@@ -322,7 +324,9 @@ functionality. GitHub Releases is the authoritative publication record; no
 Package-index or PyPI publication is claimed. Derived artifacts remain non-
 persisted and private.
 Issue #197 records the documentation-only `v0.17.0` scope and Release-readiness
-audit. Issue #198 prepares Package `0.17.0`, matching assertions, Changelog, and
+audit. Issue #198 prepared Package `0.17.0`, matching assertions, Changelog, and
 Release-candidate documentation without changing product behavior, dependencies,
-the build backend, Package Data, or non-Package contract versions. Publication
-remains a pending manual maintainer action.
+the build backend, Package Data, or non-Package contract versions. The maintainer
+published `v0.17.0` manually on 2026-08-25 at `8187fbe`; Issue #199 synchronizes
+the post-publication documentation only. GitHub Releases is authoritative, and
+no Package-index or PyPI publication is claimed.

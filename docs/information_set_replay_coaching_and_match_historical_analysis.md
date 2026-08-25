@@ -19,8 +19,8 @@ packaged Schemas and 94 generated-output scenarios. Issue #191 changed neither
 count. Issue #192 adds one Schema and two append-only scenarios, bringing the
 Issue #192 point-in-time baseline to 70 authoritative and packaged Schemas and
 96 scenarios. Issue #193 changes neither count. Issue #194 subsequently adds one
-Tactical Motif Review Schema and two scenarios, bringing the prepared `v0.17.0`
-baseline to 71 Schemas and 98 scenarios. The published `v0.16.0`
+Tactical Motif Review Schema and two scenarios, bringing the published `v0.17.0`
+baseline to 71 Schemas and 98 scenarios. The historical published `v0.16.0`
 baseline remains 63 Schemas, six Session examples, and 85 scenarios.
 
 ## Separate Coaching families
@@ -398,7 +398,7 @@ historical_party_wide_claim_information_set_replay_coaching
 At least one includes opt-in public Provenance. The resulting Issue #192
 point-in-time totals are 70 authoritative Schemas, 70 packaged Schema Resources,
 six Session examples, and 96 generated-output scenarios. Issue #194 later brings
-the prepared totals to 71/71 Schemas and 98 scenarios without changing
+the final published totals to 71/71 Schemas and 98 scenarios without changing
 this Coaching family.
 
 ## Privacy and claims

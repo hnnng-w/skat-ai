@@ -239,7 +239,7 @@ and Issue #158 completed Release preparation before manual maintainer
 publication. GitHub Releases remains authoritative; no Package-index or PyPI
 publication is claimed.
 
-The current published `v0.16.0` Package baseline at commit `91b1360` keeps the
+The historical published `v0.16.0` Package baseline at commit `91b1360` keeps the
 same 63 authoritative and 63 packaged Schemas, six Session examples, and 85
 deterministic generated outputs, and passes 6,925 pytest tests in 1083.48s. Issue
 #180 completed Release preparation without changing any Schema, example, or
@@ -248,7 +248,7 @@ generated scenario file. The maintainer published the Release manually on
 the authoritative publication record; no Package-index or PyPI publication is
 claimed.
 
-The prepared `v0.17.0` Package baseline adds strict
+The current published `v0.17.0` Package baseline at commit `8187fbe` adds strict
 `historical_party_wide_claim.schema.json` and
 `historical_party_wide_claim_output.schema.json` resources, plus:
 
@@ -265,9 +265,11 @@ Issue #186 reached 65 Schemas, Issue #189 reached 69, and Issue #190 reused thos
 69 while bringing the scenario matrix to 94. Issue #192 adds Information-set
 Replay Coaching and two scenarios, reaching 70 Schemas and 96 scenarios. Issue
 #193 changes neither count. Issue #194 adds the final Schema above and two
-append-only scenarios. The prepared baseline has 71 authoritative and
+append-only scenarios. The published baseline has 71 authoritative and
 byte-identical packaged Schemas, six unchanged Session examples, and 98
-generated-output scenarios. Package version `0.17.0`,
+generated-output scenarios. It passed 7,479 pytest tests in 921.96s before the
+maintainer published it on 2026-08-25. Issue #199 changes no Schema, example, or
+generated scenario. Package version `0.17.0`,
 Public API contract version `1`, seven Root workflows, and one Console Script
 remain unchanged; the published counts above remain historical Release facts.
 
@@ -334,8 +336,8 @@ session_retrospective_finalize
 Their semantic checks cover fingerprints, accepted-Log replay, canonical
 Checkpoint equality/lineage/deduplication, observed Card/revision, frozen Request
 isolation, conflict-without-replacement, execution boundaries, and Position
-privacy. The current published `v0.16.0` and historical published `v0.15.0` and
-`v0.14.0` Package matrices all have 85 scenarios, while the historical published
+privacy. The historical published `v0.16.0`, `v0.15.0`, and `v0.14.0` Package
+matrices all have 85 scenarios, while the historical published
 `v0.13.0` facts remain 77.
 
 Issue #186 preserves those first 85 scenarios in order and appends exactly:
@@ -397,7 +399,7 @@ historical_tactical_motif_review_defender_partnership
 historical_party_wide_claim_tactical_motif_review
 ```
 
-The prepared `v0.17.0` matrix therefore has 98 scenarios. The additions cover
+The published `v0.17.0` matrix therefore has 98 scenarios. The additions cover
 complete normal-play Tactical Motif Review with Defender partnership aggregates
 and the exact pre-Claim observation prefix with complete Claim Result
 Provenance.
