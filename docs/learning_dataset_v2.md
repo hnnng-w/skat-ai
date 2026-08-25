@@ -351,3 +351,12 @@ Schema, or persistence boundary. Its focused Information-set Teacher extension
 propagates transitively through the existing pool and joins and into the existing
 cross-game method counts. See
 [Match Information-set Search and Strategy Teacher Evidence](match_information_set_search_and_strategy_teacher.md).
+
+Issue #195 adds a third, separate private Learning Corpus evidence family for
+Tactical Motif observations and explicit skips. It is not a fifth Dataset source,
+Record sibling, normalized pool, join, Coverage family, partition fact, Summary
+field, target, label, Feature, or task. The four exact inputs listed above,
+Dataset version `2`, every Dataset identity/byte, and both partition algorithms
+remain unchanged. Human, Strategy Teacher, and Tactical Evidence may reference
+the same source Decision but Issue #195 creates no cross-family join. See
+[Learning Corpus Tactical Motif evidence and summaries](learning_corpus_tactical_motif_evidence_and_summaries.md).

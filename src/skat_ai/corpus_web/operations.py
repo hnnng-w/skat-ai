@@ -48,7 +48,10 @@ def _state(context: LearningCorpusWebContextV1) -> dict[str, Any]:
         ),
         "strategy_source_revision": context.strategy_source_store.revision,
         "strategy_source_count": len(context.strategy_source_store.sources),
-        "prepared": context.prepared_artifacts is not None,
+        "prepared": (
+            context.prepared_artifacts is not None
+            and context.tactical_prepared_artifacts is not None
+        ),
         "context_generation": context.generation,
     }
 

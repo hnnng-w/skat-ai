@@ -15,7 +15,7 @@ import skat_ai.corpus_web.uploads as uploads_module
 from skat_ai.corpus_web.context import LearningCorpusWebContextV1
 from skat_ai.corpus_web.contracts import LEARNING_CORPUS_WEB_MAX_REQUEST_BYTES
 from skat_ai.corpus_web.downloads import (
-    LEARNING_CORPUS_PREPARED_DOWNLOAD_KINDS,
+    LEARNING_CORPUS_ALL_PREPARED_DOWNLOAD_KINDS,
     build_learning_corpus_prepared_download_v1,
 )
 from skat_ai.corpus_web.server import (
@@ -440,7 +440,10 @@ def test_no_javascript_end_to_end_upload_prepare_download_and_invalidation(
     assert b"Learning artifacts prepared" in page
     assert b"Dataset status" in page
     assert b"Known-player readiness" in page
+    assert b"Tactical status" in page
+    assert b"Tactical Motif Evidence" in page
     assert context.prepared_artifacts is not None
+    assert context.tactical_prepared_artifacts is not None
 
     route_by_kind = {
         "player_catalog": "/downloads/player-catalog.json",
@@ -450,8 +453,12 @@ def test_no_javascript_end_to_end_upload_prepare_download_and_invalidation(
         "known_player_partitions": "/downloads/known-player-partitions.json",
         "unseen_player_partitions": "/downloads/unseen-player-partitions.json",
         "cross_game_summary": "/downloads/cross-game-summary.json",
+        "tactical_motif_evidence": "/downloads/tactical-motif-evidence.json",
+        "tactical_motif_cross_game_summary": (
+            "/downloads/tactical-motif-cross-game-summary.json"
+        ),
     }
-    assert tuple(route_by_kind) == LEARNING_CORPUS_PREPARED_DOWNLOAD_KINDS
+    assert tuple(route_by_kind) == LEARNING_CORPUS_ALL_PREPARED_DOWNLOAD_KINDS
     files_before = tuple(
         sorted(path.relative_to(context.corpus_root) for path in context.corpus_root.rglob("*"))
     )
@@ -494,10 +501,19 @@ def test_no_javascript_end_to_end_upload_prepare_download_and_invalidation(
         '"discards"',
         '"commentary_text"',
         '"records"',
+        '"actual_card',
+        '"decision_reference',
+        '"motif_counts"',
     ):
         assert forbidden not in state_text.lower()
     state = json.loads(raw_state)
     assert state["prepared"]["strategy_teacher_evidence_count"] == 1
+    assert state["prepared"]["tactical_collection_status"] == "complete"
+    assert state["prepared"]["tactical_evidence_count"] == 30
+    assert state["prepared"]["tactical_skipped_decision_count"] == 0
+    assert state["prepared"]["tactical_motif_occurrence_count"] > 0
+    assert state["prepared"]["tactical_cross_game_player_count"] == 3
+    assert state["prepared"]["tactical_cross_game_recurrence_count"] > 0
     assert set(state["strategy_sources"][0]) == {
         "source_binding_id",
         "source_report_id",
@@ -520,6 +536,7 @@ def test_no_javascript_end_to_end_upload_prepare_download_and_invalidation(
     )
     assert remove[0] == 200
     assert context.prepared_artifacts is None
+    assert context.tactical_prepared_artifacts is None
     for route in route_by_kind.values():
         assert _request(server, "GET", route, headers={"Cookie": cookie})[0] == 404
 
@@ -657,6 +674,7 @@ def test_selection_non_current_block_reload_and_download_source_mismatch(
         == 200
     )
     assert context.prepared_artifacts is not None
+    assert context.tactical_prepared_artifacts is not None
     context.generation += 1
     assert (
         _request(
@@ -673,6 +691,7 @@ def test_selection_non_current_block_reload_and_download_source_mismatch(
     assert reload_result[0] == 200
     assert b"reloaded" in reload_result[2]
     assert context.prepared_artifacts is None
+    assert context.tactical_prepared_artifacts is None
 
 
 def test_information_set_report_upload_prepares_existing_learning_downloads(
@@ -728,6 +747,7 @@ def test_information_set_report_upload_prepares_existing_learning_downloads(
     assert b"information_set_search" in uploaded[2]
     assert len(context.strategy_source_store.sources) == 1
     assert context.prepared_artifacts is None
+    assert context.tactical_prepared_artifacts is None
 
     prepared = _post_form(
         server,
@@ -744,6 +764,7 @@ def test_information_set_report_upload_prepares_existing_learning_downloads(
     )
     assert prepared[0] == 200
     assert context.prepared_artifacts is not None
+    assert context.tactical_prepared_artifacts is not None
 
     for route, markers in (
         (

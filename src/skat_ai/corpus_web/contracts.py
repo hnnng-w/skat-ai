@@ -18,6 +18,14 @@ from skat_ai.learning_corpus_strategy_teacher import (
     LearningCorpusStrategyTeacherEvidenceCollectionV1,
     _validate_learning_corpus_strategy_teacher_collection_v1,
 )
+from skat_ai.learning_corpus_tactical_motif_evidence import (
+    LearningCorpusTacticalMotifEvidenceCollectionV1,
+    _validate_learning_corpus_tactical_motif_collection_v1,
+)
+from skat_ai.learning_corpus_tactical_motif_summary import (
+    LearningCorpusTacticalMotifCrossGameSummaryV1,
+    _validate_learning_corpus_tactical_motif_cross_game_summary_v1,
+)
 from skat_ai.learning_dataset_v2_contracts import (
     LearningDatasetV2,
     _validate_learning_dataset_v2,
@@ -39,6 +47,7 @@ LEARNING_CORPUS_WEB_VERSION = 1
 LEARNING_CORPUS_WEB_PROTOCOL_VERSION = 1
 LEARNING_CORPUS_STRATEGY_SOURCE_STORE_VERSION = 1
 LEARNING_CORPUS_PREPARED_ARTIFACTS_VERSION = 1
+LEARNING_CORPUS_TACTICAL_PREPARED_ARTIFACTS_VERSION = 1
 
 LEARNING_CORPUS_WEB_OPERATIONS: Final[tuple[str, ...]] = (
     "initialize_corpus",
@@ -391,6 +400,70 @@ class LearningCorpusPreparedArtifactsV1:
             "known_player_partition_result": (self.known_player_partition_result.to_dict()),
             "unseen_player_partition_result": (self.unseen_player_partition_result.to_dict()),
             "cross_game_summary": self.cross_game_summary.to_dict(),
+        }
+
+
+@dataclass(frozen=True, slots=True, kw_only=True)
+class LearningCorpusTacticalPreparedArtifactsV1:
+    """One separate process-local Tactical artifact family."""
+
+    learning_corpus_tactical_prepared_artifacts_version: int = (
+        LEARNING_CORPUS_TACTICAL_PREPARED_ARTIFACTS_VERSION
+    )
+    source_catalog_revision: int
+    source_catalog_content_fingerprint: str
+    player_catalog_fingerprint: str
+    tactical_motif_collection: LearningCorpusTacticalMotifEvidenceCollectionV1
+    tactical_motif_cross_game_summary: LearningCorpusTacticalMotifCrossGameSummaryV1
+
+    def __post_init__(self) -> None:
+        _require_version(
+            self.learning_corpus_tactical_prepared_artifacts_version,
+            LEARNING_CORPUS_TACTICAL_PREPARED_ARTIFACTS_VERSION,
+            "learning_corpus_tactical_prepared_artifacts_version",
+        )
+        if type(self.source_catalog_revision) is not int or self.source_catalog_revision < 0:
+            raise ValueError("source_catalog_revision must be a non-negative integer.")
+        _require_hash(
+            self.source_catalog_content_fingerprint,
+            "source_catalog_content_fingerprint",
+        )
+        _require_hash(self.player_catalog_fingerprint, "player_catalog_fingerprint")
+        _validate_learning_corpus_tactical_motif_collection_v1(
+            self.tactical_motif_collection
+        )
+        _validate_learning_corpus_tactical_motif_cross_game_summary_v1(
+            self.tactical_motif_cross_game_summary
+        )
+        collection = self.tactical_motif_collection
+        summary = self.tactical_motif_cross_game_summary
+        if (
+            self.source_catalog_revision != collection.source_catalog_revision
+            or self.source_catalog_revision != summary.source_catalog_revision
+            or self.source_catalog_content_fingerprint
+            != collection.source_catalog_content_fingerprint
+            or self.source_catalog_content_fingerprint
+            != summary.source_catalog_content_fingerprint
+            or self.player_catalog_fingerprint != summary.player_catalog_fingerprint
+            or collection.tactical_motif_collection_fingerprint
+            != summary.tactical_motif_collection_fingerprint
+        ):
+            raise ValueError("Tactical Prepared Artifacts must use exact shared sources.")
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "learning_corpus_tactical_prepared_artifacts_version": (
+                self.learning_corpus_tactical_prepared_artifacts_version
+            ),
+            "source_catalog_revision": self.source_catalog_revision,
+            "source_catalog_content_fingerprint": (
+                self.source_catalog_content_fingerprint
+            ),
+            "player_catalog_fingerprint": self.player_catalog_fingerprint,
+            "tactical_motif_collection": self.tactical_motif_collection.to_dict(),
+            "tactical_motif_cross_game_summary": (
+                self.tactical_motif_cross_game_summary.to_dict()
+            ),
         }
 
 

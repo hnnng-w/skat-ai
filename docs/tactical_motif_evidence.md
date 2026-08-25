@@ -230,7 +230,25 @@ It excludes complete own hands, complete legal-Card sets, hidden opponent hands,
 unauthorized Skat or Discards, Search Worlds or Policies, private Search state,
 Commentary, Response associations, and Statistics Records.
 
-The single-game evidence is reusable by a later separately approved cross-game
-workflow. Issue #194 itself adds no aggregation, trait, rating, model-training,
-Learning Dataset-v2 join, tactical Recommendation, Commentary interpretation,
-signaling inference, communication inference, or causal attribution.
+Issue #194 itself adds no aggregation, trait, rating, model-training, Learning
+Dataset-v2 join, tactical Recommendation, Commentary interpretation, signaling
+inference, communication inference, or causal attribution.
+
+## Learning Corpus reuse
+
+Issue #195 reuses the exact pure
+`build_tactical_decision_observation_from_snapshot_v1()` detector for a separate
+private Current-Match-Snapshot-only Learning Corpus family. The Corpus builder
+first uses the existing Match Decision-state reconstruction seam. Every observed
+Decision then produces one exact Tactical Evidence value or one explicit skip;
+the detector, taxonomy, canonical order, timing cutoffs, Null exclusions, role/
+partner rules, overlap behavior, and complete/partial final-Trick semantics do
+not change.
+
+The separate cross-game Summary adds only exact descriptive occurrence,
+distinct-Game, distinct-Match, Player, role, seat, phase, contract, and bounded
+recurrence Counts. It does not reinterpret a motif as quality, correctness,
+intent, signaling, communication, causality, significance, a Player trait, or
+Coaching. Human, Strategy Teacher, and Tactical Evidence remain separate, and
+Learning Dataset version `2` is unchanged. See [Learning Corpus Tactical Motif
+evidence and summaries](learning_corpus_tactical_motif_evidence_and_summaries.md).

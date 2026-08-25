@@ -5,6 +5,12 @@ Dataset version `2`, Player Catalog, and supplied partition-preparation Results.
 The summaries report Counts, Coverage, and existing split availability. They do
 not evaluate Players, communication, Teachers, or models.
 
+Issue #195 adds a different private Tactical Motif Cross-game Summary over a
+separate Current-Snapshot Tactical Evidence Collection and the exact Player
+Catalog. It does not add a field, source, join, Coverage family, or Count to this
+Dataset-v2 Summary contract. See [Learning Corpus Tactical Motif evidence and
+summaries](learning_corpus_tactical_motif_evidence_and_summaries.md).
+
 ## Source boundary
 
 `build_learning_dataset_v2_cross_game_summary_v1()` consumes exact in-memory
@@ -307,3 +313,9 @@ Issue #191 extends only the values counted by this existing Summary contract.
 Summary version `1`, Dataset version `2`, fields, persistence, Public API, Schema,
 evaluation, and rating boundaries remain unchanged. See
 [Match Information-set Search and Strategy Teacher Evidence](match_information_set_search_and_strategy_teacher.md).
+
+Issue #195 leaves those same boundaries unchanged. Its separate Tactical Summary
+reports exact motif occurrences, distinct Games and Matches, Player and scope
+Counts, and bounded recurrence scopes. Those values are not Dataset readiness,
+communication interpretation, Strategy Teacher evidence, a rate, quality score,
+trait, causal claim, or cross-game Coaching result.

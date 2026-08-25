@@ -50,6 +50,13 @@ downloads. It adds no object kind, Catalog field, derived persistence, Public
 API, or Schema. See
 [Learning Corpus browser workflows](learning_corpus_browser_workflows.md).
 
+Issue #195 derives separate non-persisted Tactical Motif Evidence and exact
+descriptive cross-game summaries from only those same explicit Current
+selections. Tactical Evidence and skipped-Decision identities include exact
+Snapshot-scoped Game and Decision References, but do not change any Issue #171
+Snapshot, Reference, Catalog, object-kind, ordering, or persistence contract. See
+[Learning Corpus Tactical Motif evidence and summaries](learning_corpus_tactical_motif_evidence_and_summaries.md).
+
 ## Source-of-truth boundary
 
 The exact source and derived-data relationships are:
@@ -73,7 +80,10 @@ Statistics Selection:
 Strategy Teacher Evidence:
     separate Current-Snapshot-bound derived Report evidence, not persisted
 
-future annotation artifacts:
+Tactical Motif Evidence and Cross-game Summary:
+    separate Current-Snapshot-derived structural evidence, not persisted
+
+other future annotation artifacts:
     separate derived objects
 
 Learning Dataset v2:
@@ -109,7 +119,8 @@ LEARNING_CORPUS_OBJECT_KINDS = (
 )
 ```
 
-Report and annotation object kinds do not exist yet. The exact policies are:
+Report, Tactical Evidence, Summary, and annotation object kinds do not exist in
+the Catalog. The exact policies are:
 
 ```text
 LEARNING_CORPUS_SOURCE_OF_TRUTH_POLICY =

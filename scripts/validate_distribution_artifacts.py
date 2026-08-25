@@ -54,6 +54,9 @@ HISTORICAL_INFORMATION_SET_REPLAY_COACHING_SMOKE_EXAMPLE = (
 HISTORICAL_TACTICAL_MOTIF_REVIEW_SMOKE_EXAMPLE = (
     PROJECT_ROOT / "examples" / "historical_tactical_motif_review.json"
 )
+TACTICAL_CORPUS_DOCUMENTATION = (
+    PROJECT_ROOT / "docs" / "learning_corpus_tactical_motif_evidence_and_summaries.md"
+)
 INFORMATION_SET_SEARCH_EVALUATION_SMOKE_EXAMPLE = (
     PROJECT_ROOT / "examples" / "training_dataset_normal_play.json"
 )
@@ -464,6 +467,18 @@ def _inspect_sdist(
             f"{root}/pyproject.toml",
         }
         _require(required_root_files <= names, "sdist is missing required source metadata files.")
+        tactical_documentation_name = (
+            f"{root}/docs/learning_corpus_tactical_motif_evidence_and_summaries.md"
+        )
+        _require(
+            tactical_documentation_name in names,
+            "sdist is missing the Tactical Corpus documentation.",
+        )
+        _require(
+            _tar_bytes(archive, members[tactical_documentation_name])
+            == TACTICAL_CORPUS_DOCUMENTATION.read_bytes(),
+            "sdist Tactical Corpus documentation differs by bytes.",
+        )
         metadata = _parse_metadata(_tar_bytes(archive, members[f"{root}/PKG-INFO"]))
         _validate_metadata(metadata, artifact_name="sdist")
 
@@ -1543,7 +1558,12 @@ try:
     )
     assert status == 200 and b"Learning artifacts prepared" in content
     assert corpus_context.prepared_artifacts is not None
+    assert corpus_context.tactical_prepared_artifacts is not None
     assert corpus_context.prepared_artifacts.strategy_teacher_evidence.evidence_count == 0
+    assert corpus_context.tactical_prepared_artifacts.tactical_motif_collection.status == (
+        "complete"
+    )
+    assert corpus_context.tactical_prepared_artifacts.tactical_motif_collection.evidence_count == 30
     assert corpus_context.prepared_artifacts.known_player_partition_result.status == (
         "unavailable"
     )
@@ -1571,6 +1591,7 @@ try:
     )
     assert status == 200 and b"Report source added" in content
     assert corpus_context.prepared_artifacts is None
+    assert corpus_context.tactical_prepared_artifacts is None
     assert len(corpus_context.strategy_source_store.sources) == 1
 
     status, _, content = corpus_request(
@@ -1581,8 +1602,11 @@ try:
     )
     assert status == 200 and b"Learning artifacts prepared" in content
     prepared = corpus_context.prepared_artifacts
+    tactical_prepared = corpus_context.tactical_prepared_artifacts
     assert prepared is not None
+    assert tactical_prepared is not None
     assert prepared.strategy_teacher_evidence.evidence_count == 1
+    assert tactical_prepared.tactical_motif_collection.evidence_count == 30
 
     corpus_download_routes = (
         "/downloads/player-catalog.json",
@@ -1592,6 +1616,8 @@ try:
         "/downloads/known-player-partitions.json",
         "/downloads/unseen-player-partitions.json",
         "/downloads/cross-game-summary.json",
+        "/downloads/tactical-motif-evidence.json",
+        "/downloads/tactical-motif-cross-game-summary.json",
     )
     files_before_download = sorted(path.relative_to(corpus_root) for path in corpus_root.rglob("*"))
     for route in corpus_download_routes:
@@ -1622,6 +1648,7 @@ try:
     )
     assert status == 200 and b"source removed" in content
     assert corpus_context.prepared_artifacts is None
+    assert corpus_context.tactical_prepared_artifacts is None
     for route in corpus_download_routes:
         status, _, _ = corpus_request("GET", route, headers=corpus_get_headers)
         assert status == 404
@@ -1632,6 +1659,7 @@ finally:
 
 assert corpus_context.strategy_source_store.sources == ()
 assert corpus_context.prepared_artifacts is None
+assert corpus_context.tactical_prepared_artifacts is None
 
 assert session.files is session_files
 assert session_files.__all__ == (

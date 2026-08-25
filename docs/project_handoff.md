@@ -60,6 +60,9 @@ The project focuses on:
   Snapshot sequence, deterministic structural taxonomy, after-play and after-
   Trick evidence, strict Schema, CLI, Match browser controls, and complete
   Provenance without quality, signaling, communication, or causal claims
+* separate private Current-Snapshot-only Tactical Motif Evidence with exact
+  Evidence-or-skip Decision coverage, shared detector reuse, safe partial-Match
+  behavior, and exact descriptive cross-game scope and recurrence Counts
 * stable public API contract version `1` with exact namespaces and exports,
   immutable JSON Request and Result wrappers, compatibility/version metadata,
   stable errors and Exit Codes, and unchanged legacy Root CLI behavior
@@ -197,7 +200,8 @@ The project focuses on:
   one explicit root, strict Workspace and executed-Decision Report uploads,
   explicit Current selection, max-2,048 process-local sources, unlocked exact
   Player/Human/Strategy/Dataset/partition/Summary preparation, minimized
-  no-JavaScript presentation, and seven authenticated canonical downloads
+  no-JavaScript presentation, atomic Tactical-family publication, and nine
+  authenticated canonical downloads
 * public immutable version-1 fixed-three-player 36-position historical-list
   contracts with passed deals, rotating historical seats, settlement-derived
   per-entry contribution facts, cumulative player totals, 36-position
@@ -986,8 +990,10 @@ Implemented as a `v0.11.0` information-safe public workflow:
 
 The observed card is not ground truth, no causal final-outcome claim is made,
 and exhaustive compatible-world aggregation remains subject to Strategy Fusion.
-Tactical motif detectors, cross-game analysis, stronger Search, and any causal
-language remain unimplemented. See
+Issues #194 and #195 now provide separate deterministic structural Tactical
+Motif detection and descriptive cross-game Counts. Stronger Search, tactical
+quality assessment, cross-game Coaching, and causal language remain
+unimplemented. See
 [Replay coaching contracts](replay_coaching_contracts.md).
 
 ### CLI and workflow usability
@@ -1190,6 +1196,12 @@ Implemented:
   `learning_corpus_strategy_teacher_builder.py`, and
   `learning_corpus_strategy_teacher_export.py`
   * exact Current-bound method-specific Teacher evidence and canonical export
+* `learning_corpus_tactical_motif_evidence.py`,
+  `learning_corpus_tactical_motif_builder.py`,
+  `learning_corpus_tactical_motif_summary.py`, and
+  `learning_corpus_tactical_motif_export.py`
+  * exact Current-only safe Tactical observations or explicit skips, descriptive
+    global/Player/scope/recurrence Counts, and two canonical private exports
 * `learning_dataset_v2_contracts.py`, `learning_dataset_v2_builder.py`, and
   `learning_dataset_v2_export.py`
   * private unpartitioned task-neutral Decision records, safe/skipped coverage,
@@ -1215,7 +1227,7 @@ Implemented:
     and curated Information-set browser diagnostics
 * `cli/corpus_parser.py`, `cli/corpus.py`, and `corpus_web/`
   * private one-root CLI/HTTP transport, strict uploads, process-local sources
-    and prepared artifacts, minimized rendering, security, and seven downloads
+    and prepared artifacts, minimized rendering, security, and nine downloads
 
 ### Interactive Session contracts
 
@@ -1490,6 +1502,7 @@ Main documentation files:
 * `docs/learning_dataset_v2.md`
 * `docs/learning_dataset_v2_partition_preparation.md`
 * `docs/learning_dataset_v2_cross_game_summaries.md`
+* `docs/learning_corpus_tactical_motif_evidence_and_summaries.md`
 * `docs/learning_corpus_browser_workflows.md`
 * `docs/opponent_profile_derivation.md`
 * `docs/live_opponent_profiles.md`
@@ -1563,6 +1576,13 @@ authoritative and packaged Schemas and 98 scenarios. Package/API/workflow/
 Console-Script/Session baselines and Settlement Matrix version `3` with 61 cases
 remain unchanged.
 
+Issue #195 adds private Current-Match-Snapshot-only Tactical Motif Evidence,
+explicit skips, exact descriptive cross-game summaries, atomic process-local
+Corpus preparation, minimized presentation, and two authenticated downloads. It
+changes no Package/API/workflow/Console-Script/Schema/example/generated-scenario/
+Session/Dataset-v2 baseline, so the current working totals remain 71 Schemas and
+98 scenarios.
+
 Historical published `v0.15.0` Release theme: "Local EuroSkat 36er Match
 capture, analysis, and exports".
 
@@ -1630,7 +1650,10 @@ Issue #194 adds deterministic Historical Tactical Motif Review, exact structural
 lead/void/Trick-control/Defender-partnership/hand-shape/outcome evidence, shared
 Snapshot reuse, complete Provenance, strict Root Schema and CLI, and private
 Match browser controls. It does not add tactical quality assessment, intent,
-signaling, communication, causality, or cross-game aggregation.
+signaling, communication, or causality. Issue #195 reuses the same exact detector
+for separate Current-Snapshot Corpus Evidence and descriptive cross-game Counts,
+including bounded recurrence scopes, without adding those interpretations or
+changing Learning Dataset version `2`.
 Product/runtime performance acceptance gates and latency guarantees remain open.
 Tactical quality assessment and cross-game Coaching, carefully
 bounded Player Ratings where approved, broader Provenance and Confidence
@@ -2063,7 +2086,7 @@ Completed implementation scope:
   Partition Readiness summaries, with deterministic path-free exports
 * internal private Learning Corpus browser/CLI with one explicit root, strict
   16-MiB uploads, optimistic import/selection, process-local exact Report sources
-  and prepared artifacts, no-JavaScript forms, loopback security, and seven
+  and prepared artifacts, no-JavaScript forms, loopback security, and nine
   canonical downloads without derived persistence or public contracts
 
 ## Current high-priority limitations
@@ -2124,9 +2147,11 @@ Completed implementation scope:
 * Replay Coaching has a public version-1 one-game report with information-safe
   evidence, impact, prioritization, patterns, recommendations, scope summaries,
   and isolated outcome context. Separate Historical Tactical Motif Review adds
-  deterministic structural evidence without changing Coaching. Tactical quality
-  assessment, cross-game patterns, broader Search, and causal attribution remain
-  unimplemented.
+  deterministic structural evidence without changing Coaching. Issue #195 adds
+  separate exact descriptive cross-game Tactical Motif Counts and recurrence
+  scopes from Current Match Snapshots. Tactical quality assessment, interpreted
+  cross-game patterns, cross-game Coaching, broader Search, and causal attribution
+  remain unimplemented.
 * Immutable Live and Retrospective Session contracts plus deterministic
   Command application, replay, phase advancement, projection, incremental
   validation, readiness, canonical Retrospective Historical and information-safe
@@ -2185,7 +2210,13 @@ Completed implementation scope:
   retained Results, and make no optimality or preferred-Teacher claim.
   Issue #191 adds focused Information-set Teacher Evidence through those exact
   sources and carries it through existing Dataset-v2 joins, Summary counts, and
-  seven downloads without derived persistence.
+  the historical Issue #179 seven-download chain without derived persistence.
+  Issue #195 separately reuses the exact Tactical detector over Current Match
+  Snapshots, represents every observed Decision as Evidence or an explicit skip,
+  builds exact global/Player/scope/distinct-Game/distinct-Match/recurrence Counts,
+  and atomically publishes two additional process-local artifacts for nine
+  current authenticated downloads. Human, Strategy Teacher, and Tactical
+  Evidence remain separate, and Learning Dataset version `2` is unchanged.
   Deletion, garbage collection, recovery UI, persisted aliases/assertions,
   merge/split operations, all-revision Player views, Human Evidence persistence
   and public transport, Strategy Teacher persistence and public transport,
@@ -2213,9 +2244,11 @@ Match/Report/Teacher/Dataset/Corpus path. Issue #192 completes separate
 Information-set Replay Coaching and Match Historical Information-set
 Review/Coaching. Issue #193 completes repository-local benchmark evidence. Issue
 #194 completes deterministic Historical Tactical Motif Review and Match browser
-integration. Later work should decide product/runtime performance acceptance
-gates and latency requirements, tactical quality assessment, cross-game
-Coaching, and Historical Teacher import.
+integration. Issue #195 completes separate Current-Snapshot Tactical Motif
+Evidence, exact descriptive cross-game summaries, and current nine-download
+Corpus integration. Later work should decide product/runtime performance
+acceptance gates and latency requirements, tactical quality assessment,
+cross-game Coaching, and Historical Teacher import.
 Continue keeping immutable imported
 Workspace Snapshots separate from future persisted or task-specific derived
 artifacts.

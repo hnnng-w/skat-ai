@@ -1140,6 +1140,15 @@ foundations:
 * minimized server-rendered no-JavaScript-capable dashboard, packaged local
   assets, token/cookie/Host/origin/CSP loopback security, no external network,
   and seven authenticated canonical downloads;
+* separate Current-Match-Snapshot-only Tactical Motif Evidence with every
+  observed Decision represented by exact Evidence or an explicit skip, exact
+  shared single-game detector reuse, and safe partial-Match/final-Trick behavior;
+* exact descriptive Tactical Motif global, Player, role, seat, phase, contract,
+  distinct-Game, distinct-Match, and bounded recurrence Counts without rates,
+  traits, quality, significance, communication, causal, or Coaching claims;
+* atomic existing-plus-Tactical process-local publication, minimized Tactical
+  presentation, and two additional authenticated canonical downloads for nine
+  current downloads;
 * no derived artifact persistence, Public API, Schema, example, generated output,
   database, remote/cloud/collaboration behavior, task builder, evaluation,
   rating, or training addition.
@@ -1193,6 +1202,13 @@ controls. The current working baseline is therefore 71 authoritative and
 packaged Schemas, six Session examples, and 98 generated outputs. Package/API/
 workflow/Console-Script/Settlement baselines remain unchanged.
 
+Issue #195 reuses the exact Tactical detector over explicit Current Match
+Snapshots, adds Evidence-or-skip coverage and exact descriptive cross-game
+summaries, and integrates two process-local artifacts into atomic browser
+preparation. Human, Strategy Teacher, and Tactical Evidence remain separate;
+Learning Dataset version `2` and the current 71-Schema/98-output counts remain
+unchanged.
+
 Deletion and garbage collection, recovery UI, Player Catalog persistence,
 persisted aliases/assertions, merge/split operations, all-revision Player views,
 Human Evidence persistence and public API/Schema transport, Strategy Teacher
@@ -1209,8 +1225,9 @@ exposure remain open. No production model is planned for this milestone. See
 [Learning Corpus human Commentary and Response evidence](learning_corpus_human_commentary_and_response_evidence.md),
 [Learning Corpus Strategy Teacher Evidence](learning_corpus_strategy_teacher_evidence.md),
 [Learning Dataset version 2](learning_dataset_v2.md),
-[Learning Dataset version 2 partition preparation](learning_dataset_v2_partition_preparation.md), and
-[Learning Dataset version 2 cross-game summaries](learning_dataset_v2_cross_game_summaries.md), and
+[Learning Dataset version 2 partition preparation](learning_dataset_v2_partition_preparation.md),
+[Learning Dataset version 2 cross-game summaries](learning_dataset_v2_cross_game_summaries.md),
+[Learning Corpus Tactical Motif evidence and summaries](learning_corpus_tactical_motif_evidence_and_summaries.md), and
 [Learning Corpus browser workflows](learning_corpus_browser_workflows.md).
 
 ## Active next planning milestone: v0.17.0
@@ -1251,7 +1268,9 @@ separately by Issue #192 through one retained Review, complete-Candidate primary
 evidence, diagnostic PIMC/Immediate without fallback, time-safe fixed Profile
 Policies, and complete Provenance. Issue #193 adds repository-local benchmark
 evidence without changing production behavior or counts. Issue #194 adds
-deterministic Historical Tactical Motif Review. Tactical quality assessment and
+deterministic Historical Tactical Motif Review. Issue #195 adds separate
+Current-Snapshot-only Tactical Motif Evidence and exact descriptive cross-game
+Counts without changing Dataset version `2`. Tactical quality assessment and
 cross-game Coaching, carefully bounded Player Ratings where approved, broader Provenance and
 Confidence integration, product/runtime performance acceptance gates,
 cross-machine latency guarantees, and the remaining pre-v1 scope audit also
@@ -1456,6 +1475,8 @@ Information-set Review/Coaching, one Schema, one example, and two scenarios.
 Issue #193 adds repository-local benchmark evidence without changing product
 surfaces or counts. Issue #194 adds Historical Tactical Motif Review, one Schema,
 one example, and two scenarios, bringing the working baseline to 71 Schemas and
-98 scenarios. Product/runtime performance integration, latency guarantees,
-tactical quality assessment, cross-game Coaching, and the final `v1.0.0` Issue
-split and architecture remain open.
+98 scenarios. Issue #195 adds separate private Current-Snapshot Tactical Motif
+Evidence, exact descriptive cross-game summaries, and current nine-download
+Corpus integration without changing those counts. Product/runtime performance
+integration, latency guarantees, tactical quality assessment, cross-game
+Coaching, and the final `v1.0.0` Issue split and architecture remain open.

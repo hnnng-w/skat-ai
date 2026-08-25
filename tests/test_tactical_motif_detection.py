@@ -10,6 +10,7 @@ from skat_ai.historical_decision_snapshot import (
 )
 from skat_ai.tactical_motif_detection import (
     build_tactical_decision_facts_v1,
+    build_tactical_decision_observation_from_snapshot_v1,
     build_tactical_decision_observation_v1,
 )
 
@@ -159,3 +160,24 @@ def test_illegal_actual_card_is_rejected() -> None:
             actual_card="HJ",
             declarer_player_id="player-a",
         )
+
+
+def test_shared_snapshot_seam_preserves_exact_observation() -> None:
+    snapshot = _snapshot()
+    facts = build_tactical_decision_facts_v1(
+        snapshot=snapshot,
+        declarer_player_id="player-a",
+        participant_player_ids=("player-a", "player-b", "player-c"),
+    )
+    expected = build_tactical_decision_observation_v1(
+        decision_time_facts=facts,
+        snapshot=snapshot,
+        actual_card=snapshot.actual_card_played,
+        declarer_player_id="player-a",
+    )
+
+    assert build_tactical_decision_observation_from_snapshot_v1(
+        snapshot=snapshot,
+        declarer_player_id="player-a",
+        participant_player_ids=("player-a", "player-b", "player-c"),
+    ) == expected

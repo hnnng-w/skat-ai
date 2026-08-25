@@ -69,6 +69,12 @@ The project focuses on:
   Evidence from exact executed Decision Analysis Reports with exact Request
   reconstruction, retained Result validation, deterministic identities/counts,
   and canonical in-memory export
+* private internal Current-Snapshot-only Tactical Motif Evidence with safe
+  reconstructed Decisions or explicit skips, exact shared single-game detector
+  reuse, deterministic identities, and canonical path-free export
+* private internal exact-Count Tactical Motif cross-game summaries with global,
+  Player, role, seat, phase, contract, distinct-Game, distinct-Match, and bounded
+  recurrence scopes without trait, quality, causal, or significance claims
 * private internal Current-Snapshot-only unpartitioned Learning Dataset version
   `2` with information-safe Decision State, separate observed behavior, time-safe
   Player Context, exact Teacher/Commentary/Response joins, skipped and unjoined
@@ -82,7 +88,8 @@ The project focuses on:
 * private loopback-only local Learning Corpus browser workflow with one explicit
   root, strict Workspace and executed-Decision Report-source uploads, explicit
   Current selection, bounded process-local sources, exact unlocked artifact
-  preparation, minimized presentation, and seven authenticated canonical
+  preparation, atomic generation-safe publication, minimized presentation, and
+  nine authenticated canonical
   downloads without derived persistence or public contracts
 * JSON input/output for regression-friendly testing
 
@@ -194,6 +201,7 @@ Before larger changes, read the relevant documentation:
 * `docs/match_information_set_search_and_strategy_teacher.md`
 * `docs/learning_dataset_v2.md`
 * `docs/learning_corpus_browser_workflows.md`
+* `docs/learning_corpus_tactical_motif_evidence_and_summaries.md`
 * `docs/information_set_search_workflows.md`
 * `docs/information_set_search_multi_step_and_policy_comparison.md`
 * `docs/information_set_replay_coaching_and_match_historical_analysis.md`
@@ -260,6 +268,13 @@ browser controls, one strict Schema, one Root example, and two append-only
 scenarios. The current working baseline therefore has 71 authoritative and
 packaged Schemas and 98 scenarios. Existing Package/API/workflow/Console-Script/
 Settlement/Session baselines remain unchanged.
+
+Issue #195 adds private Current-Match-Snapshot-only Tactical Motif Evidence,
+explicit Decision skips, exact global/Player/scope/recurrence summaries, atomic
+process-local Corpus preparation, minimized presentation, and two authenticated
+canonical downloads. It changes no Package/API/workflow/Console-Script/Schema/
+example/generated-scenario/Session/Dataset-v2 baseline, so the working counts
+above remain unchanged.
 
 The historical published `v0.15.0` GitHub Release has release theme "Local
 EuroSkat 36er Match capture, analysis, and exports" and GitHub Release title
@@ -487,11 +502,13 @@ Teacher are integrated for the bounded one-Decision path by Issue #191 together
 with Dataset-v2 and Corpus propagation. Issue #192 adds separate Information-set
 Replay Coaching and Match Historical Information-set Review/Coaching with one
 retained Review, no PIMC/Immediate fallback, time-safe fixed Profile Policies,
-and complete Provenance. Issue #193 adds repository-local benchmark evidence
+ and complete Provenance. Issue #193 adds repository-local benchmark evidence
 without changing product behavior or versioned surfaces. Issue #194 adds
 deterministic Historical Tactical Motif Review and private Match browser controls
-without changing either Coaching family. Tactical quality assessment and cross-
-game Coaching, carefully
+without changing either Coaching family. Issue #195 reuses that exact detector
+for separate Current-Snapshot-only Corpus Evidence, exact descriptive cross-game
+summaries, and nine current browser downloads without changing Learning Dataset
+version `2`. Tactical quality assessment and cross-game Coaching, carefully
 bounded Player Ratings where approved, broader Provenance and Confidence
 integration, product/runtime performance acceptance gates, cross-machine latency
 guarantees, and the remaining pre-v1 scope
@@ -589,6 +606,13 @@ Major completed areas include:
   sequence, exact structural lead/void/Trick-control/Defender-partnership/hand-
   shape/outcome evidence, strict timing and privacy, complete Provenance, Schema,
   CLI, example, generated scenarios, and private Match browser controls
+* private Current-Snapshot-only Learning Corpus Tactical Motif Evidence with
+  every observed Decision represented by exact Evidence or an explicit skip,
+  safe partial-Match/final-Trick behavior, deterministic identities, and
+  canonical path-free export
+* private exact-Count Tactical Motif cross-game global, Player, role, seat,
+  phase, contract, distinct-Game, distinct-Match, and recurrence summaries
+  without rates, traits, quality, significance, causal, or communication claims
 * information-safe one-game Replay Coaching evidence, prioritization, patterns, deterministic recommendations, complete report, public schema, JSON, CLI, examples, and generated-output coverage
 * fixed-three-player 36-position historical-list contracts, aggregation, progression, standings, exact external-lot application, independent-list comparison, public JSON/schema/CLI workflows, examples, and generated-output coverage
 * deterministic public automatic Training Dataset preparation with temporal Known-opponent and Player-disjoint unseen-player assignment, complete or unavailable Plans, lossless materialization, strict schemas, CLI, examples, and generated-output coverage
@@ -719,8 +743,9 @@ Major completed areas include:
 * internal local Learning Corpus Web, Protocol, and CLI version `1` with one
   explicit root, caller-ID initialization, strict 16-MiB uploads, optimistic
   import/selection, max-2,048 process-local Report sources, explicit source-safe
-  preparation, minimized no-JavaScript presentation, loopback security, and seven
-  canonical downloads without derived persistence
+  preparation, atomic existing-plus-Tactical publication, minimized no-JavaScript
+  presentation, loopback security, and nine canonical downloads without derived
+  persistence
 * updated README, docs, roadmap, and project handoff
 
 Current limitations include the absence of flat Position, Session, Match
@@ -754,8 +779,10 @@ acceptance gates and latency guarantees remain open. There is no
 cross-decision global Policy, equilibrium, global optimality, or calibrated
 probability claim. Issue #194 adds deterministic structural Historical Tactical
 Motif Review without quality, intent, signaling, communication, or causal
-classification. Overbid Null replacement selection, tactical quality assessment,
-cross-game Coaching, causal
+classification. Issue #195 adds separate descriptive cross-game Tactical Motif
+counts and bounded recurrence scopes without making those classifications or
+changing Dataset version `2`. Overbid Null replacement selection, tactical
+quality assessment, cross-game Coaching, causal
 attribution, player ratings, and complete field-level information provenance
 remain open before `v1.0.0`. End-to-end local Live and Retrospective Session
 capture is implemented through public file Save/Load, automatic Checkpoints,
@@ -791,10 +818,13 @@ Learning Corpus persistence, Workspace import, explicit Current selection, exact
 Report-source transfer, Dataset-v2 preparation, summaries, and downloads are now
 available through the private local `corpus` browser workflow. The derived Player
 Catalog and Statistics history, Human and Strategy Teacher Evidence, Dataset-v2,
-partition Results, and Summary remain process-local and non-persisted; there is
-no Public API, Schema, example, or generated scenario. Focused Information-set
-Teacher Evidence now propagates through the existing Dataset-v2 joins, Summary
-counts, and seven downloads. Deletion,
+partition Results, Dataset-v2 Summary, Tactical Motif Evidence, and Tactical
+Motif Cross-game Summary remain process-local and non-persisted; there is no
+Public API, Schema, example, or generated scenario for Issue #195. Focused
+Information-set Teacher Evidence still propagates through the existing Dataset-v2
+joins and Summary counts; the separate Tactical family leaves Dataset version `2`
+unchanged and brings the current authenticated download set from seven to nine.
+Deletion,
 garbage collection, Player Catalog or Human Evidence persistence,
 persisted aliases/assertions, merge/split operations, all-revision views,
 public Human or Strategy Teacher Evidence API transport, automatic Report

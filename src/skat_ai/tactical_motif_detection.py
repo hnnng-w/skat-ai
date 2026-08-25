@@ -39,9 +39,7 @@ def _validate_participants(
         or len(participant_player_ids) != 3
         or len(set(participant_player_ids)) != 3
         or any(
-            not isinstance(player_id, str)
-            or not player_id
-            or player_id != player_id.strip()
+            not isinstance(player_id, str) or not player_id or player_id != player_id.strip()
             for player_id in participant_player_ids
         )
     ):
@@ -89,9 +87,7 @@ def build_tactical_decision_facts_v1(
         )
 
     required_category = (
-        None
-        if not current_cards
-        else get_effective_suit(current_cards[0], visible.game_type)
+        None if not current_cards else get_effective_suit(current_cards[0], visible.game_type)
     )
     can_follow = (
         None
@@ -276,9 +272,7 @@ def build_tactical_decision_observation_v1(
         post_cards,
         visible.game_type,
     )
-    post_player_ids = [play.player_id for play in post_plays] + [
-        snapshot.acting_player_id
-    ]
+    post_player_ids = [play.player_id for play in post_plays] + [snapshot.acting_player_id]
     post_winner_player_id = post_player_ids[post_winner_index]
     post_winner_side = _side_for_player(post_winner_player_id, declarer_player_id)
     actual_is_current_winner = post_winner_player_id == snapshot.acting_player_id
@@ -287,8 +281,7 @@ def build_tactical_decision_observation_v1(
         and post_winner_player_id == decision_time_facts.partner_player_id
     )
     actual_overtakes_partner = (
-        decision_time_facts.partner_currently_winning_before
-        and actual_is_current_winner
+        decision_time_facts.partner_currently_winning_before and actual_is_current_winner
     )
     winning_cards = get_winning_legal_cards(
         list(visible.own_hand),
@@ -305,15 +298,13 @@ def build_tactical_decision_observation_v1(
     remaining_hand = list(visible.own_hand)
     remaining_hand.remove(actual_card)
     remaining_category_count = sum(
-        get_effective_suit(card, visible.game_type) == actual_category
-        for card in remaining_hand
+        get_effective_suit(card, visible.game_type) == actual_category for card in remaining_hand
     )
     actual_trump = is_trump(actual_card, visible.game_type)
     actual_points = get_card_points(actual_card)
     is_lead = snapshot.play_index == 1
     unable_to_follow = (
-        not is_lead
-        and decision_time_facts.can_follow_required_effective_category is False
+        not is_lead and decision_time_facts.can_follow_required_effective_category is False
     )
     is_complete = completed_trick_winner_player_id is not None
     opposing_side = "defenders" if snapshot.acting_side == "declarer" else "declarer"
@@ -323,20 +314,15 @@ def build_tactical_decision_observation_v1(
         "non_trump_lead": is_lead and not actual_trump,
         "new_effective_category_lead": (
             is_lead
-            and actual_category
-            not in decision_time_facts.previous_lead_effective_categories
+            and actual_category not in decision_time_facts.previous_lead_effective_categories
         ),
         "repeat_effective_category_lead": (
-            is_lead
-            and actual_category
-            in decision_time_facts.previous_lead_effective_categories
+            is_lead and actual_category in decision_time_facts.previous_lead_effective_categories
         ),
         "void_trump_play": unable_to_follow and actual_trump,
         "void_non_trump_discard": unable_to_follow and not actual_trump,
         "available_trump_not_used": (
-            unable_to_follow
-            and decision_time_facts.legal_trump_count > 0
-            and not actual_trump
+            unable_to_follow and decision_time_facts.legal_trump_count > 0 and not actual_trump
         ),
         "opposing_side_overtake": (
             decision_time_facts.pre_play_current_winner_side == opposing_side
@@ -352,8 +338,7 @@ def build_tactical_decision_observation_v1(
             snapshot.acting_side == "defenders"
             and is_lead
             and decision_time_facts.partner_last_lead_effective_category is not None
-            and actual_category
-            == decision_time_facts.partner_last_lead_effective_category
+            and actual_category == decision_time_facts.partner_last_lead_effective_category
         ),
         "partner_overtake": actual_overtakes_partner,
         "partner_safe_point_load": (
@@ -368,8 +353,7 @@ def build_tactical_decision_observation_v1(
             and snapshot.acting_side == "defenders"
             and actual_points > 0
             and is_complete
-            and completed_trick_winner_player_id
-            == decision_time_facts.partner_player_id
+            and completed_trick_winner_player_id == decision_time_facts.partner_player_id
         ),
         "effective_category_exhausted": remaining_category_count == 0,
         "point_card_lost_to_opposing_side": (
@@ -398,4 +382,30 @@ def build_tactical_decision_observation_v1(
         completed_trick_points=completed_trick_points,
         observation_status="complete" if is_complete else "partial",
         motifs=_build_occurrences(motif_presence),
+    )
+
+
+def build_tactical_decision_observation_from_snapshot_v1(
+    *,
+    snapshot: HistoricalDecisionSnapshot,
+    declarer_player_id: str,
+    participant_player_ids: tuple[str, str, str],
+    completed_trick_winner_player_id: str | None = None,
+    completed_trick_winner_side: str | None = None,
+    completed_trick_points: int | None = None,
+) -> TacticalDecisionObservationV1:
+    """Builds facts before attaching the retained actual Card and Trick outcome."""
+    decision_time_facts = build_tactical_decision_facts_v1(
+        snapshot=snapshot,
+        declarer_player_id=declarer_player_id,
+        participant_player_ids=participant_player_ids,
+    )
+    return build_tactical_decision_observation_v1(
+        decision_time_facts=decision_time_facts,
+        snapshot=snapshot,
+        actual_card=snapshot.actual_card_played,
+        declarer_player_id=declarer_player_id,
+        completed_trick_winner_player_id=completed_trick_winner_player_id,
+        completed_trick_winner_side=completed_trick_winner_side,
+        completed_trick_points=completed_trick_points,
     )

@@ -60,9 +60,11 @@ descriptive video or manual source metadata
     -> temporal Known-player or Player-component unseen-player partition indexes
     -> private exact-Count cross-game Match, Player, Communication, and Strategy summaries
     -> Dataset Coverage and supplied-partition-readiness summaries with path-free export
+    -> separate Current-Snapshot-only Tactical Motif Evidence or explicit skips
+    -> exact global, Player, scope, distinct-Game/Match, and recurrence Counts
     -> separate loopback-only Learning Corpus CLI and browser over one explicit root
     -> strict Workspace/Decision-Report uploads and explicit Current selection
-    -> process-local exact preparation and seven authenticated canonical downloads
+    -> process-local atomic exact preparation and nine authenticated canonical downloads
     -> later Public Match API/Schema/data workflow
 ```
 
@@ -97,6 +99,18 @@ maintainer published `v0.16.0` manually on 2026-08-18 at commit `91b1360`, and
 Issue #181 synchronizes publication status without product functionality. GitHub
 Releases is the authoritative publication record; no Package-index or PyPI
 publication is claimed.
+
+Issue #195 composes a separate Current-Snapshot-only Tactical family beside that
+published seven-artifact chain. It safely reconstructs each observed Decision or
+retains an explicit skip, calls the exact shared Historical Tactical detector,
+and builds deterministic descriptive global, Player, role, seat, phase,
+contract, distinct-Game, distinct-Match, and recurrence Counts. Human, Strategy
+Teacher, and Tactical Evidence remain separate, and Learning Dataset version `2`
+is unchanged. The browser publishes the existing and Tactical process-local
+families atomically after one generation/source check, renders only minimized
+Tactical counts, and adds two authenticated path-free downloads for nine current
+artifacts. It adds no persistence, Public API, Schema, Root workflow, example, or
+generated-output scenario.
 
 Issues #160 through #168 form the published `v0.15.0` Package baseline, and Issue
 #169 updated only Package/release metadata and documentation to complete Release
@@ -213,6 +227,13 @@ after the Card, and attaches completed-Trick outcomes only after completion. The
 detector executes no Search or Coaching and emits no quality, intent, signaling,
 communication, or causal classification. When multiple Historical attachments
 need Snapshots, the Application builds that sequence once and shares it.
+
+The Issue-#195 Corpus builder reuses the pure
+`build_tactical_decision_observation_from_snapshot_v1()` seam directly after the
+existing Match Decision-state reconstruction. It does not invoke the Historical
+Application, Search, or Coaching. Partial Matches and incomplete final Tricks
+therefore retain the same exact complete/partial evidence-time semantics without
+requiring strict Historical materialization.
 
 The training-dataset flow validates dataset identity, provenance, optional
 known-opponent or unseen-player partition policy, and duplicate protection, then reuses the historical validator/replay and
@@ -499,6 +520,10 @@ public files, automatic collection, execution, and Assistant behavior.
 | `src/skat_ai/learning_dataset_v2_summary_contracts.py` | Private exact-Count primitives, Match/Player/Communication/Strategy/readiness summaries, policies, validation, and domain-separated identities. |
 | `src/skat_ai/learning_dataset_v2_summary_builder.py` | One-pass Dataset/Catalog/evidence aggregation and exact supplied-partition Result reconciliation without Plan generation. |
 | `src/skat_ai/learning_dataset_v2_summary_export.py` | Builder-independent cross-game Summary export identity and canonical path-free JSON bytes. |
+| `src/skat_ai/learning_corpus_tactical_motif_evidence.py` | Current-Snapshot Tactical Evidence/skip/collection contracts, exact coverage, policies, validation, and domain-separated identities. |
+| `src/skat_ai/learning_corpus_tactical_motif_builder.py` | Safe Match Decision-state reconstruction and exact shared Tactical detector reuse without Historical execution. |
+| `src/skat_ai/learning_corpus_tactical_motif_summary.py` | Exact global, Player, role, seat, phase, contract, distinct-Game/Match, and bounded recurrence summaries without interpretation. |
+| `src/skat_ai/learning_corpus_tactical_motif_export.py` | Builder-independent private Tactical Evidence/Summary export identities and canonical path-free JSON bytes. |
 | `src/skat_ai/match_analysis_report_source_export.py` | Exact executed Decision Report source envelope and canonical private transfer bytes. |
 | `src/skat_ai/match_analysis_report_source_codec.py` | Strict complete Report/Request/Result reconstruction and canonical identity verification for uploads. |
 | `src/skat_ai/corpus_web/` | Private one-root context, strict uploads, optimistic operations, bounded process-local sources, unlocked preparation, minimized rendering, authenticated downloads, security, and HTTP lifecycle. |
@@ -539,9 +564,10 @@ integration, or tournament-management behavior. See
 [Learning Corpus Player Catalog and Statistics history](learning_corpus_player_catalog_and_statistics_history.md),
 [Learning Corpus human Commentary and Response evidence](learning_corpus_human_commentary_and_response_evidence.md),
 [Learning Corpus Strategy Teacher Evidence](learning_corpus_strategy_teacher_evidence.md),
-[Learning Dataset version 2](learning_dataset_v2.md), and
-[Learning Dataset version 2 partition preparation](learning_dataset_v2_partition_preparation.md), and
-[Learning Dataset version 2 cross-game summaries](learning_dataset_v2_cross_game_summaries.md), and
+[Learning Dataset version 2](learning_dataset_v2.md),
+[Learning Dataset version 2 partition preparation](learning_dataset_v2_partition_preparation.md),
+[Learning Dataset version 2 cross-game summaries](learning_dataset_v2_cross_game_summaries.md),
+[Learning Corpus Tactical Motif evidence and summaries](learning_corpus_tactical_motif_evidence_and_summaries.md), and
 [Learning Corpus browser workflows](learning_corpus_browser_workflows.md).
 
 Validation is split between JSON Schema and Python validation:

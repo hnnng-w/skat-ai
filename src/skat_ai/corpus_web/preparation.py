@@ -9,6 +9,12 @@ from skat_ai.learning_corpus_player_catalog import (
 from skat_ai.learning_corpus_strategy_teacher_builder import (
     build_learning_corpus_strategy_teacher_evidence_collection_v1,
 )
+from skat_ai.learning_corpus_tactical_motif_builder import (
+    build_learning_corpus_tactical_motif_evidence_collection_v1,
+)
+from skat_ai.learning_corpus_tactical_motif_summary import (
+    build_learning_corpus_tactical_motif_cross_game_summary_v1,
+)
 from skat_ai.learning_dataset_v2_builder import build_learning_dataset_v2
 from skat_ai.learning_dataset_v2_partition_contracts import (
     LearningDatasetPartitionWeightsV1,
@@ -24,6 +30,7 @@ from skat_ai.learning_dataset_v2_summary_builder import (
 from .context import LearningCorpusWebContextV1
 from .contracts import (
     LearningCorpusPreparedArtifactsV1,
+    LearningCorpusTacticalPreparedArtifactsV1,
     LearningCorpusWebResultV1,
 )
 from .operations import _result
@@ -133,6 +140,22 @@ def prepare_learning_corpus_artifacts_web_v1(
         unseen_player_partition_result=unseen_result,
         cross_game_summary=cross_game_summary,
     )
+    tactical_motif_collection = (
+        build_learning_corpus_tactical_motif_evidence_collection_v1(store)
+    )
+    tactical_motif_cross_game_summary = (
+        build_learning_corpus_tactical_motif_cross_game_summary_v1(
+            tactical_motif_collection,
+            player_catalog,
+        )
+    )
+    tactical_prepared = LearningCorpusTacticalPreparedArtifactsV1(
+        source_catalog_revision=catalog_revision,
+        source_catalog_content_fingerprint=catalog_content_fingerprint,
+        player_catalog_fingerprint=player_catalog.player_catalog_fingerprint,
+        tactical_motif_collection=tactical_motif_collection,
+        tactical_motif_cross_game_summary=tactical_motif_cross_game_summary,
+    )
 
     with context.lock:
         current_store = context.store
@@ -145,7 +168,11 @@ def prepare_learning_corpus_artifacts_web_v1(
             or context.generation != generation
         )
         if changed:
-            context._invalidate_prepared_locked()
+            context._invalidate_prepared_lineage_locked(
+                store=store,
+                source_revision=source_revision,
+                generation=generation,
+            )
             return _result(
                 context,
                 operation="prepare_learning_artifacts",
@@ -157,6 +184,7 @@ def prepare_learning_corpus_artifacts_web_v1(
             )
         context.publish_prepared(
             prepared,
+            tactical_prepared,
             store=store,
             source_revision=source_revision,
             generation=generation,
@@ -173,5 +201,13 @@ def prepare_learning_corpus_artifacts_web_v1(
                 "skipped_decision_count": (prepared.learning_dataset.skipped_decision_count),
                 "known_player_partition_status": (prepared.known_player_partition_result.status),
                 "unseen_player_partition_status": (prepared.unseen_player_partition_result.status),
+                "tactical_collection_status": tactical_motif_collection.status,
+                "tactical_evidence_count": tactical_motif_collection.evidence_count,
+                "tactical_skipped_decision_count": (
+                    tactical_motif_collection.skipped_decision_count
+                ),
+                "tactical_motif_occurrence_count": (
+                    tactical_motif_collection.motif_occurrence_count
+                ),
             },
         )

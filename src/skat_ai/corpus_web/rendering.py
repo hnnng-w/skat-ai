@@ -214,6 +214,12 @@ def _preparation(state: dict[str, Any]) -> str:
                     ("Unseen-player reason", prepared["unseen_player"]["unavailable_reason"]),
                     ("Cross-game Matches", prepared["cross_game_match_count"]),
                     ("Cross-game Players", prepared["cross_game_player_count"]),
+                    ("Tactical status", prepared["tactical_collection_status"]),
+                    ("Tactical Evidence", prepared["tactical_evidence_count"]),
+                    ("Tactical skipped", prepared["tactical_skipped_decision_count"]),
+                    ("Tactical motif occurrences", prepared["tactical_motif_occurrence_count"]),
+                    ("Tactical Players", prepared["tactical_cross_game_player_count"]),
+                    ("Tactical recurrences", prepared["tactical_cross_game_recurrence_count"]),
                 )
             )
         }</dl>
@@ -227,6 +233,11 @@ def _preparation(state: dict[str, Any]) -> str:
             ("Known-player Partitions", "known-player-partitions.json"),
             ("Unseen-player Partitions", "unseen-player-partitions.json"),
             ("Cross-game Summary", "cross-game-summary.json"),
+            ("Tactical Motif Evidence", "tactical-motif-evidence.json"),
+            (
+                "Tactical Motif Cross-game Summary",
+                "tactical-motif-cross-game-summary.json",
+            ),
         )
         downloads = (
             '<div class="download-grid">'

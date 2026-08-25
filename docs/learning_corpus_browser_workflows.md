@@ -20,6 +20,14 @@ complete through Issue #179, and Release preparation is complete through Issue
 functionality. GitHub Releases is the authoritative publication record; no
 Package-index or PyPI publication is claimed.
 
+Issue #195 extends the current private browser workflow with a separate Current-
+Snapshot-only Tactical Motif Evidence family and exact descriptive cross-game
+Summary. It adds two authenticated canonical downloads, bringing the current set
+to nine, while preserving the historical Issue #179 seven-artifact chain. Human,
+Strategy Teacher, and Tactical Evidence remain separate; Learning Dataset
+version `2` remains unchanged. No Package/API/workflow/Console-Script/Schema/
+example/generated-output count changes.
+
 ## CLI startup
 
 The Learning Corpus browser is a separate private command family available in
@@ -278,6 +286,10 @@ following exact values in this order:
 5. `known_player` partition preparation Result.
 6. `unseen_player` partition preparation Result.
 7. Cross-game Summary using those exact two supplied partition Results.
+8. Current-Snapshot-only Tactical Motif Evidence Collection, with every observed
+   Decision represented by exact Evidence or an explicit skip.
+9. Tactical Motif Cross-game Summary using that exact Collection and the exact
+   Player Catalog from step 1.
 
 Each source artifact is built once; the partition Request builder and partition
 preparation each run once per mode. Empty or insufficient source data can
@@ -286,8 +298,11 @@ does not execute Match Analysis, Position, Historical, Training Dataset,
 Search, Coaching, Profile derivation, or another Root workflow.
 
 The existing Strategy Teacher step carries focused Information-set Evidence
-through the existing Dataset-v2 joins and cross-game Summary. The seven-step
-order and execute-no-workflow rule are unchanged.
+through the existing Dataset-v2 joins and cross-game Summary. The first seven
+Issue #179 steps and their execute-no-workflow rule are unchanged. The two
+Issue #195 steps call the exact shared single-game Tactical detector after safe
+Match Decision-state reconstruction; they execute no Historical Application,
+Search, Coaching, Profile, or Dataset-v2 mutation.
 
 Potentially long generation runs outside the synchronized context lock. Before
 publishing, the server reacquires the lock and compares the loaded Store identity,
@@ -321,6 +336,15 @@ prepared Store identity, generation, source revision, Catalog revision, and
 Catalog content fingerprint: missing artifacts return HTTP `404`, while a
 detected source mismatch returns HTTP `409`.
 
+Issue #195 stores the first seven artifacts and the two Tactical artifacts in
+separate immutable process-local wrappers, but publication is one atomic prepared
+generation. Before publication, both wrappers must share the exact Catalog
+revision and content fingerprint, and the Tactical Summary must retain the exact
+Player Catalog fingerprint from the existing wrapper. Any invalidating event or
+source change clears both wrappers; successful preparation replaces both; a
+no-change/conflicted operation preserves both when their sources still match.
+There is no Tactical-only retry or partial publication.
+
 ## Dashboard privacy
 
 The server-rendered dashboard is a minimized path-free projection, not a public
@@ -329,6 +353,12 @@ identity and summary counts, source-binding summaries, preparation readiness and
 evidence counts, and a bounded Player Catalog summary with stable Player IDs,
 observed labels, Match counts, alias-conflict counts, and Statistics-observation
 counts.
+
+For the Tactical family, the dashboard adds only collection status, Evidence
+count, skipped Decision count, motif occurrence count, Player Summary count, and
+recurrence count. It does not expose individual observations, actual Cards,
+per-Player motif counts, recurrence identities, complete hands, legal-Card sets,
+Commentary, Strategy Teacher values, fingerprints, or paths.
 
 Dashboard state and HTML omit:
 
@@ -343,10 +373,11 @@ The retained Corpus, uploaded Report sources, prepared values, and downloads are
 still private local unredacted data. Minimized presentation does not make those
 values public or non-sensitive.
 
-## Seven authenticated downloads
+## Nine authenticated downloads
 
-After successful preparation, the browser exposes exactly seven downloads in
-this order:
+Issue #179 historically introduced the first seven downloads below. Issue #195
+adds the final two, so after successful current preparation the browser exposes
+exactly nine downloads in this order:
 
 | Artifact | Route | Filename suffix |
 | --- | --- | --- |
@@ -357,6 +388,8 @@ this order:
 | Known-player partitions | `/downloads/known-player-partitions.json` | `known-player-partitions` |
 | Unseen-player partitions | `/downloads/unseen-player-partitions.json` | `unseen-player-partitions` |
 | Cross-game Summary | `/downloads/cross-game-summary.json` | `cross-game-summary` |
+| Tactical Motif Evidence | `/downloads/tactical-motif-evidence.json` | `tactical-motif-evidence` |
+| Tactical Motif Cross-game Summary | `/downloads/tactical-motif-cross-game-summary.json` | `tactical-motif-cross-game-summary` |
 
 Filenames are exactly:
 
@@ -366,7 +399,8 @@ Filenames are exactly:
 
 Player Catalog, Human Evidence, and Strategy Teacher Evidence use `corpus_id` as
 the source ID. Learning Dataset v2, both partition Results, and the Summary use
-`dataset_id`. Unsafe filename runs become `-`; leading/trailing `.`, `_`, and `-`
+`dataset_id`. Both Tactical artifacts use `corpus_id`. Unsafe filename runs
+become `-`; leading/trailing `.`, `_`, and `-`
 are removed; the readable source portion is limited to 64 ASCII characters; an
 empty safe value becomes `artifact`. Player Catalog uses its Catalog fingerprint
 as identity. The remaining artifacts use their canonical export IDs.
@@ -418,7 +452,7 @@ deployment, or multi-user access control.
 ## Lifetime and open boundaries
 
 The loaded Corpus Store points to persistent exact Catalog and Match Snapshot
-objects under the explicit root. Strategy Teacher Report sources and all seven
+objects under the explicit root. Strategy Teacher Report sources and all nine
 prepared artifacts exist only for the current server process. Server shutdown
 clears both process-local stores and closes the HTTP server; it does not delete
 or modify persisted Corpus content.
@@ -428,6 +462,14 @@ Learning Dataset-v2, partition Result, Summary, Report source, or download. It
 adds no Public API export, Public Match API, JSON Schema, Root workflow, example,
 generated output, task builder, target, communication taxonomy, derived tag,
 evaluation, rating, ranking, or model training.
+
+Issue #195 likewise persists no Tactical Motif Evidence Collection, Tactical
+Motif Cross-game Summary, prepared wrapper, or download. Its exact occurrence,
+distinct-Game, distinct-Match, Player, role, seat, phase, contract, and recurrence
+Counts make no trait, rate, quality, correctness, significance, intent,
+communication, causal, or Coaching claim. Cross-game Coaching and tactical
+quality assessment remain separate future work. See [Learning Corpus Tactical
+Motif evidence and summaries](learning_corpus_tactical_motif_evidence_and_summaries.md).
 
 Deletion, garbage collection, recovery, persisted aliases/assertions,
 merge/split, all-revision Player views, derived artifact persistence, automatic
@@ -449,4 +491,5 @@ See [Learning Corpus identity and Catalogs](learning_corpus_identity_and_catalog
 [Learning Dataset version 2](learning_dataset_v2.md),
 [Learning Dataset version 2 partition preparation](learning_dataset_v2_partition_preparation.md),
 [Learning Dataset version 2 cross-game summaries](learning_dataset_v2_cross_game_summaries.md),
+[Learning Corpus Tactical Motif evidence and summaries](learning_corpus_tactical_motif_evidence_and_summaries.md),
 and [Match analysis and exports](match_analysis_and_exports.md).

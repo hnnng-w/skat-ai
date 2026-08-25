@@ -65,6 +65,10 @@ _DOWNLOAD_ROUTES = {
     "/downloads/known-player-partitions.json": "known_player_partitions",
     "/downloads/unseen-player-partitions.json": "unseen_player_partitions",
     "/downloads/cross-game-summary.json": "cross_game_summary",
+    "/downloads/tactical-motif-evidence.json": "tactical_motif_evidence",
+    "/downloads/tactical-motif-cross-game-summary.json": (
+        "tactical_motif_cross_game_summary"
+    ),
 }
 _FORM_OPERATIONS = {
     "initialize_corpus": {"operation", "corpus_id"},

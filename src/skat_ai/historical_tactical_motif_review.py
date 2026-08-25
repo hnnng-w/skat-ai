@@ -19,8 +19,7 @@ from skat_ai.tactical_motif_contracts import (
     build_serializable_historical_tactical_motif_review_v1,
 )
 from skat_ai.tactical_motif_detection import (
-    build_tactical_decision_facts_v1,
-    build_tactical_decision_observation_v1,
+    build_tactical_decision_observation_from_snapshot_v1,
 )
 
 
@@ -70,9 +69,7 @@ def _build_scope_summary(
     selector: Callable[[TacticalDecisionObservationV1], str],
 ) -> TacticalMotifScopeSummaryV1:
     selected = tuple(
-        observation
-        for observation in observations
-        if selector(observation) == scope_value
+        observation for observation in observations if selector(observation) == scope_value
     )
     motif_counts, family_counts = _canonical_counts(selected)
     return TacticalMotifScopeSummaryV1(
@@ -87,8 +84,7 @@ def _build_scope_summary(
         ),
         motif_occurrence_count=sum(len(observation.motifs) for observation in selected),
         decision_indices=tuple(
-            observation.decision_time_facts.decision_index
-            for observation in selected
+            observation.decision_time_facts.decision_index for observation in selected
         ),
         motif_counts=motif_counts,
         family_counts=family_counts,
@@ -143,14 +139,10 @@ def build_historical_tactical_motif_review_v1(
     if historical_game_result.get("status") != "complete":
         raise ValueError("historical_game_result must be complete.")
     if not isinstance(decision_snapshot_summary, HistoricalDecisionSnapshotSummary):
-        raise ValueError(
-            "decision_snapshot_summary must be HistoricalDecisionSnapshotSummary."
-        )
+        raise ValueError("decision_snapshot_summary must be HistoricalDecisionSnapshotSummary.")
     if (
-        decision_snapshot_summary.schema_version
-        != HISTORICAL_DECISION_SNAPSHOT_SCHEMA_VERSION
-        or decision_snapshot_summary.information_policy
-        != HISTORICAL_DECISION_INFORMATION_POLICY
+        decision_snapshot_summary.schema_version != HISTORICAL_DECISION_SNAPSHOT_SCHEMA_VERSION
+        or decision_snapshot_summary.information_policy != HISTORICAL_DECISION_INFORMATION_POLICY
     ):
         raise ValueError("Decision Snapshot contract metadata is invalid.")
 
@@ -180,8 +172,7 @@ def build_historical_tactical_motif_review_v1(
         if isinstance(player, dict)
     }
     participant_player_ids = tuple(
-        players_by_seat.get(seat)
-        for seat in ("forehand", "middlehand", "rearhand")
+        players_by_seat.get(seat) for seat in ("forehand", "middlehand", "rearhand")
     )
     if any(not isinstance(player_id, str) for player_id in participant_player_ids):
         raise ValueError("Historical Result must retain exactly three seated Players.")
@@ -196,10 +187,9 @@ def build_historical_tactical_motif_review_v1(
             if not isinstance(trick_number, int) or not isinstance(play, dict):
                 raise ValueError("Historical Result retained Plays are invalid.")
             source_plays.append((trick_number, play_index, play, len(plays) == 3))
-    if (
-        decision_snapshot_summary.snapshot_count != len(source_plays)
-        or len(decision_snapshot_summary.snapshots) != len(source_plays)
-    ):
+    if decision_snapshot_summary.snapshot_count != len(source_plays) or len(
+        decision_snapshot_summary.snapshots
+    ) != len(source_plays):
         raise ValueError("Decision Snapshots do not reconcile with source Plays.")
 
     completed_by_trick: dict[int, dict[str, Any]] = {}
@@ -224,34 +214,24 @@ def build_historical_tactical_motif_review_v1(
             or snapshot.trick_number != trick_number
             or snapshot.play_index != play_index
             or snapshot.acting_player_id != play.get("player_id")
-            or snapshot.actual_card_played != play.get("card")
         ):
             raise ValueError("Decision Snapshot and source Play identities do not match.")
-        facts = build_tactical_decision_facts_v1(
-            snapshot=snapshot,
-            declarer_player_id=declarer_player_id,
-            participant_player_ids=participant_player_ids,
-        )
         outcome = completed_by_trick.get(trick_number) if source_trick_complete else None
         if source_trick_complete and outcome is None:
             raise ValueError("A completed source Trick is missing its retained outcome.")
-        observations.append(
-            build_tactical_decision_observation_v1(
-                decision_time_facts=facts,
-                snapshot=snapshot,
-                actual_card=play["card"],
-                declarer_player_id=declarer_player_id,
-                completed_trick_winner_player_id=(
-                    None if outcome is None else outcome.get("winner_player_id")
-                ),
-                completed_trick_winner_side=(
-                    None if outcome is None else outcome.get("winner_side")
-                ),
-                completed_trick_points=(
-                    None if outcome is None else outcome.get("trick_points")
-                ),
-            )
+        observation = build_tactical_decision_observation_from_snapshot_v1(
+            snapshot=snapshot,
+            declarer_player_id=declarer_player_id,
+            participant_player_ids=participant_player_ids,
+            completed_trick_winner_player_id=(
+                None if outcome is None else outcome.get("winner_player_id")
+            ),
+            completed_trick_winner_side=(None if outcome is None else outcome.get("winner_side")),
+            completed_trick_points=(None if outcome is None else outcome.get("trick_points")),
         )
+        if observation.actual_card != play.get("card"):
+            raise ValueError("Decision Snapshot and source Play Cards do not match.")
+        observations.append(observation)
     if set(completed_by_trick) != {
         trick_number
         for trick_number, _, _, source_trick_complete in source_plays
@@ -267,24 +247,18 @@ def build_historical_tactical_motif_review_v1(
         game_type=declaration["game_type"],
     )
     return HistoricalTacticalMotifReviewV1(
-        historical_tactical_motif_review_version=(
-            HISTORICAL_TACTICAL_MOTIF_REVIEW_VERSION
-        ),
+        historical_tactical_motif_review_version=(HISTORICAL_TACTICAL_MOTIF_REVIEW_VERSION),
         review_method=HISTORICAL_TACTICAL_MOTIF_REVIEW_METHOD,
         information_policy=TACTICAL_MOTIF_INFORMATION_POLICY,
         source_game_id=source_game_id,
         observation_count=len(observation_tuple),
         complete_observation_count=sum(
-            observation.observation_status == "complete"
-            for observation in observation_tuple
+            observation.observation_status == "complete" for observation in observation_tuple
         ),
         partial_observation_count=sum(
-            observation.observation_status == "partial"
-            for observation in observation_tuple
+            observation.observation_status == "partial" for observation in observation_tuple
         ),
-        motif_occurrence_count=sum(
-            len(observation.motifs) for observation in observation_tuple
-        ),
+        motif_occurrence_count=sum(len(observation.motifs) for observation in observation_tuple),
         observations=observation_tuple,
         motif_counts=motif_counts,
         family_counts=family_counts,

@@ -11,7 +11,10 @@ from skat_ai.learning_corpus_persistence_contracts import (
     LearningCorpusStoreResumeResultV1,
 )
 
-from .contracts import LearningCorpusPreparedArtifactsV1
+from .contracts import (
+    LearningCorpusPreparedArtifactsV1,
+    LearningCorpusTacticalPreparedArtifactsV1,
+)
 from .source_store import LearningCorpusStrategyTeacherSourceStoreV1
 
 
@@ -26,6 +29,10 @@ class LearningCorpusWebContextV1:
         repr=False,
     )
     prepared_artifacts: LearningCorpusPreparedArtifactsV1 | None = field(
+        default=None,
+        repr=False,
+    )
+    tactical_prepared_artifacts: LearningCorpusTacticalPreparedArtifactsV1 | None = field(
         default=None,
         repr=False,
     )
@@ -78,9 +85,24 @@ class LearningCorpusWebContextV1:
 
     def _invalidate_prepared_locked(self) -> None:
         self.prepared_artifacts = None
+        self.tactical_prepared_artifacts = None
         self._prepared_store = None
         self._prepared_generation = None
         self._prepared_source_revision = None
+
+    def _invalidate_prepared_lineage_locked(
+        self,
+        *,
+        store: LearningCorpusStoreResumeResultV1,
+        source_revision: int,
+        generation: int,
+    ) -> None:
+        if (
+            self._prepared_store is store
+            and self._prepared_source_revision == source_revision
+            and self._prepared_generation == generation
+        ):
+            self._invalidate_prepared_locked()
 
     def invalidate_prepared(self) -> None:
         with self.lock:
@@ -94,6 +116,7 @@ class LearningCorpusWebContextV1:
     def publish_prepared(
         self,
         artifacts: LearningCorpusPreparedArtifactsV1,
+        tactical_artifacts: LearningCorpusTacticalPreparedArtifactsV1,
         *,
         store: LearningCorpusStoreResumeResultV1,
         source_revision: int,
@@ -101,7 +124,18 @@ class LearningCorpusWebContextV1:
     ) -> None:
         if type(artifacts) is not LearningCorpusPreparedArtifactsV1:
             raise ValueError("artifacts must be exact Prepared Artifacts.")
+        if type(tactical_artifacts) is not LearningCorpusTacticalPreparedArtifactsV1:
+            raise ValueError("tactical_artifacts must be exact Tactical Prepared Artifacts.")
+        if (
+            artifacts.source_catalog_revision != tactical_artifacts.source_catalog_revision
+            or artifacts.source_catalog_content_fingerprint
+            != tactical_artifacts.source_catalog_content_fingerprint
+            or artifacts.player_catalog.player_catalog_fingerprint
+            != tactical_artifacts.player_catalog_fingerprint
+        ):
+            raise ValueError("Prepared artifact families must use one exact source.")
         self.prepared_artifacts = artifacts
+        self.tactical_prepared_artifacts = tactical_artifacts
         self._prepared_store = store
         self._prepared_source_revision = source_revision
         self._prepared_generation = generation

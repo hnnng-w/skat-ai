@@ -90,6 +90,7 @@ official Skat rules arbitration.
 * Optional complete Historical Replay Coaching Report with Key Decisions, Turning Points, one-game patterns, actionable recommendations, scope summaries, and separately attached retrospective outcome context
 * Separate Historical Information-set Replay Coaching with complete Information-set Candidates as primary evidence, diagnostic PIMC/Immediate baselines, no fallback, and explicit not-assessable coverage
 * Separate deterministic Historical Tactical Motif Review with decision-time facts, after-play and after-Trick evidence, exact structural taxonomy, safe counts, and no quality, signaling, communication, or causal claim
+* Separate Current-Match-Snapshot-only Learning Corpus Tactical Motif Evidence with exact Evidence-or-skip coverage and descriptive cross-game recurrence Counts without trait, quality, rate, significance, or causal claims
 * Versioned training/evaluation dataset records with provenance and explicit train, validation, and test partitions
 * Deterministic bounded-Search dataset evaluation over selected decision prefixes
 * Optional known-opponent or unseen-player partition policies with deterministic stable-player overlap audits
@@ -524,8 +525,9 @@ Start it with
 [Learning Corpus human Commentary and Response evidence](docs/learning_corpus_human_commentary_and_response_evidence.md),
 [Learning Corpus Strategy Teacher Evidence](docs/learning_corpus_strategy_teacher_evidence.md),
 [Learning Dataset version 2](docs/learning_dataset_v2.md),
-[Learning Dataset version 2 partition preparation](docs/learning_dataset_v2_partition_preparation.md), and
-[Learning Dataset version 2 cross-game summaries](docs/learning_dataset_v2_cross_game_summaries.md), and
+[Learning Dataset version 2 partition preparation](docs/learning_dataset_v2_partition_preparation.md),
+[Learning Dataset version 2 cross-game summaries](docs/learning_dataset_v2_cross_game_summaries.md),
+[Learning Corpus Tactical Motif evidence and summaries](docs/learning_corpus_tactical_motif_evidence_and_summaries.md), and
 [Learning Corpus browser workflows](docs/learning_corpus_browser_workflows.md).
 
 Issue #192 adds separate Information-set Replay Coaching and private Match
@@ -541,6 +543,30 @@ decision-time facts and completed-Trick outcomes only after completion, and
 exposes explicit Root CLI and private Match browser controls. Existing bounded
 and Information-set Replay Coaching reports remain unchanged. See [Tactical motif
 evidence](docs/tactical_motif_evidence.md).
+
+Issue #195 reuses the exact Issue #194 single-game detector over explicit Current
+Match Snapshots to build a separate process-local Tactical Motif Evidence family.
+Every observed Decision produces safe Evidence or an explicit skip; partial
+Matches and incomplete final Tricks remain bounded and factual. A separate
+Summary reports exact global, Player, role, seat, phase, contract, distinct-Game,
+distinct-Match, and `single_game_only`/`multiple_games_one_match`/
+`multiple_matches` recurrence Counts without rates, traits, quality,
+significance, correctness, causal, communication, or Coaching claims. Human,
+Strategy Teacher, and Tactical Evidence remain separate, and Learning Dataset
+version `2` is unchanged.
+
+The existing browser action prepares the two Tactical artifacts with the seven
+Issue #179 artifacts as one generation-safe process-local publication. It adds a
+minimized Tactical dashboard summary and two authenticated canonical downloads,
+bringing the current set to nine:
+
+* `/downloads/tactical-motif-evidence.json`
+* `/downloads/tactical-motif-cross-game-summary.json`
+
+Both exports remain deterministic, path-free, private, loopback-authenticated,
+and non-persisted. Issue #195 adds no Package/API/workflow/Console-Script/Schema/
+example/generated-scenario or Dataset-v2 contract change. See [Learning Corpus
+Tactical Motif evidence and summaries](docs/learning_corpus_tactical_motif_evidence_and_summaries.md).
 
 The facade executes already loaded Root documents without caller transport I/O
 and preserves Root JSON output by default. Its lazy schema backend uses packaged
@@ -1120,6 +1146,7 @@ Detailed documentation is split into topic-specific files:
 * [Learning Dataset version 2](docs/learning_dataset_v2.md)
 * [Learning Dataset version 2 partition preparation](docs/learning_dataset_v2_partition_preparation.md)
 * [Learning Dataset version 2 cross-game summaries](docs/learning_dataset_v2_cross_game_summaries.md)
+* [Learning Corpus Tactical Motif evidence and summaries](docs/learning_corpus_tactical_motif_evidence_and_summaries.md)
 * [Learning Corpus browser workflows](docs/learning_corpus_browser_workflows.md)
 * [Incremental Session transitions](docs/incremental_session_transitions.md)
 * [Retrospective Session export](docs/retrospective_session_export.md)
@@ -1320,6 +1347,12 @@ two append-only scenarios. The current working totals are therefore 71
 authoritative and packaged Schemas and 98 scenarios. Package version, Public API
 contract, Root workflows, Console Script, Settlement Matrix version `3` and 61
 cases, and six Session examples remain unchanged.
+
+Issue #195 adds private process-local Learning Corpus Tactical Motif Evidence,
+exact descriptive cross-game summaries, and two authenticated downloads. It adds
+no Schema, example, generated scenario, Package/API/workflow/Console-Script/
+Session change, or Learning Dataset version `2` mutation, so those current
+working totals remain unchanged.
 
 The historical published `v0.15.0` GitHub Release has
 release theme "Local EuroSkat 36er Match capture, analysis, and exports" and
@@ -1546,6 +1579,16 @@ taxonomy makes no quality, intent, signaling, communication, or causal claim.
 Existing Replay Coaching remains byte-compatible when the new option is omitted.
 See [Tactical motif evidence](docs/tactical_motif_evidence.md).
 
+Issue #195 reuses the exact detector through
+`build_tactical_decision_observation_from_snapshot_v1()` for every safely
+reconstructable observed Decision in explicit Current Match Snapshots and emits
+an explicit skip otherwise. It adds exact occurrence, distinct-Game, distinct-
+Match, Player, scope, and bounded recurrence Counts, but no trait, rate, quality,
+correctness, significance, intent, communication, causal, or Coaching inference.
+The Human, Strategy Teacher, and Tactical families remain separate; Dataset
+version `2` remains unchanged. See [Learning Corpus Tactical Motif evidence and
+summaries](docs/learning_corpus_tactical_motif_evidence_and_summaries.md).
+
 Remaining work includes Public Match API/Schema/data workflows, persisted Player
 aliases/assertions, Player merge/split operations, all-revision Player views,
 Player Catalog persistence and public exposure, public/task-specific Dataset
@@ -1743,7 +1786,10 @@ Runtime execution. Issue #184 adds the private bounded exhaustive exact AND/OR
   evidence without changing those counts or product surfaces. Issue #194 adds
   deterministic Historical Tactical Motif Review, one Schema, one example, and
   two scenarios, bringing the working baseline to 71 Schemas and 98 scenarios.
-  Tactical quality assessment and cross-game Coaching, carefully bounded Player
+  Issue #195 adds separate private Current-Snapshot Tactical Motif Evidence,
+  descriptive cross-game summaries, atomic browser preparation, and two more
+  downloads without changing those counts or Dataset version `2`. Tactical
+  quality assessment and cross-game Coaching, carefully bounded Player
   Ratings where approved, broader Provenance
   and Confidence integration, product/runtime performance acceptance gates,
   cross-machine latency guarantees, and the remaining
@@ -1761,6 +1807,8 @@ The Historical integration is documented in [Historical party-wide
   adjudication](docs/party_wide_claim_adjudication.md).
 Historical tactical observations are documented in [Tactical motif
 evidence](docs/tactical_motif_evidence.md).
+Their private Corpus Evidence and cross-game descriptive summaries are documented
+in [Learning Corpus Tactical Motif evidence and summaries](docs/learning_corpus_tactical_motif_evidence_and_summaries.md).
 
 ## Disclaimer
 
