@@ -205,8 +205,10 @@ Issue #190 does not integrate Information-set Search into Match Capture, Match
 Analysis Reports, Strategy Teacher Evidence, Replay Coaching classification, or
 performance measurement. Issue #191 subsequently adds only the bounded private
 one-Decision Match/Report/Teacher/Dataset/Corpus path; this Multi-Step integration
-is unchanged. Replay Coaching classification and performance measurement remain
-open.
+is unchanged. Issue #192 subsequently adds separate Information-set Replay
+Coaching and Match Historical integration, and Issue #193 adds separate bounded
+repository-local performance evidence. Production latency guarantees remain
+outside the v0.17.0 contract.
 
 The integration does not create a cross-decision global Policy, a joint
 Defender-team Policy, an equilibrium, Nash behavior, global optimization, or
@@ -219,4 +221,7 @@ See [Information-set Search contracts](information_set_search_contracts.md), the
 [Information-set Search executor](information_set_search_executor.md), and
 [Information-set Search workflows](information_set_search_workflows.md). See
 [Match Information-set Search and Strategy Teacher Evidence](match_information_set_search_and_strategy_teacher.md)
-for the later Issue #191 boundary.
+for the later Issue #191 boundary, [Information-set Replay Coaching and Match
+Historical analysis](information_set_replay_coaching_and_match_historical_analysis.md)
+for Issue #192, and [Information-set Search performance](information_set_search_performance.md)
+for Issue #193.

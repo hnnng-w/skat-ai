@@ -169,7 +169,9 @@ The existing local Corpus workflow accepts the exact Report-source upload,
 retains it in the bounded process-local source store, orders it after the three
 existing flat methods, and carries it through explicit Strategy Teacher,
 Dataset-v2, partition, and Summary preparation. The same seven authenticated
-canonical downloads remain available.
+canonical downloads remain available at the Issue #191 boundary. Issues #195
+and #196 subsequently add two Tactical downloads and one Coaching download for
+ten current downloads without changing this source path.
 
 Issue #191 adds no Corpus route, operation, download kind, persisted object,
 automatic Report capture, Public API, Schema, example, or generated scenario.
@@ -178,7 +180,9 @@ automatic Report capture, Public API, Schema, example, or generated scenario.
 
 The following remain open or intentionally unchanged:
 
-* performance and latency evidence;
+* production performance acceptance criteria and cross-machine latency
+  guarantees; Issue #193 separately supplies the bounded v0.17.0 benchmark
+  evidence;
 * automatic Report capture and Report or derived-artifact persistence;
 * Historical Strategy Teacher Report import and automatic Coaching Report
   transfer;

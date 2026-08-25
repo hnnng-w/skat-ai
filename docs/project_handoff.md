@@ -1525,6 +1525,7 @@ Main documentation files:
 * `docs/claim_and_settlement_v1_boundaries.md`
 * `docs/party_wide_claim_contracts.md`
 * `docs/party_wide_claim_proof_executor.md`
+* `docs/v0_17_release_readiness_audit.md`
 * `docs/v1_scope.md`
 * `docs/roadmap.md`
 * `docs/project_handoff.md`
@@ -1641,8 +1642,9 @@ and 6,925 pytest tests. The maintainer published the Release manually on
 2026-08-18 at commit `91b1360`, and Issue #181 synchronizes publication status.
 No Package-index or PyPI publication is claimed.
 
-The active next planning milestone is `v0.17.0 — Rules, Search, Coaching,
-and performance closure`. Issue #182 closes the Claim product-decision gate, and
+The `v0.17.0 — Rules, Search, Coaching, and performance closure` functional
+milestone is complete through Issue #196. Issue #182 closes the Claim product-
+decision gate, and
 Issue #183 adds private structured Claim and exact-proof contracts plus one
 untraversed exact-state preparation. Issue #184 adds private bounded exhaustive
 exact AND/OR proof execution. Issue #185 adds private valid-proof adjudication
@@ -1682,12 +1684,14 @@ at least two Games, retains at most five fixed-Guidance focus areas per Player,
 and keeps zero-count Players in Catalog order. It executes no analysis and makes
 no truth, perfect-play, Player-rating, intent, communication, causal, or
 significance claim.
-Product/runtime performance acceptance gates and latency guarantees remain open.
-Broader tactical quality assessment outside retained complete-Search evidence,
-carefully bounded Player Ratings where approved, broader Provenance and Confidence
-integration, and the remaining pre-v1 scope audit also remain open. Final Issue
-titles, count, architecture, solver design, Rating boundary, Coaching taxonomy,
-and Release date are not finalized. `v1.0.0` remains unready.
+Issue #193 satisfies the bounded v0.17.0 performance-evidence contract.
+Production performance criteria and cross-machine latency guarantees remain
+later v1 decisions rather than Release blockers. Broader tactical quality
+assessment outside retained complete-Search evidence, carefully bounded Player
+Ratings where approved, broader Provenance and Confidence integration, and the
+remaining pre-v1 scope audit also remain open. Issues #182 through #196 are the
+frozen functional history, and Issue #198 is the next action for Release
+preparation. `v1.0.0` remains unready.
 
 Historical published Package milestone: `v0.15.0`, providing usable manual post-
 game capture of one EuroSkat 36er Standard Match from descriptive video evidence.
@@ -2114,8 +2118,9 @@ Completed implementation scope:
   Partition Readiness summaries, with deterministic path-free exports
 * internal private Learning Corpus browser/CLI with one explicit root, strict
   16-MiB uploads, optimistic import/selection, process-local exact Report sources
-  and prepared artifacts, no-JavaScript forms, loopback security, and nine
-  canonical downloads without derived persistence or public contracts
+  and prepared existing/Tactical/Coaching artifacts, no-JavaScript forms,
+  loopback security, and ten canonical downloads without derived persistence or
+  public contracts
 
 ## Current high-priority limitations
 
@@ -2145,8 +2150,9 @@ Completed implementation scope:
   and unchanged `auto`. Issue #191 adds the bounded one-Decision Match/Report/
   Teacher/Dataset/Corpus path. Issue #192 adds separate Information-set Replay
   Coaching and Match Historical Information-set Review/Coaching. Issue #193 adds
-  repository-local benchmark evidence. Product/runtime performance acceptance
-  gates and latency guarantees remain open.
+  repository-local benchmark evidence and satisfies the bounded v0.17.0
+  performance-evidence contract. Production acceptance criteria and cross-machine
+  latency guarantees remain later v1 decisions rather than Release blockers.
   Compatible-world Minimax evaluates the frozen selected
   sequence and aggregates one exact common prefix, but it is determinization-based
   and subject to strategy fusion. Neither method is an optimal imperfect-
@@ -2265,34 +2271,19 @@ Completed implementation scope:
 
 ## Next recommended action
 
-Planning should use the active `v0.17.0 — Rules, Search, Coaching, and
-performance closure` milestone. Issue #182 closes the Claim product-decision
-gate, Issue #183 completes the private contracts and exact-state preparation,
-Issue #184 completes dedicated bounded proof traversal, and Issue #185 completes
-private adjudication and Settlement composition. Issue #186 completes the
-Historical-only runtime integration without broadening the durable v1
-exclusions. Issue #187 defines the private information-set Search foundation;
-Issue #188 adds the bounded Policy Search executor. Issue #189 adds strict flat
-routing, descriptive PIMC and Immediate comparison, separate Historical Review
-and Training Dataset evaluation, safe output, Provenance, CLI, Schemas, example,
-and scenario coverage. Issue #190 completes Multi-Step and Policy Comparison
-without changing existing `auto`. Issue #191 completes the bounded one-Decision
-Match/Report/Teacher/Dataset/Corpus path. Issue #192 completes separate
-Information-set Replay Coaching and Match Historical Information-set
-Review/Coaching. Issue #193 completes repository-local benchmark evidence. Issue
-#194 completes deterministic Historical Tactical Motif Review and Match browser
-integration. Issue #195 completes separate Current-Snapshot Tactical Motif
-Evidence, exact descriptive cross-game summaries, and current nine-download
-Corpus integration. Issue #196 completes separate deterministic Tactical Cross-
-game Coaching and current ten-download Corpus integration. Later work should
-decide product/runtime performance acceptance gates and latency requirements,
-broader tactical quality assessment, Player-rating boundaries, and Historical
-Teacher import.
-Continue keeping immutable imported
-Workspace Snapshots separate from future persisted or task-specific derived
-artifacts.
-Final Issue titles, count, architecture, solver design, Rating boundary, Coaching
-taxonomy, and Release date remain undecided. `v1.0.0` remains unready.
+Proceed with Issue #198, `Prepare v0.17.0 release`. The functional history is
+frozen as Issues #182 through #196, the Release theme is `Rules, Search,
+Coaching, and performance closure`, and the Release title is
+`v0.17.0 — Rules, Search, Coaching, and performance closure`. Issue #198 may
+update Package metadata, Changelog, and final Release documentation; publication
+remains a later manual maintainer action. Until then the Package version remains
+`0.16.0` and publication has not started.
+
+Continue keeping immutable imported Workspace Snapshots separate from future
+persisted or task-specific derived artifacts. Production performance criteria,
+broader tactical quality assessment, Player-rating boundaries, Historical
+Teacher import, and the complete v1 scope audit remain later work. `v1.0.0`
+remains unready.
 
 Do not infer automatic newest selection, fuzzy Player merging, cross-revision
 Decision lineage, deletion, garbage collection, Human Evidence persistence,

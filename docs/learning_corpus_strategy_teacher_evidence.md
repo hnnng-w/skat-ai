@@ -234,9 +234,10 @@ target `actual_card_played` remain unchanged.
 
 Issue #191 adds only the focused internal extension version `1`. Existing
 Strategy Teacher source, Evidence, Collection, and Export versions remain `1`;
-Dataset version `2` is unchanged. The current working baseline remains 69
-authoritative and packaged Schemas, six Session examples, and 94 generated-
-output scenarios. See
+Dataset version `2` is unchanged. The Issue #191 point-in-time baseline remains
+69 authoritative and packaged Schemas, six Session examples, and 94 generated-
+output scenarios; subsequent Issues #192 and #194 bring the current working
+totals to 71 Schemas and 98 scenarios without changing this contract. See
 [Match Information-set Search and Strategy Teacher Evidence](match_information_set_search_and_strategy_teacher.md).
 
 Strategy Teacher persistence, Corpus object storage, Public API, Schema,

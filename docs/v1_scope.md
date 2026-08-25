@@ -61,6 +61,12 @@ downloads. It changes no Package/API/workflow/Console-Script/Schema/example/
 generated-scenario/Session/Dataset-v2 baseline, so those working totals remain
 unchanged.
 
+Issue #196 adds private deterministic Tactical Cross-game Coaching and a tenth
+authenticated download. It changes no Package/API/workflow/Console-Script/
+Schema/example/generated-scenario/Session/Dataset-v2 baseline, so the current
+working totals remain 71 authoritative and packaged Schemas, six Session
+examples, and 98 scenarios.
+
 The historical published `v0.15.0` Release points to commit `ec1c154`. Package
 version `0.15.0` requires Python 3.13 or newer, retains Public API contract
 version `1` and exactly seven Root workflows, and contains 63 authoritative
@@ -260,11 +266,12 @@ no trait, rate, quality, correctness, significance, communication, causal, or
 Coaching claim. Human, Strategy Teacher, and Tactical Evidence remain separate;
 Learning Dataset version `2` remains unchanged. The browser atomically publishes
 the two additional process-local artifacts with the existing family and exposes
-nine current authenticated downloads. See [Learning Corpus Tactical Motif
+the Issue #195 point-in-time total of nine authenticated downloads. See [Learning
+Corpus Tactical Motif
 evidence and summaries](learning_corpus_tactical_motif_evidence_and_summaries.md).
 
-The active next planning milestone is `v0.17.0 — Rules, Search, Coaching,
-and performance closure`. Issue #182 closes the Claim product-decision gate, and
+The `v0.17.0 — Rules, Search, Coaching, and performance closure` functional
+milestone is complete through Issue #196. Issue #182 closes the Claim product-decision gate, and
 Issue #183
 adds private structured Claim, complete Evidence, exact-state, Proof Request/
 preparation, assignment, diagnostic-line, and Result contracts without proof or
@@ -304,11 +311,12 @@ from exact retained Tactical/Teacher evidence, complete-Search-only consensus,
 bounded repeated cross-Game focus and fixed Guidance, and a tenth Corpus download
 without changing Dataset version `2`. Broader tactical quality and Coaching
 outside retained complete-Search evidence, carefully bounded Player Ratings where
-approved, broader Provenance and Confidence integration, product/runtime
-performance acceptance gates, cross-machine latency guarantees, and the
-remaining pre-v1 scope audit also remain open. Final Issue
-titles, count, architecture, solver design, Rating boundary, Coaching taxonomy,
-and Release date are not finalized. `v1.0.0` remains unready.
+approved, broader Provenance and Confidence integration, production performance
+criteria, cross-machine latency guarantees, and the remaining pre-v1 scope audit
+also remain later v1 work rather than v0.17.0 Release blockers. Issue #193
+satisfies the bounded v0.17.0 performance-evidence contract. Issues #182 through
+#196 are the frozen functional history, and Issue #198 is the next action for
+Release preparation. `v1.0.0` remains unready.
 
 The November 2022 ISkO and SkWO publication is the normative source for official
 rules and competition behavior. Product capabilities such as simulation,
@@ -602,8 +610,10 @@ validation, and tests does not satisfy a gate.
 
 For the table below, Issue #193 supersedes older broad wording that says
 Information-set Search performance evidence remains open. Repository-local
-benchmark evidence is implemented. Product/runtime performance integration,
-cross-machine acceptance gates, and latency guarantees remain open.
+benchmark evidence implements the bounded v0.17.0 performance contract.
+Production performance criteria, cross-machine acceptance gates, and latency
+guarantees remain later v1 decisions and do not block v0.17.0 Release
+preparation.
 
 For the Search gate, Issue #114 added opt-in live Multi-Step and Policy
 Comparison routing to the flat strict/auto baseline described in the compact
@@ -675,14 +685,22 @@ GUI/platform/cloud/encryption layers remain open.
 | Documentation | README, public field provenance, installed CLI, packaging, architecture, input/output, scoring, game-end, overbid, performance, examples, schema validation, roadmap, handoff, traceability, and scope documentation agree with behavior, rule ownership, stable fields, limitations, Python baseline, and release baseline. |
 | Release hygiene | The human-reviewed release candidate has only intended changes; package metadata and changelog use the approved v1.0.0 version; `git diff --check` and the full check pass; the tag and GitHub Release are created by a human only after those facts are verified. |
 
+The complete-game row's absent cross-game analysis is scoped to the public
+Historical workflow. Issues #195 and #196 separately provide private Current-
+Snapshot Tactical cross-game Counts and bounded Coaching. The Issue #195
+nine-download statements are point-in-time boundaries; Issue #196 adds the
+current tenth authenticated download.
+
 Issue #191 supersedes the Match/Report/Teacher gap in the Information-set Search
 row for the bounded private one-Decision path. Issue #192 supersedes its Match
 Historical and Replay Coaching gap: the separate Coaching path uses complete
 Information-set Candidates as primary evidence, treats PIMC/Immediate as
 diagnostics without fallback, and reuses one retained Review; private Match
 Historical controls use one Application invocation and time-safe fixed Policies.
-Issue #193 adds repository-local benchmark evidence for the unchanged executor.
-Product/runtime performance acceptance gates and latency guarantees remain open.
+Issue #193 adds repository-local benchmark evidence for the unchanged executor
+and satisfies the bounded v0.17.0 performance-evidence contract. Production
+acceptance criteria and latency guarantees remain later v1 decisions and do not
+block v0.17.0 Release preparation.
 See
 [Match Information-set Search and Strategy Teacher Evidence](match_information_set_search_and_strategy_teacher.md)
 and [Information-set Replay Coaching and Match Historical analysis](information_set_replay_coaching_and_match_historical_analysis.md),
@@ -852,9 +870,10 @@ private Match browser controls without changing either Replay Coaching family.
 See [Tactical motif evidence](tactical_motif_evidence.md).
 
 Issue #195 adds separate private Current-Snapshot Tactical Motif Evidence, exact
-descriptive cross-game summaries, and current nine-download Corpus integration
-without changing Dataset version `2` or any Package/API/Schema/example/scenario
-count. See [Learning Corpus Tactical Motif evidence and summaries](learning_corpus_tactical_motif_evidence_and_summaries.md).
+descriptive cross-game summaries, and the Issue #195 point-in-time nine-download
+Corpus integration without changing Dataset version `2` or any Package/API/
+Schema/example/scenario count. See [Learning Corpus Tactical Motif evidence and
+summaries](learning_corpus_tactical_motif_evidence_and_summaries.md).
 
 Issue #196 adds separate deterministic Tactical Cross-game Coaching from exact
 retained Tactical/Teacher evidence, complete-Search-only semantic consensus,

@@ -1209,6 +1209,12 @@ preparation. Human, Strategy Teacher, and Tactical Evidence remain separate;
 Learning Dataset version `2` and the current 71-Schema/98-output counts remain
 unchanged.
 
+Issue #196 adds separate deterministic Tactical Cross-game Coaching from exact
+retained Tactical/Teacher evidence, complete-Search-only consensus, repeated
+cross-Game focus, fixed Guidance, atomic third-family publication, and a tenth
+authenticated download. Dataset version `2` and the current 71-Schema/98-output
+counts remain unchanged.
+
 Deletion and garbage collection, recovery UI, Player Catalog persistence,
 persisted aliases/assertions, merge/split operations, all-revision Player views,
 Human Evidence persistence and public API/Schema transport, Strategy Teacher
@@ -1230,10 +1236,10 @@ exposure remain open. No production model is planned for this milestone. See
 [Learning Corpus Tactical Motif evidence and summaries](learning_corpus_tactical_motif_evidence_and_summaries.md), and
 [Learning Corpus browser workflows](learning_corpus_browser_workflows.md).
 
-## Active next planning milestone: v0.17.0
+## Completed functional milestone: v0.17.0
 
-`v0.17.0 — Rules, Search, Coaching, and performance closure` is the active next
-planning milestone. Issue #182 closes the v1 Claim product-decision gate through
+`v0.17.0 — Rules, Search, Coaching, and performance closure` is functionally
+complete through Issue #196. Issue #182 closes the v1 Claim product-decision gate through
 an approved bounded direction. Issue #183 adds private structured Claim and exact-proof
 contracts plus one untraversed exact-state preparation without Runtime behavior.
 Issue #184 adds the private bounded exhaustive exact AND/OR executor without
@@ -1274,15 +1280,18 @@ Counts without changing Dataset version `2`. Issue #196 adds separate
 deterministic Tactical Cross-game Coaching from exact retained Tactical/Teacher
 evidence, complete-Search-only consensus, bounded repeated cross-Game focus and
 fixed Guidance, and one tenth Corpus download without changing Dataset version
-`2`. Broader tactical quality outside retained complete-Search evidence,
-carefully bounded Player Ratings where approved, broader Provenance and
-Confidence integration, product/runtime performance acceptance gates,
-cross-machine latency guarantees, and the remaining pre-v1 scope audit also
-remain open. See [Information-set Search workflows](information_set_search_workflows.md),
+`2`. Issue #193 satisfies the bounded v0.17.0 performance-evidence contract;
+production acceptance criteria and cross-machine latency guarantees remain later
+v1 decisions rather than Release blockers. Broader tactical quality outside
+retained complete-Search evidence, carefully bounded Player Ratings where
+approved, broader Provenance and Confidence integration, and the remaining pre-
+v1 scope audit also remain open. See [Information-set Search workflows](information_set_search_workflows.md),
 [Information-set Search Multi-Step and Policy Comparison](information_set_search_multi_step_and_policy_comparison.md),
 and [Information-set Search performance](information_set_search_performance.md).
-Final Issue titles, count, architecture, solver design, Rating boundary, Coaching
-taxonomy, and Release date are not finalized. `v1.0.0` remains unready.
+Issues #182 through #196 are the frozen functional history. Issue #198, `Prepare
+v0.17.0 release`, is the next action; Package `0.16.0` remains unchanged until
+that Release-preparation work. `v1.0.0` remains unready. See the
+[v0.17.0 scope and Release-readiness audit](v0_17_release_readiness_audit.md).
 
 ## Later planning milestone: v1.0.0
 
@@ -1481,9 +1490,12 @@ Issue #193 adds repository-local benchmark evidence without changing product
 surfaces or counts. Issue #194 adds Historical Tactical Motif Review, one Schema,
 one example, and two scenarios, bringing the working baseline to 71 Schemas and
 98 scenarios. Issue #195 adds separate private Current-Snapshot Tactical Motif
-Evidence, exact descriptive cross-game summaries, and current nine-download
-Corpus integration without changing those counts. Issue #196 adds separate
+Evidence, exact descriptive cross-game summaries, and the Issue #195 point-in-
+time nine-download Corpus integration without changing those counts. Issue #196
+adds separate
 bounded deterministic Tactical Cross-game Coaching and a tenth download without
-changing those counts or Dataset version `2`. Product/runtime performance
-integration, latency guarantees, broader tactical quality/Coaching, Player-rating
-boundaries, and the final `v1.0.0` Issue split and architecture remain open.
+changing those counts or Dataset version `2`. Issues #182 through #196 are the
+frozen v0.17.0 functional history, and Issue #198 is the next Release-preparation
+action. Production performance criteria, latency guarantees, broader tactical
+quality/Coaching, Player-rating boundaries, and the final `v1.0.0` Issue split
+and architecture remain later work rather than v0.17.0 Release blockers.

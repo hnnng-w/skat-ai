@@ -304,18 +304,22 @@ omitted.
 Broader Claim boundaries, including specific future-Trick Claims, remain
 `not_supported_v1`. Complete official Claim or Settlement coverage is not
 claimed. Issue #186 completes only the approved bounded v1 Claim and Final
-Settlement runtime slice. Stronger information-set Search is the next functional
-area.
+Settlement runtime slice. Issues #187 through #193 subsequently add the bounded
+Information-set Search contracts, executor, selected workflow integrations,
+Replay Coaching, and repository-local performance evidence without broadening
+the Claim boundary.
 
 ## Compatibility baseline
 
-The current unreleased working baseline is Settlement Normative Matrix version
-`3` with the same 61 cases, 65 authoritative Schemas, 65 Packaged Schema
-Resources, six Session examples, and 88 generated-output scenarios. Package
-version `0.16.0`, Python `>=3.13`, Public API contract version `1`, seven Root
-workflows, and one `skat-ai = skat_ai.cli:main` Console Script are unchanged.
-The published `v0.16.0` baseline remains the historical 63-Schema, 85-scenario
-release at commit `91b1360`.
+The Issue #186 point-in-time baseline is Settlement Normative Matrix version `3`
+with the same 61 cases, 65 authoritative Schemas, 65 Packaged Schema Resources,
+six Session examples, and 88 generated-output scenarios. The current unreleased
+working baseline after Issues #189, #192, and #194 has 71 authoritative and
+packaged Schemas, six Session examples, and 98 scenarios. Package version
+`0.16.0`, Python `>=3.13`, Public API contract version `1`, seven Root workflows,
+and one `skat-ai = skat_ai.cli:main` Console Script are unchanged. The published
+`v0.16.0` baseline remains the historical 63-Schema, 85-scenario release at
+commit `91b1360`.
 
 See [Party-wide Claim contracts](party_wide_claim_contracts.md), [Party-wide
 Claim proof executor](party_wide_claim_proof_executor.md), [Party-wide Claim

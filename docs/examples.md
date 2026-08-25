@@ -780,8 +780,11 @@ flat/Historical/Dataset Information-set Search scenarios, and Issue #190 appends
 `information_set_search_policy_comparison`, reaching the prior 94-scenario
 baseline. Issue #192 preserves those 94 definitions and order, then appends
 `historical_information_set_replay_coaching` and
-`historical_party_wide_claim_information_set_replay_coaching`. The current
-unreleased total is 96; the published 85-scenario facts remain unchanged.
+`historical_party_wide_claim_information_set_replay_coaching`. Issue #194
+preserves those 96 definitions and order, then appends
+`historical_tactical_motif_review_defender_partnership` and
+`historical_party_wide_claim_tactical_motif_review`. The current unreleased total
+is 98; the published 85-scenario facts remain unchanged.
 The behavioral match
 comparison does not evaluate recommendation quality or strategic strength.
 

@@ -102,12 +102,15 @@ the check finishes. It does not publish either artifact.
 
 ## Schema resources
 
-The 63 files under repository `schemas/` are the authoritative JSON Schemas.
+The 71 files under repository `schemas/` are the authoritative JSON Schemas for
+the current unreleased working baseline.
 Issue #156 adds strict standalone `session.schema.json`; Issue #157 extends that
 same file for Session creation, file API, observation, and review contracts
 without adding a 64th Schema. Wheel and sdist contain its byte-identical Package
-Resource mirror. The published `v0.14.0` baseline has 63 Schemas; the historical
-published `v0.13.0` baseline remains at 62 Schemas.
+Resource mirror. The current published `v0.16.0` and historical published
+`v0.15.0` and `v0.14.0` baselines have 63 Schemas; the historical published
+`v0.13.0` baseline remains at 62 Schemas. Issues #186, #189, #192, and #194 add
+the eight current unreleased Schemas.
 Every `*.schema.json` file is mirrored without transformation into:
 
 ```text
@@ -189,7 +192,7 @@ Wheel inspection verifies:
 
 * valid core metadata and the declared runtime and development dependencies;
 * every `skat_ai` Python module;
-* `py.typed` and all 63 byte-identical schema resources;
+* `py.typed` and all 71 byte-identical schema resources;
 * exact Capture Web template, CSS, and JavaScript resource bytes;
 * exact Corpus Web template, CSS, and JavaScript resource bytes;
 * a valid pure-Python Wheel and RECORD;
@@ -249,8 +252,9 @@ verifies:
 * one in-process loopback Corpus server initializes an explicit root, strictly
   imports the persisted Match Workspace, preserves explicit Current selection,
   prepares empty-Teacher Dataset-v2 values, strictly imports the exact executed
-  Decision Report source, prepares the complete seven-artifact set, authenticates
-  byte-exact canonical downloads, and invalidates them after source removal;
+  Decision Report source, prepares the existing, Tactical, and Coaching families,
+  authenticates all ten byte-exact canonical downloads, and invalidates them
+  after source removal;
 * installed, module, and Public Session API results have parity where
   applicable;
 * a valid unavailable Dataset Preparation Result remains successful;
@@ -270,7 +274,7 @@ The complete local check runs, in fail-fast order:
 1. Ruff;
 2. packaged-schema parity;
 3. Root and Session example schema validation;
-4. validation of all 85 generated-output scenarios;
+4. validation of all 98 generated-output scenarios;
 5. distribution artifact and clean-install validation;
 6. pytest.
 

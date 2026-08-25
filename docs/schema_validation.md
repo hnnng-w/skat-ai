@@ -52,7 +52,7 @@ The project check script also runs this validation:
 
 ## Packaged schema resources
 
-The repository `schemas/` directory remains authoritative. Every one of its 70
+The repository `schemas/` directory remains authoritative. Every one of its 71
 `*.schema.json` files is mirrored byte-for-byte into the private Package Resource
 namespace:
 

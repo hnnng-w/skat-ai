@@ -59,6 +59,12 @@ local Corpus preparation, minimized presentation, and two authenticated
 downloads. It changes no Package/API/workflow/Console-Script/Schema/example/
 generated-scenario/Session/Dataset-v2 baseline, so those totals remain unchanged.
 
+Issue #196 adds private deterministic Tactical Cross-game Coaching and a tenth
+authenticated download. It changes no Package/API/workflow/Console-Script/
+Schema/example/generated-scenario/Session/Dataset-v2 baseline, so the current
+working totals remain 71 authoritative and packaged Schemas, six Session
+examples, and 98 scenarios.
+
 The historical published `v0.15.0` Release points to commit `ec1c154`. Package
 version `0.15.0` requires Python `>=3.13`, retains Public API contract version
 `1` and exactly seven Root workflows, and contains 63 authoritative Schemas, 63
@@ -287,11 +293,12 @@ distinct-Game, distinct-Match, and bounded recurrence Counts, but no trait, rate
 quality, correctness, significance, intent, communication, causal, or Coaching
 claim. Human, Strategy Teacher, and Tactical Evidence remain separate, Learning
 Dataset version `2` is unchanged, and the browser atomically publishes two more
-process-local artifacts for nine current authenticated downloads. See [Learning
+process-local artifacts for the Issue #195 point-in-time total of nine
+authenticated downloads. See [Learning
 Corpus Tactical Motif evidence and summaries](learning_corpus_tactical_motif_evidence_and_summaries.md).
 
-The active next planning milestone is `v0.17.0 — Rules, Search, Coaching,
-and performance closure`. Issue #182 closes the v1 Claim product-decision gate
+The `v0.17.0 — Rules, Search, Coaching, and performance closure` functional
+milestone is complete through Issue #196. Issue #182 closes the v1 Claim product-decision gate
 and preserves all 61 case IDs.
 Issue #183 adds private structured Claim, complete Evidence, exact-state, Proof
 Request/preparation, assignment, diagnostic-line, and Result contracts without
@@ -332,12 +339,14 @@ game Counts without changing Dataset version `2`. Issue #196 adds separate
 deterministic Tactical Cross-game Coaching from exact retained Tactical/Teacher
 evidence, complete-Search-only consensus, bounded repeated cross-Game focus and
 fixed Guidance, and a tenth Corpus download without changing Dataset version
-`2`. Broader tactical quality outside retained complete-Search evidence,
-carefully bounded Player Ratings where approved, broader Provenance and Confidence integration, and
-product/runtime performance acceptance gates, cross-machine latency guarantees,
-and the remaining pre-v1 scope audit also remain open. Final Issue titles, count,
-architecture, solver design, Rating boundary, Coaching taxonomy, and Release date
-are not finalized. `v1.0.0` remains unready.
+`2`. Issue #193 satisfies the bounded v0.17.0 performance-evidence contract;
+production acceptance criteria and cross-machine latency guarantees remain later
+v1 decisions rather than Release blockers. Broader tactical quality outside
+retained complete-Search evidence, carefully bounded Player Ratings where
+approved, broader Provenance and Confidence integration, and the remaining pre-
+v1 scope audit also remain open. Issues #182 through #196 are the frozen
+functional history, and Issue #198 is the next action for Release preparation.
+`v1.0.0` remains unready.
 
 ## Status vocabulary
 
@@ -419,8 +428,9 @@ performance scoring.
 
 For this matrix, Issue #193 supersedes older broad wording that says Information-
 set Search performance evidence remains open. Repository-local benchmark
-evidence is implemented. Only product/runtime performance integration,
-cross-machine acceptance gates, and latency guarantees remain open.
+evidence implements the bounded v0.17.0 performance contract. Production
+performance criteria, cross-machine acceptance gates, and latency guarantees
+remain later v1 decisions and do not block v0.17.0 Release preparation.
 
 Issue #115 completes the functional `v0.10.0` bounded-search milestone beyond
 live and Multi-Step use. Flat post-game Search now runs an independent Immediate
@@ -723,6 +733,12 @@ maintainer's manual publication. See
 | Generated-output validation | skat-ai product | Not applicable | `supported` | The current unreleased matrix generates, semantically checks, and schema-validates 98 deterministic scenarios. Issue #186 preserves the published `v0.16.0` first 85 and appends three Historical Claim scenarios; Issue #189 appends four Information-set Search scenarios; Issue #190 appends Multi-Step and Policy Comparison scenarios; Issue #192 appends two Information-set Replay Coaching scenarios; Issue #194 preserves those first 96 and appends two Tactical Motif Review scenarios. Historical published `v0.13.0`, `v0.12.0`, `v0.11.0`, and `v0.10.0` counts remain 77, 70, 64, and 59. | Repository examples/fixtures, 71 schemas, and deterministic Root/Session CLI settings. | The matrix is representative rather than exhaustive; append-only additions do not rewrite historical published Release evidence. | Keep active and published counts explicit; retain prior order and add deterministic coverage for each stable user-facing branch. | v1.0 | Yes |
 | Release and regression checks | skat-ai product | Not applicable | `supported` | `scripts/check.ps1` and CI run Ruff, 71-Schema parity, Root/Session examples, 98 scenarios, Wheel/sdist inspection, clean API/Root/Session/Capture/Corpus CLI and browser smoke, and pytest on Python 3.13. | Development dependencies and supported platform tooling. | Passing checks proves tested behavior, not complete ISkO/SkWO compliance or Package-index publication; GitHub Releases is the authoritative publication record. | Require clean local/CI checks, exact Capture/Corpus resources, one Console Script, installed/module/Legacy/API parity, and human-controlled publication. | v1.0 | Yes |
 
+The complete-game row's absent cross-game analysis is scoped to the public
+Historical workflow. Issues #195 and #196 separately provide private Current-
+Snapshot Tactical cross-game Counts and bounded Coaching. Likewise, the Tactical
+Evidence row preserves Issue #195's nine-download point-in-time boundary; Issue
+#196 adds the current tenth authenticated download.
+
 Issue #191 extends the private Learning Corpus/Strategy Teacher, Dataset-v2,
 Match analysis/export, local Match browser, and Information-set Search rows with
 the bounded one-Decision Match/Report/Teacher/Dataset/Corpus path. Issue #192
@@ -742,8 +758,9 @@ and exhaustive and sampled selection. Tests freeze Information-set, PIMC,
 Immediate, comparison, structural, Strategy-Fusion, and duplicate-weight
 signatures; validate timing-output shape without elapsed thresholds; preserve
 fixture privacy; and verify the existing bounded-PIMC benchmark and public/count
-baselines are unchanged. Product/runtime gates and latency guarantees remain
-open. Issue #194 adds deterministic Historical Tactical Motif Review and private
+baselines are unchanged. Production criteria and latency guarantees remain later
+v1 decisions and do not block v0.17.0 Release preparation. Issue #194 adds
+deterministic Historical Tactical Motif Review and private
 Match browser controls; tactical quality, intent, signaling, communication,
 and causal classification remain open. Issue #195 adds separate private Current-
 Snapshot Evidence and exact descriptive cross-game Counts, but no trait, rate,

@@ -854,8 +854,9 @@ moves, treats PIMC and Immediate as diagnostics without fallback, and retains
 time-safe Profile-derived fixed Policies without World weighting. Issue #193
 adds a strict synthetic corpus, frozen functional and structural signatures,
 focused regression tests, and repository-local reference timings for the
-unchanged executor. Product/runtime performance acceptance gates and latency
-guarantees remain open. See [Information-set Search contracts](information_set_search_contracts.md),
+unchanged executor. This satisfies the bounded v0.17.0 performance-evidence
+contract; product SLA and cross-machine latency guarantees remain later v1
+decisions rather than Release blockers. See [Information-set Search contracts](information_set_search_contracts.md),
 the [Information-set Search executor](information_set_search_executor.md),
 [Information-set Search workflows](information_set_search_workflows.md), and
 [Information-set Search Multi-Step and Policy Comparison](information_set_search_multi_step_and_policy_comparison.md),

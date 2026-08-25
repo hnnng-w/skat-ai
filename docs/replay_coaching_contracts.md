@@ -710,10 +710,13 @@ The public information-safe version-1 one-game Replay Coaching workflow is
 functionally complete for `v0.11.0`. Broader Replay Coaching work still missing
 is:
 
-* tactical and contract-specific motif detectors;
-* cross-game pattern and player development analysis;
+* tactical quality assessment beyond Issue #194's separate structural Motif
+  detector and Issue #196's retained complete-Search Coaching slice;
+* broader interpreted cross-game patterns and player development analysis beyond
+  Issues #195 and #196's separate private descriptive and bounded artifacts;
 * any separately approved causal-language policy;
-* broader Search, information-set policy solving, and Strategy Fusion correction.
+* broader Search and Strategy-Fusion correction beyond the bounded selected-
+  world Information-set Policy Search added by Issues #187 through #193.
 
 These components require separate focused contracts and tests. Contract version
 1, prioritization version 1, guidance version 1, and report version 1 do not

@@ -428,13 +428,14 @@ The following remain open:
 
 * tactical quality assessment and human Commentary interpretation;
 * signaling or communication inference;
-* cross-game Coaching and Player Ratings;
+* broader cross-game Coaching beyond Issue #196's separate retained complete-
+  Search slice, and Player Ratings;
 * Historical Strategy Teacher Report import or automatic Coaching Report
   transfer;
 * automatic Coaching execution or Capture-to-Corpus transfer;
 * Information-set-aware `auto` and dedicated Information-set budget profiles;
-* product/runtime performance acceptance gates and cross-machine latency
-  guarantees;
+* production performance acceptance criteria and cross-machine latency
+  guarantees, which remain later v1 decisions rather than v0.17.0 blockers;
 * complete Strategy-Fusion correction; and
 * complete-contract or equilibrium solving.
 

@@ -186,6 +186,7 @@ Git and GitHub publication actions are performed manually by a human maintainer.
 Before larger changes, read the relevant documentation:
 
 * `README.md`
+* `docs/v0_17_release_readiness_audit.md`
 * `docs/project_handoff.md`
 * `docs/roadmap.md`
 * `docs/architecture.md`
@@ -482,8 +483,9 @@ Release manually on 2026-08-18 at commit `91b1360`, and Issue #181 synchronizes
 that publication status. GitHub Releases is the authoritative publication
 record; no Package-index or PyPI publication is claimed.
 
-The active next planning milestone is `v0.17.0 — Rules, Search, Coaching,
-and performance closure`. Issue #182 closes the Claim product-decision gate and approves one
+The `v0.17.0 — Rules, Search, Coaching, and performance closure` functional
+milestone is complete through Issue #196. Issue #182 closes the Claim product-
+decision gate and approves one
 bounded Retrospective party-wide all-remaining-Tricks Claim, and classifies every
 other current Claim boundary as `not_supported_v1`. Issue #183 adds private
 version-1 structured Claim, complete Evidence, exact-state, Proof Request,
@@ -524,14 +526,14 @@ summaries, and nine current browser downloads without changing Learning Dataset
 version `2`. Issue #196 adds separate deterministic Tactical Cross-game Coaching
 from exact retained Tactical/Teacher evidence, complete-Search-only consensus,
 bounded repeated cross-Game focus and fixed Guidance, and a tenth current browser
-download without changing Dataset version `2`. Broader tactical quality outside
-retained complete-Search evidence, carefully bounded Player Ratings where
-approved, broader Provenance and Confidence
-integration, product/runtime performance acceptance gates, cross-machine latency
-guarantees, and the remaining pre-v1 scope
-audit. These areas remain open. The final Issue titles, count, architecture,
-solver design, Rating boundary, Coaching taxonomy, and Release date are not
-finalized. `v1.0.0` remains unready, and no production model is planned.
+download without changing Dataset version `2`. Issue #193 satisfies the bounded
+v0.17.0 performance-evidence contract. Broader tactical quality outside retained
+complete-Search evidence, carefully bounded Player Ratings where approved,
+broader Provenance and Confidence integration, production performance criteria,
+cross-machine latency guarantees, and the remaining pre-v1 scope audit remain
+later decisions rather than v0.17.0 Release blockers. Issues #182 through #196
+are the frozen functional history, and Issue #198 is the next action for Release
+preparation. `v1.0.0` remains unready, and no production model is planned.
 
 Major completed areas include:
 

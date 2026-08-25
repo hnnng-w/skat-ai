@@ -334,7 +334,7 @@ flattened Public API envelope.
 The existing single distribution validator builds one Wheel and one sdist. Its
 clean environments verify exact Console Script metadata, module entry-point
 inclusion, Root-main exclusion, help, version, Root JSON parity, normal failure
-boundaries, provenance/quiet behavior, all 69 Schema Resources, and `py.typed`.
+boundaries, provenance/quiet behavior, all 71 Schema Resources, and `py.typed`.
 Issue #157 also verifies the public Session file namespace and Save/Load,
 installed/module Session help, `new`/`apply`/`show`, Position analysis,
 observation/review, Retrospective finalization, and an injected-I/O Assistant
@@ -354,10 +354,14 @@ help and execution parity, packaged four-Schema loading, strict Live execution,
 Historical Review, and Training Dataset evaluation. It adds no eighth Root
 workflow, second Console Script, or Public API contract version.
 Issue #190 preserves those interfaces while adding Multi-Step and Policy
-Comparison execution through existing options. The Schema count remains 69.
+Comparison execution through existing options. Its point-in-time Schema count
+remains 69; Issues #192 and #194 subsequently bring the current total to 71.
 Issue #191 adds no installed CLI flag or command. The existing private `capture`
 and `corpus` browser transports carry strict one-Decision Match Information-set
 Reports and focused Teacher/Dataset artifacts through their existing operations.
+Issues #195 and #196 extend current Corpus validation to the two Tactical
+downloads and one Coaching download for ten total without adding a Console
+Script.
 
 ## Boundaries
 
@@ -375,9 +379,11 @@ cloud synchronization,
 distributed locking,
 encryption/key management, and automatic backups remain open.
 Information-set Search remains bounded to its documented flat, Multi-Step, Policy
-Comparison, Historical Review, Training Dataset evaluation, and private one-
-Decision Match/Teacher routes. Match Historical Information-set execution,
-Replay Coaching classification, and performance integration remain open.
+Comparison, Historical Review, Training Dataset evaluation, private one-Decision
+Match/Teacher, Match Historical, and Replay Coaching routes. Issue #193 supplies
+the bounded repository-local performance evidence. Production acceptance
+criteria and cross-machine latency guarantees remain later v1 decisions rather
+than v0.17.0 Release blockers.
 See [Local Match Capture interface](local_match_capture_interface.md) and
 [Learning Corpus browser workflows](learning_corpus_browser_workflows.md) and
 [Public field provenance](public_field_provenance.md). See also

@@ -560,7 +560,7 @@ version `2` is unchanged.
 The existing browser action prepares the two Tactical artifacts with the seven
 Issue #179 artifacts as one generation-safe process-local publication. It adds a
 minimized Tactical dashboard summary and two authenticated canonical downloads,
-bringing the current set to nine:
+bringing the Issue #195 point-in-time set to nine:
 
 * `/downloads/tactical-motif-evidence.json`
 * `/downloads/tactical-motif-cross-game-summary.json`
@@ -1379,6 +1379,12 @@ no Schema, example, generated scenario, Package/API/workflow/Console-Script/
 Session change, or Learning Dataset version `2` mutation, so those current
 working totals remain unchanged.
 
+Issue #196 adds private deterministic Tactical Cross-game Coaching and a tenth
+authenticated download. It changes no Package/API/workflow/Console-Script/
+Schema/example/generated-scenario/Session/Dataset-v2 baseline, so the current
+working totals remain 71 authoritative and packaged Schemas, six Session
+examples, and 98 scenarios.
+
 The historical published `v0.15.0` GitHub Release has
 release theme "Local EuroSkat 36er Match capture, analysis, and exports" and
 GitHub Release title
@@ -1784,8 +1790,9 @@ communication task builders, communication-aware annotations, evaluation,
 ratings, derived AI tags, public API/Schema exposure, and model training remain
 open. No production model is included.
 
-The active next planning milestone is `v0.17.0 — Rules, Search, Coaching,
-and performance closure`. Issue #182 closes the Claim product-decision gate.
+The `v0.17.0 — Rules, Search, Coaching, and performance closure` functional
+milestone is complete through Issue #196. Issue #182 closes the Claim product-
+decision gate.
 Issue #183 adds private
 version-1 structured Claim, exact Evidence, exact-state, Proof Request,
 preparation, assignment, diagnostic-line, and Result contracts without proof or
@@ -1817,13 +1824,14 @@ Runtime execution. Issue #184 adds the private bounded exhaustive exact AND/OR
   downloads without changing those counts or Dataset version `2`. Issue #196
   adds exact Tactical/Teacher joins, deterministic complete-Search-only repeated
   cross-Game Coaching, atomic third-family publication, and a tenth download
-  without changing those counts or Dataset version `2`. Broader tactical quality
-  assessment, carefully bounded Player Ratings where approved, broader Provenance
-  and Confidence integration, product/runtime performance acceptance gates,
-  cross-machine latency guarantees, and the remaining
-  pre-v1 scope audit also remain open. The final Issue titles, count,
-  architecture, solver design, Rating boundary, Coaching taxonomy, and Release
-  date are not finalized. `v1.0.0` remains unready.
+  without changing those counts or Dataset version `2`. Issue #193 satisfies the
+  bounded v0.17.0 performance-evidence contract; production acceptance gates and
+  cross-machine latency guarantees remain later v1 decisions rather than Release
+  blockers. Broader tactical quality assessment, carefully bounded Player
+  Ratings where approved, broader Provenance and Confidence integration, and the
+  remaining pre-v1 scope audit remain open. Issues #182 through #196 are the
+  frozen functional history, and Issue #198 is the next action for Release
+  preparation. `v1.0.0` remains unready.
 
 Current support and known limitations are tracked in the
 [requirements traceability matrix](docs/requirements_traceability.md). Product
@@ -1837,6 +1845,8 @@ Historical tactical observations are documented in [Tactical motif
 evidence](docs/tactical_motif_evidence.md).
 Their private Corpus Evidence and cross-game descriptive summaries are documented
 in [Learning Corpus Tactical Motif evidence and summaries](docs/learning_corpus_tactical_motif_evidence_and_summaries.md).
+The frozen functional scope and Release-readiness decision are documented in the
+[v0.17.0 scope and Release-readiness audit](docs/v0_17_release_readiness_audit.md).
 
 ## Disclaimer
 
