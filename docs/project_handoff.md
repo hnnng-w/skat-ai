@@ -653,7 +653,7 @@ is unchanged. The stronger-search v1.0 gate therefore remains open. See
 
 ### Information-set Search
 
-Implemented in the current unreleased baseline:
+Implemented in the prepared `v0.17.0` baseline:
 
 * the private three-Trick selected-world controlled-Player best-response executor;
 * strict flat, Post-game, Historical Review, and Training Dataset evaluation
@@ -1534,9 +1534,14 @@ Main documentation files:
 
 Current published stable and latest stable GitHub Release: `v0.16.0`.
 
-Current Package version: `0.16.0`.
+Current Package version: `0.17.0`.
 
-Current Package baseline: `v0.16.0`.
+Current Package baseline: prepared `v0.17.0` Release candidate.
+
+Prepared Release theme: "Rules, Search, Coaching, and performance closure".
+
+Prepared GitHub Release title: "v0.17.0 — Rules, Search, Coaching, and
+performance closure".
 
 Published Release theme: "Learning-ready behavior and communication data".
 
@@ -1558,7 +1563,7 @@ implement the milestone, Issue #180 completed Release preparation, and Issue
 does not change product behavior. GitHub Releases is the authoritative
 publication record; no Package-index or PyPI publication is claimed.
 
-The current unreleased working baseline keeps Package version `0.16.0`, Python
+The prepared `v0.17.0` Package baseline uses Package version `0.17.0`, Python
 `>=3.13`, Public API contract version `1`, seven Root workflows, one Console
 Script, and six Session examples. Issue #186 updates the Matrix to version `3`
 with the same 61 cases. Issue #189 adds four Information-set Search Schemas, one
@@ -1584,7 +1589,7 @@ reference measurements. It changes no production code, Schema, route, profile,
 Public API, Package version, example, generated scenario, or working count.
 
 Issue #194 adds one strict Historical Tactical Motif Review Schema, one Root
-example, and two append-only scenarios. The current working totals are 71
+example, and two append-only scenarios. The prepared totals are 71
 authoritative and packaged Schemas and 98 scenarios. Package/API/workflow/
 Console-Script/Session baselines and Settlement Matrix version `3` with 61 cases
 remain unchanged.
@@ -1593,7 +1598,7 @@ Issue #195 adds private Current-Match-Snapshot-only Tactical Motif Evidence,
 explicit skips, exact descriptive cross-game summaries, atomic process-local
 Corpus preparation, minimized presentation, and two authenticated downloads. It
 changes no Package/API/workflow/Console-Script/Schema/example/generated-scenario/
-Session/Dataset-v2 baseline, so the current working totals remain 71 Schemas and
+Session/Dataset-v2 baseline, so the prepared totals remain 71 Schemas and
 98 scenarios.
 
 Issue #196 adds private deterministic Tactical Cross-game Coaching, exact
@@ -1603,6 +1608,15 @@ third-family Corpus publication, minimized aggregate presentation, and one tenth
 authenticated download. It changes no Package/API/workflow/Console-Script/
 Schema/example/generated-scenario/Session/Dataset-v2 baseline, so the current
 working totals remain 71 Schemas and 98 scenarios.
+
+Issue #197 records the documentation-only scope and Release-readiness audit.
+Issue #198 changes only Package metadata, current version expectations,
+Changelog, and Release-candidate documentation. Publication remains pending and
+manual; the published stable Release remains `v0.16.0` at `91b1360`, and no
+Package-index or PyPI publication is claimed.
+The prepared candidate has 71 authoritative and packaged Schemas, six Session
+examples, 98 generated outputs, ten private Corpus downloads, and 7,479 passing
+pytest tests.
 
 Historical published `v0.15.0` Release theme: "Local EuroSkat 36er Match
 capture, analysis, and exports".
@@ -1690,8 +1704,9 @@ later v1 decisions rather than Release blockers. Broader tactical quality
 assessment outside retained complete-Search evidence, carefully bounded Player
 Ratings where approved, broader Provenance and Confidence integration, and the
 remaining pre-v1 scope audit also remain open. Issues #182 through #196 are the
-frozen functional history, and Issue #198 is the next action for Release
-preparation. `v1.0.0` remains unready.
+frozen functional history. Issue #197 completes the documentation-only audit,
+and Issue #198 prepares Package `0.17.0` and the Release candidate without
+product behavior changes. Publication remains pending. `v1.0.0` remains unready.
 
 Historical published Package milestone: `v0.15.0`, providing usable manual post-
 game capture of one EuroSkat 36er Standard Match from descriptive video evidence.
@@ -1956,7 +1971,7 @@ publication.
 
 ## Current implementation baseline
 
-**Current unreleased working baseline over published v0.16.0**
+**Prepared v0.17.0 Package baseline over published v0.16.0**
 
 Completed implementation scope:
 
@@ -2271,13 +2286,15 @@ Completed implementation scope:
 
 ## Next recommended action
 
-Proceed with Issue #198, `Prepare v0.17.0 release`. The functional history is
-frozen as Issues #182 through #196, the Release theme is `Rules, Search,
-Coaching, and performance closure`, and the Release title is
-`v0.17.0 — Rules, Search, Coaching, and performance closure`. Issue #198 may
-update Package metadata, Changelog, and final Release documentation; publication
-remains a later manual maintainer action. Until then the Package version remains
-`0.16.0` and publication has not started.
+Review and manually publish the prepared `v0.17.0` Release candidate after the
+release-preparation diff and validation evidence are accepted. The functional
+history is frozen as Issues #182 through #196, Issue #197 is the completed scope
+and Release-readiness audit, and Issue #198 prepares Package `0.17.0` without
+product behavior changes. The Release theme is `Rules, Search, Coaching, and
+performance closure`, and the Release title is
+`v0.17.0 — Rules, Search, Coaching, and performance closure`. Commit, merge, CI,
+tagging, tag push, and GitHub Release creation remain manual maintainer actions;
+publication is pending.
 
 Continue keeping immutable imported Workspace Snapshots separate from future
 persisted or task-specific derived artifacts. Production performance criteria,

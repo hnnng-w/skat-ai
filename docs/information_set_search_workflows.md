@@ -17,7 +17,7 @@ common action. This is a bounded selected-world best response, not a three-playe
 equilibrium, joint Defender optimization, globally optimal imperfect-information
 Policy, complete-contract solver, or calibrated probability model.
 
-Package version `0.16.0`, Public API contract version `1`, the seven Root
+The current Package version is `0.17.0`; Public API contract version `1`, the seven Root
 workflows, and the one `skat-ai = skat_ai.cli:main` Console Script are unchanged.
 
 ## Flat method and settings
@@ -214,7 +214,7 @@ Issue #193 adds only a synthetic benchmark corpus, repository-local runner,
 focused tests, and performance documentation. It adds no Schema, example,
 generated scenario, route, profile, Public API, Package version, or count change.
 Issue #194 separately adds one Tactical Motif Review Schema, one Root example,
-and two scenarios, bringing the current working totals to 71 Schemas and 98
+and two scenarios, bringing the prepared totals to 71 Schemas and 98
 scenarios without changing Information-set Search.
 
 ## Integration boundary

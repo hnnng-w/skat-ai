@@ -940,7 +940,7 @@ def test_public_cli_schema_example_generated_and_package_boundaries_are_unchange
     project = tomllib.loads((PROJECT_ROOT / "pyproject.toml").read_text(encoding="utf-8"))[
         "project"
     ]
-    assert project["version"] == skat_ai.__version__ == "0.16.0"
+    assert project["version"] == skat_ai.__version__ == "0.17.0"
     assert project["requires-python"] == ">=3.13"
     assert project["scripts"] == {"skat-ai": "skat_ai.cli:main"}
 

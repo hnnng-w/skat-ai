@@ -35,7 +35,7 @@ PyPI publication is claimed.
 
 ## Release identity
 
-The future Release identity is frozen as:
+The Release identity is frozen as:
 
 ```text
 Theme:
@@ -45,8 +45,9 @@ Title:
     v0.17.0 — Rules, Search, Coaching, and performance closure
 ```
 
-This audit does not change the Package version, create a tag, publish a Release,
-or add final Release notes.
+Issue #197 itself did not change the Package version, create a tag, publish a
+Release, or add final Release notes. Issue #198 subsequently prepares the
+Package and Release candidate without publication.
 
 ## Published Release state
 
@@ -69,9 +70,39 @@ validation baseline is 63 authoritative Schemas, 63 Packaged Schema Resources,
 six Session examples, 85 generated-output scenarios, and 6,925 passing pytest
 tests in 1083.48s. These facts are not replaced by current working counts.
 
-## Unpublished working baseline
+## Prepared Release-candidate state
 
-The audited working baseline is:
+Issue #198 changes only Package metadata, current Package-version expectations,
+the Changelog, and current Release-candidate documentation. The resulting state
+is:
+
+```text
+Package baseline:
+    0.17.0
+
+Release candidate:
+    prepared
+
+Published stable Release:
+    v0.16.0 at 91b1360
+
+v0.17.0 publication:
+    pending
+
+v1.0.0:
+    not ready
+```
+
+Publication remains a manual maintainer action. No `v0.17.0` tag or GitHub
+Release exists yet, and no Package-index or PyPI publication is claimed.
+The prepared candidate retains Python `>=3.13`, Public API contract version `1`,
+seven Root workflows, one Console Script, Matrix version `3` with 61 cases, 71
+authoritative and packaged Schemas, six Session examples, 98 generated outputs,
+ten private Corpus downloads, and 7,479 passing pytest tests.
+
+## Issue #197 audited working baseline
+
+The working baseline audited by Issue #197 before Release preparation was:
 
 | Dimension | Current value |
 | --- | ---: |
@@ -282,12 +313,14 @@ The append-only generated-output matrix has 98 scenarios in stable order. Issue
 
 ## Packaging and distribution audit
 
-The unchanged Setuptools configuration builds one Wheel and one sdist. Clean-
-install validation checks Package `0.16.0`, Python `>=3.13`, API execution,
+The unchanged Setuptools configuration builds one Wheel and one sdist. At the
+time of the Issue #197 audit, clean-install validation checked Package `0.16.0`,
+Python `>=3.13`, API execution,
 installed/module CLI parity, the sole Console Script, all 71 packaged Schemas,
 Session files and commands, private Capture and Corpus transports, all ten Corpus
 downloads, and the absence of a second command or GUI Script. Distribution
-validation publishes nothing.
+validation publishes nothing. Issue #198 updates only the Package-version
+expectation to `0.17.0` and leaves those other checks unchanged.
 
 ## Current limitations
 
@@ -357,14 +390,18 @@ Limitations
 Upgrade Notes
 ```
 
-This structure is frozen here but is not added to `CHANGELOG.md` by Issue #197.
+This structure was frozen here by Issue #197 and is added to `CHANGELOG.md` by
+Issue #198.
 
-## Exact next action
+## Release-preparation completion
 
-Issue #198 must prepare `v0.17.0`: update Package metadata and version
-expectations, add the frozen Changelog structure, reconcile final Release
-documentation, and run Release-preparation validation. Tagging and GitHub Release
-publication remain later manual maintainer actions.
+Issue #198 prepares `v0.17.0`: it updates Package metadata and current version
+expectations, adds the frozen Changelog structure, reconciles final Release-
+candidate documentation, and reruns Release-preparation validation. It changes no
+product code, behavior, dependency, build backend, Package Data, Schema, example,
+generated output, benchmark value, persistence format, or non-Package contract
+version. Tagging and GitHub Release publication remain later manual maintainer
+actions.
 
 ## Release-readiness conclusion
 
@@ -373,16 +410,16 @@ Functional milestone:
     complete through Issue #196
 
 Release preparation:
-    ready
+    prepared by Issue #198
 
-Next Issue:
-    #198 Prepare v0.17.0 release
+Package baseline:
+    0.17.0
 
-Package version:
-    remains 0.16.0 until Issue #198
+Published stable Release:
+    v0.16.0 at 91b1360
 
-Publication:
-    not started
+v0.17.0 publication:
+    pending
 
 v1.0.0:
     not ready

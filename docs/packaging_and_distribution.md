@@ -24,7 +24,7 @@ Package Data is declared for:
 * `skat_ai.capture_web` HTML, CSS, and JavaScript resources;
 * `skat_ai.corpus_web` HTML, CSS, and JavaScript resources.
 
-The Package name remains `skat-ai`, the Package version is `0.16.0`, the
+The Package name remains `skat-ai`, the Package version is `0.17.0`, the
 Python requirement remains `>=3.13`, and `jsonschema` remains the runtime
 dependency. The `dev` extra includes `build`, pytest, and Ruff.
 
@@ -75,6 +75,8 @@ Script for one explicit private Learning Corpus root. Its local HTML, CSS, and
 JavaScript are Package Data; its process-local Report sources, prepared artifacts,
 and downloads are not. Issue #180 changes only Package version and matching
 release expectations to `0.16.0`.
+Issue #198 changes only Package version and matching Release-candidate
+expectations to `0.17.0`; publication remains manual and pending.
 
 ## Building artifacts
 
@@ -103,14 +105,14 @@ the check finishes. It does not publish either artifact.
 ## Schema resources
 
 The 71 files under repository `schemas/` are the authoritative JSON Schemas for
-the current unreleased working baseline.
+the prepared `v0.17.0` Package baseline.
 Issue #156 adds strict standalone `session.schema.json`; Issue #157 extends that
 same file for Session creation, file API, observation, and review contracts
 without adding a 64th Schema. Wheel and sdist contain its byte-identical Package
 Resource mirror. The current published `v0.16.0` and historical published
 `v0.15.0` and `v0.14.0` baselines have 63 Schemas; the historical published
 `v0.13.0` baseline remains at 62 Schemas. Issues #186, #189, #192, and #194 add
-the eight current unreleased Schemas.
+the eight prepared `v0.17.0` Schemas.
 Every `*.schema.json` file is mirrored without transformation into:
 
 ```text
@@ -177,7 +179,7 @@ distributions resolve it through:
 importlib.metadata.version("skat-ai")
 ```
 
-The current value is `0.16.0`. A source-only environment without installed
+The current value is `0.17.0`. A source-only environment without installed
 distribution metadata returns `0+unknown` without reading `pyproject.toml` or
 another repository file. Package version remains independent of API contract,
 Application, Schema, Provenance, and Domain versions. It is not added to API
@@ -215,7 +217,7 @@ installs from an external working directory with `PYTHONPATH` removed, and
 verifies:
 
 * imports resolve from that environment's `site-packages`;
-* `skat_ai.__version__ == "0.16.0"`;
+* `skat_ai.__version__ == "0.17.0"`;
 * `py.typed` is locatable;
 * every installed schema has exact repository filename and byte parity, valid
   UTF-8 and JSON, and its unchanged `$id`;
@@ -319,3 +321,8 @@ commit `91b1360`, and Issue #181 synchronizes publication status without product
 functionality. GitHub Releases is the authoritative publication record; no
 Package-index or PyPI publication is claimed. Derived artifacts remain non-
 persisted and private.
+Issue #197 records the documentation-only `v0.17.0` scope and Release-readiness
+audit. Issue #198 prepares Package `0.17.0`, matching assertions, Changelog, and
+Release-candidate documentation without changing product behavior, dependencies,
+the build backend, Package Data, or non-Package contract versions. Publication
+remains a pending manual maintainer action.

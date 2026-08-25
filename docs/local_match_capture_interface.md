@@ -303,7 +303,9 @@ version-1 contracts. `capture` is a transport command family, not an eighth Root
 workflow. The historical published Match Capture Package baseline is `0.15.0`;
 the current published Package baseline is `0.16.0`. The seven Root workflows,
 Public APIs, 63 Schemas, six Session examples, and 85 generated-output scenarios
-are unchanged across those baselines.
+are unchanged across those published baselines. The prepared current Package
+candidate is `0.17.0`; it preserves the workflow, API, and Session-example
+counts while using the 71-Schema and 98-scenario baseline below.
 
 The Issue #190 working baseline had 69 authoritative and packaged Schemas and 94
 generated-output scenarios. Issue #191 changes neither count and adds only the
@@ -311,7 +313,7 @@ private one-Decision Match Information-set path and existing Corpus transfer.
 Issue #192 adds Match Historical Information-set Review/Coaching, one Schema, one
 example, and two scenarios. Issue #193 adds benchmark evidence without changing
 those counts. Issue #194 adds Historical Tactical Motif Review, one Schema, one
-example, and two scenarios. The current working totals are 71 Schemas and 98
+example, and two scenarios. The prepared totals are 71 Schemas and 98
 scenarios, with six unchanged Session examples. See
 [Match Information-set Search and Strategy Teacher Evidence](match_information_set_search_and_strategy_teacher.md).
 
@@ -321,9 +323,9 @@ rule and unchanged Workspace persistence. It adds no Public Match API, Match
 Schema, Match JSON/data CLI workflow, Capture CLI option, or public/task-specific
 Dataset workflow. Issue #179 separately adds a private local Learning Corpus and
 Dataset-v2 browser without adding derived persistence, a Public API, or Schema.
-Database, remote serving, cloud
-synchronization, encryption, backup, YouTube integration, or EuroSkat
-integration. Commentary and Response Links remain outside Search and Coaching.
+Database, remote serving, cloud synchronization, encryption, backup, YouTube
+integration, and EuroSkat integration remain absent. Commentary and Response
+Links remain outside Search and Coaching.
 
 Issue #168 completes the functional `v0.15.0` local Match Capture milestone.
 Issue #169 completed Package/release metadata and documentation preparation

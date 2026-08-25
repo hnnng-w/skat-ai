@@ -21,7 +21,7 @@ def test_issue_186_preserves_package_api_cli_and_updates_artifact_baselines() ->
     pyproject = tomllib.loads((PROJECT_ROOT / "pyproject.toml").read_text(encoding="utf-8"))
     project = pyproject["project"]
 
-    assert project["version"] == skat_ai.__version__ == "0.16.0"
+    assert project["version"] == skat_ai.__version__ == "0.17.0"
     assert project["requires-python"] == ">=3.13"
     assert project["scripts"] == {"skat-ai": "skat_ai.cli:main"}
     assert api_v1.PUBLIC_API_CONTRACT_VERSION == 1

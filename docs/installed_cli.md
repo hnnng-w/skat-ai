@@ -14,7 +14,7 @@ root `python main.py` is the Legacy compatibility interface and remains supporte
 through at least `v1.0.0`.
 
 Issue #147 adds the same optional `--include-provenance` transport flag to all
-three forms. The Package version is `0.16.0`.
+three forms. The Package version is `0.17.0`.
 
 Issue #189 adds the same Root Information-set Search modes and validation to all
 three forms without adding a Root workflow, command family, or Console Script.
@@ -59,7 +59,7 @@ python -m skat_ai --version
 The exact installed version output is:
 
 ```text
-skat-ai 0.16.0
+skat-ai 0.17.0
 ```
 
 The source-only fallback, when distribution metadata is unavailable, is:

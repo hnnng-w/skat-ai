@@ -242,7 +242,7 @@ resources, and one in-process create/start/declare/Card/persist/shutdown smoke
 flow in the same clean environments. Package version `0.14.0`, seven Root
 workflows, 12 Session subcommands, 63 authoritative and packaged Schemas, and 85
 generated-output scenarios remain unchanged by Issue #165. The current Package
-version is `0.16.0`; the workflow, subcommand, Schema, scenario, and one-Console-
+version is `0.17.0`; the workflow, subcommand, Schema, scenario, and one-Console-
 Script baselines remain unchanged.
 Issue #179 adds exact packaged Corpus browser resources,
 installed/module/Legacy Corpus help parity, and a clean-install initialize,
@@ -251,3 +251,5 @@ without changing the then-current Package version `0.15.0`, seven Root workflows
 12 Session subcommands, 63 Schemas, six Session examples, 85 generated outputs,
 or the one Console Script. Issue #180 changes only Package version and matching
 release expectations to `0.16.0`.
+Issue #198 later changes only Package version and matching Release-candidate
+expectations to `0.17.0`.

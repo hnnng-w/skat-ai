@@ -34,7 +34,7 @@ status after manual maintainer publication on 2026-08-18. GitHub Releases is the
 authoritative publication record; no Package-index or PyPI publication is
 claimed.
 
-The current unreleased working baseline keeps Package version `0.16.0`, Public
+The prepared `v0.17.0` Package baseline uses Package version `0.17.0`, Public
 API contract version `1`, seven Root workflows, one Console Script, and six
 Session examples. Issue #186 adds two authoritative and packaged Historical
 Claim Schemas plus three append-only generated-output scenarios, bringing the
@@ -48,7 +48,7 @@ Replay Coaching Schema, one Root example, and two append-only scenarios, bringin
 the Issue #192 point-in-time totals to 70 Schemas and 96 scenarios while preserving the
 Issue #190 and published baselines. Issue #193 changes neither count. Issue #194
 adds one strict Historical Tactical Motif Review Schema, one Root example, and
-two append-only scenarios, bringing the current working totals to 71 Schemas and
+two append-only scenarios, bringing the prepared totals to 71 Schemas and
 98 scenarios.
 
 The historical published `v0.15.0` baseline at commit `ec1c154` contains 63
@@ -783,8 +783,9 @@ baseline. Issue #192 preserves those 94 definitions and order, then appends
 `historical_party_wide_claim_information_set_replay_coaching`. Issue #194
 preserves those 96 definitions and order, then appends
 `historical_tactical_motif_review_defender_partnership` and
-`historical_party_wide_claim_tactical_motif_review`. The current unreleased total
-is 98; the published 85-scenario facts remain unchanged.
+`historical_party_wide_claim_tactical_motif_review`. The prepared `v0.17.0` total
+is 98; the published 85-scenario facts remain unchanged. Issue #198 changes no
+example or generated-scenario definition.
 The behavioral match
 comparison does not evaluate recommendation quality or strategic strength.
 

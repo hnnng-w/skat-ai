@@ -1,5 +1,166 @@
 # Changelog
 
+## v0.17.0
+
+**Release theme: Rules, Search, Coaching, and performance closure**
+
+### Highlights
+
+* Complete the bounded `v0.17.0` functional milestone across Claims and
+  Settlement, Information-set Search, Replay Coaching, Tactical Motif Evidence,
+  private Learning Corpus summaries and Coaching, and deterministic performance
+  evidence (Issues #182 through #196).
+* Preserve explicit evidence, privacy, compatibility, and product boundaries
+  rather than broadening the implemented slices into general Claim, complete-
+  contract Search, tactical-truth, Player-Rating, or publication claims.
+
+### Bounded Claim and Settlement completion
+
+* Update the Settlement Normative Matrix to version `3` while retaining exactly
+  61 canonical cases and approve one Historical party-wide all-remaining-Tricks
+  Claim with at most five unresolved Tricks (Issues #182 and #186).
+* Add private structured Claim, complete Evidence, exact-state, Proof Request,
+  preparation, assignment, diagnostic-line, and Result contracts plus bounded
+  exhaustive exact AND/OR Proof execution (Issues #183 and #184).
+* Adjudicate only valid Proofs, assign the unresolved remainder exactly, and
+  reuse the existing Final Settlement composition; invalid and unavailable
+  Proofs produce no outcome or Settlement (Issues #185 and #186).
+* Keep Claim entry Historical-only and retain the documented specific-Trick,
+  free-text, unlimited-proof, multiple-continuation, arbitrary-event, and other
+  durable `not_supported_v1` exclusions.
+
+### Information-set Search and selected-world Strategy consistency
+
+* Add a private bounded selected-world best response for controlled Player `me`
+  against deterministic fixed `left` and `right` actors, requiring one common
+  action for equal controlled Observations over at most three unresolved Tricks
+  (Issues #187 and #188).
+* Reuse exact or deterministic sampled Compatible-world selection, retain each
+  sampled draw and duplicate-draw unit weight, and expose conservative
+  `complete`, `partial`, `timeout`, and `unavailable` Results (Issues #187 and
+  #188).
+* Limit exactness to the retained selected-world sequence under the supplied
+  fixed Policies; do not claim equilibrium, calibrated probability, complete
+  Strategy-Fusion correction, complete-contract solving, or global optimality.
+
+### Decision-analysis and simulation workflow integration
+
+* Add strict flat Live Search, descriptive Post-game comparison with same-
+  selection PIMC and independently seeded Immediate diagnostics, separate
+  Historical Review, and Training Dataset evaluation without fallback (Issue
+  #189).
+* Integrate fresh public-state Information-set Search into each Multi-Step local
+  Decision and append it once and last in Policy Comparison, with independent
+  private coherent execution Worlds, no Search World or Policy reuse, and no-
+  recommendation stopping without fallback (Issue #190).
+* Add explicit one-Decision Match analysis, exact Report-source transfer,
+  method-bound Strategy Teacher Evidence, existing Dataset-v2 joins, summary
+  counts, and existing Corpus workflow propagation (Issue #191).
+* Keep omitted-method behavior and the existing `auto` route unchanged; `auto`
+  remains compatible-world PIMC followed by its existing Immediate fallback.
+
+### Information-set Replay Coaching
+
+* Add a separate Information-set Replay Coaching family that reuses one retained
+  Information-set Review and treats complete Candidate Evidence as the primary
+  strategic evidence (Issue #192).
+* Keep same-selection PIMC and independent Immediate results diagnostic-only,
+  provide no fallback for incomplete Information-set Search, and retain factual
+  forced-move handling (Issue #192).
+* Reuse deterministic assessment, impact prioritization, Key Decisions, Turning
+  Points, one-game patterns, fixed Guidance, and final Outcome Context while
+  preserving decision-time and retrospective evidence boundaries (Issue #192).
+
+### Tactical Motif Evidence
+
+* Add Historical Tactical Motif Review with the exact 16-type lead-structure,
+  void-response, Trick-control, Defender-partnership, hand-shape, and Trick-
+  outcome taxonomy (Issue #194).
+* Retain the exact taxonomy: `trump_lead`, `non_trump_lead`,
+  `new_effective_category_lead`, `repeat_effective_category_lead`,
+  `void_trump_play`, `void_non_trump_discard`, `available_trump_not_used`,
+  `opposing_side_overtake`, `current_trick_win_available_not_taken`,
+  `lowest_cost_current_winner`, `partner_effective_category_return`,
+  `partner_overtake`, `partner_safe_point_load`,
+  `point_card_captured_by_partner`, `effective_category_exhausted`, and
+  `point_card_lost_to_opposing_side` (Issue #194).
+* Separate decision-time facts, retrospective actual-play facts, and completed-
+  Trick facts; support shortened Games and incomplete final Tricks without
+  hidden completion or tactical-quality, intent, signaling, communication, or
+  causal claims (Issue #194).
+
+### Learning Corpus Tactical Evidence and Cross-game Coaching
+
+* Reuse the exact Tactical detector over explicit Current Match Snapshots,
+  represent every observed Decision with safe Evidence or an explicit skip, and
+  add exact descriptive global, Player, scope, distinct-Game, distinct-Match,
+  and bounded recurrence Counts (Issue #195).
+* Add exact Tactical/Teacher joins, retain one Assessment per exact Teacher
+  Report, and count semantic duplicates once per Decision consensus (Issue
+  #196).
+* Restrict actionable focus to unanimous complete-Search below-best evidence
+  repeated across at least two Decisions and two Games, cap each Player at five
+  Focus Areas, and use fixed Guidance without truth, trait, Rating, intent,
+  significance, communication, or causal claims (Issue #196).
+* Publish the existing, Tactical, and Coaching process-local prepared families
+  atomically with generation-safe invalidation and ten authenticated private
+  downloads; keep Learning Dataset version `2` unchanged (Issues #195 and #196).
+
+### Performance, determinism, information safety, and compatibility
+
+* Add one strict eight-case synthetic Information-set Search benchmark with
+  frozen functional and structural gates, same-selection PIMC and independent
+  Immediate diagnostics, Strategy-Fusion characterization, duplicate-weight
+  characterization, and one documented local Python 3.13 timing reference
+  (Issue #193).
+* Treat elapsed timings as local observations only, with no cross-machine
+  latency, SLO, production acceptance, quality, or global-optimality gate.
+* Keep exact Search Worlds, hidden hands, controlled Policy tables, caches, and
+  derived seeds private; attach actual Cards and Outcome Context only after the
+  corresponding decision analysis and classification stages.
+* Preserve Python `>=3.13`, Public API contract version `1`, exactly seven Root
+  workflows, one `skat-ai = skat_ai.cli:main` Console Script, Matrix version `3`
+  with 61 cases, 71 authoritative and packaged Schemas, six Session examples,
+  98 generated outputs, and ten private Corpus downloads.
+
+### Validation
+
+* Validate 71 authoritative and byte-identical Packaged Schema Resources, six
+  unchanged Session examples, 98 deterministic generated outputs, and 7,479
+  pytest tests on Python 3.13.
+* Validate Ruff, Schema/example/generated-output checks, the eight-case
+  benchmark gates, Wheel and sdist metadata, exact `0.17.0` installed metadata,
+  all three Root CLI version forms, and installed/module/Legacy Session,
+  Capture, and Corpus help, assets, and clean-install behavior (Issue #198).
+
+### Limitations
+
+* Keep the approved Claim bounded to Historical party-wide ownership of all
+  unresolved Tricks with at most five unresolved Tricks; general Claim input and
+  complete official Settlement coverage remain incomplete.
+* Keep Information-set Search bounded to selected Worlds, controlled Player
+  `me`, deterministic fixed other actors, and at most three unresolved Tricks;
+  there is no equilibrium, complete-contract, calibrated-probability, global-
+  Policy, or cross-machine latency claim.
+* Keep Tactical and Coaching artifacts structural, descriptive, private,
+  process-local, and non-persisted; broader tactical quality, Player Ratings,
+  communication interpretation, significance, causality, cloud, encryption,
+  and broader field-level Provenance remain open.
+
+### Upgrade Notes
+
+* Update Package metadata and current version expectations from `0.16.0` to
+  `0.17.0` without changing dependencies, build backend, Package Data, public or
+  non-Package contract versions, persistence formats, Schemas, examples,
+  generated outputs, benchmark values, or product behavior (Issue #198).
+* Require no migration when the additive Claim, Search, Coaching, and Tactical
+  options are omitted; existing `auto`, Root, Session, Match, Corpus, and Dataset
+  behavior remains compatible.
+* Record Issue #197 as the documentation-only scope and Release-readiness audit
+  and Issue #198 as Release preparation. Publication remains a manual maintainer
+  action; GitHub Releases remains authoritative, and no Package-index or PyPI
+  publication is claimed.
+
 ## v0.16.0
 
 **Release theme: Learning-ready behavior and communication data**

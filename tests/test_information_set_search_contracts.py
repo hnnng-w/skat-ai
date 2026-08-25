@@ -441,6 +441,6 @@ def test_public_package_schema_example_and_scenario_baselines_are_unchanged() ->
     project = tomllib.loads((PROJECT_ROOT / "pyproject.toml").read_text(encoding="utf-8"))[
         "project"
     ]
-    assert project["version"] == skat_ai.__version__ == "0.16.0"
+    assert project["version"] == skat_ai.__version__ == "0.17.0"
     assert project["requires-python"] == ">=3.13"
     assert project["scripts"] == {"skat-ai": "skat_ai.cli:main"}

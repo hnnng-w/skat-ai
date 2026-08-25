@@ -9,7 +9,7 @@ Commentary interpretation, or Strategy Teacher preparation.
 The family is process-local and non-persisted. It adds no Corpus object kind,
 Catalog field, Public API, Root workflow, Schema, example, generated-output
 scenario, Package-version change, or Learning Dataset version `2` change.
-Package `0.16.0`, Public API contract version `1`, seven Root workflows, one
+The current Package is `0.17.0`; Public API contract version `1`, seven Root workflows, one
 Console Script, 71 authoritative and packaged Schemas, six Session examples, and
 98 generated-output scenarios remain unchanged.
 

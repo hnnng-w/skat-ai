@@ -509,7 +509,7 @@ published `v0.16.0` manually on 2026-08-18 at commit `91b1360`, and Issue #181
 synchronizes publication status. GitHub Releases is the authoritative
 publication record; no Package-index or PyPI publication is claimed.
 
-Issue #191 extends the current unreleased baseline with strict one-Decision Match
+Issue #191 extends the prepared `v0.17.0` baseline with strict one-Decision Match
 `information_set_search`, safe revision-scoped diagnostics, exact Report-source
 transfer, focused Current-Snapshot Strategy Teacher Evidence, existing Dataset-v2
 joins and cross-game method counts, and the unchanged local Corpus preparation
@@ -1340,7 +1340,7 @@ synchronizes publication status without changing product behavior. GitHub
 Releases is the authoritative publication record; no Package-index or PyPI
 publication is claimed.
 
-The current unreleased working baseline keeps Package version `0.16.0`, Python
+The prepared `v0.17.0` Package baseline uses Package version `0.17.0`, Python
 `>=3.13`, Public API contract version `1`, exactly seven Root workflows, one
 Console Script, and six Session examples. Issue #186 updates the Settlement
 Normative Matrix to version `3` with the same 61 cases and adds the Historical-
@@ -1368,7 +1368,7 @@ Public API, Package version, example, or generated scenario, so those working
 counts and published Release facts remain unchanged.
 
 Issue #194 adds one strict Tactical Motif Review Schema, one Root example, and
-two append-only scenarios. The current working totals are therefore 71
+two append-only scenarios. The prepared totals are therefore 71
 authoritative and packaged Schemas and 98 scenarios. Package version, Public API
 contract, Root workflows, Console Script, Settlement Matrix version `3` and 61
 cases, and six Session examples remain unchanged.
@@ -1384,6 +1384,16 @@ authenticated download. It changes no Package/API/workflow/Console-Script/
 Schema/example/generated-scenario/Session/Dataset-v2 baseline, so the current
 working totals remain 71 authoritative and packaged Schemas, six Session
 examples, and 98 scenarios.
+
+Issue #197 records the documentation-only scope and Release-readiness audit.
+Issue #198 changes only Package metadata, current version expectations,
+Changelog, and Release-candidate documentation to prepare `v0.17.0` without
+product behavior changes. Publication remains pending and manual; the current
+published stable Release remains `v0.16.0` at commit `91b1360`, GitHub Releases
+remains authoritative, and no Package-index or PyPI publication is claimed.
+The prepared candidate has 71 authoritative and packaged Schemas, six Session
+examples, 98 generated outputs, ten private Corpus downloads, and 7,479 passing
+pytest tests.
 
 The historical published `v0.15.0` GitHub Release has
 release theme "Local EuroSkat 36er Match capture, analysis, and exports" and
@@ -1830,8 +1840,10 @@ Runtime execution. Issue #184 adds the private bounded exhaustive exact AND/OR
   blockers. Broader tactical quality assessment, carefully bounded Player
   Ratings where approved, broader Provenance and Confidence integration, and the
   remaining pre-v1 scope audit remain open. Issues #182 through #196 are the
-  frozen functional history, and Issue #198 is the next action for Release
-  preparation. `v1.0.0` remains unready.
+  frozen functional history. Issue #197 completes the documentation-only scope
+  and Release-readiness audit, and Issue #198 prepares Package `0.17.0` and the
+  Release candidate without product behavior changes. Publication remains a
+  pending manual maintainer action. `v1.0.0` remains unready.
 
 Current support and known limitations are tracked in the
 [requirements traceability matrix](docs/requirements_traceability.md). Product

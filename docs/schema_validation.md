@@ -248,7 +248,7 @@ generated scenario file. The maintainer published the Release manually on
 the authoritative publication record; no Package-index or PyPI publication is
 claimed.
 
-The current unreleased working baseline adds strict
+The prepared `v0.17.0` Package baseline adds strict
 `historical_party_wide_claim.schema.json` and
 `historical_party_wide_claim_output.schema.json` resources, plus:
 
@@ -265,9 +265,9 @@ Issue #186 reached 65 Schemas, Issue #189 reached 69, and Issue #190 reused thos
 69 while bringing the scenario matrix to 94. Issue #192 adds Information-set
 Replay Coaching and two scenarios, reaching 70 Schemas and 96 scenarios. Issue
 #193 changes neither count. Issue #194 adds the final Schema above and two
-append-only scenarios. The current working baseline has 71 authoritative and
+append-only scenarios. The prepared baseline has 71 authoritative and
 byte-identical packaged Schemas, six unchanged Session examples, and 98
-generated-output scenarios. Package version `0.16.0`,
+generated-output scenarios. Package version `0.17.0`,
 Public API contract version `1`, seven Root workflows, and one Console Script
 remain unchanged; the published counts above remain historical Release facts.
 
@@ -397,7 +397,7 @@ historical_tactical_motif_review_defender_partnership
 historical_party_wide_claim_tactical_motif_review
 ```
 
-The current unreleased matrix therefore has 98 scenarios. The additions cover
+The prepared `v0.17.0` matrix therefore has 98 scenarios. The additions cover
 complete normal-play Tactical Motif Review with Defender partnership aggregates
 and the exact pre-Claim observation prefix with complete Claim Result
 Provenance.

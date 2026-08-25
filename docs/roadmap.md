@@ -258,7 +258,7 @@ Implemented:
 * Lazy Package Resource Root input/output/artifact schema validation with RFC
   6901 errors and stable boundary translation
 * Explicit Setuptools build metadata, `skat_ai*` discovery, Package Data, and the
-  current `0.16.0` Package version
+  current `0.17.0` Package version
 * Byte-identical private Schema resources with deterministic synchronization and
   local/CI parity checks
 * PEP 561 `py.typed`, Package-Root version metadata, one Wheel and one sdist,
@@ -863,6 +863,23 @@ Implemented:
 
 ## Release baselines
 
+### v0.17.0: Rules, Search, Coaching, and performance closure
+
+The prepared Package candidate completes functional Issues #182 through #196,
+the documentation-only scope and Release-readiness audit in Issue #197, and
+Release preparation in Issue #198. Package version `0.17.0` requires Python 3.13
+or newer, retains Public API contract version `1`, exactly seven Root workflows,
+and one Console Script, contains 71 authoritative and packaged Schemas, includes
+six unchanged Session examples, validates 98 deterministic generated outputs,
+and passes 7,479 pytest tests.
+
+The Release theme is "Rules, Search, Coaching, and performance closure", and the
+prepared GitHub Release title is
+"v0.17.0 — Rules, Search, Coaching, and performance closure". Publication remains
+a manual maintainer action. No `v0.17.0` tag or GitHub Release is claimed; the
+published stable Release remains `v0.16.0` at `91b1360`, GitHub Releases remains
+authoritative, and no Package-index or PyPI publication is claimed.
+
 ### v0.16.0: Learning-ready behavior and communication data
 
 The current published stable and latest stable GitHub Release completes
@@ -1167,7 +1184,7 @@ Issue #181 synchronizes publication status without product functionality. The
 Package preserves 63 authoritative and packaged Schemas, six Session examples,
 85 generated outputs, and 6,925 pytest tests.
 
-The current unreleased working baseline keeps Package version `0.16.0`, Public
+The prepared `v0.17.0` Package baseline uses Package version `0.17.0`, Public
 API contract version `1`, seven Root workflows, one Console Script, and six
 Session examples. Issue #186 updates the Matrix to version `3` with the same 61
 cases. Issue #189 adds four Information-set Search Schemas, one example, and four
@@ -1183,7 +1200,7 @@ Schema, example, generated output, Public API, persistence, or new command.
 
 Issue #192 subsequently adds separate Information-set Replay Coaching, private
 Match Historical Information-set Review/Coaching, one strict Schema, one Root
-example, and two append-only generated outputs. The current working baseline is
+example, and two append-only generated outputs. The prepared baseline is
 therefore 70 authoritative and packaged Schemas, six Session examples, and 96
 generated outputs. Package version, Public API contract, seven Root workflows,
 one Console Script, and Settlement Matrix version `3` with 61 cases remain
@@ -1198,7 +1215,7 @@ Issue #194 adds deterministic Historical Tactical Motif Review with one retained
 Decision Snapshot sequence, exact structural lead/void/Trick-control/Defender-
 partnership/hand-shape/outcome evidence, complete Provenance, one strict Schema,
 one Root example, two append-only generated outputs, and private Match browser
-controls. The current working baseline is therefore 71 authoritative and
+controls. The prepared baseline is therefore 71 authoritative and
 packaged Schemas, six Session examples, and 98 generated outputs. Package/API/
 workflow/Console-Script/Settlement baselines remain unchanged.
 
@@ -1236,7 +1253,7 @@ exposure remain open. No production model is planned for this milestone. See
 [Learning Corpus Tactical Motif evidence and summaries](learning_corpus_tactical_motif_evidence_and_summaries.md), and
 [Learning Corpus browser workflows](learning_corpus_browser_workflows.md).
 
-## Completed functional milestone: v0.17.0
+## Prepared Package milestone: v0.17.0
 
 `v0.17.0 — Rules, Search, Coaching, and performance closure` is functionally
 complete through Issue #196. Issue #182 closes the v1 Claim product-decision gate through
@@ -1288,9 +1305,11 @@ approved, broader Provenance and Confidence integration, and the remaining pre-
 v1 scope audit also remain open. See [Information-set Search workflows](information_set_search_workflows.md),
 [Information-set Search Multi-Step and Policy Comparison](information_set_search_multi_step_and_policy_comparison.md),
 and [Information-set Search performance](information_set_search_performance.md).
-Issues #182 through #196 are the frozen functional history. Issue #198, `Prepare
-v0.17.0 release`, is the next action; Package `0.16.0` remains unchanged until
-that Release-preparation work. `v1.0.0` remains unready. See the
+Issues #182 through #196 are the frozen functional history. Issue #197 completes
+the documentation-only scope and Release-readiness audit, and Issue #198 prepares
+Package `0.17.0`, the Changelog, current expectations, and Release-candidate
+documentation without product behavior changes. Publication remains pending and
+manual. `v1.0.0` remains unready. See the
 [v0.17.0 scope and Release-readiness audit](v0_17_release_readiness_audit.md).
 
 ## Later planning milestone: v1.0.0
@@ -1300,7 +1319,7 @@ authoritative audit of current ISkO, SkWO, and skat-ai product support. The
 [v1.0 scope](v1_scope.md) defines required product directions, unresolved
 implementation details, and testable completion gates.
 
-`v1.0.0` remains not ready after the published `v0.16.0` Package baseline through
+`v1.0.0` remains not ready after the prepared `v0.17.0` Package baseline through
 internal Match metadata, observed-Game and
 commentary, persistent Workspace, rapid-entry Application, private local browser
 and autosave transport, Match-bound Statistics editing and time-safe Profile
@@ -1495,7 +1514,9 @@ time nine-download Corpus integration without changing those counts. Issue #196
 adds separate
 bounded deterministic Tactical Cross-game Coaching and a tenth download without
 changing those counts or Dataset version `2`. Issues #182 through #196 are the
-frozen v0.17.0 functional history, and Issue #198 is the next Release-preparation
-action. Production performance criteria, latency guarantees, broader tactical
+frozen v0.17.0 functional history, Issue #197 is the completed documentation-only
+audit, and Issue #198 prepares the Package candidate without product behavior
+changes. Publication remains pending. Production performance criteria, latency
+guarantees, broader tactical
 quality/Coaching, Player-rating boundaries, and the final `v1.0.0` Issue split
 and architecture remain later work rather than v0.17.0 Release blockers.

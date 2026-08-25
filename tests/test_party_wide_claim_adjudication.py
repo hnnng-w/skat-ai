@@ -1422,7 +1422,7 @@ def test_matrix_runtime_historical_public_and_artifact_boundaries_are_current() 
     assert len(SCENARIOS) == 98
     with (PROJECT_ROOT / "pyproject.toml").open("rb") as file:
         project = tomllib.load(file)["project"]
-    assert project["version"] == skat_ai.__version__ == "0.16.0"
+    assert project["version"] == skat_ai.__version__ == "0.17.0"
     assert project["requires-python"] == ">=3.13"
 
 

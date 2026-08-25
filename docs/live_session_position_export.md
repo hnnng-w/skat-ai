@@ -32,7 +32,7 @@ historical_game
 
 These additions do not change Session, Command, transition, projection,
 Position input, Public API, Application, CLI, Schema, or Provenance versions.
-Package version is `0.16.0`. Session Persistence version `1` is independent
+Package version is `0.17.0`. Session Persistence version `1` is independent
 of the export-options and Decision-Checkpoint versions.
 
 ## Position export options

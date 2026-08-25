@@ -279,7 +279,7 @@ def test_persistence_and_import_remain_private_compatibility_additions_only() ->
     assert TRAINING_TARGET == "actual_card_played"
     assert len(SCENARIOS) == 98
     pyproject = tomllib.loads((PROJECT_ROOT / "pyproject.toml").read_text())
-    assert pyproject["project"]["version"] == "0.16.0"
+    assert pyproject["project"]["version"] == "0.17.0"
     assert pyproject["project"]["requires-python"] == ">=3.13"
     assert pyproject["project"]["scripts"] == {"skat-ai": "skat_ai.cli:main"}
     assert len(tuple((PROJECT_ROOT / "schemas").glob("*.schema.json"))) == 71

@@ -200,9 +200,9 @@ Provenance, and Settlement.
 Complete Evidence and private proof Results remain Retrospective values and may
 contain the exact complete Deal. The Historical output exposes only assignment,
 counters, and one diagnostic decisive line, without remaining hands, exact state,
-memo table, or complete proof tree. Package version `0.16.0`, Public API contract
+memo table, or complete proof tree. Package version `0.17.0`, Public API contract
 version `1`, seven Root workflows, one Console Script, and six Session examples
-remain unchanged. The unreleased working baseline has 65 authoritative and
+remain unchanged. The Issue #186 point-in-time baseline has 65 authoritative and
 packaged Schemas and 88 generated outputs; the published `v0.16.0` baseline
 remains 63 and 85 respectively.
 

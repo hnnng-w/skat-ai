@@ -27,7 +27,7 @@ SESSION_CHECKPOINT_LINEAGE_VERSION = 1
 History Edit and Checkpoint Lineage versions are independent of the Package,
 Public API, Application, installed CLI, Session, Command, transition, projection,
 Request-export, Position-option, Decision-Checkpoint, Provenance, Schema, and
-other Domain versions. Package version is `0.16.0`. Session Persistence
+other Domain versions. Package version is `0.17.0`. Session Persistence
 version `1` is also independent of both versions here.
 
 The canonical Undo statuses are:

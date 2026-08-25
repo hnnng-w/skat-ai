@@ -35,7 +35,7 @@ PARTY_WIDE_CLAIM_PROOF_PREPARATION_VERSION = 1
 PARTY_WIDE_CLAIM_PROOF_RESULT_VERSION = 1
 ```
 
-These versions do not change Package version `0.16.0`, Public API contract
+These versions do not change the current Package version `0.17.0`, Public API contract
 version `1`, Historical version `1`, Search, Dataset, Provenance, or other Domain
 versions. Issue #186 updates the independent Matrix to version `3` and adds
 independent Historical Claim input and summary version `1` contracts.

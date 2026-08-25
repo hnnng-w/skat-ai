@@ -14,7 +14,7 @@ INFORMATION_SET_SEARCH_MULTI_STEP_DECISION_VERSION = 1
 INFORMATION_SET_SEARCH_POLICY_COMPARISON_INTEGRATION_VERSION = 1
 ```
 
-Package version `0.16.0`, Public API contract version `1`, the seven Root
+The current Package version is `0.17.0`; Public API contract version `1`, the seven Root
 workflows, and the one `skat-ai = skat_ai.cli:main` Console Script are unchanged.
 
 ## Multi-Step decision boundary
@@ -194,7 +194,7 @@ the existing exact nine `information_set_search_settings` fields. Existing
 
 `examples/information_set_search_multi_step.json` is the focused one-decision
 input. Two append-only generated-output scenarios cover strict Multi-Step with
-opt-in Provenance and the five-row Policy Comparison. The current unreleased
+opt-in Provenance and the five-row Policy Comparison. The Issue #190 point-in-time
 totals are 69 authoritative and packaged Schemas, six Session examples, and 94
 generated-output scenarios. Published `v0.16.0` facts remain 63 Schemas, six
 Session examples, and 85 scenarios.

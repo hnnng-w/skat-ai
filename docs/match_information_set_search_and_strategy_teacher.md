@@ -12,14 +12,14 @@ The focused internal contract identities are:
 * `MATCH_INFORMATION_SET_SEARCH_INTEGRATION_VERSION = 1`
 * `LEARNING_CORPUS_INFORMATION_SET_STRATEGY_TEACHER_EXTENSION_VERSION = 1`
 
-The integration does not change Package version `0.16.0`, Public API contract
-version `1`, the seven Root workflows, the one Console Script, any existing
-Match, Strategy Teacher, Dataset, Summary, Report-source, or Web Protocol
-contract version, or any public Schema. The working baseline remains 69
-authoritative and packaged Schemas, six Session examples, and 94 generated-
-output scenarios.
+The integration does not change Package version independently; the current
+Package version is `0.17.0`. It leaves Public API contract version `1`, the seven
+Root workflows, the one Console Script, every existing Match, Strategy Teacher,
+Dataset, Summary, Report-source, and Web Protocol contract version, and every
+public Schema unchanged.
 
-That 69/94 count is the Issue #191 point-in-time baseline. Issue #192
+The Issue #191 point-in-time baseline is 69 authoritative and packaged Schemas,
+six Session examples, and 94 generated-output scenarios. Issue #192
 subsequently adds separate Information-set Replay Coaching and Match Historical
 Information-set Review/Coaching, one Schema, one Root example, and two scenarios.
 The Issue #192 point-in-time baseline is therefore 70 authoritative and packaged
@@ -28,7 +28,7 @@ Decision Teacher path in this document remains unchanged.
 
 Issue #193 changes neither count, and Issue #194 adds one Tactical Motif Review
 Schema and two scenarios. The
-current working baseline is 71 Schemas and 98 scenarios; the one-Decision Teacher
+prepared baseline is 71 Schemas and 98 scenarios; the one-Decision Teacher
 path remains unchanged.
 
 ## Match execution

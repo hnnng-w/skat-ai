@@ -71,7 +71,7 @@ DEFAULT_POLICY_COMPARISON_SMOKE_EXAMPLE = (
     PROJECT_ROOT / "examples" / "grand_second_position.json"
 )
 PACKAGE_NAME = "skat-ai"
-PACKAGE_VERSION = "0.16.0"
+PACKAGE_VERSION = "0.17.0"
 EXPECTED_SCHEMA_RESOURCE_COUNT = 71
 SCHEMA_RESOURCE_PREFIX = "skat_ai/schema_resources/"
 CAPTURE_RESOURCE_PREFIX = "skat_ai/capture_web/"
@@ -2134,8 +2134,8 @@ assert unavailable_document["field_provenance"]["result"]["ledger"]["status"] ==
 )
 
 distribution = importlib.metadata.distribution("skat-ai")
-assert distribution.version == "0.16.0"
-assert skat_ai.__version__ == "0.16.0"
+assert distribution.version == "0.17.0"
+assert skat_ai.__version__ == "0.17.0"
 entry_points = [
     (entry.group, entry.name, entry.value)
     for entry in distribution.entry_points
@@ -2537,7 +2537,7 @@ def _install_and_smoke(
             expected_returncode=0,
         )
         _require(
-            version_result.stdout == "skat-ai 0.16.0\n" and not version_result.stderr,
+            version_result.stdout == "skat-ai 0.17.0\n" and not version_result.stderr,
             f"{label} {command_name} --version output changed.",
         )
 

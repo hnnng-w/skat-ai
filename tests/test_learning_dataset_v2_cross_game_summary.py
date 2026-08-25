@@ -292,7 +292,7 @@ def test_versions_vocabularies_policies_document_kind_and_domains_are_exact() ->
     assert TRAINING_DATASET_SCHEMA_VERSION == 1
     assert TRAINING_TARGET == "actual_card_played"
     assert PUBLIC_API_CONTRACT_VERSION == 1
-    assert __version__ == "0.16.0"
+    assert __version__ == "0.17.0"
 
 
 def test_summary_contract_field_sets_are_exact() -> None:

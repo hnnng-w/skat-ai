@@ -1374,5 +1374,5 @@ def test_existing_engine_contracts_replay_public_api_cli_and_counts_are_unchange
     assert len(tuple(packaged_schema_directory.glob("*.schema.json"))) == 71
     assert len(SCENARIOS) == 98
     pyproject = tomllib.loads((PROJECT_ROOT / "pyproject.toml").read_text(encoding="utf-8"))
-    assert pyproject["project"]["version"] == "0.16.0"
-    assert skat_ai.__version__ == "0.16.0"
+    assert pyproject["project"]["version"] == "0.17.0"
+    assert skat_ai.__version__ == "0.17.0"

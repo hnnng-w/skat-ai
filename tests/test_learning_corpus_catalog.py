@@ -319,7 +319,7 @@ def test_catalog_and_snapshot_are_private_internal_compatibility_additions_only(
     assert len(SCENARIOS) == 98
 
     pyproject = tomllib.loads((PROJECT_ROOT / "pyproject.toml").read_text(encoding="utf-8"))
-    assert pyproject["project"]["version"] == "0.16.0"
+    assert pyproject["project"]["version"] == "0.17.0"
     assert pyproject["project"]["scripts"] == {"skat-ai": "skat_ai.cli:main"}
     assert len(tuple((PROJECT_ROOT / "schemas").glob("*.schema.json"))) == 71
     assert len(tuple((PROJECT_ROOT / "src/skat_ai/schema_resources").glob("*.schema.json"))) == 71

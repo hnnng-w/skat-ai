@@ -1104,7 +1104,7 @@ def test_generation_executes_one_group_derivation_algorithm_audit_and_plan_hash(
 
 def test_private_architecture_and_compatibility_baselines_remain_unchanged() -> None:
     pyproject = tomllib.loads((PROJECT_ROOT / "pyproject.toml").read_text())
-    assert pyproject["project"]["version"] == "0.16.0"
+    assert pyproject["project"]["version"] == "0.17.0"
     assert pyproject["project"]["requires-python"] == ">=3.13"
     assert pyproject["project"]["scripts"] == {"skat-ai": "skat_ai.cli:main"}
     assert LEARNING_DATASET_VERSION == 2

@@ -126,6 +126,12 @@ and one authenticated path-free download brings the current set to ten. Learning
 Dataset version `2`, Dataset-v2 Summary, persistence, Public API, Schema, Root
 workflow, example, and generated-output contracts remain unchanged.
 
+Issue #197 records the documentation-only `v0.17.0` scope and Release-readiness
+audit. Issue #198 prepares Package `0.17.0`, matching expectations, Changelog,
+and Release-candidate documentation without changing this architecture or any
+product behavior. Publication remains pending and manual; the published stable
+Release remains `v0.16.0` at `91b1360`.
+
 Issues #160 through #168 form the published `v0.15.0` Package baseline, and Issue
 #169 updated only Package/release metadata and documentation to complete Release
 preparation. Issue #170 synchronizes the subsequent manual publication at commit

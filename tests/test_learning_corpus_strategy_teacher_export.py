@@ -247,7 +247,7 @@ def test_strategy_teacher_modules_do_not_import_forbidden_boundaries() -> None:
 
 def test_strategy_teacher_remains_private_and_baselines_are_unchanged() -> None:
     pyproject = tomllib.loads((PROJECT_ROOT / "pyproject.toml").read_text())
-    assert pyproject["project"]["version"] == "0.16.0"
+    assert pyproject["project"]["version"] == "0.17.0"
     assert pyproject["project"]["requires-python"] == ">=3.13"
     assert pyproject["project"]["scripts"] == {"skat-ai": "skat_ai.cli:main"}
     assert TRAINING_DATASET_SCHEMA_VERSION == 1

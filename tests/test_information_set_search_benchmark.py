@@ -721,7 +721,7 @@ def test_package_public_artifact_and_changelog_baselines_are_unchanged() -> None
     pyproject = tomllib.loads((PROJECT_ROOT / "pyproject.toml").read_text(encoding="utf-8"))
     project = pyproject["project"]
 
-    assert project["version"] == skat_ai.__version__ == "0.16.0"
+    assert project["version"] == skat_ai.__version__ == "0.17.0"
     assert project["requires-python"] == ">=3.13"
     assert project["scripts"] == {"skat-ai": "skat_ai.cli:main"}
     assert api_v1.PUBLIC_API_CONTRACT_VERSION == 1
@@ -743,5 +743,5 @@ def test_package_public_artifact_and_changelog_baselines_are_unchanged() -> None
     assert len(tuple((PROJECT_ROOT / "examples").glob("session_*.json"))) == 6
     assert len(SCENARIOS) == 98
     assert hashlib.sha256(CHANGELOG_PATH.read_bytes()).hexdigest().upper() == (
-        "0AEF77FFD68792C6DA579C8C4440B54B5D3AC07E8AD14FFD43CF40092DF8A5AC"
+        "A0C06B51FC41D7C7C1BE8F60684EA5E378E9D759748F24FAF3AA205172C1D178"
     )
