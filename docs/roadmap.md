@@ -1327,10 +1327,11 @@ Player Ratings, latency guarantees, public Match/Corpus/Dataset-v2 surfaces, and
 derived persistence are not v1 requirements. Broader solver, auction,
 learned-model, and hosted/remote work is post-v1.
 
-Before `v1.0.0`, the project still requires exhaustive official-rule evidence,
-internal load-to-serialization Provenance enforcement, canonical Multi-Step phase
-closure, a human Package license decision, final installation/platform evidence,
-final readiness evidence, and Package `1.0.0` Release preparation. End-to-end
+Issue #201 closes the exhaustive official-rule evidence gate without product-code
+change. Before `v1.0.0`, the project still requires internal load-to-serialization
+Provenance enforcement, canonical Multi-Step phase closure, a human Package
+license decision, final installation/platform evidence, final readiness evidence,
+and Package `1.0.0` Release preparation. End-to-end
 local Live and Retrospective Session capture is complete
 through Issues #150 through #157, including public files, automatic Checkpoints,
 accepted-Log observation, isolated review, explicit analysis, all 12 CLI
@@ -1520,5 +1521,7 @@ audit, and Issue #198 prepares the Package candidate without product behavior
 changes. The maintainer published it on 2026-08-25 at `8187fbe`, and Issue #199
 synchronizes that publication without product functionality. Issue #200 freezes
 the bounded `v1.0.0` scope, seven blockers, and exact #201 through #207 sequence.
-`v1.0.0` remains unready, and Issue #201 is next. No v1 Release title, theme,
-date, tag, or publication commit is frozen.
+Issue #201 adds independent exhaustive official-rule evidence, makes R-01 and
+R-06 `satisfied`, and closes B-01 without product-code change. Six blockers B-02
+through B-07 remain; `v1.0.0` is unready, and Issue #202 is next. No v1 Release
+title, theme, date, tag, or publication commit is frozen.

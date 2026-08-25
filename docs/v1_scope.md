@@ -331,7 +331,10 @@ without product behavior changes. The maintainer published `v0.17.0` on
 2026-08-25 at `8187fbe`, and Issue #199 synchronizes that publication without
 product functionality. Issue #200 freezes the bounded `v1.0.0` scope, classifies
 every required traceability row, and records seven blockers plus the exact #201
-through #207 sequence. The milestone remains not ready, and Issue #201 is next.
+through #207 sequence. Issue #201 adds independent exhaustive official-rule
+evidence for R-01 and R-06, closes B-01 without product-code change, and leaves
+six blockers B-02 through B-07. The milestone remains not ready, and Issue #202
+is next.
 
 The November 2022 ISkO and SkWO publication is the normative source for official
 rules and competition behavior. Product capabilities such as simulation,
@@ -916,8 +919,8 @@ See [Learning Corpus Tactical Cross-game Coaching](learning_corpus_tactical_cros
 
 ## Release decision rule
 
-The authoritative Issue #200 status ledger, accepted limitations, exact seven
-blockers, and ordered #201 through #207 plan are in the
+The authoritative current status ledger, accepted limitations, closed B-01,
+remaining B-02 through B-07 blockers, and ordered #201 through #207 plan are in the
 [v1.0 scope and traceability audit](v1_0_scope_and_traceability_audit.md).
 
 `v1.0.0` is not ready while any required gate lacks evidence, any validation or

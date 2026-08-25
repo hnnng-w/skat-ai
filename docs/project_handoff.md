@@ -1712,7 +1712,10 @@ and Issue #198 prepares Package `0.17.0` and the Release candidate without
 product behavior changes. The maintainer published `v0.17.0` on 2026-08-25 at
 `8187fbe`, and Issue #199 synchronizes that publication without product
 functionality. Issue #200 freezes the bounded `v1.0.0` scope and exact #201
-through #207 sequence. The milestone remains not ready, and Issue #201 is next.
+through #207 sequence. Issue #201 adds independent exhaustive official-rule
+evidence for R-01 and R-06 without product-code change and closes B-01. Six
+blockers B-02 through B-07 remain; the milestone is not ready, and Issue #202 is
+next.
 
 Historical published Package milestone: `v0.15.0`, providing usable manual post-
 game capture of one EuroSkat 36er Standard Match from descriptive video evidence.
@@ -2295,9 +2298,10 @@ Completed implementation scope:
 
 ## Next recommended action
 
-Begin Issue #201, the exhaustive official-rule evidence closure. Issue #200
-freezes all 53 required-row classifications, seven blockers, and the exact #201
-through #207 sequence. The published functional history remains Issues #182
+Begin Issue #202, the internal v1 information-Provenance enforcement closure.
+Issue #201 completes the independent exhaustive official-rule oracle, changes no
+product code, makes R-01 and R-06 `satisfied`, and closes B-01. Six blockers
+B-02 through B-07 remain. The published functional history remains Issues #182
 through #196; Issues #197 through #199 remain audit, Release preparation, and
 publication synchronization only. `v1.0.0` is not ready, and no Release title,
 theme, date, tag, or publication commit is frozen.

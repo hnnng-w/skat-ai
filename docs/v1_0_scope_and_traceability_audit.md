@@ -19,6 +19,9 @@ Issues #182 through #196 remain the frozen `v0.17.0` functional history. Issues
 #197 through #199 remain audit, Release preparation, and publication
 synchronization only.
 
+Issue #201 adds independent exhaustive official-rule evidence for R-01 and R-06,
+closes B-01 without product-code change, and synchronizes this current audit.
+
 ## Source hierarchy
 
 Conflicts are resolved through this seven-level hierarchy:
@@ -99,9 +102,9 @@ There are exactly 53 traceability rows whose `Required before v1.0` cell contain
 
 | Audit status | Count |
 | --- | ---: |
-| `satisfied` | 12 |
+| `satisfied` | 14 |
 | `satisfied_with_approved_bounded_scope` | 34 |
-| `evidence_required` | 3 |
+| `evidence_required` | 1 |
 | `implementation_required` | 3 |
 | `product_decision_required` | 1 |
 | `post_v1` | 0 |
@@ -118,7 +121,7 @@ Every required row cites at least one direct automated evidence anchor:
 
 | Anchor | Direct executable evidence |
 | --- | --- |
-| E-Rules | `tests/test_rules.py`, `tests/test_game_declaration.py`, `tests/test_game_value.py` |
+| E-Rules | `tests/test_rules.py`, `tests/test_game_declaration.py`, `tests/test_game_value.py`, `tests/test_v1_official_rule_evidence.py` |
 | E-Settlement | `tests/test_final_settlement.py`, `tests/test_settlement_normative_matrix.py`, `tests/test_claim_and_settlement_v1_compatibility.py` |
 | E-Historical | `tests/test_historical_game.py`, `tests/test_historical_game_event_chain.py`, and focused shortening/Claim tests |
 | E-List | `tests/test_fixed_three_player_historical_list.py`, `tests/test_fixed_three_player_historical_list_aggregation.py`, `tests/test_fixed_three_player_historical_list_comparison.py` |
@@ -143,12 +146,12 @@ Every required row cites at least one direct automated evidence anchor:
 
 | ID | Requirement | Current state | Audit status | Frozen v1 disposition and executable evidence | Blocker / owner |
 | --- | --- | --- | --- | --- | --- |
-| R-01 | Card ordering and card points | `supported` | `evidence_required` | Current behavior is implemented; one exhaustive table must prove every point value and Suit, Grand, and Null rank order. | B-01 / #201 |
+| R-01 | Card ordering and card points | `supported` | `satisfied` | The independent literal oracle proves 32 unique Cards, 30 points per suit, 120 total points, 25 effective-category sequences, and 674 strict Suit, Grand, and Null pairwise comparisons. | None |
 | R-02 | Trump rules | `supported` | `satisfied` | Current Suit, Grand, Null, and jack behavior is the v1 contract. | None |
 | R-03 | Following suit and legal-card rules | `supported` | `satisfied` | Current legal-card and strict historical replay behavior satisfies the v1 gate. General revoke adjudication is not part of this row's v1 contract. | None |
 | R-04 | Trick resolution | `supported` | `satisfied` | Current winner, ownership, points, and next-leader derivation satisfies the v1 gate. | None |
 | R-05 | Bidding and declarations | `partially_supported` | `satisfied_with_approved_bounded_scope` | Final declaration, bid value, dependencies, and exclusions are v1; full auction modeling is `post_v1`. | None |
-| R-06 | Suit and Grand game values | `partially_supported` | `evidence_required` | Current base values and multiplier behavior are implemented; one exhaustive accepted-variant/value table must close the evidence gate. | B-01 / #201 |
+| R-06 | Suit and Grand game values | `partially_supported` | `satisfied` | The independent literal oracle proves all five bases and five canonical declaration variants across 220 Suit and 20 Grand rows while preserving the declared-value/Final-Settlement boundary. | None |
 | R-07 | Null game values | `supported` | `satisfied` | Fixed values `23`, `35`, `46`, and `59` are complete for v1. | None |
 | R-08 | Matadors | `partially_supported` | `satisfied_with_approved_bounded_scope` | Explicit bounds and deterministic complete-historical inference are v1; ambiguous partial positions may remain unavailable. | None |
 | R-09 | Hand games | `partially_supported` | `satisfied_with_approved_bounded_scope` | Declaration, value, historical no-pickup, Skat ownership, point, and matador behavior are v1; physical inspection is not inferable. | None |
@@ -220,12 +223,12 @@ additional required rows, so they do not change the 53-row reconciliation.
 
 | ID | Direct evidence | Missing v1 work | Blocker / owner |
 | --- | --- | --- | --- |
-| R-01 | E-Rules | Exhaustive card-point and rank-order table | B-01 / #201 |
+| R-01 | E-Rules | None | None |
 | R-02 | E-Rules | None | None |
 | R-03 | E-Rules, E-Historical | None | None |
 | R-04 | E-Rules, E-Historical | None | None |
 | R-05 | E-Rules | None within approved final-declaration scope | None |
-| R-06 | E-Rules | Exhaustive accepted Suit/Grand value and variant table | B-01 / #201 |
+| R-06 | E-Rules | None within the declared/pre-result value scope | None |
 | R-07 | E-Rules | None | None |
 | R-08 | E-Rules, E-Historical | None within approved inference scope | None |
 | R-09 | E-Rules, E-Historical | None within approved Hand scope | None |
@@ -277,9 +280,9 @@ additional required rows, so they do not change the 53-row reconciliation.
 ## Rules and Settlement
 
 The bounded v1 rules contract is final declaration and play, not auction
-reconstruction or general conduct adjudication. The remaining rules evidence is
-limited to exhaustive card/ordering and accepted Suit/Grand value tables. It is
-not a request to redesign rules or Settlement code.
+reconstruction or general conduct adjudication. Issue #201 completes the
+exhaustive card/ordering and accepted Suit/Grand declared-value evidence without
+redesigning rules or Settlement code.
 
 Settlement Normative Matrix version `3` retains exactly 61 canonical case IDs:
 
@@ -746,16 +749,17 @@ unconditional exclusion.
 
 ## Exact blockers
 
-`v1.0.0` is not ready. Exactly these blockers remain:
+Issue #201 closes B-01 with the independent evidence documented in
+[v1 official-rule evidence](v1_official_rule_evidence.md). `v1.0.0` is not
+ready. Exactly these blockers remain:
 
 | Blocker | Status | Required closure |
 | --- | --- | --- |
-| B-01 | `evidence_required` | Add exhaustive card-point/rank-order and accepted Suit/Grand value/variant evidence without changing approved rules behavior. |
 | B-02 | `implementation_required` | Complete internal load-to-final-serialization field-level Provenance and adversarial evidence without widening public Provenance. |
 | B-03 | `implementation_required` | Close canonical valid Multi-Step phase analysis/preparation/termination coverage without adding a broader solver. |
 | B-04 | `product_decision_required` | Human maintainer decides the Package license and resulting metadata/evidence boundary. |
 | B-05 | `evidence_required` | Complete the final all-seven-workflow Wheel/sdist clean-install matrix and fresh CPython 3.13 Windows/Ubuntu platform evidence. |
-| B-06 | `evidence_required` | After B-01 through B-05, record a clean final v1 scope/readiness audit, full local check, CI result, and clean worktree evidence. |
+| B-06 | `evidence_required` | After B-02 through B-05, record a clean final v1 scope/readiness audit, full local check, CI result, and clean worktree evidence. |
 | B-07 | `implementation_required` | After readiness approval, prepare Package `1.0.0`, matching version expectations, Changelog, and Release-candidate documentation without product behavior changes. |
 
 No blocker requires a new Claim interpretation, broader Search algorithm,
@@ -768,18 +772,18 @@ The smallest coherent follow-up sequence is frozen as:
 
 | Order | Issue and type | Primary Gate and blocking requirements | Scope | Dependencies | Expected product-code change | Expected public-contract change | Expected Schema change | Release relevance |
 | ---: | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | **#201 - Complete v1 official-rule evidence closure**; evidence | Rules and Settlement; R-01, R-06, B-01 | Add exhaustive card/rank and accepted Suit/Grand value/variant tables; change no approved rule interpretation. | #200 | No; focused tests/evidence only | None | None | Closes the remaining official-rule evidence gate. |
-| 2 | **#202 - Complete internal v1 information-Provenance enforcement**; implementation and evidence | Provenance/privacy; P-10, P-13, B-02 | Implement and test loading, retained-stage linkage, final serialization, and adversarial closure. | #200; ordered after #201 | Yes, internal enforcement | No new public field, version, or default behavior | None | Closes internal information-safety implementation before candidate validation. |
+| 1 | **#201 - Complete v1 official-rule evidence closure**; evidence | Rules and Settlement; R-01, R-06, B-01 | Add exhaustive card/rank and accepted Suit/Grand value/variant tables; change no approved rule interpretation. | #200; completed | No; focused tests/evidence only | None | None | Closed the official-rule evidence gate. |
+| 2 | **#202 - Complete internal v1 information-Provenance enforcement**; implementation and evidence | Provenance/privacy; P-10, P-13, B-02 | Implement and test loading, retained-stage linkage, final serialization, and adversarial closure. | #200 and completed #201 | Yes, internal enforcement | No new public field, version, or default behavior | None | Closes internal information-safety implementation before candidate validation. |
 | 3 | **#203 - Complete canonical Multi-Step phase coverage**; implementation and evidence | Simulation; P-19, B-03 | Analyze, prepare, or terminate every valid canonical phase under documented semantics; preserve coherent-world and Search boundaries. | #202 | Yes, bounded phase handling | Existing fields only; behavior changes only for currently unsupported valid phases | None expected | Closes the final functional behavior gate. |
 | 4 | **#204 - Decide and apply the v1 Package license boundary**; product decision and metadata | Packaging/license; P-09, B-04 | Obtain the human decision, then apply only the resulting metadata, files, tests, and documentation. | #200; ordered after #203 | No product behavior; decision-dependent metadata/files only | Package metadata only, not Python API or CLI behavior | None | Required legal/metadata decision before distribution evidence. |
 | 5 | **#205 - Complete the v1 installation and supported-platform matrix**; evidence | Packaging/platforms; P-34, B-05 | Add all-seven-Root-workflow source/Editable/Wheel/sdist evidence and verify CPython 3.13 on Windows and Ubuntu with current CLI/browser/download boundaries. | #201-#204 | No product behavior expected; validation scripts/tests may change | None | None | Produces final candidate installation/platform evidence. |
 | 6 | **#206 - Audit final v1.0.0 Release readiness**; documentation audit | All Gate clusters; B-06 | Reconcile #201 through #205, the 53-row ledger, exact counts, final full check, CI, diff, and Release blockers. | #205 and successful CI | No | None | None | Decides whether Release preparation may begin. |
 | 7 | **#207 - Prepare Package v1.0.0 and the Release candidate**; Release preparation | Release metadata; B-07 | Update Package version/current-version expectations, Changelog, and approved Release-candidate documentation; rerun final validation; do not publish. | #206 readiness approval | Version constants only; no product behavior | Package version metadata only | None expected | Produces the unpublished `1.0.0` Release candidate for human publication. |
 
-Every blocker maps to exactly one planned Issue, and every planned Issue maps to
-exactly one blocker. These Issues are not created by Issue #200. Publication,
-tagging, GitHub Release creation, and any post-publication synchronization remain
-human-controlled and are not frozen as Issue numbers here.
+B-01 is closed by Issue #201. Every remaining blocker B-02 through B-07 maps to
+exactly one planned Issue #202 through #207. Publication, tagging, GitHub Release
+creation, and any post-publication synchronization remain human-controlled and
+are not frozen as Issue numbers here.
 
 ## Final conclusion
 
@@ -790,11 +794,11 @@ workflows, stable Public API/Session/CLI surfaces, 71 Schemas, six Session
 examples, 98 generated outputs, and ten Corpus downloads are accepted as the v1
 baseline under their documented limitations.
 
-The 53 required traceability rows are completely classified as 12 `satisfied`,
-34 `satisfied_with_approved_bounded_scope`, 3 `evidence_required`, 3
-`implementation_required`, and 1 `product_decision_required`. Seven blockers and
-the exact #201 through #207 sequence remain. Issue #200 starts no implementation
-or evidence-closure work assigned to those Issues. Therefore:
+The 53 required traceability rows are completely classified as 14 `satisfied`,
+34 `satisfied_with_approved_bounded_scope`, 1 `evidence_required`, 3
+`implementation_required`, and 1 `product_decision_required`. Issue #201 closes
+B-01 without product-code change. Six blockers B-02 through B-07 and the
+remaining #202 through #207 sequence remain. Therefore:
 
 ```text
 v1.0.0 scope:
@@ -804,23 +808,24 @@ v1.0.0 implementation and evidence:
     incomplete
 
 v1.0.0 Release readiness:
-    blocked by B-01 through B-07
+    blocked by B-02 through B-07
 
 v1.0.0 Release title, theme, date, tag, and publication commit:
     not frozen
 ```
 
-The traceability audit is fully classified, every blocker is mapped to the exact
-ordered plan, implementation is not complete, and Release preparation is not
-ready. The exact next action is Issue #201, **Complete v1 official-rule evidence
-closure**.
+The traceability audit is fully classified, every remaining blocker is mapped to
+the exact ordered plan, implementation is not complete, and Release preparation
+is not ready. The exact next action is Issue #202, **Complete internal v1
+information-Provenance enforcement**.
 
 ## Exact next action
 
-| Conclusion field | Issue #200 result |
+| Conclusion field | Current result |
 | --- | --- |
 | Traceability | Fully classified: all 53 required rows have one audit status, direct evidence, missing-work state, and blocker owner. |
-| Blocker mapping | Exact one-to-one B-01 through B-07 to #201 through #207. |
+| Blocker mapping | B-01 closed by #201; exact one-to-one B-02 through B-07 to #202 through #207 remains. |
 | Issue #200 implementation | Not started; this audit changes documentation only. |
-| Release preparation | Not ready while B-01 through B-07 remain open. |
-| Next action | Issue #201, **Complete v1 official-rule evidence closure**. |
+| Issue #201 evidence closure | Complete; R-01 and R-06 are `satisfied`, and B-01 is closed without product-code change. |
+| Release preparation | Not ready while B-02 through B-07 remain open. |
+| Next action | Issue #202, **Complete internal v1 information-Provenance enforcement**. |

@@ -554,8 +554,10 @@ the Release candidate without product behavior changes. The maintainer published
 without product functionality. Issue #200 freezes the bounded `v1.0.0` scope,
 classifies all 53 required traceability rows, and records seven blockers plus the
 exact #201 through #207 follow-up sequence without changing product code.
-`v1.0.0` is not ready; the next action is Issue #201. No v1 Release title, theme,
-date, tag, publication commit, or production model is frozen.
+Issue #201 adds independent exhaustive official-rule evidence for R-01 and R-06
+without changing product code, closes B-01, and leaves six blockers B-02 through
+B-07. `v1.0.0` is not ready; the next action is Issue #202. No v1 Release title,
+theme, date, tag, publication commit, or production model is frozen.
 
 Major completed areas include:
 

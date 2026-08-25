@@ -1640,10 +1640,12 @@ Issue #200 freezes the bounded v1 scope. Public Match/Corpus/Dataset-v2 surfaces
 derived persistence, broader Player Ratings and tactical-quality claims,
 cross-machine latency guarantees, and Session GUI work are not v1 requirements;
 broader solver, auction, learned-model, and hosted/remote work is post-v1. The
-remaining v1 blockers are exhaustive official-rule evidence, internal end-to-end
-Provenance enforcement, canonical Multi-Step phase closure, a human Package
-license decision, final installation/platform evidence, final readiness evidence,
-and Package `1.0.0` Release preparation. The approved party-wide all-remaining-
+Issue #201 [official-rule evidence](docs/v1_official_rule_evidence.md) closes the
+R-01/R-06 evidence gate B-01 without product-code change. The remaining v1
+blockers are internal end-to-end Provenance enforcement, canonical Multi-Step
+phase closure, a human Package license decision, final installation/platform
+evidence, final readiness evidence, and Package `1.0.0` Release preparation. The
+approved party-wide all-remaining-
 Tricks Claim now has
   private structured contracts, complete Evidence, exact-state preparation,
   bounded exhaustive proof execution, valid-proof adjudication, and Historical-
@@ -1846,8 +1848,10 @@ Runtime execution. Issue #184 adds the private bounded exhaustive exact AND/OR
   `v0.17.0` on 2026-08-25 at `8187fbe`, and Issue #199 synchronizes the
   publication without product functionality. Issue #200 freezes the bounded
   `v1.0.0` scope, seven blockers, and the exact #201 through #207 sequence. The
-  milestone is not ready; Issue #201 is next. No v1 Release title, theme, date,
-  tag, or publication commit is frozen.
+  Issue #201 independent official-rule oracle closes R-01, R-06, and B-01
+  without product-code change. Six blockers B-02 through B-07 remain; the
+  milestone is not ready, and Issue #202 is next. No v1 Release title, theme,
+  date, tag, or publication commit is frozen.
 
 Current support and known limitations are tracked in the
 [requirements traceability matrix](docs/requirements_traceability.md). Product
