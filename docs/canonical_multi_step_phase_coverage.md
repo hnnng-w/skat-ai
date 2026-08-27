@@ -148,6 +148,7 @@ Corpus downloads remain unchanged. One existing generated scenario keeps its
 name and registry position but now exercises executable canonical completion
 instead of the former `unsupported_turn_phase` result.
 
-Issue #203 makes P-19 `satisfied` and closes B-03. The four remaining v1 blockers
-are B-04 through B-07. The exact next action is Issue #204, **Decide and apply the
-v1 Package license boundary**. `v1.0.0` is not ready.
+Issue #203 makes P-19 `satisfied` and closes B-03. Issue #204 subsequently applies
+`AGPL-3.0-only` and closes B-04. Five blockers B-05 through B-09 remain, with
+B-09 outside the 53-row ledger. The exact next action is Issue #205, **Rename the
+complete project and public Package surface to SkatMind**. `v1.0.0` is not ready.

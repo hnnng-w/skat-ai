@@ -400,8 +400,10 @@ encryption and key management, and automatic backup policy remain absent and are
 not v1 requirements. Issue #200 accepts the bounded Search, Claim, Settlement,
 and Coaching contracts. Issue #202 closes the internal field-level provenance
 implementation gate. Issue #203 closes canonical Multi-Step phase coverage
-without adding or changing any public contract. The remaining v1 gates begin
-with the Issue #204 Package-license decision.
+without adding or changing any public contract. Issue #204 applies the exact
+`AGPL-3.0-only` Package metadata without changing public Python or CLI behavior.
+The remaining v1 gates begin with B-08/#205, the complete SkatMind public
+Package/import/module/CLI rename and migration boundary.
 
 Internal Application orchestration version `1`, no-I/O execution for all seven
 Root workflows, legacy CLI transport parity, and auxiliary artifacts are

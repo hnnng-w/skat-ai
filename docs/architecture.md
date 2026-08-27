@@ -143,8 +143,10 @@ without widening public Provenance. Issue #203 completes all nine concrete
 canonical Multi-Step phases without widening Search or public contracts. Broader
 solvers and hosted/remote integration are post-v1.
 
-Four non-architecture blockers B-04 through B-07 remain. Issue #204, **Decide and
-apply the v1 Package license boundary**, is the exact next action.
+Issue #204 applies `AGPL-3.0-only` and closes B-04 without changing product
+behavior or active Package identity. Five blockers B-05 through B-09 remain;
+B-09 is outside the 53-row ledger. Issue #205, **Rename the complete project and
+public Package surface to SkatMind**, is the exact next action.
 
 Issues #160 through #168 form the published `v0.15.0` Package baseline, and Issue
 #169 updated only Package/release metadata and documentation to complete Release

@@ -1663,9 +1663,11 @@ Issue #201 [official-rule evidence](docs/v1_official_rule_evidence.md) closes th
 R-01/R-06 evidence gate B-01 without product-code change. Issue #202 closes B-02
 with mandatory internal end-to-end Provenance enforcement and makes P-10 and
 P-13 `satisfied`. Issue #203 completes canonical Multi-Step phase coverage,
-makes P-19 `satisfied`, and closes B-03. The remaining v1 blockers are a human
-Package license decision, final installation/platform
-evidence, final readiness evidence, and Package `1.0.0` Release preparation. The
+makes P-19 `satisfied`, and closes B-03. The remaining v1 blockers are a complete
+Package rename, final installation/platform evidence, final technical readiness
+evidence, maintainer user acceptance testing, and Package `1.0.0` Release
+preparation. Issue #204 applies the approved `AGPL-3.0-only` Package license and
+closes B-04 without product behavior or active branding changes. The
 approved party-wide all-remaining-
 Tricks Claim now has
   private structured contracts, complete Evidence, exact-state preparation,
@@ -1874,9 +1876,12 @@ Runtime execution. Issue #184 adds the private bounded exhaustive exact AND/OR
   Issue #201 independent official-rule oracle closes R-01, R-06, and B-01
 without product-code change. Issue #202 closes B-02 and makes P-10 and P-13
   `satisfied`. Issue #203 completes all nine concrete canonical Multi-Step
-  phases, makes P-19 `satisfied`, and closes B-03. Four blockers B-04 through
-  B-07 remain; the milestone is not ready, and Issue #204, **Decide and apply the
-  v1 Package license boundary**, is next. No v1 Release title, theme,
+  phases, makes P-19 `satisfied`, and closes B-03. Issue #204 applies the exact
+  `AGPL-3.0-only` Package boundary and closes B-04. P-09 is now
+  `implementation_required` under rename blocker B-08, and the separate B-09
+  maintainer-UAT Gate sits outside the 53-row ledger. The milestone is not ready,
+  and Issue #205, **Rename the complete project and public Package surface to
+  SkatMind**, is next. No v1 Release title, theme,
   date, tag, or publication commit is frozen.
 
 Current support and known limitations are tracked in the
@@ -1895,6 +1900,18 @@ Their private Corpus Evidence and cross-game descriptive summaries are documente
 in [Learning Corpus Tactical Motif evidence and summaries](docs/learning_corpus_tactical_motif_evidence_and_summaries.md).
 The frozen functional scope and Release-readiness decision are documented in the
 [v0.17.0 scope and Release-readiness audit](docs/v0_17_release_readiness_audit.md).
+
+## License
+
+License: GNU Affero General Public License v3.0 only
+
+SPDX: `AGPL-3.0-only`
+
+Copyright: `Copyright (C) 2026 Henning Wiese`
+
+See [LICENSE](LICENSE), [COPYRIGHT](COPYRIGHT), and the focused
+[v1 Package license](docs/v1_package_license.md) decision, dependency/asset
+audit, metadata contract, and network-use boundary.
 
 ## Disclaimer
 

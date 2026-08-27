@@ -111,8 +111,8 @@ There are exactly 53 traceability rows whose `Required before v1.0` cell contain
 | `satisfied` | 17 |
 | `satisfied_with_approved_bounded_scope` | 34 |
 | `evidence_required` | 1 |
-| `implementation_required` | 0 |
-| `product_decision_required` | 1 |
+| `implementation_required` | 1 |
+| `product_decision_required` | 0 |
 | `post_v1` | 0 |
 | `not_required` | 0 |
 | `unconditionally_excluded` | 0 |
@@ -146,7 +146,7 @@ Every required row cites at least one direct automated evidence anchor:
 | E-Tactical | `tests/test_historical_tactical_motif_review.py`, `tests/test_learning_corpus_tactical_motif.py` |
 | E-Dataset | `tests/test_training_dataset.py`, `tests/test_training_dataset_preparation.py`, `tests/test_dataset_partition_audit.py`, `tests/test_learning_dataset_v2.py` |
 | E-Output | `tests/test_examples.py`, `scripts/validate_examples_schema.py`, `scripts/validate_generated_outputs_schema.py` |
-| E-Distribution | `tests/test_packaging_and_distribution.py`, `tests/test_installed_cli.py`, and `scripts/check.ps1` |
+| E-Distribution | `tests/test_v1_package_license.py`, `tests/test_packaging_and_distribution.py`, `tests/test_installed_cli.py`, `scripts/validate_distribution_artifacts.py`, and `scripts/check.ps1` |
 
 ### ISkO required rows
 
@@ -189,7 +189,7 @@ Every required row cites at least one direct automated evidence anchor:
 | P-06 | Match analysis and private exports | `supported` | `satisfied_with_approved_bounded_scope` | Explicit bounded analysis, ephemeral reports, and private canonical downloads are the v1 surface. | None |
 | P-07 | Local Match Capture browser and CLI transport | `supported` | `satisfied_with_approved_bounded_scope` | Loopback-only `capture` through one Console Script is complete for v1. | None |
 | P-08 | Public Session APIs | `supported` | `satisfied_with_approved_bounded_scope` | Existing `skat_ai.api.v1.session` and `.files` surfaces are frozen for v1. | None |
-| P-09 | Stable public Python and installed CLI contract | `supported` | `product_decision_required` | API/CLI behavior is implemented and frozen, but Package license selection remains unresolved. | B-04 / #204 |
+| P-09 | Stable public Python and installed CLI contract | `supported` | `implementation_required` | Issue #204 applies the exact `AGPL-3.0-only` Package boundary. The complete pre-v1 SkatMind distribution/import/CLI/resource/identifier migration remains required. | B-08 / #205 |
 | P-10 | Field-level information provenance | `partially_supported` | `satisfied` | Exact Request/effective-option/external sources, pre-analysis context enforcement, retained-stage authorization, exact final Result/artifact reconciliation, and adversarial evidence are complete without widening public Provenance. | None |
 | P-11 | Interactive Session capture | `supported` | `satisfied_with_approved_bounded_scope` | Existing local API/file/CLI/Assistant workflow is complete; GUI, cloud, and platform adapters are not required. | None |
 | P-12 | Private Session persistence and resume | `supported` | `satisfied_with_approved_bounded_scope` | Strict version-1 persistence, replay, fingerprints, CAS, and atomic replacement are complete for v1. | None |
@@ -214,16 +214,18 @@ Every required row cites at least one direct automated evidence anchor:
 | P-31 | Historical player statistics | `supported` | `satisfied` | Current exact supported-game aggregation and export satisfies v1. | None |
 | P-32 | Rolling opponent-policy evaluation | `supported` | `satisfied_with_approved_bounded_scope` | Current known-opponent behavioral imitation evaluation satisfies v1 without a strategic-quality claim. | None |
 | P-33 | Generated-output validation | `supported` | `satisfied` | The frozen append-only 98-scenario matrix is the v1 baseline unless a blocker changes stable behavior. | None |
-| P-34 | Release and regression checks | `supported` | `evidence_required` | Repository gates exist; fresh final-candidate local and CI evidence is required after all earlier blockers close. | B-05 / #205, then B-06 / #206 |
+| P-34 | Release and regression checks | `supported` | `evidence_required` | Repository gates exist; #206 must reconcile the direct `referencing` import with supported dependency declarations/lower bounds before fresh final-candidate local and CI evidence. | B-05 / #206, then B-06 / #207 |
 
 No required row remains unclassified or merely partially supported without an
-approved bounded interpretation or exact blocker.
+approved bounded interpretation or exact blocker. B-09 is a separate Release-
+process Gate outside the 53-row ledger and therefore does not alter these totals.
 
 The ledger's `Current state` reproduces the pre-audit traceability status. The
 disposition freezes the accepted behavior. The companion map below separately
 records direct automated evidence and missing v1 work for every row. B-06 and
 B-07 are aggregate final-audit and Release-preparation gates rather than
 additional required rows, so they do not change the 53-row reconciliation.
+B-09 is likewise a separate maintainer-acceptance Gate outside that ledger.
 
 ### Required-row evidence and missing-work map
 
@@ -256,7 +258,7 @@ additional required rows, so they do not change the 53-row reconciliation.
 | P-06 | E-Match, E-Information-set | None within private analysis/export scope | None |
 | P-07 | E-Match, E-API | None within loopback transport scope | None |
 | P-08 | E-Session, E-API | None within stable Session API scope | None |
-| P-09 | E-API, E-Distribution | Human Package-license decision and resulting metadata evidence | B-04 / #204 |
+| P-09 | E-API, E-Distribution | Complete the approved SkatMind Package/import/CLI/resource/identifier rename and migration boundary | B-08 / #205 |
 | P-10 | E-Provenance | None | None |
 | P-11 | E-Session | None within local API/file/CLI scope | None |
 | P-12 | E-Session | None within strict version-1 persistence scope | None |
@@ -281,7 +283,7 @@ additional required rows, so they do not change the 53-row reconciliation.
 | P-31 | E-Policy, E-Historical | None | None |
 | P-32 | E-Policy, E-Dataset | None within behavioral-imitation scope | None |
 | P-33 | E-Output | None | None |
-| P-34 | E-Distribution | Fresh final source/Editable/Wheel/sdist and Windows/Ubuntu evidence, then final audit | B-05 / #205, then B-06 / #206 |
+| P-34 | E-Distribution | Reconcile the direct `referencing` import and runtime lower bounds; then produce fresh final source/Editable/Wheel/sdist and Windows/Ubuntu evidence and the final technical audit | B-05 / #206, then B-06 / #207 |
 
 ## Rules and Settlement
 
@@ -604,12 +606,13 @@ one runtime dependency, one `dev` extra, and exactly one Console Script.
 | --- | --- |
 | Build backend | `setuptools.build_meta` with `setuptools>=77.0.3` |
 | Python metadata | `requires-python = ">=3.13"`; metadata permits later compatible Python versions, while the frozen v1 evidence matrix certifies CPython 3.13 only |
-| Runtime dependency | `jsonschema>=4.0.0` |
+| Runtime dependency | Issue #204 preserves `jsonschema>=4.0.0`; #206 must reconcile the direct `referencing` import with supported declarations and lower bounds before final acceptance |
 | Development extra | `build>=1.2.2`, `pytest>=9.0.0`, and `ruff>=0.14.0` |
 | Console Script | Exactly `skat-ai = skat_ai.cli:main` |
 | Artifact forms | One pure-Python Wheel and one sdist, plus source and Editable-install validation |
 | Package data | `py.typed`, 71 Schema Resources, and packaged Capture/Corpus templates, CSS, and JavaScript |
-| Final evidence | Clean source, Editable, Wheel, and sdist acceptance with fresh Windows/Ubuntu results under #205 |
+| Package license | `AGPL-3.0-only` with exact root `LICENSE` and `COPYRIGHT`, PEP 639 Core Metadata, Wheel/sdist/installed bytes, and focused dependency/asset audit |
+| Final evidence | Clean source, Editable, Wheel, and sdist acceptance with fresh Windows/Ubuntu results under #206 |
 
 Clean-install validation for the final candidate must cover:
 
@@ -628,10 +631,14 @@ Clean-install validation for the final candidate must cover:
 Author, classifier, project URL, Package-index, and PyPI metadata are
 `not_required` for v1. Publication remains a human-controlled GitHub Release.
 
-The Package license and license metadata are `product_decision_required`. No
-license has been approved, so this audit does not select one and does not modify
-`pyproject.toml`. The decision and any resulting metadata/evidence must be closed
-before v1 Release preparation.
+Issue #204 applies the maintainer-approved GNU Affero General Public License
+version 3 only under exact SPDX expression `AGPL-3.0-only`. Root `LICENSE` and
+`COPYRIGHT`, PEP 639 metadata, exact Wheel/sdist/installed legal-file bytes,
+Wheel `RECORD`, focused tests, and the direct-dependency/bundled-asset audit close
+B-04 without changing product behavior. See
+[v1 Package license](v1_package_license.md). P-09 remains
+`implementation_required` only because the separate complete SkatMind rename is
+owned by B-08/#205.
 
 ## Examples and generated outputs
 
@@ -656,19 +663,19 @@ The cross-surface coverage matrix is:
 
 | Workflow or stable major submode | Schema | Root example | Session example | Generated output | Public API | Installed CLI | Module CLI | Legacy CLI | Distribution smoke | Provenance |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Position: Immediate, Search, Auto, Information-set, Multi-Step, Policy Comparison | Yes | Yes | Position export path | Yes | Yes | Yes | Yes | Yes | Current; refresh #205 | Complete Root Result plus retained stages |
-| Historical: flat/Search/Information-set Review, Replay Coaching, Tactical Review, bounded Claim | Yes | Yes | Historical export path | Yes | Yes | Yes | Yes | Yes | Current; refresh #205 | Complete Root Result plus retained stages |
-| Training Dataset: materialization, Search/Information-set evaluation, statistics export | Yes | Yes | N/A | Yes | Yes | Yes | Yes | Yes | Current; refresh #205 | Complete Root Result and actual artifact |
-| Training Dataset Preparation: Known-player and unseen-player | Yes | Yes | N/A | Yes | Yes | Yes | Yes | Yes | Current; refresh #205 | Complete Root Result |
-| Opponent Statistics | Yes | Yes | N/A | Yes | Yes | Yes | Yes | Yes | Current; refresh #205 | Complete Root Result |
-| Fixed three-player Historical List | Yes | Yes | N/A | Yes | Yes | Yes | Yes | Yes | Current; refresh #205 | Complete Root Result |
-| Fixed three-player Historical List Comparison | Yes | Yes | N/A | Yes | Yes | Yes | Yes | Yes | Current; refresh #205 | Complete Root Result |
-| Session API/files, 12 Commands, Assistant, Position/Historical execution | Yes | N/A | Six exact files | Eight scenarios | Session API | Yes | Yes | Yes | Current; refresh #205 | Separate complete Session provenance |
-| Private Match Capture and analysis | No public Schema | N/A | N/A | N/A | Private only | Yes | Yes | Yes | Packaged assets and loopback smoke; refresh #205 | Specialized source/report evidence only |
-| Private Corpus and ten downloads | No public Schema | N/A | N/A | N/A | Private only | Yes | Yes | Yes | Packaged assets/download smoke; refresh #205 | Specialized fingerprints and evidence only |
+| Position: Immediate, Search, Auto, Information-set, Multi-Step, Policy Comparison | Yes | Yes | Position export path | Yes | Yes | Yes | Yes | Yes | Current; refresh #206 | Complete Root Result plus retained stages |
+| Historical: flat/Search/Information-set Review, Replay Coaching, Tactical Review, bounded Claim | Yes | Yes | Historical export path | Yes | Yes | Yes | Yes | Yes | Current; refresh #206 | Complete Root Result plus retained stages |
+| Training Dataset: materialization, Search/Information-set evaluation, statistics export | Yes | Yes | N/A | Yes | Yes | Yes | Yes | Yes | Current; refresh #206 | Complete Root Result and actual artifact |
+| Training Dataset Preparation: Known-player and unseen-player | Yes | Yes | N/A | Yes | Yes | Yes | Yes | Yes | Current; refresh #206 | Complete Root Result |
+| Opponent Statistics | Yes | Yes | N/A | Yes | Yes | Yes | Yes | Yes | Current; refresh #206 | Complete Root Result |
+| Fixed three-player Historical List | Yes | Yes | N/A | Yes | Yes | Yes | Yes | Yes | Current; refresh #206 | Complete Root Result |
+| Fixed three-player Historical List Comparison | Yes | Yes | N/A | Yes | Yes | Yes | Yes | Yes | Current; refresh #206 | Complete Root Result |
+| Session API/files, 12 Commands, Assistant, Position/Historical execution | Yes | N/A | Six exact files | Eight scenarios | Session API | Yes | Yes | Yes | Current; refresh #206 | Separate complete Session provenance |
+| Private Match Capture and analysis | No public Schema | N/A | N/A | N/A | Private only | Yes | Yes | Yes | Packaged assets and loopback smoke; refresh #206 | Specialized source/report evidence only |
+| Private Corpus and ten downloads | No public Schema | N/A | N/A | N/A | Private only | Yes | Yes | Yes | Packaged assets/download smoke; refresh #206 | Specialized fingerprints and evidence only |
 
 This matrix records stable public and private transport coverage without turning
-private Match or Corpus surfaces into Root workflows. B-05 requires fresh final
+private Match or Corpus surfaces into Root workflows. B-05/#206 requires fresh final
 candidate execution across the current source, Editable, Wheel, sdist, Windows,
 and Ubuntu boundaries; it does not imply a missing example, Schema, or workflow.
 
@@ -766,14 +773,17 @@ B-02 with the internal lifecycle documented in
 [v1 information provenance enforcement](v1_information_provenance_enforcement.md).
 Issue #203 closes B-03 with the contract and direct evidence documented in
 [Canonical Multi-Step phase coverage](canonical_multi_step_phase_coverage.md).
-`v1.0.0` is not ready. Exactly these four blockers remain:
+Issue #204 closes B-04 with the decision and direct evidence documented in
+[v1 Package license](v1_package_license.md). `v1.0.0` is not ready. Exactly
+these five blockers remain; B-09 is outside the 53-row ledger:
 
 | Blocker | Status | Required closure |
 | --- | --- | --- |
-| B-04 | `product_decision_required` | Human maintainer decides the Package license and resulting metadata/evidence boundary. |
-| B-05 | `evidence_required` | Complete the final all-seven-workflow Wheel/sdist clean-install matrix and fresh CPython 3.13 Windows/Ubuntu platform evidence. |
-| B-06 | `evidence_required` | After B-04 and B-05, record a clean final v1 scope/readiness audit, full local check, CI result, and clean worktree evidence. |
-| B-07 | `implementation_required` | After readiness approval, prepare Package `1.0.0`, matching version expectations, Changelog, and Release-candidate documentation without product behavior changes. |
+| B-05 | `evidence_required` | After the rename, reconcile the direct `referencing` import with supported dependency declarations/lower bounds, then complete the final all-seven-workflow source/Editable/Wheel/sdist matrix and fresh CPython 3.13 Windows/Ubuntu evidence under #206. |
+| B-06 | `evidence_required` | After B-05 and B-08, record the final technical v1 scope/readiness audit, full local check, CI result, and clean worktree evidence under #207. |
+| B-07 | `implementation_required` | After B-09 and resolution of accepted UAT findings, prepare Package `1.0.0`, matching version expectations, Changelog, and Release-candidate documentation without product behavior changes. Its Issue number is not frozen. |
+| B-08 | `implementation_required` | Complete the pre-v1 SkatMind product, repository, distribution, import-namespace, CLI, resource, identifier, compatibility, and migration boundary under #205. |
+| B-09 | `evidence_required` | After the final technical audit, complete hands-on maintainer v1.0.0 user acceptance testing under #208 and resolve every accepted finding before Release preparation. |
 
 No blocker requires a new Claim interpretation, broader Search algorithm,
 Public Match/Corpus/Dataset-v2 surface, Player Rating, latency threshold, or
@@ -788,17 +798,19 @@ The smallest coherent follow-up sequence is frozen as:
 | 1 | **#201 - Complete v1 official-rule evidence closure**; evidence | Rules and Settlement; R-01, R-06, B-01 | Add exhaustive card/rank and accepted Suit/Grand value/variant tables; change no approved rule interpretation. | #200; completed | No; focused tests/evidence only | None | None | Closed the official-rule evidence gate. |
 | 2 | **#202 - Complete internal v1 information-Provenance enforcement**; implementation and evidence | Provenance/privacy; P-10, P-13, B-02 | Implement and test loading, retained-stage linkage, final serialization, and adversarial closure. | #200 and completed #201; completed | Yes, internal enforcement | No new public field, version, or default behavior | None | Closed internal information-safety implementation before candidate validation. |
 | 3 | **#203 - Complete canonical Multi-Step phase coverage**; implementation and evidence | Simulation; P-19, B-03 | Analyze, prepare, or terminate every valid canonical phase under documented semantics; preserve coherent-world and Search boundaries. | Completed #202; completed | Yes, bounded phase handling | Existing fields only; one existing generated scenario changes from unsupported to executable without changing its identity, public shape, or the count | None | Closed the final functional behavior gate. |
-| 4 | **#204 - Decide and apply the v1 Package license boundary**; product decision and metadata | Packaging/license; P-09, B-04 | Obtain the human decision, then apply only the resulting metadata, files, tests, and documentation. | #200; ordered after #203 | No product behavior; decision-dependent metadata/files only | Package metadata only, not Python API or CLI behavior | None | Required legal/metadata decision before distribution evidence. |
-| 5 | **#205 - Complete the v1 installation and supported-platform matrix**; evidence | Packaging/platforms; P-34, B-05 | Add all-seven-Root-workflow source/Editable/Wheel/sdist evidence and verify CPython 3.13 on Windows and Ubuntu with current CLI/browser/download boundaries. | #201-#204 | No product behavior expected; validation scripts/tests may change | None | None | Produces final candidate installation/platform evidence. |
-| 6 | **#206 - Audit final v1.0.0 Release readiness**; documentation audit | All Gate clusters; B-06 | Reconcile #201 through #205, the 53-row ledger, exact counts, final full check, CI, diff, and Release blockers. | #205 and successful CI | No | None | None | Decides whether Release preparation may begin. |
-| 7 | **#207 - Prepare Package v1.0.0 and the Release candidate**; Release preparation | Release metadata; B-07 | Update Package version/current-version expectations, Changelog, and approved Release-candidate documentation; rerun final validation; do not publish. | #206 readiness approval | Version constants only; no product behavior | Package version metadata only | None expected | Produces the unpublished `1.0.0` Release candidate for human publication. |
+| 4 | **#204 - Decide and apply the v1 Package license boundary**; product decision and metadata | Packaging/license; B-04 and P-09's license portion | Apply exact `AGPL-3.0-only` legal files, PEP 639 metadata, artifact evidence, audit, and documentation. | #200; ordered after #203; completed | No product behavior; metadata/files only | Package license metadata only, not Python API or CLI behavior | None | Closes B-04 before the rename and distribution evidence. |
+| 5 | **#205 - Rename the complete project and public Package surface to SkatMind**; implementation and migration | Public Package identity; P-09, B-08 | Coordinate repository `hnnng-w/skatmind`, distribution/import/CLI/resource/current-documentation migration, compatibility, and persisted/hashed identifier boundaries. | Completed #204 | Yes, focused rename and migration work | Public Package/import/module/CLI identity changes under a separately approved migration contract | None expected unless exact resource contracts require it | Completes the required pre-v1 public identity. |
+| 6 | **#206 - Complete the v1 installation and supported-platform matrix**; evidence | Packaging/platforms; P-34, B-05 | Reconcile the direct `referencing` import with supported dependency declarations/lower bounds, add all-seven-Root-workflow source/Editable/Wheel/sdist evidence, and verify CPython 3.13 on Windows and Ubuntu with the renamed CLI/browser/download boundaries. | Completed #205 | No product behavior expected; Package dependency metadata and validation scripts/tests may change | Package dependency metadata may be corrected; no Python API or CLI behavior change | None | Produces final candidate installation/platform evidence. |
+| 7 | **#207 - Perform the final technical v1.0.0 Release-readiness audit**; documentation audit | All technical Gate clusters; B-06 | Reconcile #201 through #206, the 53-row ledger, exact counts, final full check, CI, diff, and technical Release blockers. | #206 and successful CI | No | None | None | Decides whether maintainer UAT may begin. |
+| 8 | **#208 - Perform maintainer v1.0.0 user acceptance testing**; evidence | Release process; B-09 | Execute hands-on maintainer UAT after #207 and record and resolve every accepted finding before Release preparation. | #207 technical-readiness approval | No product behavior expected; accepted findings may require separate remediation Issues | None expected | None expected | Provides the required human acceptance Gate outside the 53-row ledger. |
 
-B-01 is closed by Issue #201, B-02 by Issue #202, and B-03 by Issue #203. Every
-remaining blocker B-04 through B-07 maps to exactly one planned Issue #204 through
-#207.
-Publication, tagging, GitHub Release
-creation, and any post-publication synchronization remain human-controlled and
-are not frozen as Issue numbers here.
+B-01 is closed by #201, B-02 by #202, B-03 by #203, and B-04 by #204. The exact
+next action is B-08/#205, followed by B-05/#206, B-06/#207, and B-09/#208.
+Release preparation remains B-07 and occurs only after #208 and remediation of
+all accepted findings. Its Issue number is not frozen; it is expected to be #209
+only when #208 produces no remediation Issues. Publication, tagging, GitHub
+Release creation, and post-publication synchronization remain human-controlled
+and unnumbered here.
 
 ## Final conclusion
 
@@ -810,11 +822,12 @@ examples, 98 generated outputs, and ten Corpus downloads are accepted as the v1
 baseline under their documented limitations.
 
 The 53 required traceability rows are completely classified as 17 `satisfied`,
-34 `satisfied_with_approved_bounded_scope`, 1 `evidence_required`, 0
-`implementation_required`, and 1 `product_decision_required`. Issue #201 closes
+34 `satisfied_with_approved_bounded_scope`, 1 `evidence_required`, 1
+`implementation_required`, and 0 `product_decision_required`. Issue #201 closes
 B-01 without product-code change, Issue #202 closes B-02, and Issue #203 closes
-B-03. Four blockers B-04 through B-07 and the remaining #204 through #207
-sequence remain. Therefore:
+B-03. Issue #204 applies `AGPL-3.0-only` and closes B-04 without product-code
+change. Five blockers B-05 through B-09 remain, with B-09 outside the 53-row
+ledger. Therefore:
 
 ```text
 v1.0.0 scope:
@@ -824,7 +837,7 @@ v1.0.0 implementation and evidence:
     incomplete
 
 v1.0.0 Release readiness:
-    blocked by B-04 through B-07
+    blocked by B-05 through B-09
 
 v1.0.0 Release title, theme, date, tag, and publication commit:
     not frozen
@@ -832,17 +845,19 @@ v1.0.0 Release title, theme, date, tag, and publication commit:
 
 The traceability audit is fully classified, every remaining blocker is mapped to
 the exact ordered plan, and Release preparation is not ready. The exact next
-action is Issue #204, **Decide and apply the v1 Package license boundary**.
+action is Issue #205, **Rename the complete project and public Package surface to
+SkatMind**.
 
 ## Exact next action
 
 | Conclusion field | Current result |
 | --- | --- |
 | Traceability | Fully classified: all 53 required rows have one audit status, direct evidence, missing-work state, and blocker owner. |
-| Blocker mapping | B-01 closed by #201, B-02 by #202, and B-03 by #203; exact one-to-one B-04 through B-07 to #204 through #207 remains. |
+| Blocker mapping | B-01 closed by #201, B-02 by #202, B-03 by #203, and B-04 by #204; B-08/#205, B-05/#206, B-06/#207, and B-09/#208 remain, followed by unnumbered B-07 Release preparation. |
 | Issue #200 implementation | Not started; this audit changes documentation only. |
 | Issue #201 evidence closure | Complete; R-01 and R-06 are `satisfied`, and B-01 is closed without product-code change. |
 | Issue #202 Provenance closure | Complete; P-10 and P-13 are `satisfied`, and B-02 is closed without widening public Provenance. |
 | Issue #203 canonical phase closure | Complete; P-19 is `satisfied`, and B-03 is closed without widening Search or public contracts. |
-| Release preparation | Not ready while B-04 through B-07 remain open. |
-| Next action | Issue #204, **Decide and apply the v1 Package license boundary**. |
+| Issue #204 Package license closure | Complete after successful validation; exact `AGPL-3.0-only` legal files and PEP 639 evidence close B-04 without product behavior or active-name changes. |
+| Release preparation | Not ready while B-05 through B-09 remain open; B-09 is outside the required-row ledger. |
+| Next action | Issue #205, **Rename the complete project and public Package surface to SkatMind**. |

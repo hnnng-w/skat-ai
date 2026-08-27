@@ -1737,8 +1737,11 @@ blockers B-02 through B-07 remained at that point. Issue #202 makes P-10 and P-1
 `satisfied`, closes B-02, and leaves five blockers B-03 through B-07 at that
 point. Issue #203 completes all nine concrete canonical Multi-Step phases, makes
 P-19 `satisfied`, and closes B-03 without widening Search or public contracts.
-Four blockers B-04 through B-07 remain. The milestone is not ready, and Issue
-#204 is next.
+Four blockers B-04 through B-07 remained at that point. Issue #204 applies exact
+`AGPL-3.0-only` legal files and PEP 639 metadata and closes B-04. P-09 is now
+`implementation_required` under B-08/#205, while B-09 adds maintainer UAT
+outside the 53-row ledger. Five blockers B-05 through B-09 remain. The milestone
+is not ready, and Issue #205 is next.
 
 Historical published Package milestone: `v0.15.0`, providing usable manual post-
 game capture of one EuroSkat 36er Standard Match from descriptive video evidence.
@@ -2326,16 +2329,18 @@ Completed implementation scope:
 
 ## Next recommended action
 
-Begin Issue #204, **Decide and apply the v1 Package license boundary**. Issue
-#201 completes the independent exhaustive official-rule oracle, changes no
-product code, makes R-01 and R-06 `satisfied`, and closes B-01. Issue #202
-completes the internal v1 information-Provenance lifecycle, makes P-10 and P-13
-`satisfied`, and closes B-02 without widening public Provenance. Issue #203
-completes all nine concrete canonical Multi-Step phases, makes P-19 `satisfied`,
-and closes B-03. Four blockers B-04 through B-07 remain. The published functional history remains Issues #182
-through #196; Issues #197 through #199 remain audit, Release preparation, and
-publication synchronization only. `v1.0.0` is not ready, and no Release title,
-theme, date, tag, or publication commit is frozen.
+Begin Issue #205, **Rename the complete project and public Package surface to
+SkatMind**. Issues #201 through #203 close B-01 through B-03. Issue #204 applies
+the exact `AGPL-3.0-only` Package boundary and closes B-04 without changing
+product behavior or active Package identity. P-09 remains
+`implementation_required` under B-08/#205. #206 owns installation/platform
+evidence, #207 owns the final technical audit, and #208 owns the separate B-09
+maintainer-UAT Gate outside the 53-row ledger. B-07 Release preparation occurs
+only after #208 and remediation of accepted findings; its Issue number is not
+frozen. The published functional history remains Issues #182 through #196;
+Issues #197 through #199 remain audit, Release preparation, and publication
+synchronization only. `v1.0.0` is not ready, and no Release title, theme, date,
+tag, or publication commit is frozen.
 
 Keep immutable imported Workspace Snapshots separate from derived artifacts.
 Public Match/Corpus/Dataset-v2 surfaces, derived persistence, broader Player

@@ -26,6 +26,8 @@ def test_build_metadata_package_discovery_and_package_data_are_explicit() -> Non
     assert pyproject["project"]["version"] == "0.17.0"
     assert pyproject["project"]["requires-python"] == ">=3.13"
     assert pyproject["project"]["readme"] == "README.md"
+    assert pyproject["project"]["license"] == "AGPL-3.0-only"
+    assert pyproject["project"]["license-files"] == ["LICENSE", "COPYRIGHT"]
     assert pyproject["project"]["dependencies"] == ["jsonschema>=4.0.0"]
     assert pyproject["project"]["scripts"] == {"skat-ai": "skat_ai.cli:main"}
     assert pyproject["project"]["optional-dependencies"]["dev"] == [
@@ -55,7 +57,6 @@ def test_build_metadata_package_discovery_and_package_data_are_explicit() -> Non
         "authors",
         "classifiers",
         "gui-scripts",
-        "license",
         "urls",
     ):
         assert forbidden not in pyproject["project"]

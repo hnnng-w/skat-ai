@@ -72,6 +72,10 @@ DEFAULT_POLICY_COMPARISON_SMOKE_EXAMPLE = (
 )
 PACKAGE_NAME = "skat-ai"
 PACKAGE_VERSION = "0.17.0"
+PACKAGE_LICENSE_EXPRESSION = "AGPL-3.0-only"
+EXPECTED_LICENSE_FILES = ("LICENSE", "COPYRIGHT")
+EXPECTED_LICENSE_SHA256 = "d8a6cc31abc16b6748c7a21f21611f5a1ec33f67d22ca23d7da1c19b95496bee"
+EXPECTED_COPYRIGHT_BYTES = b"Copyright (C) 2026 Henning Wiese\n"
 EXPECTED_SCHEMA_RESOURCE_COUNT = 71
 SCHEMA_RESOURCE_PREFIX = "skat_ai/schema_resources/"
 CAPTURE_RESOURCE_PREFIX = "skat_ai/capture_web/"
@@ -200,11 +204,64 @@ def _expected_corpus_resource_bytes() -> dict[str, bytes]:
     return {name: corpus_root.joinpath(name).read_bytes() for name in CORPUS_RESOURCE_NAMES}
 
 
+def _expected_legal_file_bytes() -> dict[str, bytes]:
+    payload = {name: PROJECT_ROOT.joinpath(name).read_bytes() for name in EXPECTED_LICENSE_FILES}
+    for name, content in payload.items():
+        _require(not content.startswith(b"\xef\xbb\xbf"), f"{name} contains a UTF-8 BOM.")
+        _require(b"\r" not in content, f"{name} does not use LF-only line endings.")
+        _require(
+            content.endswith(b"\n") and not content.endswith(b"\n\n"),
+            f"{name} must end with exactly one LF.",
+        )
+        try:
+            content.decode("utf-8")
+        except UnicodeDecodeError as error:
+            raise DistributionValidationError(f"{name} is not valid UTF-8: {error}") from error
+    _require(
+        hashlib.sha256(payload["LICENSE"]).hexdigest() == EXPECTED_LICENSE_SHA256,
+        "LICENSE differs from the canonical AGPL-3.0-only text.",
+    )
+    _require(
+        payload["COPYRIGHT"] == EXPECTED_COPYRIGHT_BYTES,
+        "COPYRIGHT differs from the approved exact notice.",
+    )
+    return payload
+
+
+def _validate_source_license_metadata() -> None:
+    pyproject = tomllib.loads((PROJECT_ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+    project = pyproject["project"]
+    _require(
+        project.get("license") == PACKAGE_LICENSE_EXPRESSION,
+        "pyproject.toml does not declare the exact AGPL-3.0-only SPDX expression.",
+    )
+    _require(
+        project.get("license-files") == list(EXPECTED_LICENSE_FILES),
+        "pyproject.toml does not declare exactly LICENSE and COPYRIGHT.",
+    )
+    for forbidden in ("authors", "classifiers", "gui-scripts", "urls"):
+        _require(
+            forbidden not in project,
+            f"pyproject.toml unexpectedly declares project.{forbidden}.",
+        )
+
+
 def _parse_metadata(content: bytes) -> Message:
     return BytesParser(policy=policy.default).parsebytes(content)
 
 
 def _validate_metadata(metadata: Message, *, artifact_name: str) -> None:
+    metadata_version = metadata["Metadata-Version"]
+    try:
+        parsed_metadata_version = tuple(int(part) for part in metadata_version.split("."))
+    except (AttributeError, ValueError) as error:
+        raise DistributionValidationError(
+            f"{artifact_name} has invalid Metadata-Version metadata."
+        ) from error
+    _require(
+        parsed_metadata_version >= (2, 4),
+        f"{artifact_name} does not use PEP 639-capable Core Metadata.",
+    )
     _require(metadata["Name"] == PACKAGE_NAME, f"{artifact_name} has the wrong Name metadata.")
     _require(
         metadata["Version"] == PACKAGE_VERSION,
@@ -240,6 +297,14 @@ def _validate_metadata(metadata: Message, *, artifact_name: str) -> None:
         metadata.get_all("Provides-Extra", []) == ["dev"],
         f"{artifact_name} has unexpected optional extras.",
     )
+    _require(
+        metadata.get_all("License-Expression", []) == [PACKAGE_LICENSE_EXPRESSION],
+        f"{artifact_name} has the wrong License-Expression metadata.",
+    )
+    _require(
+        metadata.get_all("License-File", []) == list(EXPECTED_LICENSE_FILES),
+        f"{artifact_name} must declare exactly the expected License-File metadata.",
+    )
 
     for header in (
         "Author",
@@ -247,8 +312,6 @@ def _validate_metadata(metadata: Message, *, artifact_name: str) -> None:
         "Classifier",
         "Home-page",
         "License",
-        "License-Expression",
-        "License-File",
         "Project-URL",
     ):
         _require(
@@ -344,6 +407,7 @@ def _inspect_wheel(
     expected_modules: set[str],
     expected_capture_resources: dict[str, bytes],
     expected_corpus_resources: dict[str, bytes],
+    expected_legal_files: dict[str, bytes],
 ) -> Message:
     with zipfile.ZipFile(wheel_path) as archive:
         names_list = archive.namelist()
@@ -369,6 +433,23 @@ def _inspect_wheel(
 
         metadata = _parse_metadata(archive.read(metadata_name))
         _validate_metadata(metadata, artifact_name="Wheel")
+        license_prefix = f"{dist_info}/licenses/"
+        license_payload = {
+            name.removeprefix(license_prefix): archive.read(name)
+            for name in names
+            if name.startswith(license_prefix) and not name.endswith("/")
+        }
+        _require(
+            license_payload == expected_legal_files,
+            "Wheel legal files differ by filename or bytes.",
+        )
+        for legal_name in EXPECTED_LICENSE_FILES:
+            expected_path = f"{license_prefix}{legal_name}"
+            _require(
+                [name for name in names if PurePosixPath(name).name == legal_name]
+                == [expected_path],
+                f"Wheel must contain {legal_name} only in its .dist-info/licenses directory.",
+            )
         wheel_metadata = _parse_metadata(archive.read(wheel_metadata_name))
         _require(
             wheel_metadata["Root-Is-Purelib"] == "true",
@@ -460,6 +541,7 @@ def _inspect_sdist(
     expected_modules: set[str],
     expected_capture_resources: dict[str, bytes],
     expected_corpus_resources: dict[str, bytes],
+    expected_legal_files: dict[str, bytes],
 ) -> Message:
     with tarfile.open(sdist_path, "r:gz") as archive:
         root, members = _safe_sdist_members(archive)
@@ -468,8 +550,19 @@ def _inspect_sdist(
             f"{root}/PKG-INFO",
             f"{root}/README.md",
             f"{root}/pyproject.toml",
+            *(f"{root}/{name}" for name in EXPECTED_LICENSE_FILES),
         }
         _require(required_root_files <= names, "sdist is missing required source metadata files.")
+        for legal_name, expected_content in expected_legal_files.items():
+            legal_path = f"{root}/{legal_name}"
+            _require(
+                _tar_bytes(archive, members[legal_path]) == expected_content,
+                f"sdist {legal_name} differs from the repository by bytes.",
+            )
+            _require(
+                [name for name in names if PurePosixPath(name).name == legal_name] == [legal_path],
+                f"sdist must contain {legal_name} only at its root.",
+            )
         tactical_documentation_name = (
             f"{root}/docs/learning_corpus_tactical_motif_evidence_and_summaries.md"
         )
@@ -506,6 +599,11 @@ def _inspect_sdist(
             "sdist does not declare the exact skat-ai Console Script.",
         )
         _require("gui-scripts" not in archived_pyproject["project"], "sdist declares a GUI Script.")
+        _require(
+            archived_pyproject["project"].get("license") == PACKAGE_LICENSE_EXPRESSION
+            and archived_pyproject["project"].get("license-files") == list(EXPECTED_LICENSE_FILES),
+            "sdist does not declare the exact PEP 639 license contract.",
+        )
         _require(
             archived_pyproject["build-system"]
             == {
@@ -784,7 +882,7 @@ import os
 import sys
 import sysconfig
 import threading
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from urllib.parse import urlencode
 
 import skat_ai
@@ -2136,6 +2234,29 @@ assert unavailable_document["field_provenance"]["result"]["ledger"]["status"] ==
 distribution = importlib.metadata.distribution("skat-ai")
 assert distribution.version == "0.17.0"
 assert skat_ai.__version__ == "0.17.0"
+metadata_version = tuple(
+    int(part) for part in distribution.metadata["Metadata-Version"].split(".")
+)
+assert metadata_version >= (2, 4)
+assert distribution.metadata.get_all("License-Expression", []) == ["AGPL-3.0-only"]
+assert distribution.metadata.get_all("License-File", []) == ["LICENSE", "COPYRIGHT"]
+assert distribution.metadata.get_all("License", []) == []
+assert distribution.metadata.get_all("Classifier", []) == []
+license_entries = {}
+for entry in distribution.files or ():
+    path = PurePosixPath(str(entry).replace("\\", "/"))
+    if (
+        len(path.parts) == 3
+        and path.parts[0].endswith(".dist-info")
+        and path.parts[1] == "licenses"
+    ):
+        license_entries[path.parts[2]] = entry
+assert set(license_entries) == {"LICENSE", "COPYRIGHT"}
+legal_file_digests = {}
+for name, entry in license_entries.items():
+    installed_content = Path(distribution.locate_file(entry)).read_bytes()
+    assert installed_content == (repository_root / name).read_bytes()
+    legal_file_digests[name] = hashlib.sha256(installed_content).hexdigest()
 entry_points = [
     (entry.group, entry.name, entry.value)
     for entry in distribution.entry_points
@@ -2238,6 +2359,9 @@ print(json.dumps({
     "corpus_resource_names": corpus_resource_names,
     "corpus_resource_digest": corpus_digest.hexdigest(),
     "version": skat_ai.__version__,
+    "license_expression": distribution.metadata["License-Expression"],
+    "license_files": distribution.metadata.get_all("License-File", []),
+    "legal_file_digests": legal_file_digests,
     "installed_module_count": len(loaded_paths),
 }, sort_keys=True))
 """
@@ -3107,6 +3231,8 @@ def _install_and_smoke(
 
 def validate_distribution_artifacts() -> None:
     before_snapshot = _repository_artifact_snapshot()
+    _validate_source_license_metadata()
+    expected_legal_files = _expected_legal_file_bytes()
     expected_schemas = _expected_schema_bytes()
     expected_modules = _expected_module_names()
     expected_capture_resources = _expected_capture_resource_bytes()
@@ -3155,6 +3281,7 @@ def validate_distribution_artifacts() -> None:
             expected_modules,
             expected_capture_resources,
             expected_corpus_resources,
+            expected_legal_files,
         )
         sdist_metadata = _inspect_sdist(
             sdists[0],
@@ -3162,6 +3289,7 @@ def validate_distribution_artifacts() -> None:
             expected_modules,
             expected_capture_resources,
             expected_corpus_resources,
+            expected_legal_files,
         )
         _require(
             wheel_metadata["Name"] == sdist_metadata["Name"]

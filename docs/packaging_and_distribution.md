@@ -5,7 +5,8 @@ Issue #141, the installed interfaces added by Issue #142, and the Issue #157
 clean-install coverage for stable Session file transport and end-to-end Session
 capture. Issue #200 freezes the repository-root Legacy CLI for Package 1.x; any
 removal can occur no earlier than `2.0.0` after a prior warning and migration
-note.
+note. Issue #204 applies the exact `AGPL-3.0-only` PEP 639 Package-license
+boundary without changing product behavior or active Package identity.
 
 ## Build metadata
 
@@ -36,10 +37,41 @@ The project declares exactly one Console Script:
 skat-ai = "skat_ai.cli:main"
 ```
 
+The project declares exactly:
+
+```toml
+license = "AGPL-3.0-only"
+license-files = ["LICENSE", "COPYRIGHT"]
+```
+
 The project does not use `setup.py`, repository `setup.cfg`, non-Package
-`data-files`, GUI Scripts, a second Console Script, authors, classifiers,
-publication URLs, or license metadata. Setuptools may generate backend-owned
-compatibility metadata inside an sdist; `pyproject.toml` remains authoritative.
+`data-files`, GUI Scripts, a second Console Script, authors, classifiers, or
+publication URLs. It uses no deprecated license table, legacy unstructured
+`License` metadata, or license Trove classifier. Setuptools may generate backend-
+owned compatibility metadata inside an sdist; `pyproject.toml` remains
+authoritative.
+
+## License files
+
+Root `LICENSE` is the complete unmodified GNU AGPL version 3 text and root
+`COPYRIGHT` contains exactly `Copyright (C) 2026 Henning Wiese`. Both are UTF-8
+without a BOM, LF-only, and end with one LF. Their authoritative decision,
+source, deterministic license digest, dependency/asset audit, network-use
+boundary, and contributor boundary are documented in
+[v1 Package license](v1_package_license.md).
+
+Core Metadata version `2.4` or later contains exactly:
+
+```text
+License-Expression: AGPL-3.0-only
+License-File: LICENSE
+License-File: COPYRIGHT
+```
+
+Wheel and installed locations are
+`<distribution>.dist-info/licenses/LICENSE` and
+`<distribution>.dist-info/licenses/COPYRIGHT`. The sdist places both exact files
+at its root. The Wheel `RECORD` includes their exact SHA-256 hashes and sizes.
 
 ## Installed entry points
 
@@ -195,7 +227,11 @@ real distribution builds. It validates exactly one Wheel and one sdist.
 
 Wheel inspection verifies:
 
-* valid core metadata and the declared runtime and development dependencies;
+* PEP 639-capable core metadata, exact `AGPL-3.0-only`, exactly two declared
+  legal files, no legacy `License`, and no classifier;
+* exact `.dist-info/licenses/` legal-file bytes and their complete Wheel
+  `RECORD` hashes and sizes;
+* the declared runtime and development dependencies;
 * every `skat_ai` Python module;
 * `py.typed` and all 71 byte-identical schema resources;
 * exact Capture Web template, CSS, and JavaScript resource bytes;
@@ -208,8 +244,8 @@ Wheel inspection verifies:
 
 sdist inspection verifies:
 
-* `pyproject.toml`, `README.md`, Package sources, `py.typed`, and every schema,
-  Capture Web, and Corpus Web resource;
+* `pyproject.toml`, `README.md`, exact root `LICENSE` and `COPYRIGHT`, Package
+  sources, `py.typed`, and every schema, Capture Web, and Corpus Web resource;
 * build and core metadata sufficient to build and install the same Package;
 * exact Console Script metadata and `src/skat_ai/__main__.py`;
 * absence of a source-authored `setup.py`, root `main.py`, a second command, and
@@ -221,6 +257,8 @@ verifies:
 
 * imports resolve from that environment's `site-packages`;
 * `skat_ai.__version__ == "0.17.0"`;
+* exact installed `License-Expression` and `License-File` metadata plus exact
+  `.dist-info/licenses/LICENSE` and `.dist-info/licenses/COPYRIGHT` bytes;
 * `py.typed` is locatable;
 * every installed schema has exact repository filename and byte parity, valid
   UTF-8 and JSON, and its unchanged `$id`;
@@ -298,7 +336,9 @@ macOS, hardware, named-browser, or cross-machine latency matrix is claimed. The
 final v1 clean-install gate must exercise all seven Root workflows from both
 Wheel and sdist; current distribution smoke uses one compact Root example while
 repository tests cover all seven, so that broader clean-install evidence remains
-a follow-up gate.
+a follow-up gate. B-05/#206 also owns reconciliation of the existing direct
+`referencing` import with the declared runtime lower bounds before certifying the
+final matrix; Issue #204 intentionally changes no dependency.
 
 Issue #142 added the installed `skat-ai` command and `python -m skat_ai` without a
 public schema-resource API, new workflow, Root-output metadata, Provenance field,
@@ -309,9 +349,11 @@ functional `v0.14.0` Session milestone, and Issue #158 completed Package version
 at commit `d5589f8` has 63 authoritative and packaged Schemas and 85 generated-
 output scenarios, while the historical `v0.13.0` 77 scenarios remain unchanged.
 
-The Package license decision remains unresolved and is a v1
-`product_decision_required` blocker, so no license metadata is declared. Package
-and release publication remain human-controlled. Session
+Issue #204 applies `AGPL-3.0-only`, closes B-04, and leaves Package and Release
+publication human-controlled. It adds no Package-index or PyPI publication.
+P-09 remains `implementation_required` under the separate complete SkatMind
+rename blocker B-08/#205; the current Package/import/CLI names remain unchanged
+until that work. Session
 file paths are caller-selected; no default directory, second Console Script,
 remote browser deployment, online-platform adapter, cloud synchronization,
 distributed locking, encryption/key management, or automatic backup policy is
@@ -342,5 +384,6 @@ published `v0.17.0` manually on 2026-08-25 at `8187fbe`; Issue #199 synchronizes
 the post-publication documentation only. GitHub Releases is authoritative, and
 no Package-index or PyPI publication is claimed.
 
-The authoritative v1 packaging, platform, license, and distribution matrix is in
-the [v1.0 scope and traceability audit](v1_0_scope_and_traceability_audit.md).
+The authoritative license boundary is in [v1 Package license](v1_package_license.md).
+The v1 packaging, platform, and distribution matrix is in the
+[v1.0 scope and traceability audit](v1_0_scope_and_traceability_audit.md).

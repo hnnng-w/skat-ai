@@ -8,6 +8,8 @@ version = "0.17.0"
 description = "Local Skat analysis and simulation tool"
 readme = "README.md"
 requires-python = ">=3.13"
+license = "AGPL-3.0-only"
+license-files = ["LICENSE", "COPYRIGHT"]
 dependencies = [
     "jsonschema>=4.0.0",
 ]

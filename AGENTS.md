@@ -561,9 +561,12 @@ internal load-to-final-serialization Provenance for all seven Root workflows,
 makes P-10 and P-13 `satisfied`, and closes B-02 without widening public
 Provenance. Issue #203 completes all nine concrete canonical Multi-Step phases,
 makes P-19 `satisfied`, and closes B-03 without widening Search or public
-contracts. Four blockers B-04 through B-07 remain. `v1.0.0` is not ready; the
-next action is Issue #204, **Decide and apply the v1 Package license boundary**. No
-v1 Release title,
+contracts. Issue #204 applies the `AGPL-3.0-only` Package boundary and closes
+B-04. P-09 is
+`implementation_required` under the separate SkatMind rename blocker B-08/#205,
+and B-09 adds maintainer UAT outside the 53-row ledger. `v1.0.0` is not ready;
+the next action is Issue #205, **Rename the complete project and public Package
+surface to SkatMind**. No v1 Release title,
 theme, date, tag, publication commit, or production model is frozen.
 
 Major completed areas include:
@@ -851,8 +854,10 @@ quality assessment outside retained complete-Search evidence, causal
 attribution, and player ratings are not required for v1; complete internal
 field-level information provenance is complete under Issue #202 without widening
 the public contract. Issue #203 completes canonical Multi-Step phase coverage;
-the remaining gates are B-04 through B-07, beginning with the Issue #204 Package-
-license decision.
+Issue #204 closes the Package-license decision with exact `AGPL-3.0-only` legal
+files and PEP 639 metadata. The next gate is the B-08/#205 complete SkatMind
+rename, followed by #206 platform evidence, #207 technical readiness audit, and
+#208 maintainer UAT before B-07 Release preparation.
 End-to-end local Live and Retrospective Session
 capture is implemented through public file Save/Load, automatic Checkpoints,
 accepted-Log actual-card observation, isolated review, explicit analysis, the

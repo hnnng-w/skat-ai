@@ -1336,9 +1336,11 @@ Issue #201 closes the exhaustive official-rule evidence gate without product-cod
 change. Issue #202 closes internal load-to-serialization Provenance enforcement
 for all seven Root workflows without changing the bounded public contract. Issue
 #203 closes canonical Multi-Step phase coverage for all nine concrete phases
-without widening Search or public contracts. Before `v1.0.0`, the project still
-requires a human Package license decision, final installation/platform evidence,
-final readiness evidence, and Package `1.0.0` Release preparation. End-to-end
+without widening Search or public contracts. Issue #204 applies the exact
+`AGPL-3.0-only` Package boundary and closes B-04. Before `v1.0.0`, the project
+still requires the complete SkatMind rename, final installation/platform
+evidence, final technical readiness evidence, maintainer UAT, and Package
+`1.0.0` Release preparation. End-to-end
 local Live and Retrospective Session capture is complete
 through Issues #150 through #157, including public files, automatic Checkpoints,
 accepted-Log observation, isolated review, explicit analysis, all 12 CLI
@@ -1532,6 +1534,12 @@ Issue #201 adds independent exhaustive official-rule evidence, makes R-01 and
 R-06 `satisfied`, and closes B-01 without product-code change. Six blockers B-02
 through B-07 remained at that point. Issue #202 makes P-10 and P-13 `satisfied`
 and closes B-02. Issue #203 makes P-19 `satisfied` and closes B-03. Four blockers
-B-04 through B-07 remain; `v1.0.0` is unready, and Issue #204, **Decide and apply
-the v1 Package license boundary**, is next. No v1 Release title, theme, date, tag,
-or publication commit is frozen.
+B-04 through B-07 remained at that point. Issue #204 applies the exact
+`AGPL-3.0-only` Package boundary and closes B-04. P-09 moves to
+`implementation_required` under B-08/#205, and B-09 adds maintainer UAT outside
+the 53-row ledger. Five blockers B-05 through B-09 remain; `v1.0.0` is unready,
+and Issue #205, **Rename the complete project and public Package surface to
+SkatMind**, is next. #206 owns installation/platform evidence, #207 the final
+technical audit, and #208 maintainer UAT. Release preparation remains deferred
+until afterward. No v1 Release title, theme, date, tag, or publication commit is
+frozen.
