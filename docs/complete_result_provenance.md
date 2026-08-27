@@ -226,6 +226,10 @@ Rating, list, ending-adjudication, exact-proof, Historical replay, Search,
 Review, or Coaching calls. Equal retained inputs and Results produce equal
 ledgers and attachment order.
 
+Issue #202 separately reconciles the exact current Result and artifacts actually
+returned against these complete attachments before Application return. The
+immutable checkpoint is built without rerunning any workflow stage.
+
 By default, Public Python API and CLI execution still omit provenance. With
 `include_provenance=True` or `--include-provenance`, Issue #147 selects exactly
 one mapped Root Result attachment, applies the existing public redaction helper,
@@ -238,10 +242,11 @@ Result mapping per Root workflow; the Training Dataset scenario also covers its
 actual export artifact. Published `v0.12.0` facts remain 70 scenarios and 4,762
 pytest tests.
 
-## Remaining work
+## Retained boundary
 
 Issue #147 implements the bounded public Root Result and actual-artifact
 contract. Public consumed-input, decision, intermediate-stage, and unredacted
 Application attachments remain unavailable. Broader end-to-end information-
-policy enforcement outside implemented Application boundaries remains open
-before `v1.0.0`.
+Application attachments remain unavailable. Internal source, retained-stage,
+policy, and exact final-serialization enforcement is complete under Issue #202;
+the narrower public boundary is intentional.

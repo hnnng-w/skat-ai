@@ -2,8 +2,9 @@ from __future__ import annotations
 
 import math
 from collections.abc import Mapping
-from dataclasses import dataclass, field
+from dataclasses import InitVar, dataclass, field
 from enum import StrEnum
+from inspect import signature
 from types import MappingProxyType
 from typing import TYPE_CHECKING, Any
 
@@ -147,8 +148,51 @@ class RequestDocumentV1:
         }
 
 
-@dataclass(frozen=True, slots=True, kw_only=True)
-class ExecutionOptionsV1:
+class _ExecutionOptionsV1Presence:
+    __slots__ = ("_supplied_execution_option_names",)
+
+
+_OPTION_NOT_SUPPLIED = object()
+_EXECUTION_OPTIONS_REPLACE_TOKEN = object()
+
+
+@dataclass(frozen=True, slots=True)
+class _ExecutionOptionsV1ReplaceState:
+    supplied_names: tuple[str, ...]
+    values: tuple[object, ...]
+    token: object
+
+    def __post_init__(self) -> None:
+        if self.token is not _EXECUTION_OPTIONS_REPLACE_TOKEN:
+            raise TypeError("invalid private ExecutionOptionsV1 state")
+
+
+class _ExecutionOptionsV1ReplaceStateDescriptor:
+    def __get__(
+        self,
+        instance: ExecutionOptionsV1 | None,
+        owner: type[ExecutionOptionsV1] | None = None,
+    ) -> object:
+        if instance is None:
+            return self
+        return _ExecutionOptionsV1ReplaceState(
+            supplied_names=instance._supplied_execution_option_names,
+            values=(
+                instance.validate_output,
+                instance.include_provenance,
+                instance.workflow_options,
+                instance.opponent_statistics_document,
+                instance.opponent_statistics_reference,
+            ),
+            token=_EXECUTION_OPTIONS_REPLACE_TOKEN,
+        )
+
+
+_EXECUTION_OPTIONS_REPLACE_STATE = _ExecutionOptionsV1ReplaceStateDescriptor()
+
+
+@dataclass(frozen=True, slots=True, kw_only=True, init=False)
+class ExecutionOptionsV1(_ExecutionOptionsV1Presence):
     """Public non-transport options for one version-1 execution."""
 
     validate_output: bool = True
@@ -156,6 +200,100 @@ class ExecutionOptionsV1:
     workflow_options: Mapping[str, object] = field(default_factory=dict)
     opponent_statistics_document: Mapping[str, object] | None = None
     opponent_statistics_reference: str | None = None
+    _replace_state: InitVar[object] = _EXECUTION_OPTIONS_REPLACE_STATE
+
+    def __init__(
+        self,
+        *,
+        validate_output: bool = _OPTION_NOT_SUPPLIED,  # type: ignore[assignment]
+        include_provenance: bool = _OPTION_NOT_SUPPLIED,  # type: ignore[assignment]
+        workflow_options: Mapping[str, object] = _OPTION_NOT_SUPPLIED,  # type: ignore[assignment]
+        opponent_statistics_document: Mapping[str, object] | None = _OPTION_NOT_SUPPLIED,  # type: ignore[assignment]
+        opponent_statistics_reference: str | None = _OPTION_NOT_SUPPLIED,  # type: ignore[assignment]
+        _replace_state: object = _EXECUTION_OPTIONS_REPLACE_STATE,
+    ) -> None:
+        object.__setattr__(
+            self,
+            "validate_output",
+            True if validate_output is _OPTION_NOT_SUPPLIED else validate_output,
+        )
+        object.__setattr__(
+            self,
+            "include_provenance",
+            False if include_provenance is _OPTION_NOT_SUPPLIED else include_provenance,
+        )
+        object.__setattr__(
+            self,
+            "workflow_options",
+            {} if workflow_options is _OPTION_NOT_SUPPLIED else workflow_options,
+        )
+        object.__setattr__(
+            self,
+            "opponent_statistics_document",
+            (
+                None
+                if opponent_statistics_document is _OPTION_NOT_SUPPLIED
+                else opponent_statistics_document
+            ),
+        )
+        object.__setattr__(
+            self,
+            "opponent_statistics_reference",
+            (
+                None
+                if opponent_statistics_reference is _OPTION_NOT_SUPPLIED
+                else opponent_statistics_reference
+            ),
+        )
+        self.__post_init__()
+        if _replace_state is _EXECUTION_OPTIONS_REPLACE_STATE:
+            supplied = tuple(
+                name
+                for name, value in (
+                    ("validate_output", validate_output),
+                    ("include_provenance", include_provenance),
+                    ("workflow_options", workflow_options),
+                    ("opponent_statistics_document", opponent_statistics_document),
+                    ("opponent_statistics_reference", opponent_statistics_reference),
+                )
+                if value is not _OPTION_NOT_SUPPLIED
+            )
+        elif isinstance(_replace_state, _ExecutionOptionsV1ReplaceState):
+            supplied_values = set(_replace_state.supplied_names)
+            for name, current, previous in zip(
+                (
+                    "validate_output",
+                    "include_provenance",
+                    "workflow_options",
+                    "opponent_statistics_document",
+                    "opponent_statistics_reference",
+                ),
+                (
+                    self.validate_output,
+                    self.include_provenance,
+                    self.workflow_options,
+                    self.opponent_statistics_document,
+                    self.opponent_statistics_reference,
+                ),
+                _replace_state.values,
+                strict=True,
+            ):
+                if current != previous:
+                    supplied_values.add(name)
+            supplied = tuple(
+                name
+                for name in (
+                    "validate_output",
+                    "include_provenance",
+                    "workflow_options",
+                    "opponent_statistics_document",
+                    "opponent_statistics_reference",
+                )
+                if name in supplied_values
+            )
+        else:
+            raise TypeError("invalid private ExecutionOptionsV1 state")
+        object.__setattr__(self, "_supplied_execution_option_names", supplied)
 
     def __post_init__(self) -> None:
         if not isinstance(self.validate_output, bool):
@@ -212,6 +350,59 @@ class ExecutionOptionsV1:
             ),
             "opponent_statistics_reference": self.opponent_statistics_reference,
         }
+
+    @property
+    def _provenance_supplied_option_names(self) -> tuple[str, ...]:
+        return self._supplied_execution_option_names
+
+    def __copy__(self) -> ExecutionOptionsV1:
+        return self
+
+    def __deepcopy__(self, memo: dict[int, object]) -> ExecutionOptionsV1:
+        memo[id(self)] = self
+        return self
+
+    def __reduce__(self) -> tuple[object, tuple[object, ...]]:
+        return (
+            _restore_execution_options_v1,
+            (
+                self.to_dict(),
+                self._supplied_execution_option_names,
+            ),
+        )
+
+
+def _restore_execution_options_v1(
+    values: Mapping[str, object],
+    supplied_names: tuple[str, ...],
+) -> ExecutionOptionsV1:
+    restored = ExecutionOptionsV1(**values)
+    object.__setattr__(restored, "_supplied_execution_option_names", supplied_names)
+    return restored
+
+
+@dataclass(frozen=True, slots=True, kw_only=True)
+class _ExecutionOptionsV1PublicSignature:
+    validate_output: bool = True
+    include_provenance: bool = False
+    workflow_options: Mapping[str, object] = field(default_factory=dict)
+    opponent_statistics_document: Mapping[str, object] | None = None
+    opponent_statistics_reference: str | None = None
+
+
+_execution_options_public_init_signature = signature(
+    _ExecutionOptionsV1PublicSignature.__init__
+)
+ExecutionOptionsV1.__signature__ = (  # type: ignore[attr-defined]
+    _execution_options_public_init_signature.replace(
+        parameters=tuple(
+            _execution_options_public_init_signature.parameters.values()
+        )[1:]
+    )
+)
+ExecutionOptionsV1.__init__.__signature__ = (  # type: ignore[attr-defined]
+    _execution_options_public_init_signature
+)
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)

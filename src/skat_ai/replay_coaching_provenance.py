@@ -77,8 +77,8 @@ def _decision_time_entry_builder(
         else:
             origin = "historical_replay"
             derivation = "reconstruction"
-            reference_id = evidence.source_game_id
-            reference_type = "historical_game"
+            reference_id = "historical_search_review"
+            reference_type = "algorithm"
         return _entry(
             path,
             origin=origin,
@@ -296,7 +296,7 @@ def _report_entry_builder(
                 derivation="deterministic_rule",
                 decision_index=None,
                 perspective_player_id=None,
-                source_references=(_reference("historical_game", "final_outcome_context"),),
+                source_references=(_reference("aggregate", "final_outcome_context"),),
             )
         if (
             len(tokens) >= 2
@@ -347,7 +347,9 @@ def _report_entry_builder(
                 derivation="reconstruction",
                 decision_index=None,
                 perspective_player_id=None,
-                source_references=(_reference("historical_game", "coaching_source_game"),),
+                source_references=(
+                    _reference("algorithm", "historical_replay_coaching_v1"),
+                ),
             )
         return _offline_entry(
             path,

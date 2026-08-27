@@ -21,6 +21,9 @@ synchronization only.
 
 Issue #201 adds independent exhaustive official-rule evidence for R-01 and R-06,
 closes B-01 without product-code change, and synchronizes this current audit.
+Issue #202 completes mandatory internal load-to-final-serialization information-
+Provenance enforcement for all seven Root workflows, closes B-02, makes P-10 and
+P-13 `satisfied`, and preserves the bounded public Provenance contract.
 
 ## Source hierarchy
 
@@ -102,10 +105,10 @@ There are exactly 53 traceability rows whose `Required before v1.0` cell contain
 
 | Audit status | Count |
 | --- | ---: |
-| `satisfied` | 14 |
+| `satisfied` | 16 |
 | `satisfied_with_approved_bounded_scope` | 34 |
 | `evidence_required` | 1 |
-| `implementation_required` | 3 |
+| `implementation_required` | 1 |
 | `product_decision_required` | 1 |
 | `post_v1` | 0 |
 | `not_required` | 0 |
@@ -128,7 +131,7 @@ Every required row cites at least one direct automated evidence anchor:
 | E-Match | `tests/test_match_capture_contracts.py`, `tests/test_match_workspace_persistence.py`, `tests/test_match_analysis_exports.py`, `tests/test_local_match_capture_web.py` |
 | E-Session | `tests/test_public_session_api.py`, `tests/test_public_session_files.py`, `tests/test_session_transitions.py`, `tests/test_session_cli.py` |
 | E-API | `tests/test_public_api_contracts.py`, `tests/test_public_python_api_v1.py`, `tests/test_installed_cli.py` |
-| E-Provenance | `tests/test_field_provenance_coverage.py`, `tests/test_application_provenance.py`, `tests/test_complete_result_provenance.py`, `tests/test_public_field_provenance.py` |
+| E-Provenance | `tests/test_field_provenance_coverage.py`, `tests/test_application_provenance.py`, `tests/test_complete_result_provenance.py`, `tests/test_public_field_provenance.py`, `tests/test_v1_input_provenance.py`, `tests/test_v1_provenance_enforcement.py`, `tests/test_v1_provenance_serialization.py`, `tests/test_v1_provenance_adversarial.py` |
 | E-Simulation | `tests/test_simulation.py`, `tests/test_multi_step_simulation.py`, `tests/test_simulation_provenance.py` |
 | E-Inference | `tests/test_hidden_card_inference.py`, `tests/test_bounded_search_information.py` |
 | E-Search | `tests/test_bounded_search_result.py`, `tests/test_bounded_search_quality_baselines.py`, `tests/test_bounded_search_benchmark.py` |
@@ -184,10 +187,10 @@ Every required row cites at least one direct automated evidence anchor:
 | P-07 | Local Match Capture browser and CLI transport | `supported` | `satisfied_with_approved_bounded_scope` | Loopback-only `capture` through one Console Script is complete for v1. | None |
 | P-08 | Public Session APIs | `supported` | `satisfied_with_approved_bounded_scope` | Existing `skat_ai.api.v1.session` and `.files` surfaces are frozen for v1. | None |
 | P-09 | Stable public Python and installed CLI contract | `supported` | `product_decision_required` | API/CLI behavior is implemented and frozen, but Package license selection remains unresolved. | B-04 / #204 |
-| P-10 | Field-level information provenance | `partially_supported` | `implementation_required` | Public Result/artifact provenance is complete; internal load-to-serialization enforcement still requires closure. | B-02 / #202 |
+| P-10 | Field-level information provenance | `partially_supported` | `satisfied` | Exact Request/effective-option/external sources, pre-analysis context enforcement, retained-stage authorization, exact final Result/artifact reconciliation, and adversarial evidence are complete without widening public Provenance. | None |
 | P-11 | Interactive Session capture | `supported` | `satisfied_with_approved_bounded_scope` | Existing local API/file/CLI/Assistant workflow is complete; GUI, cloud, and platform adapters are not required. | None |
 | P-12 | Private Session persistence and resume | `supported` | `satisfied_with_approved_bounded_scope` | Strict version-1 persistence, replay, fingerprints, CAS, and atomic replacement are complete for v1. | None |
-| P-13 | Live information boundaries | `partially_supported` | `implementation_required` | Existing decision and Result enforcement is retained; trusted general input and load/serialization boundaries must be closed with P-10. | B-02 / #202 |
+| P-13 | Live information boundaries | `partially_supported` | `satisfied` | Exact source contexts are enforced before analysis and linked through retained Decisions/stages to final serialization; private and retrospective timing boundaries remain closed under adversarial mutation. | None |
 | P-14 | Retrospective information | `supported` | `satisfied_with_approved_bounded_scope` | Existing decision-time, observed-card, and final-outcome separation is the v1 contract. | None |
 | P-15 | Immediate simulation | `supported` | `satisfied` | Current deterministic bounded immediate simulation satisfies v1. | None |
 | P-16 | Evidence-constrained hidden-card inference | `supported` | `satisfied_with_approved_bounded_scope` | Exact structural compatible-world inference with uncalibrated concentration labels is the v1 contract. | None |
@@ -251,10 +254,10 @@ additional required rows, so they do not change the 53-row reconciliation.
 | P-07 | E-Match, E-API | None within loopback transport scope | None |
 | P-08 | E-Session, E-API | None within stable Session API scope | None |
 | P-09 | E-API, E-Distribution | Human Package-license decision and resulting metadata evidence | B-04 / #204 |
-| P-10 | E-Provenance | Internal loading through final-serialization enforcement and adversarial evidence | B-02 / #202 |
+| P-10 | E-Provenance | None | None |
 | P-11 | E-Session | None within local API/file/CLI scope | None |
 | P-12 | E-Session | None within strict version-1 persistence scope | None |
-| P-13 | E-Provenance, E-Simulation | Trusted-input/loading Information Use Context closure | B-02 / #202 |
+| P-13 | E-Provenance, E-Simulation | None | None |
 | P-14 | E-Historical, E-Provenance | None within decision-time/retrospective separation | None |
 | P-15 | E-Simulation | None | None |
 | P-16 | E-Inference | None within structural uncalibrated scope | None |
@@ -337,8 +340,8 @@ type exists:
 
 | Lifecycle boundary | Audit status | v1 requirement |
 | --- | --- | --- |
-| Input loading and normalization | `implementation_required` | Retain complete internal origin/default/inference evidence for exact values consumed by all seven Root workflows. |
-| Schema and contract validation | `implementation_required` | Link each validated value to its loaded origin and enforce Information Use Context before downstream use. |
+| Input loading and normalization | `satisfied` | Complete exact Request, effective-option, and optional injected-external sources retain the values consumed by all seven Root workflows. |
+| Schema and contract validation | `satisfied` | Every exact source has complete canonical coverage and an independently retained Information Use Context enforced before handler dispatch. |
 | Decision State construction | `satisfied_with_approved_bounded_scope` | Existing live and historical pre-selection/pre-play ledgers remain authoritative; general supplied context is completed by the loading closure. |
 | Inference and analysis | `satisfied_with_approved_bounded_scope` | Existing hidden-card inference, profile, Immediate, Search, and retained analysis-stage evidence is sufficient. |
 | Simulation and comparison | `satisfied_with_approved_bounded_scope` | Existing Multi-Step, Policy Comparison, Historical Review, and evaluation retained-stage evidence is sufficient within their bounded contracts. |
@@ -347,27 +350,32 @@ type exists:
 | Coaching and Tactical derivation | `satisfied_with_approved_bounded_scope` | Existing Replay, Information-set, Tactical, and cross-game retained evidence is sufficient without truth or causal claims. |
 | Root Result output | `satisfied` | All seven non-legacy Root Results have complete exact leaf coverage. |
 | Actual artifacts | `satisfied` | The returned `opponent_statistics_input` artifact has its own complete attachment. |
-| Final serialization | `implementation_required` | The exact serialized Result and artifact must be reconciled with retained complete ledgers immediately before serialization. |
+| Final serialization | `satisfied` | The exact Root Result and actual artifact tuple are reconciled with retained complete ledgers immediately before Application return and revalidated before optional public conversion. |
 | Public redaction | `satisfied` | Existing engine-private removal and recomputed exact coverage remains the v1 contract. |
 | Public consumed-input provenance | `not_required` | Remains internal. |
 | Public Decision provenance | `not_required` | Remains internal. |
 | Public intermediate provenance | `not_required` | Remains internal. |
 | Confidence integration | `not_required` | Provenance and Confidence remain separate contracts. |
 
-The exact remaining v1 Provenance closure is internal only:
+Issue #202 completes the required internal v1 Provenance closure:
 
-1. Cover validated loading and normalization for all seven Root workflows,
+1. It covers validated loading and normalization for all seven Root workflows,
    including caller-supplied, copied, defaulted, canonically implied, inferred,
    replayed, and external-source values.
-2. Enforce Information Use Context before analysis, with focused Matador, live
+2. It enforces Information Use Context before analysis, with focused live,
    input, and retrospective reconstruction coverage.
-3. Reconcile existing Decision and intermediate attachments to authorized loaded
+3. It reconciles existing Decision and intermediate attachments to authorized loaded
    or retained values without rerunning analysis.
-4. Reconcile final Root Result and returned artifact serialization with complete
+4. It reconciles final Root Result and returned artifact serialization with complete
    retained ledgers; reject mutation, uncovered leaves, orphaned entries,
    dependency errors, and leaked engine-private evidence.
-5. Add adversarial evidence for all seven workflows and installed/module/Legacy
+5. It adds adversarial evidence for all seven workflows and entry-form
    serialization parity while preserving default omission and public redaction.
+
+The mandatory stage sequence is `loaded_request`,
+`validated_consumed_input`, `retained_stage_linkage`, and
+`final_serialization`. See
+[v1 information provenance enforcement](v1_information_provenance_enforcement.md).
 
 Root and Session public provenance remain separate. Match and Corpus source
 identities, persistence fingerprints, Teacher fingerprints, Tactical identities,
@@ -750,16 +758,17 @@ unconditional exclusion.
 ## Exact blockers
 
 Issue #201 closes B-01 with the independent evidence documented in
-[v1 official-rule evidence](v1_official_rule_evidence.md). `v1.0.0` is not
-ready. Exactly these blockers remain:
+[v1 official-rule evidence](v1_official_rule_evidence.md). Issue #202 closes
+B-02 with the internal lifecycle documented in
+[v1 information provenance enforcement](v1_information_provenance_enforcement.md).
+`v1.0.0` is not ready. Exactly these five blockers remain:
 
 | Blocker | Status | Required closure |
 | --- | --- | --- |
-| B-02 | `implementation_required` | Complete internal load-to-final-serialization field-level Provenance and adversarial evidence without widening public Provenance. |
 | B-03 | `implementation_required` | Close canonical valid Multi-Step phase analysis/preparation/termination coverage without adding a broader solver. |
 | B-04 | `product_decision_required` | Human maintainer decides the Package license and resulting metadata/evidence boundary. |
 | B-05 | `evidence_required` | Complete the final all-seven-workflow Wheel/sdist clean-install matrix and fresh CPython 3.13 Windows/Ubuntu platform evidence. |
-| B-06 | `evidence_required` | After B-02 through B-05, record a clean final v1 scope/readiness audit, full local check, CI result, and clean worktree evidence. |
+| B-06 | `evidence_required` | After B-03 through B-05, record a clean final v1 scope/readiness audit, full local check, CI result, and clean worktree evidence. |
 | B-07 | `implementation_required` | After readiness approval, prepare Package `1.0.0`, matching version expectations, Changelog, and Release-candidate documentation without product behavior changes. |
 
 No blocker requires a new Claim interpretation, broader Search algorithm,
@@ -773,15 +782,16 @@ The smallest coherent follow-up sequence is frozen as:
 | Order | Issue and type | Primary Gate and blocking requirements | Scope | Dependencies | Expected product-code change | Expected public-contract change | Expected Schema change | Release relevance |
 | ---: | --- | --- | --- | --- | --- | --- | --- | --- |
 | 1 | **#201 - Complete v1 official-rule evidence closure**; evidence | Rules and Settlement; R-01, R-06, B-01 | Add exhaustive card/rank and accepted Suit/Grand value/variant tables; change no approved rule interpretation. | #200; completed | No; focused tests/evidence only | None | None | Closed the official-rule evidence gate. |
-| 2 | **#202 - Complete internal v1 information-Provenance enforcement**; implementation and evidence | Provenance/privacy; P-10, P-13, B-02 | Implement and test loading, retained-stage linkage, final serialization, and adversarial closure. | #200 and completed #201 | Yes, internal enforcement | No new public field, version, or default behavior | None | Closes internal information-safety implementation before candidate validation. |
-| 3 | **#203 - Complete canonical Multi-Step phase coverage**; implementation and evidence | Simulation; P-19, B-03 | Analyze, prepare, or terminate every valid canonical phase under documented semantics; preserve coherent-world and Search boundaries. | #202 | Yes, bounded phase handling | Existing fields only; behavior changes only for currently unsupported valid phases | None expected | Closes the final functional behavior gate. |
+| 2 | **#202 - Complete internal v1 information-Provenance enforcement**; implementation and evidence | Provenance/privacy; P-10, P-13, B-02 | Implement and test loading, retained-stage linkage, final serialization, and adversarial closure. | #200 and completed #201; completed | Yes, internal enforcement | No new public field, version, or default behavior | None | Closed internal information-safety implementation before candidate validation. |
+| 3 | **#203 - Complete canonical Multi-Step phase coverage**; implementation and evidence | Simulation; P-19, B-03 | Analyze, prepare, or terminate every valid canonical phase under documented semantics; preserve coherent-world and Search boundaries. | Completed #202 | Yes, bounded phase handling | Existing fields only; behavior changes only for currently unsupported valid phases | None expected | Closes the final functional behavior gate. |
 | 4 | **#204 - Decide and apply the v1 Package license boundary**; product decision and metadata | Packaging/license; P-09, B-04 | Obtain the human decision, then apply only the resulting metadata, files, tests, and documentation. | #200; ordered after #203 | No product behavior; decision-dependent metadata/files only | Package metadata only, not Python API or CLI behavior | None | Required legal/metadata decision before distribution evidence. |
 | 5 | **#205 - Complete the v1 installation and supported-platform matrix**; evidence | Packaging/platforms; P-34, B-05 | Add all-seven-Root-workflow source/Editable/Wheel/sdist evidence and verify CPython 3.13 on Windows and Ubuntu with current CLI/browser/download boundaries. | #201-#204 | No product behavior expected; validation scripts/tests may change | None | None | Produces final candidate installation/platform evidence. |
 | 6 | **#206 - Audit final v1.0.0 Release readiness**; documentation audit | All Gate clusters; B-06 | Reconcile #201 through #205, the 53-row ledger, exact counts, final full check, CI, diff, and Release blockers. | #205 and successful CI | No | None | None | Decides whether Release preparation may begin. |
 | 7 | **#207 - Prepare Package v1.0.0 and the Release candidate**; Release preparation | Release metadata; B-07 | Update Package version/current-version expectations, Changelog, and approved Release-candidate documentation; rerun final validation; do not publish. | #206 readiness approval | Version constants only; no product behavior | Package version metadata only | None expected | Produces the unpublished `1.0.0` Release candidate for human publication. |
 
-B-01 is closed by Issue #201. Every remaining blocker B-02 through B-07 maps to
-exactly one planned Issue #202 through #207. Publication, tagging, GitHub Release
+B-01 is closed by Issue #201, and B-02 is closed by Issue #202. Every remaining
+blocker B-03 through B-07 maps to exactly one planned Issue #203 through #207.
+Publication, tagging, GitHub Release
 creation, and any post-publication synchronization remain human-controlled and
 are not frozen as Issue numbers here.
 
@@ -794,11 +804,11 @@ workflows, stable Public API/Session/CLI surfaces, 71 Schemas, six Session
 examples, 98 generated outputs, and ten Corpus downloads are accepted as the v1
 baseline under their documented limitations.
 
-The 53 required traceability rows are completely classified as 14 `satisfied`,
-34 `satisfied_with_approved_bounded_scope`, 1 `evidence_required`, 3
+The 53 required traceability rows are completely classified as 16 `satisfied`,
+34 `satisfied_with_approved_bounded_scope`, 1 `evidence_required`, 1
 `implementation_required`, and 1 `product_decision_required`. Issue #201 closes
-B-01 without product-code change. Six blockers B-02 through B-07 and the
-remaining #202 through #207 sequence remain. Therefore:
+B-01 without product-code change, and Issue #202 closes B-02. Five blockers B-03
+through B-07 and the remaining #203 through #207 sequence remain. Therefore:
 
 ```text
 v1.0.0 scope:
@@ -808,7 +818,7 @@ v1.0.0 implementation and evidence:
     incomplete
 
 v1.0.0 Release readiness:
-    blocked by B-02 through B-07
+    blocked by B-03 through B-07
 
 v1.0.0 Release title, theme, date, tag, and publication commit:
     not frozen
@@ -816,16 +826,17 @@ v1.0.0 Release title, theme, date, tag, and publication commit:
 
 The traceability audit is fully classified, every remaining blocker is mapped to
 the exact ordered plan, implementation is not complete, and Release preparation
-is not ready. The exact next action is Issue #202, **Complete internal v1
-information-Provenance enforcement**.
+is not ready. The exact next action is Issue #203, **Complete canonical Multi-
+Step phase coverage**.
 
 ## Exact next action
 
 | Conclusion field | Current result |
 | --- | --- |
 | Traceability | Fully classified: all 53 required rows have one audit status, direct evidence, missing-work state, and blocker owner. |
-| Blocker mapping | B-01 closed by #201; exact one-to-one B-02 through B-07 to #202 through #207 remains. |
+| Blocker mapping | B-01 closed by #201 and B-02 closed by #202; exact one-to-one B-03 through B-07 to #203 through #207 remains. |
 | Issue #200 implementation | Not started; this audit changes documentation only. |
 | Issue #201 evidence closure | Complete; R-01 and R-06 are `satisfied`, and B-01 is closed without product-code change. |
-| Release preparation | Not ready while B-02 through B-07 remain open. |
-| Next action | Issue #202, **Complete internal v1 information-Provenance enforcement**. |
+| Issue #202 Provenance closure | Complete; P-10 and P-13 are `satisfied`, and B-02 is closed without widening public Provenance. |
+| Release preparation | Not ready while B-03 through B-07 remain open. |
+| Next action | Issue #203, **Complete canonical Multi-Step phase coverage**. |

@@ -7,7 +7,11 @@ from skat_ai.application.provenance import (
     ApplicationProvenanceAttachment,
     ApplicationProvenanceBundle,
 )
-from skat_ai.field_provenance import FieldProvenanceEntry, FieldProvenanceSourceReference
+from skat_ai.field_provenance import (
+    FieldProvenanceEntry,
+    FieldProvenanceSourceReference,
+    build_json_pointer,
+)
 from skat_ai.field_provenance_policy import InformationUseContext
 from skat_ai.retrospective_review_provenance import (
     _entry,
@@ -35,6 +39,12 @@ _UNSEEN_ASSIGNMENT_FIELDS = {
     "historical_game_id",
     "player_ids",
 }
+_DECLARATION_DEFAULT_FIELDS = frozenset({
+    "hand_game",
+    "ouvert",
+    "schneider_announced",
+    "schwarz_announced",
+})
 
 
 def _context() -> InformationUseContext:
@@ -77,7 +87,7 @@ def _source_fact(
 
 
 def _source_reference(source_index: int) -> FieldProvenanceSourceReference:
-    return _reference("external_record", f"dataset_preparation_source/{source_index}")
+    return _reference("request", f"dataset_preparation_source/{source_index}")
 
 
 def _offline_entry(
@@ -107,16 +117,49 @@ def _input_attachment(
     document = build_serializable_training_dataset_preparation_request(request)
 
     def build(path: str, tokens: tuple[str, ...]) -> FieldProvenanceEntry:
-        if len(tokens) >= 2 and tokens[0] == "records" and tokens[1].isdecimal():
+        inferred_matadors = (
+            len(tokens) >= 5
+            and tokens[0] == "records"
+            and tokens[1].isdecimal()
+            and tokens[-3:] == ("historical_game", "declaration", "matadors")
+        )
+        normalized_declaration_default = (
+            len(tokens) >= 5
+            and tokens[0] == "records"
+            and tokens[1].isdecimal()
+            and tokens[-2] == "declaration"
+            and tokens[-1] in _DECLARATION_DEFAULT_FIELDS
+        )
+        if inferred_matadors:
+            references = (
+                _reference(
+                    "algorithm",
+                    "dataset_preparation_complete_deal_matador_inference_v1",
+                ),
+            )
+            origin = "structural_inference"
+            derivation = "exact_aggregate"
+        elif normalized_declaration_default:
+            references = (
+                _reference(
+                    "algorithm",
+                    "dataset_preparation_declaration_normalization_v1",
+                ),
+            )
+            origin = "rule_derived"
+            derivation = "deterministic_rule"
+        elif len(tokens) >= 2 and tokens[0] == "records" and tokens[1].isdecimal():
             references = (_source_reference(int(tokens[1])),)
             origin = "external_source"
+            derivation = "validated"
         else:
             references = (_reference("request", "training_dataset_preparation_input"),)
             origin = "validated_copy"
+            derivation = "validated"
         return _offline_entry(
             path,
             origin=origin,
-            derivation="validated",
+            derivation=derivation,
             references=references,
         )
 
@@ -136,14 +179,56 @@ def _source_fact_attachment(
     document = build_serializable_dataset_preparation_source_fact(
         _source_fact(request, source_index)
     )
+    record = request.records[source_index]
 
     def build(path: str, tokens: tuple[str, ...]) -> FieldProvenanceEntry:
-        diagnostic = bool(tokens and tokens[0] in {"sample_count", "zero_sample"})
+        source_path = {
+            ("record_id",): "/record_id",
+            ("historical_game_id",): "/historical_game/game_id",
+            ("source_identity", "source_type"): "/provenance/source_type",
+            ("source_identity", "source_name"): "/provenance/source_name",
+            ("source_identity", "source_record_id"): (
+                "/provenance/source_record_id"
+            ),
+        }.get(tokens)
+        if len(tokens) == 2 and tokens[0] == "player_ids" and tokens[1].isdecimal():
+            player_id = document["player_ids"][int(tokens[1])]
+            source_player_index = next(
+                index
+                for index, player in enumerate(record.historical_game.players)
+                if player.player_id == player_id
+            )
+            source_path = build_json_pointer(
+                ("historical_game", "players", str(source_player_index), "player_id")
+            )
+        direct = source_path is not None
+        diagnostic = bool(
+            tokens and tokens[0] in {"source_index", "sample_count", "zero_sample"}
+        )
         return _offline_entry(
             path,
-            origin="historical_aggregation" if diagnostic else "validated_copy",
-            derivation="exact_aggregate" if diagnostic else "validated",
-            references=(_source_reference(source_index),),
+            origin=(
+                "historical_aggregation"
+                if diagnostic
+                else "validated_copy"
+                if direct
+                else "rule_derived"
+            ),
+            derivation=(
+                "exact_aggregate"
+                if diagnostic
+                else "validated"
+                if direct
+                else "deterministic_rule"
+            ),
+            references=(
+                FieldProvenanceSourceReference(
+                    reference_type="request",
+                    reference_id=f"dataset_preparation_source/{source_index}",
+                    field_path=source_path,
+                    visibility="public",
+                ),
+            ),
         )
 
     return build_complete_provenance_attachment(
@@ -181,15 +266,8 @@ def _assignment_references(
         _reference("request", "dataset_preparation_partition_weights"),
         _reference("request", "dataset_preparation_base_seed"),
     ]
-    references.extend(
-        FieldProvenanceSourceReference(
-            reference_type="external_record",
-            reference_id=f"dataset_preparation_source/{source_index}",
-            field_path=f"/{field_name}",
-            visibility="public",
-        )
-        for field_name in sorted(allowed_fields)
-    )
+    if allowed_fields:
+        references.append(_source_reference(source_index))
     return tuple(references)
 
 
@@ -222,11 +300,45 @@ def _plan_attachment(
                 derivation="exact_aggregate",
                 references=(_reference("dataset_plan", "dataset_partition_plan"),),
             )
+        source_path = None
+        if tokens == ("mode",):
+            source_path = "/mode"
+        elif tokens == ("base_random_seed",):
+            source_path = "/base_random_seed"
+        elif tokens[:1] == ("requested_partition_weights",):
+            source_path = build_json_pointer(("partition_weights", *tokens[1:]))
+        if source_path is not None:
+            return _offline_entry(
+                path,
+                origin="validated_copy",
+                derivation="validated",
+                references=(
+                    FieldProvenanceSourceReference(
+                        reference_type="request",
+                        reference_id="training_dataset_preparation_input",
+                        field_path=source_path,
+                        visibility="public",
+                    ),
+                ),
+            )
+        algorithm = (
+            "temporal_known_opponent_v1"
+            if request.mode == "known_opponent"
+            else "component_balanced_unseen_player_v1"
+        )
         return _offline_entry(
             path,
-            origin="validated_copy",
-            derivation="validated",
-            references=(_reference("request", "training_dataset_preparation_input"),),
+            origin="historical_aggregation",
+            derivation="exact_aggregate",
+            references=(
+                _reference("algorithm", algorithm),
+                FieldProvenanceSourceReference(
+                    reference_type="request",
+                    reference_id="training_dataset_preparation_input",
+                    field_path="/mode",
+                    visibility="public",
+                ),
+            ),
         )
 
     return build_complete_provenance_attachment(
@@ -257,6 +369,50 @@ def _materialized_attachment(
                 references=(
                     _reference("dataset_plan", "dataset_partition_plan"),
                     _source_reference(source_index),
+                ),
+            )
+        if tokens and tokens[0] in {"schema_version", "partition_policy"}:
+            return _offline_entry(
+                path,
+                origin="rule_derived",
+                derivation="deterministic_rule",
+                references=(
+                    _reference("dataset_plan", "dataset_partition_plan"),
+                ),
+            )
+        if (
+            len(tokens) >= 5
+            and tokens[0] == "records"
+            and tokens[1].isdecimal()
+            and tokens[-3:] == ("historical_game", "declaration", "matadors")
+        ):
+            return _offline_entry(
+                path,
+                origin="structural_inference",
+                derivation="exact_aggregate",
+                references=(
+                    _reference(
+                        "algorithm",
+                        "dataset_preparation_complete_deal_matador_inference_v1",
+                    ),
+                ),
+            )
+        if (
+            len(tokens) >= 5
+            and tokens[0] == "records"
+            and tokens[1].isdecimal()
+            and tokens[-2] == "declaration"
+            and tokens[-1] in _DECLARATION_DEFAULT_FIELDS
+        ):
+            return _offline_entry(
+                path,
+                origin="rule_derived",
+                derivation="deterministic_rule",
+                references=(
+                    _reference(
+                        "algorithm",
+                        "dataset_preparation_declaration_normalization_v1",
+                    ),
                 ),
             )
         if len(tokens) >= 2 and tokens[0] == "records" and tokens[1].isdecimal():

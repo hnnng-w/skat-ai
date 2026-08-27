@@ -86,6 +86,9 @@ The project focuses on:
 * internal complete Result provenance version `1` for Position and Historical
   execution, including Declaration, scoring, Settlement, endings,
   continuations, canonical Historical records, replay, and points
+* mandatory internal version-1 exact Request/effective-option/external-source,
+  pre-analysis context, retained-stage authorization, and final Result/artifact
+  serialization enforcement for all seven Root workflows
 * bounded public field-provenance contract version `1` with immutable public
   attachments, artifact mappings, bundles, seven explicit Root Result mappings,
   complete post-redaction coverage, and opt-in API/CLI Root output
@@ -299,7 +302,9 @@ points without changing Public API exports. Field-level provenance now propagate
 internally through live and retrospective Position/Historical execution and all
 Dataset, Preparation, Opponent, Profile, list, and comparison Root workflows,
 and Issue #147 exposes the bounded redacted Root Result plus actual-artifact
-subset. See
+subset. Issue #202 completes exact consumed-source, Information Use Context,
+retained-linkage, and final-serialization enforcement around all seven Root
+workflows without widening that public subset. See
 [Public API contracts](public_api_contracts.md) and
 [Public Python API v1](public_python_api_v1.md), and
 [Public field provenance](public_field_provenance.md).
@@ -1050,6 +1055,14 @@ Implemented:
   * deterministic JSON-leaf enumeration and exact/subtree coverage auditing
 * `field_provenance_policy.py`
   * Information Use Context, use validation, and engine-private public redaction
+* `v1_information_provenance_sources.py`
+  * exact consumed Request/effective-option/external sources, canonical ledgers,
+    and invocation-local bindings
+* `v1_information_provenance_enforcement.py`
+  * four-stage identity, pre-analysis policy validation, source authorization,
+    and retained-stage linkage
+* `v1_information_provenance_serialization.py`
+  * exact final Result/artifact reconciliation and immutable checkpoints
 * `live_analysis_provenance.py`
   * complete decision documents, live Result mapping, deterministic collection,
     and Application bundle construction
@@ -1097,7 +1110,8 @@ Implemented:
 * `application/provenance.py`
   * immutable matching attachments and canonical Application bundles
 * `application/execution.py`
-  * workflow-option validation and generic seven-handler dispatch
+  * workflow-option validation, mandatory four-stage Provenance lifecycle, and
+    generic seven-handler dispatch
 * `application/position_workflow.py`
   * transport-free Position Analysis, Multi-Step, Policy Comparison, and live
     Opponent Statistics application
@@ -1465,6 +1479,7 @@ Main documentation files:
 * `docs/session_decision_observations.md`
 * `docs/session_cli_and_end_to_end_capture.md`
 * `docs/field_level_information_provenance.md`
+* `docs/v1_information_provenance_enforcement.md`
 * `docs/public_field_provenance.md`
 * `docs/complete_result_provenance.md`
 * `docs/output_json.md`
@@ -1706,7 +1721,8 @@ significance claim.
 Issue #193 satisfies the bounded v0.17.0 performance-evidence contract. Issue
 #200 accepts deterministic functional/structural performance for v1, classifies
 latency guarantees and broader tactical/Rating work as not required, and retains
-broader internal Provenance as a blocker. Issues #182 through #196 are the
+broader internal Provenance as a blocker. Issue #202 subsequently closes that
+blocker without widening public Provenance. Issues #182 through #196 are the
 frozen functional history. Issue #197 completes the documentation-only audit,
 and Issue #198 prepares Package `0.17.0` and the Release candidate without
 product behavior changes. The maintainer published `v0.17.0` on 2026-08-25 at
@@ -1714,8 +1730,9 @@ product behavior changes. The maintainer published `v0.17.0` on 2026-08-25 at
 functionality. Issue #200 freezes the bounded `v1.0.0` scope and exact #201
 through #207 sequence. Issue #201 adds independent exhaustive official-rule
 evidence for R-01 and R-06 without product-code change and closes B-01. Six
-blockers B-02 through B-07 remain; the milestone is not ready, and Issue #202 is
-next.
+blockers B-02 through B-07 remained at that point. Issue #202 makes P-10 and P-13
+`satisfied`, closes B-02, and leaves five blockers B-03 through B-07. The
+milestone is not ready, and Issue #203 is next.
 
 Historical published Package milestone: `v0.15.0`, providing usable manual post-
 game capture of one EuroSkat 36er Standard Match from descriptive video evidence.
@@ -2043,6 +2060,9 @@ Completed implementation scope:
 * bounded opt-in public Root Result and actual-artifact field provenance with
   immutable API values, strict Schema, installed/module/Legacy CLI parity,
   existing-helper redaction, and complete recomputed coverage
+* mandatory internal all-seven-workflow source-to-final-serialization
+  Provenance enforcement with exact source bindings, pre-analysis context
+  validation, retained-stage authorization, and adversarial mutation rejection
 * immutable internal Session and Command version-1 contracts with stable seated
   Players, Modes, phases, typed Commands, accepted revisions, Diagnostics,
   readiness, Transition Results, and deterministic serialization
@@ -2154,8 +2174,10 @@ Completed implementation scope:
   disputes, and broader Settlement completeness remain incomplete.
 * All seven Root workflows have complete internal Root Result provenance,
   including base Historical execution. Bounded public Result and actual-artifact
-  exposure is implemented, but consumed-input, decision, intermediate-stage,
-  unredacted, and broader end-to-end enforcement remain unavailable.
+  exposure is implemented. Issue #202 completes internal consumed-source,
+  retained-stage, context, and final-serialization enforcement; consumed-input,
+  Decision, intermediate-stage, unredacted, binding, and checkpoint attachments
+  remain intentionally unavailable through the public contract.
 * Evidence-constrained sampling does not infer the real deal or provide exhaustive search.
 * Hidden-card inference beyond confirmed structural decision-time evidence and
   general stronger Search remain incomplete. Issue #187 defines private
@@ -2298,10 +2320,12 @@ Completed implementation scope:
 
 ## Next recommended action
 
-Begin Issue #202, the internal v1 information-Provenance enforcement closure.
-Issue #201 completes the independent exhaustive official-rule oracle, changes no
-product code, makes R-01 and R-06 `satisfied`, and closes B-01. Six blockers
-B-02 through B-07 remain. The published functional history remains Issues #182
+Begin Issue #203, **Complete canonical Multi-Step phase coverage**. Issue #201
+completes the independent exhaustive official-rule oracle, changes no product
+code, makes R-01 and R-06 `satisfied`, and closes B-01. Issue #202 completes the
+internal v1 information-Provenance lifecycle, makes P-10 and P-13 `satisfied`,
+and closes B-02 without widening public Provenance. Five blockers B-03 through
+B-07 remain. The published functional history remains Issues #182
 through #196; Issues #197 through #199 remain audit, Release preparation, and
 publication synchronization only. `v1.0.0` is not ready, and no Release title,
 theme, date, tag, or publication commit is frozen.

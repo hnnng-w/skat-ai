@@ -18,6 +18,7 @@ from skat_ai.cli.root_compatibility import (
     _legacy_patch_value,
     build_legacy_application_dependencies,
 )
+from skat_ai.cli.root_option_context import current_supplied_workflow_option_names
 from skat_ai.effective_opponent_policy import (
     EffectiveOpponentPolicySettings,
     build_effective_opponent_policy_settings,
@@ -48,6 +49,9 @@ def execute_legacy_application(
         input_reference=input_reference,
         options=options,
         external_documents=external_documents,
+        supplied_workflow_option_names=current_supplied_workflow_option_names(),
+        include_provenance=include_provenance,
+        include_provenance_supplied=include_provenance,
     )
     execution = execute_application_invocation(
         invocation,

@@ -323,7 +323,8 @@ bounded repeated cross-Game focus and fixed Guidance, and a tenth Corpus downloa
 without changing Dataset version `2`. Issue #200 classifies broader tactical/
 Rating work and latency guarantees as not required for v1, accepts deterministic
 functional/structural performance, and retains broader internal Provenance as a
-blocker. Issue #193
+blocker. Issue #202 subsequently closes that gate without widening public
+Provenance. Issue #193
 satisfies the bounded v0.17.0 performance-evidence contract. Issues #182 through
 #196 are the frozen functional history. Issue #197 completes the documentation-
 only audit, and Issue #198 prepares Package `0.17.0` and the Release candidate
@@ -333,8 +334,10 @@ product functionality. Issue #200 freezes the bounded `v1.0.0` scope, classifies
 every required traceability row, and records seven blockers plus the exact #201
 through #207 sequence. Issue #201 adds independent exhaustive official-rule
 evidence for R-01 and R-06, closes B-01 without product-code change, and leaves
-six blockers B-02 through B-07. The milestone remains not ready, and Issue #202
-is next.
+six blockers B-02 through B-07 at that point. Issue #202 makes P-10 and P-13
+`satisfied`, closes B-02, and leaves five blockers B-03 through B-07. The
+milestone remains not ready, and Issue #203, **Complete canonical Multi-Step
+phase coverage**, is next.
 
 The November 2022 ISkO and SkWO publication is the normative source for official
 rules and competition behavior. Product capabilities such as simulation,
@@ -356,7 +359,7 @@ must not be presented as official-rule requirements.
 | Rolling opponent-policy evaluation | A strict game-start as-of comparison of an acting player's observed cards with an actionable deterministic profile policy and the fixed `simple_lowest` baseline. | Preferred-card and exact-card matches measure behavioral imitation only, not strategic strength, optimality, recommendation quality, statistical significance, or unseen-player generalization. |
 | Dataset partition policy | Optional declared `known_opponent` or `unseen_player` intent plus exact stable-player membership and overlap auditing. Public version-1 preparation derives one fixed mode-specific algorithm, validates complete temporal or player-disjoint plans, generates deterministic assignments, and losslessly materializes complete plans. | Known-opponent evaluation intentionally permits player overlap; declared unseen-player datasets require player-disjoint partitions. Preparation has no algorithm override, fallback, partial Plan, default weights, global optimization, ratio guarantee, Sample- or Player-count balancing, or component splitting. |
 | Evidence-constrained hidden-card inference | Exact compatible left/right/hypothetical-skat assignments narrowed only by local and authorized public ownership plus confirmed legal failure to follow an effective category. | It is structural decision-time inference, not behavioral, Bayesian, calibrated, learned, tactically weighted, or proof of the actual hidden deal. |
-| Public field provenance | Opt-in version-1 provenance for one complete redacted Root Result and artifacts actually returned, with exact declared document scopes and recomputed coverage. | It does not expose consumed inputs, decisions, intermediate stages, unredacted internals, Confidence, or complete end-to-end product provenance. |
+| Public field provenance | Opt-in version-1 provenance for one complete redacted Root Result and artifacts actually returned, with exact declared document scopes and recomputed coverage. | It does not expose consumed inputs, decisions, intermediate stages, unredacted internals, Confidence, or the complete internal Issue #202 lifecycle checkpoint. |
 | Public Session API | Stable `skat_ai.api.v1.session` version `1` with exact immutable type identity, twelve one-call operations, strict parsing, typed Results, Decision Observation/review export, in-memory persistence build/resume, and appended stable `files` Save/Load transport. | It adds no Session Root workflow, automatic analysis after every Command, persisted analysis Result, default path, GUI, platform adapter, cloud synchronization, distributed lock, encryption, or automatic backup. |
 | Session Provenance | Default-omitted version-1 complete provenance over exactly one returned Session operation value, with engine-private redaction and recomputed coverage. | It is independent of Root Result provenance and Confidence, does not cover consumed inputs or itself, and does not widen access to private Session values. |
 | Interactive Session capture | Immutable fixed-three-player Live/Retrospective authoring State, accepted typed Log, deterministic replay/transitions, readiness, no-execution Position/Historical export, frozen Checkpoints, accepted-Log observations, isolated review, automatic collection, explicit existing-Application execution, and a phase-aware local Assistant. | Issues #150 through #157 complete the bounded local end-to-end workflow. GUI/browser UI and platform/cloud/encryption concerns remain separate open layers. |
@@ -383,8 +386,8 @@ The following directions are required for `v1.0.0`:
 
 * Analyze live game situations at fixed three-player tables.
 * Enforce field-level live-information provenance across inputs, analysis,
-  simulation, recommendations, and output. The current broad live/post-game
-  boundary and internal live Position propagation provide partial support. The
+  simulation, recommendations, and output. Issue #202 completes this internal
+  all-seven-workflow lifecycle. The
   shared version-1 language defines paths, entries, ledgers, coverage,
   dependencies, context use, redaction, and serialization. Live Position
   Application execution now enforces complete flat and simulated decision
@@ -396,8 +399,9 @@ The following directions are required for `v1.0.0`:
   complete non-legacy exact Root Result coverage, including result-only base
   execution. Issue #147 exposes the bounded redacted Root Result and actual-
   artifact subset through Public API, Root JSON, strict Schema, and all CLI
-  forms. Broader loading, decision, intermediate-stage, and serialization
-  enforcement remains open.
+  forms. Exact consumed sources, pre-analysis context checks, retained-stage
+  authorization, and final Result/artifact reconciliation are mandatory while
+  those broader internal attachments remain absent from public output.
 * Support retrospective single-decision review and complete-game coaching
   without future-information leakage into reconstructed decisions. Bounded
   variable-cardinality review exists for supported endings. Public Replay
@@ -690,7 +694,7 @@ GUI/platform/cloud/encryption layers are not v1 requirements.
 | Rules and settlement coverage | Every ISkO row marked required before v1.0 in the traceability matrix is `supported`, or has an explicitly approved bounded interpretation; a normative table-driven suite covers winning, losing, achieved/announced levels, overbid, impossible Null, claim, concession, and incomplete-evidence outcomes. |
 | Supported contract variants | Input validation accepts every legal Suit, Grand, Null, Hand, and ouvert variant in the documented v1 contract; rejects every documented illegal modifier dependency; and produces tested game values and settlement for each accepted variant. |
 | Live-position analysis | Every canonical three-player turn phase is either analyzed when the local player acts or advances through a documented opponent-preparation path; unsupported states fail explicitly without mutating the supplied position. |
-| Live information control | Internal field-provenance contract version `1` defines RFC 6901 paths, immutable entries and sidecar ledgers, deterministic coverage auditing, dependency and temporal validation, Information Use Context, engine-private redaction, safe serialization, and Confidence separation. Application propagation enforces complete live and retrospective decision/stage ledgers and complete non-legacy Root Results across all seven workflows. Public version `1` exposes one explicitly mapped redacted Root Result plus actual artifacts under scopes `root_result_without_field_provenance` and `artifact_document`, with complete recomputed coverage and no consumed-input, decision, intermediate-stage, or unredacted exposure. Completion still requires broader loading, matador, review, serialization, and end-to-end enforcement. |
+| Live information control | Internal field-provenance contract version `1` defines RFC 6901 paths, immutable entries and sidecar ledgers, deterministic coverage auditing, dependency and temporal validation, Information Use Context, engine-private redaction, safe serialization, and Confidence separation. Issue #202 adds complete exact Request/effective-option/external sources, pre-analysis context enforcement, workflow-scoped retained-stage authorization, and exact final Result/artifact reconciliation across all seven Root workflows. Public version `1` remains one explicitly mapped redacted Root Result plus actual artifacts under scopes `root_result_without_field_provenance` and `artifact_document`, with complete recomputed coverage and no consumed-input, decision, intermediate-stage, source-binding, checkpoint, or unredacted exposure. |
 | Post-game analysis | A legal actual card can be compared with all legal alternatives for Suit, Grand, and Null from declarer and defender perspectives; unavailable and invalid cases have stable schema-valid output and focused tests. |
 | Complete-game retrospective analysis and coaching | A complete historical record can be replayed in order, each eligible decision is reconstructed using only information available then, rule/result/settlement summaries and actionable coaching explanations are produced, and end-to-end tests detect future-information leakage and event-order corruption. Public Replay Coaching version 1 exposes information-safe evidence, prioritization, patterns, recommendations, scope summaries, and isolated outcome context through a strict schema and CLI. Separate Tactical Motif Review version 1 reuses one retained Snapshot sequence and exposes exact structural lead/void/Trick-control/Defender-partnership/hand-shape/outcome evidence through strict Schema, CLI, Provenance, and Match controls. It is not a quality, intent, signaling, communication, causal, or cross-game analysis. Issue #200 accepts this bounded v1 gate; broader Search is post-v1, while broader tactical quality, Ratings, and causal attribution are not required. |
 | Complete-game historical representation | A versioned schema and Runtime model represent stable game/player IDs, fixed seats, initial deal, final bid/declaration facts, Skat pickup/discards or Hand state, every play, structured Claims/concessions and approved additional end reasons, final result, and Settlement; valid records round-trip and inconsistent ownership, order, legality, totals, or outcomes are rejected. Matrix version `3` preserves all 61 cases and marks the approved bounded party-wide Claim `supported_as_is`. Historical Game input, strict Schemas, valid-proof-only execution, diagnostic public output, Provenance, CLI, Review/Coaching, Dataset, list, and statistics integration are implemented; invalid or unavailable proof rejects the terminal record. Runtime `GameShortening`, flat Position, Session, Match Capture, and Corpus Claim entry remain absent and are not v1 requirements. Issue #200 accepts the bounded Claim and Final Settlement slice as the complete v1 boundary. |
@@ -919,8 +923,8 @@ See [Learning Corpus Tactical Cross-game Coaching](learning_corpus_tactical_cros
 
 ## Release decision rule
 
-The authoritative current status ledger, accepted limitations, closed B-01,
-remaining B-02 through B-07 blockers, and ordered #201 through #207 plan are in the
+The authoritative current status ledger, accepted limitations, closed B-01 and
+B-02, remaining B-03 through B-07 blockers, and ordered #201 through #207 plan are in the
 [v1.0 scope and traceability audit](v1_0_scope_and_traceability_audit.md).
 
 `v1.0.0` is not ready while any required gate lacks evidence, any validation or

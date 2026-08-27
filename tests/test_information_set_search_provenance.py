@@ -35,6 +35,7 @@ from skat_ai.public_field_provenance import (
     attach_public_field_provenance,
     build_public_field_provenance_bundle,
 )
+from skat_ai.simulation import DEFAULT_IMMEDIATE_ANALYSIS_SAMPLE_COUNT
 
 ROOT = Path(__file__).resolve().parents[1]
 EXAMPLES = ROOT / "examples"
@@ -532,7 +533,7 @@ def test_dataset_evaluation_provenance_uses_source_options_and_retained_rows() -
             partitions=kwargs["partitions"],
             search_budget_profile=kwargs["search_budget_profile"],
             max_decisions=kwargs["max_decisions"],
-            immediate_sample_count=1,
+            immediate_sample_count=DEFAULT_IMMEDIATE_ANALYSIS_SAMPLE_COUNT,
             pre_actual_analysis_builder=pre_actual,
         )
 

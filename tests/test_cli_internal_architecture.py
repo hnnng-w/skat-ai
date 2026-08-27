@@ -12,6 +12,10 @@ import main as legacy_main
 import skat_ai.cli as cli_package
 import skat_ai.cli.execution as root_cli
 import skat_ai.cli.session as session_cli
+from skat_ai.cli.root_option_context import (
+    current_supplied_workflow_option_names,
+    invoke_with_supplied_root_cli_options,
+)
 from skat_ai.errors import SkatAIValidationError
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -869,8 +873,9 @@ def test_each_root_transport_executes_application_once(
         calls["execute"] += 1
         return {}, {}
 
-    loader_name = "load_position_from_json" if uses_position_loader else "load_json_object"
-    monkeypatch.setattr(root_cli, loader_name, load)
+    monkeypatch.setattr(root_cli, "load_json_object", load)
+    if uses_position_loader:
+        monkeypatch.setattr(root_cli, "load_position_from_json", load)
     monkeypatch.setattr(root_cli, "execute_legacy_application", execute)
     monkeypatch.setattr(
         root_cli,
@@ -879,6 +884,148 @@ def test_each_root_transport_executes_application_once(
     )
     getattr(root_cli, runner_name)(file_path="input.json", quiet=True)
     assert calls == {"load": 1, "execute": 1}
+
+
+def test_position_cli_preserves_omitted_and_explicit_default_option_presence(
+    monkeypatch,
+) -> None:
+    captured: list[tuple[str, ...]] = []
+
+    monkeypatch.setattr(root_cli, "load_json_object", lambda _path: {})
+    monkeypatch.setattr(root_cli, "load_position_from_json", lambda _path: {})
+    monkeypatch.setattr(
+        root_cli,
+        "validate_live_opponent_profile_options",
+        lambda **_kwargs: None,
+    )
+
+    def execute(*_args, **kwargs):
+        assert "supplied_workflow_option_names" not in kwargs
+        captured.append(current_supplied_workflow_option_names())
+        return {}, {}
+
+    monkeypatch.setattr(root_cli, "execute_legacy_application", execute)
+
+    invoke_with_supplied_root_cli_options(
+        root_cli.run_json_position_analysis,
+        (),
+        file_path="input.json",
+        quiet=True,
+    )
+    invoke_with_supplied_root_cli_options(
+        root_cli.run_json_position_analysis,
+        ("--strict-context",),
+        file_path="input.json",
+        quiet=True,
+        strict_context=False,
+    )
+
+    assert captured == [(), ("strict_context",)]
+
+
+@pytest.mark.parametrize(
+    ("runner_name", "runner_kwargs", "supplied_cli_options", "expected_names"),
+    (
+        (
+            "run_json_bounded_search_evaluation",
+            {"search_seed": 17},
+            (
+                "--evaluate-bounded-search",
+                "--search-seed",
+                "--search-budget-profile",
+            ),
+            ("operation", "bounded_search_seed", "bounded_search_budget_profile"),
+        ),
+        (
+            "run_json_information_set_search_evaluation",
+            {"search_seed": 19},
+            (
+                "--information-set-search-evaluation",
+                "--search-seed",
+                "--search-evaluation-max-decisions",
+            ),
+            (
+                "operation",
+                "information_set_search_seed",
+                "information_set_search_max_decisions",
+            ),
+        ),
+        (
+            "run_json_dataset_partition_audit",
+            {"requested_mode": "known_opponent"},
+            ("--audit-dataset-partitions", "--dataset-partition-mode"),
+            ("operation", "partition_audit_mode"),
+        ),
+        (
+            "run_json_rolling_opponent_policy_evaluation",
+            {},
+            (
+                "--evaluate-opponent-policy-profiles",
+                "--profile-source-partition",
+            ),
+            ("operation", "rolling_source_partitions"),
+        ),
+        (
+            "run_json_rolling_opponent_policy_evaluation",
+            {},
+            ("--evaluate-rolling-opponent-policies",),
+            ("operation",),
+        ),
+        (
+            "run_json_historical_opponent_statistics_aggregation",
+            {"before": "2026-01-01T00:00:00Z"},
+            (
+                "--aggregate-opponent-statistics",
+                "--opponent-statistics-before",
+            ),
+            ("operation", "aggregation_before"),
+        ),
+    ),
+)
+def test_training_dataset_cli_preserves_exact_option_presence(
+    monkeypatch,
+    runner_name: str,
+    runner_kwargs: dict[str, object],
+    supplied_cli_options: tuple[str, ...],
+    expected_names: tuple[str, ...],
+) -> None:
+    captured: list[tuple[str, ...]] = []
+    monkeypatch.setattr(root_cli, "load_json_object", lambda _path: {})
+
+    def execute(*_args, **kwargs):
+        assert "supplied_workflow_option_names" not in kwargs
+        captured.append(current_supplied_workflow_option_names())
+        return {}, {}
+
+    monkeypatch.setattr(root_cli, "execute_legacy_application", execute)
+    invoke_with_supplied_root_cli_options(
+        getattr(root_cli, runner_name),
+        supplied_cli_options,
+        file_path="input.json",
+        quiet=True,
+        **runner_kwargs,
+    )
+
+    assert captured == [expected_names]
+
+
+def test_root_parser_retains_exact_supplied_cli_option_names() -> None:
+    args = root_cli.parse_arguments(
+        [
+            "--input",
+            "input.json",
+            "--strict-context",
+            "--expected-value-samples=1000",
+        ]
+    )
+
+    assert args._supplied_cli_options == frozenset(
+        {
+            "--input",
+            "--strict-context",
+            "--expected-value-samples",
+        }
+    )
 
 
 @pytest.mark.parametrize(

@@ -287,6 +287,9 @@ def _execute_verified_request(
         ApplicationInvocation,
         execute_application_invocation,
     )
+    from skat_ai.v1_information_provenance_sources import (
+        V1InformationProvenanceSourceMetadata,
+    )
 
     if options is None:
         execution_options = ExecutionOptionsV1()
@@ -306,6 +309,27 @@ def _execute_verified_request(
         input_reference=input_reference,
         options=application_options,
         external_documents=external_documents,
+        provenance_source_metadata=V1InformationProvenanceSourceMetadata(
+            application_options_supplied=options is not None,
+            supplied_execution_option_names=(
+                execution_options._provenance_supplied_option_names
+                if options is not None
+                else ()
+            ),
+            supplied_workflow_option_names=tuple(
+                execution_options.workflow_options
+            ),
+            validate_output=execution_options.validate_output,
+            validate_output_supplied=(
+                "validate_output"
+                in execution_options._provenance_supplied_option_names
+            ),
+            include_provenance=execution_options.include_provenance,
+            include_provenance_supplied=(
+                "include_provenance"
+                in execution_options._provenance_supplied_option_names
+            ),
+        ),
     )
     application_result = execute_application_invocation(invocation)
     artifacts = tuple(

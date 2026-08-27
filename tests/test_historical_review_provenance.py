@@ -124,9 +124,13 @@ def test_immediate_review_retains_one_analysis_and_assessment_per_decision() -> 
     assert sum(name.endswith("/input") for name in names) == 30
     assert sum(name.endswith("/analysis") for name in names) == 30
     assert sum(name.endswith("/assessment") for name in names) == 30
-    assert names[-2:] == [
+    assert names[-3:] == [
+        "historical_snapshot_summary",
         "historical_immediate_review_summary",
         "historical_game_result",
+    ]
+    assert "decision_snapshot_summary" not in execution.result.document[
+        "historical_game_summary"
     ]
     analysis = _attachment(execution, "historical_decision/1/analysis")
     assessment = _attachment(execution, "historical_decision/1/assessment")

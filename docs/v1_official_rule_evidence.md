@@ -118,6 +118,6 @@ The executable evidence establishes all frozen Issue #201 counts:
 * 20 Grand declared-value rows; and
 * 240 total declared-value rows.
 
-R-01 and the bounded v1 interpretation of R-06 are therefore `satisfied`.
-B-01 is closed without product-code change. The remaining blockers are B-02
-through B-07, and the next action is Issue #202.
+At Issue #201 closure, R-01 and the bounded v1 interpretation of R-06 were
+therefore `satisfied`. B-01 was closed without product-code change; the
+remaining blockers were B-02 through B-07, and the next action was Issue #202.

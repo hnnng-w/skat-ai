@@ -311,11 +311,12 @@ selected workflow. They do not add Dataset parsing, Snapshot, Feature, audit,
 evaluation, Search, Immediate, aggregation, Preparation, Profile, list, or
 comparison executions.
 
-## Remaining work
+## Retained boundary
 
 Issue #147 implements the bounded public API, strict Schema, Root Result field,
 CLI presentation, and actual-artifact mapping. Public exposure of the detailed
-internal stages documented above and broader end-to-end policy enforcement at
-still-unintegrated boundaries remain open. Existing Profile Confidence is
+internal stages documented above remains intentionally absent. Issue #202
+enforces the relevant exact Root source, retained-stage, and final-serialization
+boundaries internally. Existing Profile Confidence is
 covered only as an ordinary Result field and is not integrated into the
 field-provenance language.

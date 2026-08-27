@@ -1,6 +1,7 @@
 """Argument parsing for the package-owned Root CLI."""
 
 import argparse
+import sys
 
 from skat_ai import __version__
 from skat_ai.card_selection import VALID_MULTI_STEP_POLICIES
@@ -424,4 +425,14 @@ def parse_arguments(
     *,
     invocation_style: str = "installed",
 ) -> argparse.Namespace:
-    return build_argument_parser(invocation_style).parse_args(argv)
+    parser = build_argument_parser(invocation_style)
+    effective_argv = list(sys.argv[1:] if argv is None else argv)
+    namespace = parser.parse_args(effective_argv)
+    known_options = parser._option_string_actions
+    supplied_options = frozenset(
+        token.partition("=")[0]
+        for token in effective_argv
+        if token.partition("=")[0] in known_options
+    )
+    namespace._supplied_cli_options = supplied_options
+    return namespace

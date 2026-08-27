@@ -126,10 +126,20 @@ def _declaration_entry(
     leaf_paths: tuple[str, ...],
     source_document: Mapping[str, object] | None,
 ) -> FieldProvenanceEntry:
+    declaration = result.get("game_declaration")
+    if not isinstance(declaration, Mapping):
+        declaration = {}
     source_path = _source_declaration_path(source_document, field_name)
     if field_name == "game_type":
         source_path = "/game_type"
-    if source_path is not None:
+    source_value: object = None
+    if source_path == f"/{field_name}" and source_document is not None:
+        source_value = source_document[field_name]
+    elif source_path == f"/game_declaration/{field_name}" and source_document is not None:
+        nested = source_document.get("game_declaration")
+        if isinstance(nested, Mapping):
+            source_value = nested[field_name]
+    if source_path is not None and source_value == declaration.get(field_name):
         return result_provenance_entry(
             path,
             origin="validated_copy",
@@ -139,9 +149,6 @@ def _declaration_entry(
             source_references=(_request_reference(source_path),),
         )
 
-    declaration = result.get("game_declaration")
-    if not isinstance(declaration, Mapping):
-        declaration = {}
     if field_name == "matadors" and declaration.get("matadors") is not None:
         terminal_private_inference = bool(
             source_document is not None and "game_shortening" in source_document
@@ -226,7 +233,11 @@ def _declaration_entry(
         available_from="request_start",
         derivation="direct",
         source_references=(
-            result_source_reference("algorithm", "game_declaration_defaults_v1"),
+            result_source_reference(
+                "algorithm",
+                "game_declaration_defaults_v1",
+                field_path=f"/{field_name}",
+            ),
         ),
     )
 

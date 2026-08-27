@@ -146,7 +146,12 @@ def test_training_summary_separates_records_features_targets_and_aggregates() ->
     assert "actual_card_played" not in feature_text
     assert "settlement" not in feature_text
     assert target.information_use_context.stage == "after_actual_play"
-    assert all(entry.available_from == "after_actual_play" for entry in target.ledger.entries)
+    assert {
+        entry.field_path: entry.available_from for entry in target.ledger.entries
+    } == {
+        "/card": "after_actual_play",
+        "/target": "request_start",
+    }
     assert any(entry.visibility == "local_private" for entry in feature.ledger.entries)
 
     summary_attachment = _attachment(execution, "training_dataset/summary")

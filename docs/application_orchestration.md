@@ -35,6 +35,10 @@ Issue #147 adds a separate public conversion layer over retained Application
 provenance. It selects only one exact Root Result attachment and attachments for
 artifacts actually returned; Application contracts and orchestration version
 remain unchanged.
+Issue #202 adds mandatory internal source-to-final-serialization enforcement at
+the same common execution seam without changing orchestration version `1`. It
+builds exact consumed sources, enforces context before handler dispatch, links
+the retained bundle, and reconciles the exact Result and actual artifacts once.
 
 Issues #150 through #155 add a separate internal Session authoring, transition,
 Request-export, Decision-Checkpoint, history-edit, and private persistence layer
@@ -77,7 +81,8 @@ The main contract values are frozen, slotted, keyword-only dataclasses:
 
 * `ApplicationInvocation` contains orchestration version `1`, one immutable
   `RequestDocumentV1`, a non-empty caller-supplied `input_reference`, matching
-  workflow options, and optional injected external documents.
+  workflow options, optional injected external documents, and private exact
+  caller-presence metadata for the effective option source.
 * `ApplicationExecutionOptions` contains at most the options for Position
   Analysis, Historical Game, or Training Dataset execution. The four simpler
   Root workflows require no workflow-specific option object.
@@ -86,7 +91,10 @@ The main contract values are frozen, slotted, keyword-only dataclasses:
   reference must be supplied together.
 * `ApplicationExecutionResult` contains orchestration version `1`, one immutable
   `ResultDocumentV1`, an ordered immutable tuple of auxiliary artifacts, and an
-  optional internal `ApplicationProvenanceBundle`.
+  optional internal `ApplicationProvenanceBundle` plus the private nullable
+  lifecycle checkpoint field. Canonical Root execution requires both the bundle
+  and checkpoint to be non-null; nullable construction remains available for
+  internal contract compatibility and isolated tests.
 * `ApplicationArtifact` contains one recognized artifact name and one immutable
   JSON object document.
 * `ApplicationProvenanceAttachment` and `ApplicationProvenanceBundle` retain
@@ -286,6 +294,11 @@ attach complete non-legacy input, retained-stage, aggregate, and exact Root
 Result ledgers. A Historical execution with no selected review operation has a
 bundle containing only `historical_game_result`; it does not create artificial
 Snapshot, Review, Search, or Coaching attachments.
+Issue #202 wraps this retained behavior in four ordered internal stages:
+`loaded_request`, `validated_consumed_input`, `retained_stage_linkage`, and
+`final_serialization`. The exact Request/options/external sources are built once,
+the handler runs once, and the immutable checkpoint is validated before the
+unchanged optional public conversion.
 By default, the facade and CLI omit the internal bundle. Issue #147 adds an
 explicit opt-in conversion that uses the existing redaction helper, recomputes
 complete coverage, and publishes only the mapped Root Result plus actual
@@ -313,8 +326,6 @@ checked from the repository checkout.
 The following remain separate follow-up scopes:
 
 * public error translation across existing Domain failures;
-* broader field-level enforcement outside the implemented Application and
-  bounded public Root Result/actual-artifact boundaries;
 * Session GUI or browser UI and direct online-platform adapters;
 * browser extensions, website scraping, and automatic cloud synchronization;
 * distributed locking, encryption/key management, and automatic backup policy;

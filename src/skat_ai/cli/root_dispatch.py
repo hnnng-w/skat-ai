@@ -11,6 +11,7 @@ from skat_ai.cli.root_compatibility import (
     _has_active_legacy_patch_namespace,
     _legacy_patch_value,
 )
+from skat_ai.cli.root_option_context import invoke_with_supplied_root_cli_options
 from skat_ai.cli.root_parser import parse_arguments
 from skat_ai.errors import (
     CLI_EXIT_CODE_FAILURE,
@@ -30,6 +31,15 @@ from skat_ai.search_budget_profiles import (
     HISTORICAL_REVIEW_SEARCH_BUDGET_PROFILE,
 )
 from skat_ai.simulation import DEFAULT_IMMEDIATE_ANALYSIS_SAMPLE_COUNT
+
+
+def _invoke_root_wrapper(callback, args, **kwargs):
+    supplied_options = tuple(sorted(getattr(args, "_supplied_cli_options", ())))
+    return invoke_with_supplied_root_cli_options(
+        callback,
+        supplied_options,
+        **kwargs,
+    )
 
 
 def _run_cli(
@@ -84,7 +94,9 @@ def _run_cli(
         elif workflow == "training_dataset":
             _legacy_patch_value("validate_training_dataset_cli_arguments")(args)
             if args.information_set_search_evaluation:
-                _legacy_patch_value("run_json_information_set_search_evaluation")(
+                _invoke_root_wrapper(
+                    _legacy_patch_value("run_json_information_set_search_evaluation"),
+                    args,
                     file_path=args.input,
                     search_seed=args.search_seed,
                     partitions=tuple(
@@ -101,7 +113,9 @@ def _run_cli(
                     include_provenance=args.include_provenance,
                 )
             elif args.evaluate_bounded_search:
-                _legacy_patch_value("run_json_bounded_search_evaluation")(
+                _invoke_root_wrapper(
+                    _legacy_patch_value("run_json_bounded_search_evaluation"),
+                    args,
                     file_path=args.input,
                     search_seed=args.search_seed,
                     partitions=tuple(
@@ -117,7 +131,9 @@ def _run_cli(
                     include_provenance=args.include_provenance,
                 )
             elif args.audit_dataset_partitions:
-                _legacy_patch_value("run_json_dataset_partition_audit")(
+                _invoke_root_wrapper(
+                    _legacy_patch_value("run_json_dataset_partition_audit"),
+                    args,
                     file_path=args.input,
                     requested_mode=args.dataset_partition_mode,
                     output_path=args.output,
@@ -125,7 +141,9 @@ def _run_cli(
                     include_provenance=args.include_provenance,
                 )
             elif args.evaluate_opponent_policy_profiles:
-                _legacy_patch_value("run_json_rolling_opponent_policy_evaluation")(
+                _invoke_root_wrapper(
+                    _legacy_patch_value("run_json_rolling_opponent_policy_evaluation"),
+                    args,
                     file_path=args.input,
                     source_partitions=tuple(
                         args.profile_source_partition or DEFAULT_SOURCE_PARTITIONS
@@ -138,7 +156,9 @@ def _run_cli(
                     include_provenance=args.include_provenance,
                 )
             elif args.aggregate_opponent_statistics:
-                _legacy_patch_value("run_json_historical_opponent_statistics_aggregation")(
+                _invoke_root_wrapper(
+                    _legacy_patch_value("run_json_historical_opponent_statistics_aggregation"),
+                    args,
                     file_path=args.input,
                     included_partitions=(
                         tuple(args.opponent_statistics_partition)
@@ -160,7 +180,9 @@ def _run_cli(
                 )
         elif workflow == "historical_game":
             _legacy_patch_value("validate_historical_game_cli_arguments")(args)
-            _legacy_patch_value("run_json_historical_game_analysis")(
+            _invoke_root_wrapper(
+                _legacy_patch_value("run_json_historical_game_analysis"),
+                args,
                 file_path=args.input,
                 output_path=args.output,
                 quiet=args.quiet,
@@ -217,7 +239,9 @@ def _run_cli(
                 raise CliUsageError(
                     "--historical-tactical-motif-review requires historical-game input."
                 )
-            _legacy_patch_value("run_json_position_analysis")(
+            _invoke_root_wrapper(
+                _legacy_patch_value("run_json_position_analysis"),
+                args,
                 file_path=args.input,
                 sample_count_override=args.samples,
                 random_seed_override=args.seed,

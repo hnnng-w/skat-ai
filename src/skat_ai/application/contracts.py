@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import math
 from collections.abc import Mapping
-from dataclasses import dataclass, field
+from dataclasses import InitVar, dataclass, field, fields
 from types import MappingProxyType
 from typing import TYPE_CHECKING, Any
 
@@ -25,6 +25,13 @@ from skat_ai.simulation import DEFAULT_IMMEDIATE_ANALYSIS_SAMPLE_COUNT
 
 if TYPE_CHECKING:
     from skat_ai.application.provenance import ApplicationProvenanceBundle
+    from skat_ai.v1_information_provenance_serialization import (
+        V1InformationProvenanceSerializationCheckpoint,
+    )
+
+from skat_ai.v1_information_provenance_sources import (
+    V1InformationProvenanceSourceMetadata,
+)
 
 APPLICATION_ORCHESTRATION_VERSION = 1
 APPLICATION_INPUT_REFERENCE_POLICY = "caller_supplied"
@@ -118,8 +125,95 @@ def _freeze_string_sequence(
     return items
 
 
+class _ApplicationOptionsReplaceStateDescriptor:
+    def __get__(self, instance: object | None, owner: type[object] | None = None) -> object:
+        if instance is None:
+            return self
+        return (
+            instance._supplied_application_option_names,
+            tuple(
+                (item.name, getattr(instance, item.name))
+                for item in fields(instance)
+            ),
+        )
+
+
+_APPLICATION_OPTIONS_REPLACE_STATE = _ApplicationOptionsReplaceStateDescriptor()
+
+
+class _ApplicationOptionPresence:
+    __slots__ = ("_supplied_application_option_names",)
+
+    def __new__(cls, *args: object, **kwargs: object):
+        instance = super().__new__(cls)
+        replace_state = kwargs.get("_replace_state")
+        if (
+            isinstance(replace_state, tuple)
+            and len(replace_state) == 2
+            and isinstance(replace_state[0], tuple)
+            and isinstance(replace_state[1], tuple)
+        ):
+            supplied = set(replace_state[0])
+            previous = dict(replace_state[1])
+            supplied.update(
+                name
+                for name, value in kwargs.items()
+                if name != "_replace_state"
+                and name in previous
+                and value != previous[name]
+            )
+            supplied_names = tuple(
+                name for name in previous if name in supplied
+            )
+        else:
+            supplied_names = tuple(
+                name for name in kwargs if name != "_replace_state"
+            )
+        object.__setattr__(
+            instance,
+            "_supplied_application_option_names",
+            supplied_names,
+        )
+        return instance
+
+    @property
+    def _provenance_supplied_option_names(self) -> tuple[str, ...]:
+        return self._supplied_application_option_names
+
+    def __copy__(self):
+        return self
+
+    def __deepcopy__(self, memo: dict[int, object]):
+        memo[id(self)] = self
+        return self
+
+    def __reduce__(self):
+        return (
+            _restore_application_options,
+            (
+                type(self),
+                {item.name: getattr(self, item.name) for item in fields(self)},
+                self._supplied_application_option_names,
+            ),
+        )
+
+
+def _restore_application_options(
+    option_type: type[object],
+    values: Mapping[str, object],
+    supplied_names: tuple[str, ...],
+) -> object:
+    restored = option_type(**values)
+    object.__setattr__(
+        restored,
+        "_supplied_application_option_names",
+        supplied_names,
+    )
+    return restored
+
+
 @dataclass(frozen=True, slots=True, kw_only=True)
-class PositionAnalysisApplicationOptions:
+class PositionAnalysisApplicationOptions(_ApplicationOptionPresence):
     """Non-transport options for one Position Analysis invocation."""
 
     sample_count_override: int | None = None
@@ -141,8 +235,9 @@ class PositionAnalysisApplicationOptions:
     comparison_only: bool = False
     left_opponent_player_id: str | None = None
     right_opponent_player_id: str | None = None
+    _replace_state: InitVar[object] = _APPLICATION_OPTIONS_REPLACE_STATE
 
-    def __post_init__(self) -> None:
+    def __post_init__(self, _replace_state: object) -> None:
         for name in (
             "sample_count_override",
             "random_seed_override",
@@ -179,7 +274,7 @@ class PositionAnalysisApplicationOptions:
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
-class HistoricalGameApplicationOptions:
+class HistoricalGameApplicationOptions(_ApplicationOptionPresence):
     """Non-transport options for one Historical Game invocation."""
 
     decision_snapshots: bool = False
@@ -201,8 +296,9 @@ class HistoricalGameApplicationOptions:
     right_opponent_lead_policy_override: str | None = None
     right_opponent_response_policy_override: str | None = None
     use_profile_presets_override: bool = False
+    _replace_state: InitVar[object] = _APPLICATION_OPTIONS_REPLACE_STATE
 
-    def __post_init__(self) -> None:
+    def __post_init__(self, _replace_state: object) -> None:
         for name in (
             "decision_snapshots",
             "immediate_review",
@@ -235,7 +331,7 @@ class HistoricalGameApplicationOptions:
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
-class TrainingDatasetApplicationOptions:
+class TrainingDatasetApplicationOptions(_ApplicationOptionPresence):
     """Exactly one selected Training Dataset operation and its settings."""
 
     operation: str = "summary"
@@ -257,8 +353,9 @@ class TrainingDatasetApplicationOptions:
     aggregation_included_partitions: tuple[str, ...] | None = None
     aggregation_before: str | None = None
     export_opponent_statistics: bool = False
+    _replace_state: InitVar[object] = _APPLICATION_OPTIONS_REPLACE_STATE
 
-    def __post_init__(self) -> None:
+    def __post_init__(self, _replace_state: object) -> None:
         if not isinstance(self.operation, str):
             raise _validation_error("must be a string.", "operation")
         _validate_optional_string(self.partition_audit_mode, path="partition_audit_mode")
@@ -393,6 +490,9 @@ class ApplicationInvocation:
     external_documents: ApplicationExternalDocuments = field(
         default_factory=ApplicationExternalDocuments
     )
+    provenance_source_metadata: V1InformationProvenanceSourceMetadata = field(
+        default_factory=V1InformationProvenanceSourceMetadata
+    )
 
     def __post_init__(self) -> None:
         if (
@@ -416,6 +516,14 @@ class ApplicationInvocation:
             raise _validation_error(
                 "must be an ApplicationExternalDocuments.",
                 "external_documents",
+            )
+        if not isinstance(
+            self.provenance_source_metadata,
+            V1InformationProvenanceSourceMetadata,
+        ):
+            raise _validation_error(
+                "must be a V1InformationProvenanceSourceMetadata.",
+                "provenance_source_metadata",
             )
 
 
@@ -451,6 +559,9 @@ class ApplicationExecutionResult:
     result: ResultDocumentV1
     artifacts: tuple[ApplicationArtifact, ...] = ()
     provenance: ApplicationProvenanceBundle | None = None
+    information_provenance_enforcement: (
+        V1InformationProvenanceSerializationCheckpoint | None
+    ) = None
 
     def __post_init__(self) -> None:
         if (
@@ -487,4 +598,17 @@ class ApplicationExecutionResult:
                 raise _validation_error(
                     "workflow must match the Application Result workflow.",
                     "provenance",
+                )
+        if self.information_provenance_enforcement is not None:
+            from skat_ai.v1_information_provenance_serialization import (
+                V1InformationProvenanceSerializationCheckpoint,
+            )
+
+            if not isinstance(
+                self.information_provenance_enforcement,
+                V1InformationProvenanceSerializationCheckpoint,
+            ):
+                raise _validation_error(
+                    "must be a V1InformationProvenanceSerializationCheckpoint or None.",
+                    "information_provenance_enforcement",
                 )

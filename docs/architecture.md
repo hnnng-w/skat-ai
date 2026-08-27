@@ -142,6 +142,10 @@ remaining architecture changes before v1 are limited to internal load-to-final-
 serialization Provenance enforcement and canonical Multi-Step phase closure.
 Broader solvers and hosted/remote integration are post-v1.
 
+Issue #202 completes the Provenance architecture change without widening public
+Provenance. Canonical Multi-Step phase coverage is the remaining implementation
+change, and Issue #203 is the exact next action.
+
 Issues #160 through #168 form the published `v0.15.0` Package baseline, and Issue
 #169 updated only Package/release metadata and documentation to complete Release
 preparation. Issue #170 synchronizes the subsequent manual publication at commit
@@ -197,14 +201,18 @@ Result.
 The position-analysis flow is:
 
 1. Load and validate JSON input.
-2. Build an internal game state.
-3. Apply information-policy checks.
-4. If the normalized current actor is the local player, analyze legal card choices.
-5. Estimate expected point swings for available local decisions.
-6. Build card recommendations or an unavailable Immediate Analysis shape.
-7. Optionally run phase-aware multi-step simulation or policy comparison.
-8. Build game-result, settlement, performance-rating, and post-game review summaries.
-9. Serialize output for CLI and JSON use.
+2. Build exact immutable Request, effective-option, and optional external-source
+   provenance and enforce Information Use Context.
+3. Build an internal game state.
+4. Apply workflow information-policy checks.
+5. If the normalized current actor is the local player, analyze legal card choices.
+6. Estimate expected point swings for available local decisions.
+7. Build card recommendations or an unavailable Immediate Analysis shape.
+8. Optionally run phase-aware multi-step simulation or policy comparison.
+9. Build game-result, settlement, performance-rating, and post-game review summaries.
+10. Link retained stages and reconcile the complete exact Result envelope and
+    actual artifacts.
+11. Serialize output for CLI and JSON use.
 
 The alternative historical-game flow loads `historical_game_input`, builds a
 stable-ID record, and strictly replays either ten normal-completion tricks or an
@@ -352,6 +360,9 @@ or opponent Policy stage. See [Tactical motif evidence](tactical_motif_evidence.
 | `src/skat_ai/historical_result_provenance.py` | Complete Historical Root Result mapping and dependency enforcement. |
 | `src/skat_ai/settlement_result_provenance.py` | Shared retained Settlement Result entry construction. |
 | `src/skat_ai/application/provenance.py` | Immutable attachments and canonical per-workflow bundle ordering. |
+| `src/skat_ai/v1_information_provenance_sources.py` | Exact consumed Request/effective-option/external sources, canonical ledgers, and invocation-local bindings. |
+| `src/skat_ai/v1_information_provenance_enforcement.py` | Four-stage contract identity, pre-analysis context enforcement, workflow-scoped reference authorization, and retained linkage. |
+| `src/skat_ai/v1_information_provenance_serialization.py` | Shared Result/artifact mappings, exact final reconciliation, and immutable lifecycle checkpoints. |
 
 Live and retrospective provenance is retained as an internal Application
 sidecar. Existing workflow values are observed through optional hooks; analysis,
@@ -360,6 +371,8 @@ omit it by default. Explicit provenance opt-in selects only one redacted complet
 Root Result attachment plus artifacts actually returned, recomputes complete
 coverage, and exposes the strict public sidecar through Root JSON. Consumed-input,
 decision, intermediate-stage, and unredacted attachments remain internal.
+Issue #202 additionally requires the internal four-stage checkpoint for every
+canonical Root execution before that optional public conversion.
 
 ## Main entry point
 

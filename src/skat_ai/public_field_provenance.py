@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
-from types import MappingProxyType
 
 from skat_ai.api.v1.provenance import (
     PUBLIC_FIELD_PROVENANCE_ROOT_FIELD,
@@ -26,24 +25,14 @@ from skat_ai.field_provenance_policy import (
     build_serializable_information_use_context,
     redact_field_provenance_ledger_for_public_output,
 )
+from skat_ai.v1_information_provenance_serialization import (
+    V1_ARTIFACT_ATTACHMENTS,
+    V1_RESULT_ATTACHMENT_NAMES,
+    validate_v1_information_provenance_serialization_checkpoint,
+)
 
-_RESULT_ATTACHMENT_NAMES = MappingProxyType({
-    "position_analysis": "position_result",
-    "historical_game": "historical_game_result",
-    "training_dataset": "training_dataset_result",
-    "training_dataset_preparation": "dataset_preparation_result",
-    "opponent_statistics": "opponent_statistics_result",
-    "fixed_three_player_historical_list": "historical_list_result",
-    "fixed_three_player_historical_list_comparison": (
-        "historical_list_comparison_result"
-    ),
-})
-_ARTIFACT_ATTACHMENTS = MappingProxyType({
-    "opponent_statistics_input": (
-        "training_dataset",
-        "training_dataset/opponent_statistics_input",
-    ),
-})
+_RESULT_ATTACHMENT_NAMES = V1_RESULT_ATTACHMENT_NAMES
+_ARTIFACT_ATTACHMENTS = V1_ARTIFACT_ATTACHMENTS
 
 
 def _invariant(message: str) -> SkatAIInvariantError:
@@ -133,6 +122,7 @@ def build_public_field_provenance_bundle(
     """Builds the bounded public bundle from one retained Application execution."""
     if not isinstance(execution, ApplicationExecutionResult):
         raise _invariant("Public provenance requires an ApplicationExecutionResult.")
+    validate_v1_information_provenance_serialization_checkpoint(execution)
     provenance = execution.provenance
     if provenance is None:
         raise _invariant("Application execution has no retained provenance bundle.")

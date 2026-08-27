@@ -105,7 +105,7 @@ The focused modules are:
 | `root_parser.py` | Root command identity, invocation examples, exact parser construction, and argument parsing. |
 | `root_validation.py` | CLI-only semantic option validation and `CliUsageError` wording. |
 | `root_compatibility.py` | Legacy patch metadata, captured default dependency values, active Root namespace, dependency resolution, and Legacy-compatible Application dependency construction. |
-| `root_application.py` | One internal Application invocation, optional public Root provenance attachment, Result/artifact thawing, external Opponent Statistics adaptation, and retained Legacy Position helper functions. |
+| `root_application.py` | One internally checkpointed Application invocation, caller-presence metadata, optional unchanged public Root provenance attachment, Result/artifact thawing, external Opponent Statistics adaptation, and retained Legacy Position helper functions. |
 | `root_dispatch.py` | One Root input load for dispatch, one workflow detection, workflow precedence, CLI validation order, argument forwarding, and Root Exit Code translation. |
 | `root_transport.py` | Existing `run_json_*` file loading, Application option mapping, output and auxiliary export writing, quiet behavior, confirmations, and presentation selection. |
 | `presentation/` | Human-only formatting of already produced Root Result mappings. |
@@ -152,8 +152,11 @@ Root dispatch preserves this order:
 6. Select exactly one of the seven Root workflow transports.
 7. Load the transport document and optional external document through the
    established wrapper boundary.
-8. Build one immutable Application invocation and execute it once.
-9. Optionally attach public Root provenance without rerunning the workflow.
+8. Build one immutable Application invocation; build and enforce exact internal
+   sources, execute the handler once, link retained stages, and reconcile final
+   Result/artifact serialization.
+9. Optionally revalidate the checkpoint and attach the unchanged bounded public
+   Root provenance without rerunning the workflow.
 10. Write requested Result and auxiliary artifact files.
 11. Present the already produced Result unless quiet mode is active.
 

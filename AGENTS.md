@@ -216,6 +216,7 @@ Before larger changes, read the relevant documentation:
 * `docs/tactical_motif_evidence.md`
 * `docs/installed_cli.md`
 * `docs/public_field_provenance.md`
+* `docs/v1_information_provenance_enforcement.md`
 * `docs/examples.md`
 * `docs/schema_validation.md`
 * `docs/requirements_traceability.md`
@@ -555,8 +556,12 @@ without product functionality. Issue #200 freezes the bounded `v1.0.0` scope,
 classifies all 53 required traceability rows, and records seven blockers plus the
 exact #201 through #207 follow-up sequence without changing product code.
 Issue #201 adds independent exhaustive official-rule evidence for R-01 and R-06
-without changing product code, closes B-01, and leaves six blockers B-02 through
-B-07. `v1.0.0` is not ready; the next action is Issue #202. No v1 Release title,
+without changing product code and closes B-01. Issue #202 completes mandatory
+internal load-to-final-serialization Provenance for all seven Root workflows,
+makes P-10 and P-13 `satisfied`, and closes B-02 without widening public
+Provenance. Five blockers B-03 through B-07 remain. `v1.0.0` is not ready; the
+next action is Issue #203, **Complete canonical Multi-Step phase coverage**. No
+v1 Release title,
 theme, date, tag, publication commit, or production model is frozen.
 
 Major completed areas include:
@@ -667,6 +672,9 @@ Major completed areas include:
 * deterministic public automatic Training Dataset preparation with temporal Known-opponent and Player-disjoint unseen-player assignment, complete or unavailable Plans, lossless materialization, strict schemas, CLI, examples, and generated-output coverage
 * stable public API contract version 1 with exact exports, immutable JSON Request and Result wrappers, compatibility metadata, public errors, and legacy Root CLI compatibility
 * internal field-level information provenance contract version 1 with immutable sidecar ledgers, deterministic coverage auditing, dependency and temporal validation, context-use policy, public redaction, and safe serialization
+* mandatory internal version-1 exact Request/effective-option/external-source,
+  pre-analysis context, retained-stage authorization, and final Result/artifact
+  serialization enforcement for all seven Root workflows
 * internal Application orchestration version 1 with immutable contracts and options, seven in-memory workflow handlers, six isolated Training Dataset operations, injected Opponent Statistics, auxiliary artifacts, no-I/O dispatch, and legacy CLI transport parity
 * executable public Python API version 1 with immutable direct options, all-seven-workflow execution, separate artifacts, lazy Package Resource schema validation, and stable boundary errors
 * installation-ready Setuptools Wheel and sdist artifacts with byte-identical packaged schemas, typing metadata, Package version export, and clean-install validation
@@ -809,7 +817,7 @@ continuations, historical end reasons beyond the supported bounded set,
 incomplete settlement nuance, no additional preparation algorithms, algorithm
 overrides, fallback or partial plans, global optimization, ratio guarantees,
 Sample- or Player-count balancing, or component splitting, incomplete broader
-field-level provenance enforcement,
+public Provenance exposure,
 heuristic rule-based recommendations and
 opponent behavior, and structural rather than calibrated or tactical hidden-card
 inference. Routed Search remains bounded late-game determinization subject to
@@ -837,7 +845,9 @@ Cross-game Coaching from exact retained Tactical/Teacher evidence without a trut
 or Player-rating claim. Overbid Null replacement selection, broader tactical
 quality assessment outside retained complete-Search evidence, causal
 attribution, and player ratings are not required for v1; complete internal
-field-level information provenance remains the Issue #202 implementation gate.
+field-level information provenance is complete under Issue #202 without widening
+the public contract. Canonical Multi-Step phase coverage remains the Issue #203
+implementation gate.
 End-to-end local Live and Retrospective Session
 capture is implemented through public file Save/Load, automatic Checkpoints,
 accepted-Log actual-card observation, isolated review, explicit analysis, the

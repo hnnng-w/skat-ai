@@ -12,6 +12,8 @@ SESSION_FIELD_PROVENANCE_REDACTION_POLICY = omit_engine_private_details
 
 It is separate from internal `FIELD_PROVENANCE_VERSION = 1` and public Root
 Result `PUBLIC_FIELD_PROVENANCE_VERSION = 1`; those contracts are unchanged.
+Issue #202 completes the separate Root-workflow enforcement lifecycle without
+changing this Session returned-value contract.
 
 ## Opt-in sequence
 
@@ -113,5 +115,6 @@ process ID, or removed private identifier/path.
 Session Provenance is not a persistence fingerprint, authenticated authorship,
 Confidence, probability, severity, quality, or calibration. Fingerprints remain
 integrity identities. The separate Public Session File API has no provenance
-option; its Result retains no path. Broader end-to-end field-enforcement work
-remains open.
+option; its Result retains no path. Root load-to-final-serialization enforcement
+is complete under Issue #202; Session persistence remains a separate private
+integrity boundary rather than a Root provenance surface.

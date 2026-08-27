@@ -47,6 +47,10 @@ from skat_ai.cli.root_application import (
     load_external_opponent_statistics_document,
 )
 from skat_ai.cli.root_compatibility import CliUsageError, _facade_value
+from skat_ai.cli.root_option_context import (
+    current_supplied_root_cli_options,
+    invoke_with_supplied_workflow_option_names,
+)
 from skat_ai.cli.root_validation import validate_live_opponent_profile_options
 from skat_ai.errors import SkatAIWorkflowError
 from skat_ai.information_set_search_evaluation import (
@@ -68,6 +72,36 @@ from skat_ai.simulation import DEFAULT_IMMEDIATE_ANALYSIS_SAMPLE_COUNT
 
 def _dependency(name: str, default: Any) -> Any:
     return _facade_value(name, default)
+
+
+def _execute_with_option_presence(
+    root_document: dict[str, Any],
+    *,
+    supplied_workflow_option_names: tuple[str, ...] = (),
+    **kwargs: object,
+) -> tuple[dict[str, Any], dict[str, dict[str, Any]]]:
+    return invoke_with_supplied_workflow_option_names(
+        _dependency("execute_legacy_application", execute_legacy_application),
+        supplied_workflow_option_names,
+        root_document,
+        **kwargs,
+    )
+
+
+def _supplied_option_names(
+    supplied_cli_options: tuple[str, ...] | None,
+    values: dict[str, object],
+    defaults: dict[str, object],
+    flags: dict[str, tuple[str, ...]],
+) -> tuple[str, ...]:
+    if supplied_cli_options is None:
+        return tuple(name for name, value in values.items() if value != defaults[name])
+    supplied = frozenset(supplied_cli_options)
+    return tuple(
+        name
+        for name in values
+        if any(flag in supplied for flag in flags.get(name, ()))
+    )
 
 
 def run_json_position_analysis(
@@ -102,7 +136,11 @@ def run_json_position_analysis(
     if multi_step_count is not None and multi_step_count <= 0:
         raise ValueError("multi_step_count must be a positive integer.")
 
-    position_data = _dependency("load_position_from_json", load_position_from_json)(file_path)
+    position_data = _dependency(
+        "load_position_from_json",
+        load_position_from_json,
+    )(file_path)
+    loaded_position_data = getattr(position_data, "source_document", position_data)
     if "game_shortening" in position_data and (multi_step_count is not None or compare_policies):
         raise ValueError(
             "Structured game_shortening cannot be combined with multi-step simulation "
@@ -143,8 +181,60 @@ def run_json_position_analysis(
             )(opponent_statistics_file),
             opponent_statistics_reference=opponent_statistics_file,
         )
-    result, _artifacts = _dependency("execute_legacy_application", execute_legacy_application)(
-        position_data,
+    workflow_option_values = {
+        "sample_count_override": sample_count_override,
+        "random_seed_override": random_seed_override,
+        "opponent_strategy_override": opponent_strategy_override,
+        "left_opponent_lead_policy_override": left_opponent_lead_policy_override,
+        "left_opponent_response_policy_override": left_opponent_response_policy_override,
+        "right_opponent_lead_policy_override": right_opponent_lead_policy_override,
+        "right_opponent_response_policy_override": right_opponent_response_policy_override,
+        "multi_step_count": multi_step_count,
+        "card_selection_policy": card_selection_policy,
+        "expected_value_sample_count": expected_value_sample_count,
+        "strict_context": strict_context,
+        "compare_policies": compare_policies,
+        "comparison_only": comparison_only,
+        "opponent_policy_preset_override": opponent_policy_preset_override,
+        "opponent_lead_policy_override": opponent_lead_policy_override,
+        "opponent_response_policy_override": opponent_response_policy_override,
+        "use_profile_presets_override": use_profile_presets_override,
+        "left_opponent_player_id": left_opponent_player_id,
+        "right_opponent_player_id": right_opponent_player_id,
+    }
+    workflow_option_defaults = {
+        **dict.fromkeys(workflow_option_values, None),
+        "expected_value_sample_count": DEFAULT_IMMEDIATE_ANALYSIS_SAMPLE_COUNT,
+        "strict_context": False,
+        "compare_policies": False,
+        "comparison_only": False,
+        "use_profile_presets_override": False,
+    }
+    workflow_option_flags = {
+        "sample_count_override": ("--samples",),
+        "random_seed_override": ("--seed",),
+        "opponent_strategy_override": ("--opponent-strategy",),
+        "left_opponent_lead_policy_override": ("--left-opponent-lead-policy",),
+        "left_opponent_response_policy_override": ("--left-opponent-response-policy",),
+        "right_opponent_lead_policy_override": ("--right-opponent-lead-policy",),
+        "right_opponent_response_policy_override": ("--right-opponent-response-policy",),
+        "multi_step_count": ("--multi-step",),
+        "card_selection_policy": ("--card-policy",),
+        "expected_value_sample_count": ("--expected-value-samples",),
+        "strict_context": ("--strict-context",),
+        "compare_policies": ("--compare-policies",),
+        "comparison_only": ("--comparison-only",),
+        "opponent_policy_preset_override": ("--opponent-policy-preset",),
+        "opponent_lead_policy_override": ("--opponent-lead-policy",),
+        "opponent_response_policy_override": ("--opponent-response-policy",),
+        "use_profile_presets_override": (
+            "--use-profile-presets",
+        ),
+        "left_opponent_player_id": ("--left-opponent-player-id",),
+        "right_opponent_player_id": ("--right-opponent-player-id",),
+    }
+    result, _artifacts = _execute_with_option_presence(
+        loaded_position_data,
         input_reference=file_path,
         options=ApplicationExecutionOptions(
             position_analysis=PositionAnalysisApplicationOptions(
@@ -171,6 +261,12 @@ def run_json_position_analysis(
         ),
         external_documents=external_documents,
         include_provenance=include_provenance,
+        supplied_workflow_option_names=_supplied_option_names(
+            current_supplied_root_cli_options(),
+            workflow_option_values,
+            workflow_option_defaults,
+            workflow_option_flags,
+        ),
     )
     if output_path is not None:
         _dependency("write_analysis_result_to_json", write_analysis_result_to_json)(
@@ -229,7 +325,67 @@ def run_json_historical_game_analysis(
             )(opponent_statistics_file),
             opponent_statistics_reference=opponent_statistics_file,
         )
-    result, _artifacts = _dependency("execute_legacy_application", execute_legacy_application)(
+    workflow_option_values = {
+        "decision_snapshots": historical_decision_snapshots,
+        "immediate_review": historical_game_review,
+        "search_review": historical_search_review,
+        "information_set_search_review": historical_information_set_search_review,
+        "information_set_replay_coaching": historical_information_set_replay_coaching,
+        "replay_coaching": historical_replay_coaching,
+        "historical_tactical_motif_review": historical_tactical_motif_review,
+        "search_seed": search_seed,
+        "search_budget_profile": search_budget_profile,
+        "immediate_sample_count": sample_count,
+        "immediate_base_random_seed": base_random_seed,
+        "opponent_policy_preset_override": opponent_policy_preset_override,
+        "opponent_lead_policy_override": opponent_lead_policy_override,
+        "opponent_response_policy_override": opponent_response_policy_override,
+        "left_opponent_lead_policy_override": left_opponent_lead_policy_override,
+        "left_opponent_response_policy_override": left_opponent_response_policy_override,
+        "right_opponent_lead_policy_override": right_opponent_lead_policy_override,
+        "right_opponent_response_policy_override": right_opponent_response_policy_override,
+        "use_profile_presets_override": opponent_statistics_file is not None,
+    }
+    workflow_option_defaults = {
+        **dict.fromkeys(workflow_option_values, None),
+        "decision_snapshots": False,
+        "immediate_review": False,
+        "search_review": False,
+        "information_set_search_review": False,
+        "information_set_replay_coaching": False,
+        "replay_coaching": False,
+        "historical_tactical_motif_review": False,
+        "search_budget_profile": HISTORICAL_REVIEW_SEARCH_BUDGET_PROFILE,
+        "use_profile_presets_override": False,
+    }
+    workflow_option_flags = {
+        "decision_snapshots": ("--historical-decision-snapshots",),
+        "immediate_review": ("--historical-game-review",),
+        "search_review": ("--historical-search-review",),
+        "information_set_search_review": (
+            "--historical-information-set-search-review",
+        ),
+        "information_set_replay_coaching": (
+            "--historical-information-set-replay-coaching",
+        ),
+        "replay_coaching": ("--historical-replay-coaching",),
+        "historical_tactical_motif_review": (
+            "--historical-tactical-motif-review",
+        ),
+        "search_seed": ("--search-seed",),
+        "search_budget_profile": ("--search-budget-profile",),
+        "immediate_sample_count": ("--samples",),
+        "immediate_base_random_seed": ("--seed",),
+        "opponent_policy_preset_override": ("--opponent-policy-preset",),
+        "opponent_lead_policy_override": ("--opponent-lead-policy",),
+        "opponent_response_policy_override": ("--opponent-response-policy",),
+        "left_opponent_lead_policy_override": ("--left-opponent-lead-policy",),
+        "left_opponent_response_policy_override": ("--left-opponent-response-policy",),
+        "right_opponent_lead_policy_override": ("--right-opponent-lead-policy",),
+        "right_opponent_response_policy_override": ("--right-opponent-response-policy",),
+        "use_profile_presets_override": ("--opponent-statistics-file",),
+    }
+    result, _artifacts = _execute_with_option_presence(
         root_document,
         input_reference=file_path,
         options=ApplicationExecutionOptions(
@@ -261,6 +417,12 @@ def run_json_historical_game_analysis(
         ),
         external_documents=external_documents,
         include_provenance=include_provenance,
+        supplied_workflow_option_names=_supplied_option_names(
+            current_supplied_root_cli_options(),
+            workflow_option_values,
+            workflow_option_defaults,
+            workflow_option_flags,
+        ),
     )
     if output_path is not None:
         _dependency("write_analysis_result_to_json", write_analysis_result_to_json)(
@@ -318,12 +480,13 @@ def run_json_training_dataset_conversion(
 ) -> None:
     """Runs deterministic training-dataset validation and sample generation."""
     root_document = _dependency("load_json_object", load_json_object)(file_path)
-    result, _artifacts = _dependency("execute_legacy_application", execute_legacy_application)(
+    result, _artifacts = _execute_with_option_presence(
         root_document,
         input_reference=file_path,
         options=ApplicationExecutionOptions(
-            training_dataset=TrainingDatasetApplicationOptions(operation="summary")
+            training_dataset=TrainingDatasetApplicationOptions()
         ),
+        supplied_workflow_option_names=(),
         include_provenance=include_provenance,
     )
     if output_path is not None:
@@ -348,7 +511,7 @@ def run_json_training_dataset_preparation(
 ) -> None:
     """Runs one mode-derived automatic Dataset preparation workflow."""
     root_document = _dependency("load_json_object", load_json_object)(file_path)
-    result, _artifacts = _dependency("execute_legacy_application", execute_legacy_application)(
+    result, _artifacts = _execute_with_option_presence(
         root_document,
         input_reference=file_path,
         include_provenance=include_provenance,
@@ -383,7 +546,7 @@ def run_json_bounded_search_evaluation(
 ) -> None:
     """Runs deterministic bounded-Search evaluation on selected dataset records."""
     root_document = _dependency("load_json_object", load_json_object)(file_path)
-    result, _artifacts = _dependency("execute_legacy_application", execute_legacy_application)(
+    result, _artifacts = _execute_with_option_presence(
         root_document,
         input_reference=file_path,
         options=ApplicationExecutionOptions(
@@ -394,6 +557,30 @@ def run_json_bounded_search_evaluation(
                 bounded_search_budget_profile=search_budget_profile,
                 bounded_search_max_decisions=max_decisions,
             )
+        ),
+        supplied_workflow_option_names=_supplied_option_names(
+            current_supplied_root_cli_options(),
+            {
+                "operation": "bounded_search_evaluation",
+                "bounded_search_seed": search_seed,
+                "bounded_search_partitions": partitions,
+                "bounded_search_budget_profile": search_budget_profile,
+                "bounded_search_max_decisions": max_decisions,
+            },
+            {
+                "operation": "summary",
+                "bounded_search_seed": None,
+                "bounded_search_partitions": DEFAULT_BOUNDED_SEARCH_EVALUATION_PARTITIONS,
+                "bounded_search_budget_profile": EVALUATION_SEARCH_BUDGET_PROFILE,
+                "bounded_search_max_decisions": None,
+            },
+            {
+                "operation": ("--evaluate-bounded-search",),
+                "bounded_search_seed": ("--search-seed",),
+                "bounded_search_partitions": ("--search-evaluation-partition",),
+                "bounded_search_budget_profile": ("--search-budget-profile",),
+                "bounded_search_max_decisions": ("--search-evaluation-max-decisions",),
+            },
         ),
         include_provenance=include_provenance,
     )
@@ -427,7 +614,7 @@ def run_json_information_set_search_evaluation(
 ) -> None:
     """Runs Information-set Search evaluation on selected dataset records."""
     root_document = _dependency("load_json_object", load_json_object)(file_path)
-    result, _artifacts = _dependency("execute_legacy_application", execute_legacy_application)(
+    result, _artifacts = _execute_with_option_presence(
         root_document,
         input_reference=file_path,
         options=ApplicationExecutionOptions(
@@ -438,6 +625,40 @@ def run_json_information_set_search_evaluation(
                 information_set_search_budget_profile=search_budget_profile,
                 information_set_search_max_decisions=max_decisions,
             )
+        ),
+        supplied_workflow_option_names=_supplied_option_names(
+            current_supplied_root_cli_options(),
+            {
+                "operation": "information_set_search_evaluation",
+                "information_set_search_seed": search_seed,
+                "information_set_search_partitions": partitions,
+                "information_set_search_budget_profile": search_budget_profile,
+                "information_set_search_max_decisions": max_decisions,
+            },
+            {
+                "operation": "summary",
+                "information_set_search_seed": None,
+                "information_set_search_partitions": (
+                    DEFAULT_INFORMATION_SET_SEARCH_EVALUATION_PARTITIONS
+                ),
+                "information_set_search_budget_profile": (
+                    DEFAULT_INFORMATION_SET_SEARCH_EVALUATION_PROFILE
+                ),
+                "information_set_search_max_decisions": None,
+            },
+            {
+                "operation": ("--information-set-search-evaluation",),
+                "information_set_search_seed": ("--search-seed",),
+                "information_set_search_partitions": (
+                    "--search-evaluation-partition",
+                ),
+                "information_set_search_budget_profile": (
+                    "--search-budget-profile",
+                ),
+                "information_set_search_max_decisions": (
+                    "--search-evaluation-max-decisions",
+                ),
+            },
         ),
         include_provenance=include_provenance,
     )
@@ -468,7 +689,7 @@ def run_json_dataset_partition_audit(
     """Audits training-dataset player overlap without generating samples."""
     root_document = _dependency("load_json_object", load_json_object)(file_path)
     try:
-        result, _artifacts = _dependency("execute_legacy_application", execute_legacy_application)(
+        result, _artifacts = _execute_with_option_presence(
             root_document,
             input_reference=file_path,
             options=ApplicationExecutionOptions(
@@ -476,6 +697,21 @@ def run_json_dataset_partition_audit(
                     operation="partition_audit",
                     partition_audit_mode=requested_mode,
                 )
+            ),
+            supplied_workflow_option_names=_supplied_option_names(
+                current_supplied_root_cli_options(),
+                {
+                    "operation": "partition_audit",
+                    "partition_audit_mode": requested_mode,
+                },
+                {
+                    "operation": "summary",
+                    "partition_audit_mode": None,
+                },
+                {
+                    "operation": ("--audit-dataset-partitions",),
+                    "partition_audit_mode": ("--dataset-partition-mode",),
+                },
             ),
             include_provenance=include_provenance,
         )
@@ -511,7 +747,7 @@ def run_json_rolling_opponent_policy_evaluation(
 ) -> None:
     """Runs rolling profile-derived behavioral policy evaluation."""
     root_document = _dependency("load_json_object", load_json_object)(file_path)
-    result, _artifacts = _dependency("execute_legacy_application", execute_legacy_application)(
+    result, _artifacts = _execute_with_option_presence(
         root_document,
         input_reference=file_path,
         options=ApplicationExecutionOptions(
@@ -520,6 +756,29 @@ def run_json_rolling_opponent_policy_evaluation(
                 rolling_source_partitions=source_partitions,
                 rolling_evaluation_partitions=evaluation_partitions,
             )
+        ),
+        supplied_workflow_option_names=_supplied_option_names(
+            current_supplied_root_cli_options(),
+            {
+                "operation": "rolling_opponent_policy_evaluation",
+                "rolling_source_partitions": source_partitions,
+                "rolling_evaluation_partitions": evaluation_partitions,
+            },
+            {
+                "operation": "summary",
+                "rolling_source_partitions": DEFAULT_SOURCE_PARTITIONS,
+                "rolling_evaluation_partitions": DEFAULT_EVALUATION_PARTITIONS,
+            },
+            {
+                "operation": (
+                    "--evaluate-opponent-policy-profiles",
+                    "--evaluate-rolling-opponent-policies",
+                ),
+                "rolling_source_partitions": ("--profile-source-partition",),
+                "rolling_evaluation_partitions": (
+                    "--profile-evaluation-partition",
+                ),
+            },
         ),
         include_provenance=include_provenance,
     )
@@ -551,7 +810,7 @@ def run_json_historical_opponent_statistics_aggregation(
 ) -> None:
     """Aggregates historical statistics without generating training samples."""
     root_document = _dependency("load_json_object", load_json_object)(file_path)
-    result, artifacts = _dependency("execute_legacy_application", execute_legacy_application)(
+    result, artifacts = _execute_with_option_presence(
         root_document,
         input_reference=file_path,
         options=ApplicationExecutionOptions(
@@ -561,6 +820,29 @@ def run_json_historical_opponent_statistics_aggregation(
                 aggregation_before=before,
                 export_opponent_statistics=export_path is not None,
             )
+        ),
+        supplied_workflow_option_names=_supplied_option_names(
+            current_supplied_root_cli_options(),
+            {
+                "operation": "historical_opponent_statistics_aggregation",
+                "aggregation_included_partitions": included_partitions,
+                "aggregation_before": before,
+                "export_opponent_statistics": export_path is not None,
+            },
+            {
+                "operation": "summary",
+                "aggregation_included_partitions": None,
+                "aggregation_before": None,
+                "export_opponent_statistics": False,
+            },
+            {
+                "operation": ("--aggregate-opponent-statistics",),
+                "aggregation_included_partitions": (
+                    "--opponent-statistics-partition",
+                ),
+                "aggregation_before": ("--opponent-statistics-before",),
+                "export_opponent_statistics": ("--export-opponent-statistics",),
+            },
         ),
         include_provenance=include_provenance,
     )
@@ -596,7 +878,7 @@ def run_json_fixed_three_player_historical_list_analysis(
 ) -> None:
     """Runs one complete historical 36-position list aggregation."""
     root_document = _dependency("load_json_object", load_json_object)(file_path)
-    result, _artifacts = _dependency("execute_legacy_application", execute_legacy_application)(
+    result, _artifacts = _execute_with_option_presence(
         root_document,
         input_reference=file_path,
         include_provenance=include_provenance,
@@ -626,7 +908,7 @@ def run_json_fixed_three_player_historical_list_comparison(
 ) -> None:
     """Aggregates each ordered source once and compares it with the first source."""
     root_document = _dependency("load_json_object", load_json_object)(file_path)
-    result, _artifacts = _dependency("execute_legacy_application", execute_legacy_application)(
+    result, _artifacts = _execute_with_option_presence(
         root_document,
         input_reference=file_path,
         include_provenance=include_provenance,
@@ -656,7 +938,7 @@ def run_json_opponent_statistics_conversion(
 ) -> None:
     """Runs deterministic external opponent-statistics validation and normalization."""
     root_document = _dependency("load_json_object", load_json_object)(file_path)
-    result, _artifacts = _dependency("execute_legacy_application", execute_legacy_application)(
+    result, _artifacts = _execute_with_option_presence(
         root_document,
         input_reference=file_path,
         include_provenance=include_provenance,

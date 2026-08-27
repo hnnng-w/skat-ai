@@ -18,7 +18,9 @@ independently versioned public file-transport subnamespace plus Decision
 Observation and Checkpoint review-export operations. Issue #138 remains a
 separate internal field-provenance contract foundation, and Issues #143 through
 #147 carry it through complete internal Root Results and bounded opt-in public
-Root Result and actual-artifact provenance.
+Root Result and actual-artifact provenance. Issue #202 completes mandatory
+internal source-to-final-serialization enforcement around every Root execution
+without adding a public export or changing this API contract.
 
 ## Public namespaces
 
@@ -71,7 +73,9 @@ selects only one mapped Root Result plus actual artifacts, applies the existing
 redaction helper, and recomputes complete public coverage. It does not expose
 consumed-input, decision, intermediate-stage, or unredacted Application
 attachments. See [Complete Result provenance](complete_result_provenance.md) and
-[Public field provenance](public_field_provenance.md).
+[Public field provenance](public_field_provenance.md). The internal lifecycle is
+documented in
+[v1 information provenance enforcement](v1_information_provenance_enforcement.md).
 
 The internal Application orchestration contract is documented in
 [Application orchestration](application_orchestration.md). It consumes
@@ -163,6 +167,12 @@ option is accepted. `include_provenance` is a strict boolean and defaults to
 `false`. `validate_output=false` disables only post-
 execution Root output and artifact schema validation; Root input and Application
 semantic validation always run.
+
+Issue #202 privately retains which constructor values were explicitly supplied,
+including explicit defaults, so the exact effective-option source remains
+auditable. This metadata survives copy, deep copy, pickle, and
+`dataclasses.replace()` but is not a sixth field, does not affect equality, and
+does not appear in `to_dict()`.
 
 The direct `workflow_options` keys map to the matching internal Position,
 Historical Game, or Training Dataset Application option contract. The four
@@ -363,13 +373,13 @@ absent from `ApiVersionInfoV1`, API Results, and Root JSON output. Issue #158
 completed Release preparation for the functional `v0.14.0` milestone before the
 maintainer's manual publication at commit `d5589f8`.
 
-## Remaining Work
+## Current Boundaries
 
 Issue #147 implements bounded public Root Result and actual-artifact provenance.
 Public exposure of consumed-input, Decision, and intermediate-stage attachments
-is not required for v1. The remaining v1 Provenance blocker is internal loading,
-authorized retained-stage linkage, and final serialization enforcement across all
-seven workflows. Provenance does not integrate or replace Confidence.
+is not required for v1. Issue #202 completes internal loading, authorized
+retained-stage linkage, and final serialization enforcement across all seven
+workflows. Provenance does not integrate or replace Confidence.
 
 Issues #150 through #155 implement the internal Session contracts, deterministic
 transitions, Request export, immutable pre-Play Checkpoints, history editing,
@@ -388,8 +398,9 @@ Public Session GUI and browser UI, online-platform adapters, browser extensions,
 website scraping, automatic cloud synchronization, distributed locking,
 encryption and key management, and automatic backup policy remain absent and are
 not v1 requirements. Issue #200 accepts the bounded Search, Claim, Settlement,
-and Coaching contracts; only broader internal field-level provenance enforcement
-remains a pre-v1 implementation gate under Issue #202.
+and Coaching contracts. Issue #202 closes the internal field-level provenance
+implementation gate; canonical Multi-Step phase coverage remains the next
+implementation gate under Issue #203.
 
 Internal Application orchestration version `1`, no-I/O execution for all seven
 Root workflows, legacy CLI transport parity, and auxiliary artifacts are

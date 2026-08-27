@@ -281,9 +281,10 @@ skat-ai session analyze \
 
 This exports one Position-ready decision, collects or reuses the exact pre-Play
 Checkpoint, persists a newly collected Checkpoint before execution, and invokes
-the existing Position Application once. A persistence conflict aborts before
-analysis. The output is the existing Root Position Result, including Root field
-provenance when requested. Position unavailability is a normal Session Result,
+the existing Position Application once through the mandatory internal Issue #202
+provenance lifecycle. A persistence conflict aborts before analysis. The output
+is the existing Root Position Result, including unchanged bounded public Root
+field provenance when requested. Position unavailability is a normal Session Result,
 executes no Application workflow, and exits with Code `0`.
 
 ### `review`
@@ -314,7 +315,8 @@ This exports once and executes the existing Historical Application once only
 when Historical readiness is available. It supports the existing Snapshot,
 Immediate Review, Search Review, Replay Coaching, Search seed/profile, and
 Immediate sample/seed controls. The output is the existing Root Historical
-Result. Unavailability is Code `0`; finalization does not modify the Session.
+Result after the same mandatory internal Issue #202 lifecycle. Unavailability is
+Code `0`; finalization does not modify the Session.
 
 ### `assistant`
 
@@ -448,8 +450,9 @@ contract, example, or scenario.
 Issue #157 adds no GUI or browser UI, online-platform adapter, browser extension,
 website scraping, cloud synchronization, distributed lock, collaborative merge,
 encryption or key management, automatic backup policy, default Session directory,
-or natural-language rule inference. Broader provenance, Search, Claim,
-Settlement, and Coaching gaps remain open independently.
+or natural-language rule inference. Broader public provenance, Search, Claim,
+Settlement, and Coaching exposure remains separate. Root load-to-final-
+serialization provenance enforcement is complete under Issue #202.
 
 Issue #160's internal Match Capture metadata foundation adds no Match subcommand
 and does not alter this 12-subcommand Session CLI. Later Issues #161 through #168

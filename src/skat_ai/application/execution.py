@@ -44,6 +44,19 @@ from skat_ai.search_budget_profiles import (
     HISTORICAL_REVIEW_SEARCH_BUDGET_PROFILE,
     SEARCH_BUDGET_PROFILE_IDENTIFIERS,
 )
+from skat_ai.v1_information_provenance_enforcement import (
+    enforce_v1_information_provenance_before_analysis,
+    validate_v1_retained_stage_linkage,
+)
+from skat_ai.v1_information_provenance_serialization import (
+    reconcile_v1_information_provenance_serialization,
+)
+from skat_ai.v1_information_provenance_sources import (
+    V1InformationProvenanceSourceMetadata,
+    build_v1_information_provenance_sources,
+    consumed_v1_request_document,
+    exact_v1_json_equal,
+)
 
 _PARTITIONS = ("train", "validation", "test")
 _POSITION_POLICY_PRESETS = (
@@ -90,6 +103,11 @@ def build_application_invocation(
     input_reference: str,
     options: ApplicationExecutionOptions | None = None,
     external_documents: ApplicationExternalDocuments | None = None,
+    supplied_workflow_option_names: tuple[str, ...] | None = None,
+    validate_output: bool = True,
+    validate_output_supplied: bool = False,
+    include_provenance: bool = False,
+    include_provenance_supplied: bool = False,
 ) -> ApplicationInvocation:
     """Builds one immutable invocation from a caller-supplied Root document."""
     if not isinstance(root_document, Mapping):
@@ -109,11 +127,40 @@ def build_application_invocation(
     invocation_external_documents = (
         external_documents or ApplicationExternalDocuments()
     )
+    selected_options = {
+        WorkflowV1.POSITION_ANALYSIS: invocation_options.position_analysis,
+        WorkflowV1.HISTORICAL_GAME: invocation_options.historical_game,
+        WorkflowV1.TRAINING_DATASET: invocation_options.training_dataset,
+    }.get(workflow)
+    supplied_names_overridden = supplied_workflow_option_names is not None
+    if not supplied_names_overridden:
+        if options is None or selected_options is None:
+            supplied_workflow_option_names = ()
+        else:
+            supplied_workflow_option_names = (
+                selected_options._provenance_supplied_option_names
+            )
+    application_options_supplied = (
+        bool(supplied_workflow_option_names)
+        if supplied_names_overridden
+        else options is not None and selected_options is not None
+    )
     return ApplicationInvocation(
         request=RequestDocumentV1(workflow=workflow, document=root_document),
         input_reference=input_reference,
         options=invocation_options,
         external_documents=invocation_external_documents,
+        provenance_source_metadata=V1InformationProvenanceSourceMetadata(
+            application_options_supplied=application_options_supplied,
+            supplied_execution_option_names=(
+                ("workflow_options",) if application_options_supplied else ()
+            ),
+            supplied_workflow_option_names=supplied_workflow_option_names,
+            validate_output=validate_output,
+            validate_output_supplied=validate_output_supplied,
+            include_provenance=include_provenance,
+            include_provenance_supplied=include_provenance_supplied,
+        ),
     )
 
 
@@ -510,7 +557,7 @@ def validate_application_invocation(invocation: ApplicationInvocation) -> None:
 
 
 def _position_handler(
-    root: dict[str, Any],
+    root: Mapping[str, object],
     invocation: ApplicationInvocation,
     dependencies: ApplicationWorkflowDependencies,
     *,
@@ -519,6 +566,7 @@ def _position_handler(
     dict[str, Any],
     tuple[ApplicationArtifact, ...],
     ApplicationProvenanceBundle | None,
+    tuple[tuple[str, Mapping[str, object]], ...],
 ]:
     options = invocation.options.position_analysis
     if options is None:
@@ -533,16 +581,17 @@ def _position_handler(
             FlatRetrospectiveProvenanceCollector,
         )
 
-        provenance_collector = FlatRetrospectiveProvenanceCollector()
+        provenance_collector = FlatRetrospectiveProvenanceCollector(
+            invocation.request.to_dict()["document"]
+        )
     else:
         provenance_collector = None
+    external_document = invocation.external_documents.opponent_statistics_document
     result = execute_position_analysis_workflow(
         root,
         input_reference=invocation.input_reference,
         options=options,
-        opponent_statistics_document=(
-            invocation.external_documents.opponent_statistics_to_dict()
-        ),
+        opponent_statistics_document=external_document,
         opponent_statistics_reference=(
             invocation.external_documents.opponent_statistics_reference
         ),
@@ -550,28 +599,34 @@ def _position_handler(
         provenance_collector=provenance_collector,
         dependencies=dependencies.position,
     )
+    if not exact_v1_json_equal(
+        external_document,
+        invocation.external_documents.opponent_statistics_document,
+    ):
+        raise SkatAIInvariantError("Application consumed external input changed.")
     provenance = (
         provenance_collector.build_bundle(
             result,
             external_reference=(
                 invocation.external_documents.opponent_statistics_reference
             ),
-            source_document=root,
+            source_document=invocation.request.to_dict()["document"],
         )
         if provenance_collector is not None
         else None
     )
-    return (result, (), provenance)
+    return (result, (), provenance, ())
 
 
 def _historical_handler(
-    root: dict[str, Any],
+    root: Mapping[str, object],
     invocation: ApplicationInvocation,
     dependencies: ApplicationWorkflowDependencies,
 ) -> tuple[
     dict[str, Any],
     tuple[ApplicationArtifact, ...],
     ApplicationProvenanceBundle | None,
+    tuple[tuple[str, Mapping[str, object]], ...],
 ]:
     options = invocation.options.historical_game
     if options is None:
@@ -587,34 +642,45 @@ def _historical_handler(
             invocation.external_documents.opponent_statistics_reference
         )
     )
+    external_document = invocation.external_documents.opponent_statistics_document
     result = execute_historical_game_workflow(
         root,
         input_reference=invocation.input_reference,
         options=options,
-        opponent_statistics_document=(
-            invocation.external_documents.opponent_statistics_to_dict()
-        ),
+        opponent_statistics_document=external_document,
         opponent_statistics_reference=(
             invocation.external_documents.opponent_statistics_reference
         ),
         provenance_collector=provenance_collector,
         dependencies=dependencies.historical_game,
     )
+    if not exact_v1_json_equal(
+        external_document,
+        invocation.external_documents.opponent_statistics_document,
+    ):
+        raise SkatAIInvariantError("Application consumed external input changed.")
     provenance = provenance_collector.build_bundle(
         result,
-        source_document=root,
+        source_document=invocation.request.to_dict()["document"],
     )
-    return (result, (), provenance)
+    snapshot_checkpoint = provenance_collector.snapshot_summary_checkpoint()
+    checkpoints = (
+        (("historical_snapshot_summary", snapshot_checkpoint),)
+        if snapshot_checkpoint is not None
+        else ()
+    )
+    return (result, (), provenance, checkpoints)
 
 
 def _training_dataset_handler(
-    root: dict[str, Any],
+    root: Mapping[str, object],
     invocation: ApplicationInvocation,
     _dependencies: ApplicationWorkflowDependencies,
 ) -> tuple[
     dict[str, Any],
     tuple[ApplicationArtifact, ...],
     ApplicationProvenanceBundle | None,
+    tuple[tuple[str, Mapping[str, object]], ...],
 ]:
     options = invocation.options.training_dataset
     if options is None:
@@ -634,17 +700,18 @@ def _training_dataset_handler(
         dependencies=_dependencies.training_dataset,
     )
     provenance = provenance_collector.build_bundle(result, artifacts)
-    return result, artifacts, provenance
+    return result, artifacts, provenance, ()
 
 
 def _preparation_handler(
-    root: dict[str, Any],
+    root: Mapping[str, object],
     invocation: ApplicationInvocation,
     _dependencies: ApplicationWorkflowDependencies,
 ) -> tuple[
     dict[str, Any],
     tuple[ApplicationArtifact, ...],
     ApplicationProvenanceBundle | None,
+    tuple[tuple[str, Mapping[str, object]], ...],
 ]:
     from skat_ai.dataset_preparation_provenance import (
         DatasetPreparationProvenanceCollector,
@@ -657,17 +724,18 @@ def _preparation_handler(
         provenance_collector=provenance_collector,
         dependencies=_dependencies.simple,
     )
-    return result, (), provenance_collector.build_bundle(result)
+    return result, (), provenance_collector.build_bundle(result), ()
 
 
 def _statistics_handler(
-    root: dict[str, Any],
+    root: Mapping[str, object],
     invocation: ApplicationInvocation,
     _dependencies: ApplicationWorkflowDependencies,
 ) -> tuple[
     dict[str, Any],
     tuple[ApplicationArtifact, ...],
     ApplicationProvenanceBundle | None,
+    tuple[tuple[str, Mapping[str, object]], ...],
 ]:
     from skat_ai.opponent_workflow_provenance import (
         OpponentWorkflowProvenanceCollector,
@@ -680,17 +748,18 @@ def _statistics_handler(
         provenance_collector=provenance_collector,
         dependencies=_dependencies.simple,
     )
-    return result, (), provenance_collector.build_bundle(result)
+    return result, (), provenance_collector.build_bundle(result), ()
 
 
 def _list_handler(
-    root: dict[str, Any],
+    root: Mapping[str, object],
     invocation: ApplicationInvocation,
     dependencies: ApplicationWorkflowDependencies,
 ) -> tuple[
     dict[str, Any],
     tuple[ApplicationArtifact, ...],
     ApplicationProvenanceBundle | None,
+    tuple[tuple[str, Mapping[str, object]], ...],
 ]:
     from skat_ai.historical_list_provenance import HistoricalListProvenanceCollector
 
@@ -701,17 +770,28 @@ def _list_handler(
         provenance_collector=provenance_collector,
         dependencies=dependencies.simple,
     )
-    return result, (), provenance_collector.build_bundle(result)
+    source_document = invocation.request.to_dict()["document"]
+    assert isinstance(source_document, dict)
+    return (
+        result,
+        (),
+        provenance_collector.build_bundle(
+            result,
+            source_document=source_document["fixed_three_player_historical_list_input"],
+        ),
+        (),
+    )
 
 
 def _comparison_handler(
-    root: dict[str, Any],
+    root: Mapping[str, object],
     invocation: ApplicationInvocation,
     dependencies: ApplicationWorkflowDependencies,
 ) -> tuple[
     dict[str, Any],
     tuple[ApplicationArtifact, ...],
     ApplicationProvenanceBundle | None,
+    tuple[tuple[str, Mapping[str, object]], ...],
 ]:
     from skat_ai.historical_list_provenance import (
         HistoricalListComparisonProvenanceCollector,
@@ -724,15 +804,28 @@ def _comparison_handler(
         provenance_collector=provenance_collector,
         dependencies=dependencies.simple,
     )
-    return result, (), provenance_collector.build_bundle(result)
+    source_document = invocation.request.to_dict()["document"]
+    assert isinstance(source_document, dict)
+    return (
+        result,
+        (),
+        provenance_collector.build_bundle(
+            result,
+            source_document=source_document[
+                "fixed_three_player_historical_list_comparison_input"
+            ],
+        ),
+        (),
+    )
 
 
 _Handler = Callable[
-    [dict[str, Any], ApplicationInvocation, ApplicationWorkflowDependencies],
+    [Mapping[str, object], ApplicationInvocation, ApplicationWorkflowDependencies],
     tuple[
         dict[str, Any],
         tuple[ApplicationArtifact, ...],
         ApplicationProvenanceBundle | None,
+        tuple[tuple[str, Mapping[str, object]], ...],
     ],
 ]
 
@@ -756,6 +849,8 @@ def _execute_application_invocation(
     match_decision_review: bool = False,
 ) -> ApplicationExecutionResult:
     validate_application_invocation(invocation)
+    sources = build_v1_information_provenance_sources(invocation)
+    enforce_v1_information_provenance_before_analysis(invocation, sources)
     workflow = invocation.request.workflow
     try:
         handler = _HANDLERS[workflow]
@@ -763,27 +858,28 @@ def _execute_application_invocation(
         raise SkatAIInvariantError(
             f"No Application handler is registered for {workflow.value!r}."
         ) from error
-    request_data = invocation.request.to_dict()["document"]
-    if not isinstance(request_data, dict):
-        raise SkatAIInvariantError("RequestDocumentV1 did not thaw to an object.")
+    request_data = consumed_v1_request_document(sources)
+    expected_consumed_request = request_data
     effective_dependencies = dependencies or ApplicationWorkflowDependencies()
     if match_decision_review:
         if workflow is not WorkflowV1.POSITION_ANALYSIS:
             raise SkatAIInvariantError(
                 "Match Decision execution requires Position Analysis."
             )
-        result_document, artifacts, provenance = _position_handler(
+        result_document, artifacts, provenance, retained_checkpoints = _position_handler(
             request_data,
             invocation,
             effective_dependencies,
             match_decision_review=True,
         )
     else:
-        result_document, artifacts, provenance = handler(
+        result_document, artifacts, provenance, retained_checkpoints = handler(
             request_data,
             invocation,
             effective_dependencies,
         )
+    if not exact_v1_json_equal(request_data, expected_consumed_request):
+        raise SkatAIInvariantError("Application consumed Request input changed.")
     result = ResultDocumentV1(
         workflow=workflow,
         document=result_document,
@@ -791,11 +887,30 @@ def _execute_application_invocation(
     )
     if result.workflow is not workflow:
         raise SkatAIInvariantError("Application result workflow identity changed.")
+    if provenance is None:
+        raise SkatAIInvariantError(
+            "V1 Root execution requires a retained provenance bundle."
+        )
+    linkage = validate_v1_retained_stage_linkage(
+        invocation,
+        sources,
+        provenance,
+        trusted_checkpoint_documents=retained_checkpoints,
+    )
+    checkpoint = reconcile_v1_information_provenance_serialization(
+        invocation=invocation,
+        sources=sources,
+        linkage=linkage,
+        result=result,
+        artifacts=artifacts,
+        provenance=provenance,
+    )
     return ApplicationExecutionResult(
         orchestration_version=APPLICATION_ORCHESTRATION_VERSION,
         result=result,
         artifacts=artifacts,
         provenance=provenance,
+        information_provenance_enforcement=checkpoint,
     )
 
 

@@ -1,4 +1,5 @@
 import json
+from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
 
@@ -131,13 +132,44 @@ def load_position_from_json(file_path: str) -> dict[str, Any]:
     """
     Loads and validates a position configuration from a JSON file.
     """
-    return build_position_from_document(load_json_object(file_path))
+    source_document = load_json_object(file_path)
+    return _LoadedPositionDocument(
+        build_position_from_document(source_document),
+        source_document=source_document,
+    )
 
 
-def build_position_from_document(data: dict[str, Any]) -> dict[str, Any]:
+class _LoadedPositionDocument(dict[str, Any]):
+    """Validated Position data retaining its exact transport source."""
+
+    def __init__(
+        self,
+        normalized_document: Mapping[str, object],
+        *,
+        source_document: Mapping[str, object],
+    ) -> None:
+        super().__init__(normalized_document)
+        copied_source = _copy_json_value(source_document)
+        if not isinstance(copied_source, dict):
+            raise ValueError("Position source document must be an object.")
+        self.source_document = copied_source
+
+
+def build_position_from_document(data: Mapping[str, object]) -> dict[str, Any]:
     """Validates one in-memory Position Analysis Root document."""
-    validate_position_input(data)
-    return data
+    normalized = _copy_json_value(data)
+    if not isinstance(normalized, dict):
+        raise ValueError("Position Analysis Root document must be an object.")
+    validate_position_input(normalized)
+    return normalized
+
+
+def _copy_json_value(value: Any) -> Any:
+    if isinstance(value, Mapping):
+        return {key: _copy_json_value(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_copy_json_value(item) for item in value]
+    return value
 
 
 def load_historical_game_from_json(file_path: str) -> HistoricalGameRecord:
@@ -146,12 +178,15 @@ def load_historical_game_from_json(file_path: str) -> HistoricalGameRecord:
 
 
 def build_historical_game_from_document(
-    data: dict[str, Any],
+    data: Mapping[str, object],
     *,
     validate_workflow: bool = True,
     validate_game_event_chain: bool = True,
 ) -> HistoricalGameRecord:
     """Builds one Historical Game record from an in-memory Root document."""
+    data = _copy_json_value(data)
+    if not isinstance(data, dict):
+        raise ValueError("Historical Game Root document must be an object.")
     if validate_workflow and get_input_workflow(data) != "historical_game":
         raise ValueError("Input file does not contain historical_game_input.")
 
@@ -170,11 +205,14 @@ def load_training_dataset_from_json(file_path: str) -> TrainingDatasetInput:
 
 
 def build_training_dataset_from_document(
-    data: dict[str, Any],
+    data: Mapping[str, object],
     *,
     validate_workflow: bool = True,
 ) -> TrainingDatasetInput:
     """Builds one Training Dataset from an in-memory Root document."""
+    data = _copy_json_value(data)
+    if not isinstance(data, dict):
+        raise ValueError("Training Dataset Root document must be an object.")
     if validate_workflow and get_input_workflow(data) != "training_dataset":
         raise ValueError("Input file does not contain training_dataset_input.")
     training_data = data["training_dataset_input"]
@@ -191,11 +229,14 @@ def load_training_dataset_preparation_request_from_json(
 
 
 def build_training_dataset_preparation_request_from_document(
-    data: dict[str, Any],
+    data: Mapping[str, object],
     *,
     validate_workflow: bool = True,
 ) -> TrainingDatasetPreparationRequest:
     """Builds one automatic Dataset preparation request from a Root document."""
+    data = _copy_json_value(data)
+    if not isinstance(data, dict):
+        raise ValueError("Dataset preparation Root document must be an object.")
     if validate_workflow and get_input_workflow(data) != "training_dataset_preparation":
         raise ValueError("Input file does not contain training_dataset_preparation_input.")
     request_data = data["training_dataset_preparation_input"]
@@ -210,11 +251,14 @@ def load_opponent_statistics_from_json(file_path: str) -> OpponentStatisticsInpu
 
 
 def build_opponent_statistics_from_document(
-    data: dict[str, Any],
+    data: Mapping[str, object],
     *,
     validate_workflow: bool = True,
 ) -> OpponentStatisticsInput:
     """Builds one Opponent Statistics input from an in-memory Root document."""
+    data = _copy_json_value(data)
+    if not isinstance(data, dict):
+        raise ValueError("Opponent Statistics Root document must be an object.")
     if validate_workflow and get_input_workflow(data) != "opponent_statistics":
         raise ValueError("Input file does not contain opponent_statistics_input.")
     statistics_data = data["opponent_statistics_input"]
@@ -233,11 +277,14 @@ def load_fixed_three_player_historical_list_request_from_json(
 
 
 def build_fixed_three_player_historical_list_request_from_document(
-    data: dict[str, Any],
+    data: Mapping[str, object],
     *,
     validate_workflow: bool = True,
 ) -> FixedThreePlayerHistoricalListAnalysisRequest:
     """Builds one historical-list request from an in-memory Root document."""
+    data = _copy_json_value(data)
+    if not isinstance(data, dict):
+        raise ValueError("Historical-list Root document must be an object.")
     if validate_workflow and get_input_workflow(data) != "fixed_three_player_historical_list":
         raise ValueError("Input file does not contain fixed_three_player_historical_list_input.")
     request_data = data["fixed_three_player_historical_list_input"]
@@ -254,11 +301,14 @@ def load_fixed_three_player_historical_list_comparison_request_from_json(
 
 
 def build_fixed_three_player_historical_list_comparison_request_from_document(
-    data: dict[str, Any],
+    data: Mapping[str, object],
     *,
     validate_workflow: bool = True,
 ) -> FixedThreePlayerHistoricalListComparisonRequest:
     """Builds one independent-list comparison request from a Root document."""
+    data = _copy_json_value(data)
+    if not isinstance(data, dict):
+        raise ValueError("Historical-list comparison Root document must be an object.")
     if (
         validate_workflow
         and get_input_workflow(data) != "fixed_three_player_historical_list_comparison"

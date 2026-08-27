@@ -449,7 +449,14 @@ def _build_position_analysis_result(
             public_hand_constraints=public_hand_constraints,
             strategic_metadata=analysis_metadata.strategic_metadata,
             game_declaration=game_declaration,
-            decision_index=0,
+            decision_index=(
+                len(state.played_cards)
+                + len(state.current_trick)
+                + sum(
+                    len(trick.get("cards", ()))
+                    for trick in state.completed_tricks
+                )
+            ),
             selection_method=recommendation_configuration.requested_method,
             selection_settings=selection_settings,
         )

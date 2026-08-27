@@ -203,12 +203,13 @@ recomputes complete coverage for the exact public Result without its sidecar,
 and rejects incomplete or unredacted output. It does not expose the retained
 stage attachments above. See [Public field provenance](public_field_provenance.md).
 
-## Remaining work
+## Retained boundary
 
 The bounded public Root Result API, output, Schema, examples, and CLI
 presentation are implemented by Issue #147. Public decision- and stage-level
-attachments and broader adversarial enforcement outside implemented Application
-workflows remain open.
+attachments remain internal. Issue #202 completes adversarial source, linkage,
+timing, privacy, and exact final-serialization enforcement around those retained
+values without changing their public exposure.
 
 Issue #145 implements the former Dataset, Preparation, Opponent, Profile, list,
 and comparison propagation scopes. See

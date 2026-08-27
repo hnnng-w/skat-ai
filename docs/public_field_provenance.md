@@ -5,6 +5,10 @@ implemented by Issue #147. It exposes public-safe provenance for the exact Root
 Result and for auxiliary artifacts actually returned by one execution. It does
 not expose the complete internal Application provenance bundle.
 
+Issue #202 adds mandatory internal source, retained-stage, policy, and exact
+final-serialization enforcement before this conversion. It does not change the
+public contract defined here.
+
 The contract version is:
 
 ```text
@@ -100,6 +104,10 @@ It does not expose consumed-input attachments, decision attachments,
 retrospective stage attachments, internal aggregate attachments, or any other
 retained Application sidecar. It also does not attach provenance for a possible
 artifact that was not produced.
+
+Before conversion, Issue #202 revalidates the immutable four-stage checkpoint
+against that exact Root Result and actual artifact tuple. This performs no second
+workflow execution and publishes no checkpoint field.
 
 The public attachment contains ledger metadata, coverage, and Information Use
 Context. It does not embed another copy of the document whose fields the ledger
@@ -317,7 +325,7 @@ Existing Hidden-card Confidence, Profile confidence, Replay Coaching evidence,
 Search exactness, and specialized source-provenance contracts remain separate.
 
 Issue #147 completes the bounded public Root Result and actual-artifact exposure
-in the `v0.13.0` package baseline. Broader field-level information
-enforcement across loading and every internal boundary remains incomplete before
-`v1.0.0`; this public sidecar must not be described as complete end-to-end
-provenance for the product.
+in the `v0.13.0` package baseline. Issue #202 completes the internal all-seven-
+workflow load-to-final-serialization enforcement required for v1. This public
+sidecar remains intentionally narrower and must not be described as public
+end-to-end provenance for the product.

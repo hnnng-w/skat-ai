@@ -285,7 +285,9 @@ Match API and
 Schema/data workflow, a public/persisted Player Catalog, public/task-specific
 Dataset workflows and Dataset-v2 persistence,
 database or remote deployment, YouTube and EuroSkat integration, and broader
-pre-v1 rules, Search, Coaching, Settlement, and Provenance work remain open.
+rules, Search, Coaching, Settlement, and Provenance work were still open at that
+milestone. Issue #202 later completes the required internal Root Provenance
+lifecycle without changing this private Match report contract.
 
 Issue #171's separate private Learning Corpus Match Snapshot and Catalog
 contracts import no Match Analysis report and execute no analysis. Reports remain

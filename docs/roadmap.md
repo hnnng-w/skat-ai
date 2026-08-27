@@ -275,7 +275,9 @@ Coaching propagation is also implemented. Dataset, Preparation, Opponent,
 Profile, historical-list, and comparison propagation is implemented with
 complete non-legacy Root ledgers. Complete non-legacy Position/base Historical
 Result propagation is also implemented. Bounded public Root Result and actual-
-artifact exposure is implemented; broader enforcement remains open.
+artifact exposure is implemented. Issue #202 completes mandatory internal exact-
+source, pre-analysis, retained-stage, and final-serialization enforcement without
+widening public exposure.
 Internal Application extraction is covered separately below.
 
 ### Application orchestration foundation
@@ -1301,7 +1303,8 @@ fixed Guidance, and one tenth Corpus download without changing Dataset version
 `2`. Issue #193 satisfies the bounded v0.17.0 performance-evidence contract.
 Issue #200 accepts deterministic functional/structural performance for v1,
 classifies latency guarantees and broader tactical/Rating work as not required,
-and retains broader internal Provenance as a blocker. See [Information-set Search workflows](information_set_search_workflows.md),
+and identifies broader internal Provenance as a blocker. Issue #202 subsequently
+closes that blocker without widening public Provenance. See [Information-set Search workflows](information_set_search_workflows.md),
 [Information-set Search Multi-Step and Policy Comparison](information_set_search_multi_step_and_policy_comparison.md),
 and [Information-set Search performance](information_set_search_performance.md).
 Issues #182 through #196 are the frozen functional history. Issue #197 completes
@@ -1328,10 +1331,11 @@ derived persistence are not v1 requirements. Broader solver, auction,
 learned-model, and hosted/remote work is post-v1.
 
 Issue #201 closes the exhaustive official-rule evidence gate without product-code
-change. Before `v1.0.0`, the project still requires internal load-to-serialization
-Provenance enforcement, canonical Multi-Step phase closure, a human Package
-license decision, final installation/platform evidence, final readiness evidence,
-and Package `1.0.0` Release preparation. End-to-end
+change. Issue #202 closes internal load-to-serialization Provenance enforcement
+for all seven Root workflows without changing the bounded public contract. Before
+`v1.0.0`, the project still requires canonical Multi-Step phase closure, a human
+Package license decision, final installation/platform evidence, final readiness
+evidence, and Package `1.0.0` Release preparation. End-to-end
 local Live and Retrospective Session capture is complete
 through Issues #150 through #157, including public files, automatic Checkpoints,
 accepted-Log observation, isolated review, explicit analysis, all 12 CLI
@@ -1523,5 +1527,7 @@ synchronizes that publication without product functionality. Issue #200 freezes
 the bounded `v1.0.0` scope, seven blockers, and exact #201 through #207 sequence.
 Issue #201 adds independent exhaustive official-rule evidence, makes R-01 and
 R-06 `satisfied`, and closes B-01 without product-code change. Six blockers B-02
-through B-07 remain; `v1.0.0` is unready, and Issue #202 is next. No v1 Release
+through B-07 remained at that point. Issue #202 makes P-10 and P-13 `satisfied`
+and closes B-02. Five blockers B-03 through B-07 remain; `v1.0.0` is unready,
+and Issue #203, **Complete canonical Multi-Step phase coverage**, is next. No v1 Release
 title, theme, date, tag, or publication commit is frozen.

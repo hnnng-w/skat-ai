@@ -150,11 +150,22 @@ def build_information_set_search_provenance_entries(
         dependencies: tuple[str, ...] = ()
 
         if tokens and tokens[0] == "requested_budget":
-            origin = "validated_copy"
-            derivation = "validated"
-            references = (
-                _settings_leaf_reference(settings_reference, tokens[-1]),
-            )
+            if settings_reference.field_path == "/information_set_search_settings":
+                origin = "validated_copy"
+                derivation = "validated"
+                references = (
+                    _settings_leaf_reference(settings_reference, tokens[-1]),
+                )
+            else:
+                origin = "rule_derived"
+                derivation = "deterministic_rule"
+                references = (
+                    settings_reference,
+                    _reference(
+                        "rule_contract",
+                        "information_set_budget_profile_conversion_v1",
+                    ),
+                )
         elif tokens and tokens[0] == "fixed_policy_settings":
             origin = "heuristic_analysis"
             derivation = "deterministic_rule"

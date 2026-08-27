@@ -10,12 +10,14 @@ from skat_ai.application.provenance import (
     ApplicationProvenanceBundle,
 )
 from skat_ai.bounded_search_result import build_serializable_bounded_search_result
-from skat_ai.errors import SkatAIInformationPolicyError
+from skat_ai.errors import SkatAIInformationPolicyError, SkatAIValidationError
 from skat_ai.field_provenance import (
     FieldProvenanceEntry,
     FieldProvenanceLedger,
     FieldProvenanceSourceReference,
+    build_json_pointer,
     parse_json_pointer,
+    resolve_json_pointer,
 )
 from skat_ai.field_provenance_coverage import (
     build_field_provenance_coverage_summary,
@@ -42,6 +44,7 @@ from skat_ai.recommendation_workflow import (
 )
 from skat_ai.result_serialization import build_serializable_game_state
 from skat_ai.search_provenance import build_bounded_search_provenance_entries
+from skat_ai.v1_information_provenance_sources import exact_v1_json_equal
 
 RETROSPECTIVE_REVIEW_PROVENANCE_VERSION = 1
 
@@ -247,7 +250,13 @@ def _position_context(*, stage: str) -> InformationUseContext:
     )
 
 
-def _flat_input_entry(path: str, tokens: tuple[str, ...]) -> FieldProvenanceEntry:
+def _flat_input_entry(
+    path: str,
+    tokens: tuple[str, ...],
+    *,
+    source_document: Mapping[str, object],
+    retained_document: Mapping[str, object],
+) -> FieldProvenanceEntry:
     local_private = len(tokens) >= 2 and tokens[:2] in {
         ("game_state", "hand"),
         ("game_state", "skat"),
@@ -261,23 +270,108 @@ def _flat_input_entry(path: str, tokens: tuple[str, ...]) -> FieldProvenanceEntr
         "next_player",
         "trick_leader",
     }
-    if public_event or tokens[0] in {"opponent_hand_sizes", "public_hand_constraints"}:
-        origin = "public_game_event"
-        derivation = "direct"
-        reference = _reference("request", "retrospective_position_public_state")
+    source_declaration = source_document.get("game_declaration")
+    source_matadors = (
+        source_declaration.get("matadors")
+        if isinstance(source_declaration, Mapping)
+        else None
+    )
+    if source_matadors is None:
+        source_matadors = source_document.get("matadors")
+    if local_private:
+        origin = "historical_replay"
+        derivation = "reconstruction"
+        references = (
+            _reference(
+                "request",
+                "retrospective_position_request",
+                field_path=build_json_pointer(tokens[1:]),
+            ),
+            _reference("algorithm", "retrospective_position_analysis"),
+        )
+    elif tokens[0] == "selection":
+        origin = "rule_derived"
+        derivation = "deterministic_rule"
+        references = (
+            _reference("request", "retrospective_position_request"),
+            _reference("request", "position_analysis_options"),
+        )
+    elif tokens == ("game_declaration", "matadors") and type(source_matadors) is not int:
+        origin = "structural_inference"
+        derivation = "exact_aggregate"
+        references = (_reference("algorithm", "position_matador_inference_v1"),)
+    elif public_event or tokens[0] in {
+        "opponent_hand_sizes",
+        "public_hand_constraints",
+    }:
+        if tokens[0] == "opponent_hand_sizes":
+            source_path = f"/{tokens[1]}_hand_size"
+        elif tokens[0] == "game_state":
+            source_path = build_json_pointer(tokens[1:])
+        else:
+            source_path = build_json_pointer(tokens)
+        try:
+            source_value = resolve_json_pointer(source_document, source_path)
+            retained_value = resolve_json_pointer(retained_document, path)
+        except SkatAIValidationError:
+            exact_public_value = False
+        else:
+            exact_public_value = exact_v1_json_equal(source_value, retained_value)
+        if exact_public_value:
+            origin = "public_game_event"
+            derivation = "direct"
+            references = (
+                _reference(
+                    "request",
+                    "retrospective_position_public_state",
+                    field_path=source_path,
+                ),
+            )
+        else:
+            origin = "rule_derived"
+            derivation = "deterministic_rule"
+            references = (
+                _reference("request", "retrospective_position_request"),
+                _reference("algorithm", "retrospective_position_analysis"),
+            )
     else:
-        origin = "validated_copy"
-        derivation = "validated"
-        reference = _reference("request", "retrospective_position_request")
+        source_path = None
+        retained_value = resolve_json_pointer(retained_document, path)
+        for start in range(len(tokens)):
+            candidate = build_json_pointer(tokens[start:])
+            try:
+                source_value = resolve_json_pointer(source_document, candidate)
+            except SkatAIValidationError:
+                continue
+            if exact_v1_json_equal(source_value, retained_value):
+                source_path = candidate
+                break
+        if source_path is not None:
+            origin = "validated_copy"
+            derivation = "validated"
+            references = (
+                _reference(
+                    "request",
+                    "retrospective_position_request",
+                    field_path=source_path,
+                ),
+            )
+        else:
+            origin = "rule_derived"
+            derivation = "deterministic_rule"
+            references = (
+                _reference("request", "retrospective_position_request"),
+                _reference("algorithm", "retrospective_position_analysis"),
+            )
     return _entry(
         path,
         origin=origin,
-        visibility="local_private" if local_private else "public",
-        available_from="current_decision",
+        visibility="post_game_only" if local_private else "public",
+        available_from="game_end" if local_private else "current_decision",
         derivation=derivation,
-        decision_index=0,
+        decision_index=None if local_private else 0,
         perspective_player_id="me",
-        source_references=(reference,),
+        source_references=references,
     )
 
 
@@ -291,6 +385,7 @@ def build_flat_retrospective_input_attachment(
     game_declaration: object,
     selection_method: str,
     selection_settings: Mapping[str, object],
+    source_document: Mapping[str, object],
 ) -> ApplicationProvenanceAttachment:
     """Builds the pre-recommendation flat review input without the actual card."""
     document = {
@@ -322,8 +417,13 @@ def build_flat_retrospective_input_attachment(
         name="flat_retrospective/input",
         document_role="consumed_input",
         document=document,
-        information_use_context=_position_context(stage="decision_time"),
-        entry_builder=_flat_input_entry,
+        information_use_context=_position_context(stage="offline_review"),
+        entry_builder=lambda path, tokens: _flat_input_entry(
+            path,
+            tokens,
+            source_document=source_document,
+            retained_document=document,
+        ),
     )
 
 
@@ -401,7 +501,10 @@ def build_flat_retrospective_result_entries(
 class FlatRetrospectiveProvenanceCollector:
     """Retains flat review stages without rerunning recommendation work."""
 
-    def __init__(self) -> None:
+    def __init__(self, source_document: Mapping[str, object]) -> None:
+        if not isinstance(source_document, Mapping):
+            raise ValueError("source_document must be an object.")
+        self._source_document = source_document
         self._input_attachment: ApplicationProvenanceAttachment | None = None
         self._analysis_document: dict[str, object] | None = None
         self._analysis_results: dict[str, RecommendationWorkflowResult] = {}
@@ -416,6 +519,7 @@ class FlatRetrospectiveProvenanceCollector:
             raise ValueError("Flat retrospective input was captured twice.")
         kwargs.pop("decision_index")
         kwargs.pop("simulation_scope", None)
+        kwargs["source_document"] = self._source_document
         self._input_attachment = build_flat_retrospective_input_attachment(**kwargs)
 
     def retain_flat_recommendation_result(

@@ -56,6 +56,7 @@ from skat_ai.retrospective_review_provenance import (
 from skat_ai.retrospective_search_comparison import (
     build_serializable_search_actual_card_comparison,
 )
+from skat_ai.v1_information_provenance_sources import canonical_v1_external_reference
 
 
 def _serialize_play(play: object) -> dict[str, object]:
@@ -198,20 +199,28 @@ def _historical_input_entry_builder(
             references = (
                 (_reference(
                     "external_record",
-                    external_reference,
+                    canonical_v1_external_reference(external_reference),
                     visibility="engine_private",
                 ),)
                 if external_reference is not None
                 else (_reference("algorithm", "historical_profile_application"),)
             )
         elif tokens and tokens[0] == "effective_review_settings":
-            origin = "validated_copy"
-            derivation = "validated"
-            references = (_reference("request", "historical_review_options"),)
+            if tokens[1] in {"immediate_sample_count", "search_budget_profile"}:
+                origin = "rule_derived"
+                derivation = "deterministic_rule"
+                references = (
+                    _reference("request", "historical_review_options"),
+                    _reference("algorithm", "historical_decision_analysis"),
+                )
+            else:
+                origin = "validated_copy"
+                derivation = "validated"
+                references = (_reference("request", "historical_review_options"),)
         else:
             origin = "historical_replay"
             derivation = "reconstruction"
-            references = (_reference("historical_game", snapshot.source_game_id),)
+            references = (_reference("algorithm", "historical_legal_replay_v1"),)
         return _entry(
             path,
             origin=origin,
@@ -321,7 +330,7 @@ def _summary_entry_builder(
                 decision_index=decision_index,
                 perspective_player_id=row["acting_player_id"],
                 source_references=(
-                    _reference("historical_game", row["source_game_id"]),
+                    _reference("algorithm", "historical_legal_replay_v1"),
                 ),
             )
         if decision_index is not None:
@@ -385,18 +394,33 @@ def _information_set_summary_entry_builder(
             player_id = row["acting_player_id"]
             field_name = tokens[-1]
             if "actual" in field_name:
+                is_actual_card = field_name in {"actual_card", "actual_card_played"}
                 return _entry(
                     path,
-                    origin="retrospective_attachment",
+                    origin=(
+                        "retrospective_attachment" if is_actual_card else "rule_derived"
+                    ),
                     visibility="public",
                     available_from="after_actual_play",
-                    derivation="retrospective",
+                    derivation=(
+                        "retrospective" if is_actual_card else "deterministic_rule"
+                    ),
                     decision_index=decision_index,
                     perspective_player_id=player_id,
                     source_references=(
                         _reference(
                             "retrospective_observation",
                             f"{row['source_game_id']}/{decision_index}",
+                        ),
+                        *(
+                            ()
+                            if is_actual_card
+                            else (
+                                _reference(
+                                    "algorithm",
+                                    "bounded_information_set_policy_search_v1",
+                                ),
+                            )
                         ),
                     ),
                 )
@@ -417,7 +441,7 @@ def _information_set_summary_entry_builder(
                 origin = "rule_derived"
                 derivation = "deterministic_rule"
             else:
-                reference_id = str(row["source_game_id"])
+                reference_id = "retained_historical_decision_snapshots"
                 origin = "historical_replay"
                 derivation = "reconstruction"
             return _entry(
@@ -430,7 +454,7 @@ def _information_set_summary_entry_builder(
                 perspective_player_id=player_id,
                 source_references=(
                     _reference(
-                        "historical_game"
+                        "aggregate"
                         if origin == "historical_replay"
                         else "rule_contract"
                         if "comparison" in tokens
@@ -717,7 +741,7 @@ def _information_set_coaching_report_entry_builder(
                 decision_index=None,
                 perspective_player_id=None,
                 source_references=(
-                    _reference("historical_game", "final_outcome_context"),
+                    _reference("aggregate", "final_outcome_context"),
                 ),
             )
         assessment_context = _information_set_coaching_assessment_context(
@@ -861,17 +885,40 @@ def _information_set_coaching_report_entry_builder(
                 decision_index=None,
                 perspective_player_id=None,
                 source_references=(
-                    _reference("historical_game", "coaching_source_game"),
+                    _reference(
+                        "algorithm",
+                        "historical_information_set_replay_coaching_v1",
+                    ),
                 ),
             )
         if tokens and tokens[0] == "source_review_settings":
             option_paths = {
                 "base_search_seed": "/search_seed",
                 "search_budget_profile": "/search_budget_profile",
-                "requested_budget": "/search_budget_profile",
                 "immediate_sample_count": "/immediate_sample_count",
                 "immediate_base_random_seed": "/immediate_base_random_seed",
             }
+            if tokens[1] == "requested_budget":
+                return _entry(
+                    path,
+                    origin="rule_derived",
+                    visibility="public",
+                    available_from="offline_review",
+                    derivation="deterministic_rule",
+                    decision_index=None,
+                    perspective_player_id=None,
+                    source_references=(
+                        _reference(
+                            "request",
+                            "historical_review_options",
+                            field_path="/search_budget_profile",
+                        ),
+                        _reference(
+                            "rule_contract",
+                            "information_set_budget_profile_conversion_v1",
+                        ),
+                    ),
+                )
             return _entry(
                 path,
                 origin="validated_copy",
@@ -995,6 +1042,7 @@ class HistoricalReviewProvenanceCollector:
         self._search_evidence: dict[int, DecisionTimeReplayCoachingEvidence] = {}
         self._coaching_assessments: dict[int, object] = {}
         self._aggregate_attachments: list[ApplicationProvenanceAttachment] = []
+        self._snapshot_summary_checkpoint: Mapping[str, object] | None = None
 
     def capture_decision_inputs(
         self,
@@ -1131,13 +1179,19 @@ class HistoricalReviewProvenanceCollector:
         }
 
     def capture_snapshot_summary(self, document: Mapping[str, object]) -> None:
-        self._aggregate_attachments.append(
-            build_historical_summary_attachment(
-                name="historical_snapshot_summary",
-                document=document,
-                kind="snapshot",
-            )
+        if self._snapshot_summary_checkpoint is not None:
+            raise ValueError("Historical Snapshot summary was captured twice.")
+        attachment = build_historical_summary_attachment(
+            name="historical_snapshot_summary",
+            document=document,
+            kind="snapshot",
         )
+        self._aggregate_attachments.append(attachment)
+        self._snapshot_summary_checkpoint = attachment.document
+
+    def snapshot_summary_checkpoint(self) -> Mapping[str, object] | None:
+        """Returns the immutable Snapshot summary captured during execution."""
+        return self._snapshot_summary_checkpoint
 
     def capture_immediate_summary(self, document: Mapping[str, object]) -> None:
         self._aggregate_attachments.append(

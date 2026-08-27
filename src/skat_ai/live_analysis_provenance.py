@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-import hashlib
 from collections.abc import Mapping
+from dataclasses import replace
 from typing import Any
 
 from skat_ai.api.v1.contracts import WorkflowV1
@@ -10,7 +10,7 @@ from skat_ai.application.provenance import (
     ApplicationProvenanceBundle,
 )
 from skat_ai.card_selection import VALID_MULTI_STEP_POLICIES
-from skat_ai.errors import SkatAIInformationPolicyError
+from skat_ai.errors import SkatAIInformationPolicyError, SkatAIValidationError
 from skat_ai.field_provenance import (
     FieldProvenanceEntry,
     FieldProvenanceExemption,
@@ -76,6 +76,10 @@ from skat_ai.result_serialization import (
 )
 from skat_ai.search_provenance import build_bounded_search_provenance_entries
 from skat_ai.strategic_metadata import StrategicMetadata, validate_strategic_metadata
+from skat_ai.v1_information_provenance_sources import (
+    canonical_v1_external_reference,
+    exact_v1_json_equal,
+)
 
 LIVE_ANALYSIS_PROVENANCE_VERSION = 1
 
@@ -322,6 +326,7 @@ def build_live_decision_provenance_attachment(
         else _reference("request", "position_analysis_request")
     )
     request_source = _reference("request", "position_analysis_request")
+    options_source = _reference("request", "position_analysis_options")
     public_event_source = (
         _reference("algorithm", "multi_step_public_state")
         if simulation_scope
@@ -332,7 +337,6 @@ def build_live_decision_provenance_attachment(
         "game_type",
         "player_role",
         "player_position",
-        "declarer_player",
     ):
         entries.append(
             _entry(
@@ -344,6 +348,19 @@ def build_live_decision_provenance_attachment(
                 source_references=(state_source,),
             )
         )
+    entries.append(
+        _entry(
+            "/game_state/declarer_player",
+            origin="rule_derived",
+            visibility="public",
+            derivation="deterministic_rule",
+            decision_index=decision_index,
+            source_references=(
+                _reference("request", "position_analysis_request"),
+                _reference("algorithm", "live_position_analysis"),
+            ),
+        )
+    )
     entries.append(
         _entry(
             "/game_state/hand",
@@ -361,7 +378,6 @@ def build_live_decision_provenance_attachment(
         "declarer_points",
         "defender_points",
         "next_player",
-        "trick_leader",
     ):
         entries.append(
             _entry(
@@ -373,6 +389,19 @@ def build_live_decision_provenance_attachment(
                 source_references=(public_event_source,),
             )
         )
+    entries.append(
+        _entry(
+            "/game_state/trick_leader",
+            origin="rule_derived",
+            visibility="public",
+            derivation="deterministic_rule",
+            decision_index=decision_index,
+            source_references=(
+                public_event_source,
+                _reference("algorithm", "live_position_analysis"),
+            ),
+        )
+    )
     exemptions: tuple[FieldProvenanceExemption, ...] = ()
     if state.skat:
         entries.append(
@@ -395,13 +424,28 @@ def build_live_decision_provenance_attachment(
         )
     entries.extend(
         (
-            _entry(
-                "/opponent_hand_sizes",
-                origin="public_game_event",
-                visibility="public",
-                derivation="direct",
-                decision_index=decision_index,
-                source_references=(public_event_source,),
+            *(
+                _entry(
+                    f"/opponent_hand_sizes/{side}",
+                    origin=(
+                        "simulation_derived" if simulation_scope else "public_game_event"
+                    ),
+                    visibility="public",
+                    derivation="direct",
+                    decision_index=decision_index,
+                    source_references=(
+                        (public_event_source,)
+                        if simulation_scope
+                        else (
+                            _reference(
+                                "request",
+                                "position_analysis_request",
+                                field_path=f"/{side}_hand_size",
+                            ),
+                        )
+                    ),
+                )
+                for side in ("left", "right")
             ),
             _entry(
                 "/public_hand_constraints",
@@ -415,27 +459,37 @@ def build_live_decision_provenance_attachment(
             ),
             _entry(
                 "/strategic_metadata",
-                origin="validated_copy",
+                origin="rule_derived",
                 visibility="public",
-                derivation="validated",
+                derivation="deterministic_rule",
                 decision_index=decision_index,
                 source_references=(request_source,),
             ),
             _entry(
                 "/game_declaration",
-                origin="validated_copy",
+                origin="rule_derived",
                 visibility="public",
-                derivation="validated",
+                derivation="deterministic_rule",
                 decision_index=decision_index,
-                source_references=(request_source,),
+                source_references=(
+                    request_source,
+                    _reference(
+                        "rule_contract",
+                        "canonical_declaration_dependencies_v1",
+                    ),
+                ),
             ),
             _entry(
                 "/selection",
-                origin="validated_copy",
+                origin="simulation_derived" if simulation_scope else "rule_derived",
                 visibility="public",
-                derivation="validated",
+                derivation="direct" if simulation_scope else "deterministic_rule",
                 decision_index=decision_index,
-                source_references=(request_source,),
+                source_references=(
+                    (state_source,)
+                    if simulation_scope
+                    else (request_source, options_source)
+                ),
             ),
         )
     )
@@ -485,14 +539,10 @@ def _external_reference(
 ) -> tuple[FieldProvenanceSourceReference, ...]:
     if opaque_reference is None:
         return ()
-    reference_id = opaque_reference
-    if not reference_id or reference_id != reference_id.strip():
-        digest = hashlib.sha256(reference_id.encode("utf-8")).hexdigest()
-        reference_id = f"external-reference-sha256:{digest}"
     return (
         _reference(
             "external_record",
-            reference_id,
+            canonical_v1_external_reference(opaque_reference),
             visibility="engine_private",
         ),
     )
@@ -646,6 +696,7 @@ def _generic_result_entry(
     profile_dependencies_by_side: Mapping[str, tuple[str, ...]],
     external_reference: str | None,
     decision_index: int,
+    source_document: Mapping[str, object] | None,
 ) -> FieldProvenanceEntry:
     top = tokens[0]
     origin = "simulation_derived"
@@ -670,35 +721,124 @@ def _generic_result_entry(
             "declarer_points",
             "defender_points",
             "next_player",
-            "trick_leader",
         }:
             origin = "public_game_event"
             references = (_reference("request", "position_public_game_events"),)
         else:
-            origin = "validated_copy"
-            derivation = "validated"
-            references = (_reference("request", "position_analysis_request"),)
+            source_path = build_json_pointer(tokens[1:])
+            try:
+                source_value = (
+                    resolve_json_pointer(source_document, source_path)
+                    if source_document is not None
+                    else None
+                )
+                retained_value = resolve_json_pointer(result, path)
+            except SkatAIValidationError:
+                exact_request_value = False
+            else:
+                exact_request_value = exact_v1_json_equal(
+                    source_value,
+                    retained_value,
+                )
+            if exact_request_value:
+                origin = "validated_copy"
+                derivation = "validated"
+                references = (
+                    _reference(
+                        "request",
+                        "position_analysis_request",
+                        field_path=source_path,
+                    ),
+                )
+            else:
+                origin = "rule_derived"
+                derivation = "deterministic_rule"
+                references = (
+                    _reference("request", "position_analysis_request"),
+                    _reference("algorithm", "live_position_analysis"),
+                )
+        if (
+            len(tokens) >= 2
+            and tokens[1] in {"hand", "skat"}
+            and source_document is not None
+            and isinstance(result.get("position"), Mapping)
+            and result["position"].get(tokens[1]) != source_document.get(tokens[1])
+        ):
+            origin = "rule_derived"
+            derivation = "deterministic_rule"
+            references = (
+                _reference("request", "position_analysis_request"),
+                _reference("algorithm", "live_position_analysis"),
+            )
     elif top in {
         "settings",
         "profile_preset_settings",
-        "analysis_metadata",
-        "game_declaration",
     }:
-        origin = "validated_copy"
-        derivation = "validated"
+        source_path = build_json_pointer(tokens[1:])
+        try:
+            source_value = (
+                resolve_json_pointer(source_document, source_path)
+                if source_document is not None
+                else None
+            )
+            retained_value = resolve_json_pointer(result, path)
+        except SkatAIValidationError:
+            exact_request_value = False
+        else:
+            exact_request_value = source_value == retained_value
+        if exact_request_value:
+            origin = "validated_copy"
+            derivation = "validated"
+            references = (
+                _reference(
+                    "request",
+                    "position_analysis_request",
+                    field_path=source_path,
+                ),
+            )
+        else:
+            origin = "rule_derived"
+            derivation = "deterministic_rule"
+            references = (
+                _reference("request", "position_analysis_request"),
+                _reference("request", "position_analysis_options"),
+            )
+    elif top == "analysis_metadata":
+        retained_value = resolve_json_pointer(result, path)
         source_path = None
-        if (
-            top == "settings"
-            and len(tokens) >= 3
-            and tokens[1] == "information_set_search_settings"
-        ):
-            source_path = build_json_pointer(tokens[1:])
+        if source_document is not None:
+            for start in range(1, len(tokens)):
+                candidate = build_json_pointer(tokens[start:])
+                try:
+                    source_value = resolve_json_pointer(source_document, candidate)
+                except SkatAIValidationError:
+                    continue
+                if exact_v1_json_equal(source_value, retained_value):
+                    source_path = candidate
+                    break
+        if source_path is not None:
+            origin = "validated_copy"
+            derivation = "validated"
+            references = (
+                _reference(
+                    "request",
+                    "position_analysis_request",
+                    field_path=source_path,
+                ),
+            )
+        else:
+            origin = "rule_derived"
+            derivation = "deterministic_rule"
+            references = (
+                _reference("request", "position_analysis_request"),
+                _reference("algorithm", "live_position_analysis"),
+            )
+    elif top == "game_declaration":
+        origin = "rule_derived"
+        derivation = "deterministic_rule"
         references = (
-            _reference(
-                "request",
-                "position_analysis_request",
-                field_path=source_path,
-            ),
+            _reference("request", "position_analysis_request"),
+            _reference("rule_contract", "canonical_declaration_dependencies_v1"),
         )
     elif top in {
         "opponent_policy_settings",
@@ -975,6 +1115,10 @@ def build_live_position_result_provenance_attachment(
     profile_dependencies = _profile_dependencies_by_side(result, leaf_paths)
     registered_additional_entries = dict(additional_entries_by_path or {})
     registered_search_entries = dict(search_entries_by_path or {})
+    post_game_review = (
+        source_document is not None
+        and source_document.get("analysis_mode") == "post_game_review"
+    )
     registered_entries = {**registered_search_entries}
     for additional_path, additional_entry in registered_additional_entries.items():
         if additional_path in registered_entries:
@@ -1026,6 +1170,7 @@ def build_live_position_result_provenance_attachment(
                     path,
                     tokens_by_path[path],
                 ),
+                source_document=source_document,
             )
         )
     unused_registered_paths = sorted(
@@ -1036,6 +1181,60 @@ def build_live_position_result_provenance_attachment(
             "Registered Search provenance paths were not consumed: "
             f"{unused_registered_paths}"
         )
+    if post_game_review:
+        entries = [
+            replace(
+                entry,
+                visibility=(
+                    "post_game_only"
+                    if entry.visibility == "local_private"
+                    else entry.visibility
+                ),
+                available_from=(
+                    "game_end"
+                    if entry.visibility == "local_private"
+                    else entry.available_from
+                ),
+                available_from_decision_index=(
+                    None
+                    if entry.visibility == "local_private"
+                    else entry.available_from_decision_index
+                ),
+                available_from_event_index=(
+                    None
+                    if entry.visibility == "local_private"
+                    else entry.available_from_event_index
+                ),
+            )
+            for entry in entries
+        ]
+        game_end_paths = {
+            entry.field_path for entry in entries if entry.available_from == "game_end"
+        }
+        while True:
+            promoted_paths = {
+                entry.field_path
+                for entry in entries
+                if entry.available_from != "game_end"
+                and any(
+                    dependency in game_end_paths
+                    for dependency in entry.dependency_paths
+                )
+            }
+            if not promoted_paths:
+                break
+            entries = [
+                replace(
+                    entry,
+                    available_from="game_end",
+                    available_from_decision_index=None,
+                    available_from_event_index=None,
+                )
+                if entry.field_path in promoted_paths
+                else entry
+                for entry in entries
+            ]
+            game_end_paths.update(promoted_paths)
     ledger = FieldProvenanceLedger(
         status="complete",
         entries=tuple(entries),

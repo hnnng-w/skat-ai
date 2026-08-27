@@ -8,7 +8,11 @@ from skat_ai.application.provenance import (
     ApplicationProvenanceAttachment,
     ApplicationProvenanceBundle,
 )
-from skat_ai.field_provenance import FieldProvenanceEntry, FieldProvenanceSourceReference
+from skat_ai.field_provenance import (
+    FieldProvenanceEntry,
+    FieldProvenanceSourceReference,
+    build_json_pointer,
+)
 from skat_ai.field_provenance_coverage import enumerate_json_leaf_paths
 from skat_ai.field_provenance_policy import InformationUseContext
 from skat_ai.information_set_search_provenance import (
@@ -48,7 +52,7 @@ def _context(
 
 
 def _source_reference(record_index: int) -> FieldProvenanceSourceReference:
-    return _reference("external_record", f"training_dataset_record/{record_index}")
+    return _reference("request", f"training_dataset_record/{record_index}")
 
 
 def _offline_entry_builder(
@@ -56,12 +60,13 @@ def _offline_entry_builder(
     *,
     origin: str = "historical_aggregation",
     derivation: str = "exact_aggregate",
+    visibility: str = "public",
 ):
     def build(path: str, _tokens: tuple[str, ...]) -> FieldProvenanceEntry:
         return _entry(
             path,
             origin=origin,
-            visibility="public",
+            visibility=visibility,
             available_from="offline_review",
             derivation=derivation,
             decision_index=None,
@@ -151,6 +156,7 @@ def _build_record_attachment(
             _source_reference(record_index),
             origin="external_source",
             derivation="validated",
+            visibility="post_game_only",
         ),
     )
 
@@ -164,7 +170,7 @@ def _build_feature_attachment(
     side: str,
     document: Mapping[str, object],
 ) -> ApplicationProvenanceAttachment:
-    game_reference = _reference("historical_game", game_id)
+    game_reference = _reference("algorithm", "training_dataset_summary")
 
     def build(path: str, tokens: tuple[str, ...]) -> FieldProvenanceEntry:
         root = tokens[0] if tokens else ""
@@ -215,17 +221,27 @@ def _build_target_attachment(
     side: str,
     document: Mapping[str, object],
 ) -> ApplicationProvenanceAttachment:
-    def build(path: str, _tokens: tuple[str, ...]) -> FieldProvenanceEntry:
+    def build(path: str, tokens: tuple[str, ...]) -> FieldProvenanceEntry:
+        is_observed_card = tokens == ("card",)
         return _entry(
             path,
-            origin="retrospective_attachment",
+            origin=(
+                "retrospective_attachment" if is_observed_card else "rule_derived"
+            ),
             visibility="public",
-            available_from="after_actual_play",
-            derivation="retrospective",
+            available_from="after_actual_play" if is_observed_card else "request_start",
+            derivation="retrospective" if is_observed_card else "deterministic_rule",
             decision_index=decision_index,
             perspective_player_id=player_id,
             source_references=(
-                _reference("retrospective_observation", f"{game_id}/{decision_index}"),
+                _reference(
+                    "retrospective_observation" if is_observed_card else "rule_contract",
+                    (
+                        f"{game_id}/{decision_index}"
+                        if is_observed_card
+                        else "training_target_actual_card_played_v1"
+                    ),
+                ),
             ),
         )
 
@@ -373,6 +389,45 @@ def _rolling_attachments(
                     entry_builder=prediction_entry,
                 )
             )
+
+            def actual_entry(
+                path: str,
+                tokens: tuple[str, ...],
+                *,
+                current_decision_index: int = decision_index,
+                current_player_id: str = player_id,
+                current_game_id: str = str(target["game_id"]),
+            ) -> FieldProvenanceEntry:
+                is_actual_card = bool(tokens and tokens[-1] == "actual_card")
+                references = (
+                    _reference(
+                        "retrospective_observation",
+                        f"{current_game_id}/{current_decision_index}",
+                    ),
+                )
+                if not is_actual_card:
+                    references = (
+                        *references,
+                        _reference(
+                            "algorithm",
+                            "training_dataset_rolling_opponent_policy_evaluation",
+                        ),
+                    )
+                return _entry(
+                    path,
+                    origin=(
+                        "retrospective_attachment" if is_actual_card else "rule_derived"
+                    ),
+                    visibility="public",
+                    available_from="after_actual_play",
+                    derivation=(
+                        "retrospective" if is_actual_card else "deterministic_rule"
+                    ),
+                    decision_index=current_decision_index,
+                    perspective_player_id=current_player_id,
+                    source_references=references,
+                )
+
             attachments.append(
                 build_complete_provenance_attachment(
                     name=f"training_dataset/rolling/{target_index}/{decision_index}/actual",
@@ -384,20 +439,7 @@ def _rolling_attachments(
                         side=side,
                         decision_index=decision_index,
                     ),
-                    entry_builder=_fixed_entry_builder(
-                        origin="retrospective_attachment",
-                        visibility="public",
-                        available_from="after_actual_play",
-                        derivation="retrospective",
-                        decision_index=decision_index,
-                        player_id=player_id,
-                        references=(
-                            _reference(
-                                "retrospective_observation",
-                                f"{target['game_id']}/{decision_index}",
-                            ),
-                        ),
-                    ),
+                    entry_builder=actual_entry,
                 )
             )
     return attachments
@@ -581,8 +623,12 @@ def _search_attachments(
                         player_id=player_id,
                         references=(
                             _reference(
-                                "historical_game" if stage == "input" else "algorithm",
-                                game_id if stage == "input" else f"bounded_search_{stage}",
+                                "algorithm",
+                                (
+                                    "training_dataset_bounded_search_evaluation"
+                                    if stage == "input"
+                                    else f"bounded_search_{stage}"
+                                ),
                             ),
                         ),
                     )
@@ -625,6 +671,48 @@ def _search_attachments(
             )
             retrospective = decision["search_actual_card_comparison"]
             assert isinstance(retrospective, Mapping)
+
+            def retrospective_entry(
+                path: str,
+                tokens: tuple[str, ...],
+                *,
+                current_decision_index: int = decision_index,
+                current_player_id: str = player_id,
+                current_game_id: str = game_id,
+            ) -> FieldProvenanceEntry:
+                is_actual_card = bool(
+                    tokens and tokens[-1] in {"actual_card", "actual_card_played"}
+                )
+                return _entry(
+                    path,
+                    origin=(
+                        "retrospective_attachment" if is_actual_card else "rule_derived"
+                    ),
+                    visibility="public",
+                    available_from="after_actual_play",
+                    derivation=(
+                        "retrospective" if is_actual_card else "deterministic_rule"
+                    ),
+                    decision_index=current_decision_index,
+                    perspective_player_id=current_player_id,
+                    source_references=(
+                        _reference(
+                            "retrospective_observation",
+                            f"{current_game_id}/{current_decision_index}",
+                        ),
+                        *(
+                            ()
+                            if is_actual_card
+                            else (
+                                _reference(
+                                    "algorithm",
+                                    "retrospective_search_comparison",
+                                ),
+                            )
+                        ),
+                    ),
+                )
+
             attachments.append(
                 build_complete_provenance_attachment(
                     name=(f"training_dataset/search/{record_index}/{decision_index}/retrospective"),
@@ -636,21 +724,7 @@ def _search_attachments(
                         side=side,
                         decision_index=decision_index,
                     ),
-                    entry_builder=_fixed_entry_builder(
-                        origin="retrospective_attachment",
-                        visibility="public",
-                        available_from="after_actual_play",
-                        derivation="retrospective",
-                        decision_index=decision_index,
-                        player_id=player_id,
-                        references=(
-                            _reference("algorithm", "retrospective_search_comparison"),
-                            _reference(
-                                "retrospective_observation",
-                                f"{game_id}/{decision_index}",
-                            ),
-                        ),
-                    ),
+                    entry_builder=retrospective_entry,
                 )
             )
     return attachments
@@ -707,7 +781,12 @@ def _information_set_search_attachments(
                         derivation="reconstruction",
                         decision_index=decision_index,
                         player_id=player_id,
-                        references=(_reference("historical_game", game_id),),
+                        references=(
+                            _reference(
+                                "algorithm",
+                                "training_dataset_information_set_search_evaluation",
+                            ),
+                        ),
                     ),
                 )
             )
@@ -917,18 +996,33 @@ def _information_set_evaluation_entry(
         game_id = str(decision["source_game_id"])
         field_name = tokens[-1]
         if "actual" in field_name:
+            is_actual_card = field_name in {"actual_card", "actual_card_played"}
             return _entry(
                 path,
-                origin="retrospective_attachment",
+                origin=(
+                    "retrospective_attachment" if is_actual_card else "rule_derived"
+                ),
                 visibility="public",
                 available_from="after_actual_play",
-                derivation="retrospective",
+                derivation=(
+                    "retrospective" if is_actual_card else "deterministic_rule"
+                ),
                 decision_index=decision_index,
                 perspective_player_id=player_id,
                 source_references=(
                     _reference(
                         "retrospective_observation",
                         f"{game_id}/{decision_index}",
+                    ),
+                    *(
+                        ()
+                        if is_actual_card
+                        else (
+                            _reference(
+                                "algorithm",
+                                "bounded_information_set_policy_search_v1",
+                            ),
+                        )
                     ),
                 ),
             )
@@ -986,7 +1080,12 @@ def _information_set_evaluation_entry(
         else:
             origin = "historical_replay"
             derivation = "reconstruction"
-            references = (_reference("historical_game", game_id),)
+            references = (
+                _reference(
+                    "algorithm",
+                    "training_dataset_information_set_search_evaluation",
+                ),
+            )
         return _entry(
             path,
             origin=origin,
@@ -999,6 +1098,9 @@ def _information_set_evaluation_entry(
         )
 
     if tokens and tokens[0] == "source_dataset":
+        source_tokens = tokens[1:]
+        if source_tokens[:1] == ("training_dataset_schema_version",):
+            source_tokens = ("schema_version", *source_tokens[1:])
         return _entry(
             path,
             origin="validated_copy",
@@ -1008,7 +1110,11 @@ def _information_set_evaluation_entry(
             decision_index=None,
             perspective_player_id=None,
             source_references=(
-                _reference("request", "training_dataset_input"),
+                _reference(
+                    "request",
+                    "training_dataset_input",
+                    field_path=build_json_pointer(source_tokens),
+                ),
             ),
         )
     if len(tokens) >= 2 and tokens[0] == "settings":
@@ -1144,34 +1250,49 @@ def _operation_entry_builder(operation: str, summary: Mapping[str, object]):
                         ),
                     )
                 elif len(tokens) >= 5 and tokens[4] == "label":
-                    origin = "retrospective_attachment"
-                    derivation = "retrospective"
-                    availability = "after_actual_play"
+                    is_observed_card = len(tokens) >= 6 and tokens[5] == "card"
+                    origin = (
+                        "retrospective_attachment" if is_observed_card else "rule_derived"
+                    )
+                    derivation = (
+                        "retrospective" if is_observed_card else "deterministic_rule"
+                    )
+                    availability = (
+                        "after_actual_play" if is_observed_card else "request_start"
+                    )
                     visibility = "public"
                     references = (
                         _reference(
-                            "retrospective_observation",
-                            f"training_target/{record_index}/{decision_index}",
+                            (
+                                "retrospective_observation"
+                                if is_observed_card
+                                else "rule_contract"
+                            ),
+                            (
+                                f"training_target/{record_index}/{decision_index}"
+                                if is_observed_card
+                                else "training_target_actual_card_played_v1"
+                            ),
                         ),
                     )
             elif tokens[2] == "historical_game":
                 origin = "external_source"
                 derivation = "validated"
-                availability = "game_end"
+                availability = "offline_review"
                 references = (_source_reference(record_index),)
             else:
                 references = (_source_reference(record_index),)
         elif operation == "rolling_opponent_policy_evaluation":
-            actual_names = {
-                "actual_card",
+            comparison_names = {
                 "exact_card_match",
                 "preferred_card_match",
                 "preferred_comparison_outcome",
                 "exact_comparison_outcome",
             }
-            if actual_names.intersection(tokens):
-                origin = "retrospective_attachment"
-                derivation = "retrospective"
+            if "actual_card" in tokens or comparison_names.intersection(tokens):
+                direct_actual = "actual_card" in tokens
+                origin = "retrospective_attachment" if direct_actual else "rule_derived"
+                derivation = "retrospective" if direct_actual else "deterministic_rule"
                 availability = "after_actual_play" if "decisions" in tokens else "offline_review"
                 visibility = "public" if availability == "after_actual_play" else visibility
                 if "decisions" in tokens:
@@ -1181,6 +1302,20 @@ def _operation_entry_builder(operation: str, summary: Mapping[str, object]):
                         int(tokens[decision_position + 1])
                     ]
                     decision_index = int(decision["decision_index"])
+                    references = (
+                        _reference(
+                            "retrospective_observation",
+                            f"{decision['game_id']}/{decision_index}",
+                        ),
+                    )
+                    if not direct_actual:
+                        references = (
+                            *references,
+                            _reference(
+                                "algorithm",
+                                "training_dataset_rolling_opponent_policy_evaluation",
+                            ),
+                        )
             elif "decisions" in tokens:
                 origin = "heuristic_analysis"
                 derivation = "heuristic"
@@ -1200,11 +1335,31 @@ def _operation_entry_builder(operation: str, summary: Mapping[str, object]):
                     int(tokens[decision_position + 1])
                 ]
                 decision_index = int(decision["decision_index"])
-                if "actual_card" in tokens or "search_actual_card_comparison" in tokens:
+                source_game_id = str(decision["source_game_id"])
+                is_actual_card = tokens[-1] in {"actual_card", "actual_card_played"}
+                if is_actual_card:
                     origin = "retrospective_attachment"
                     derivation = "retrospective"
                     availability = "after_actual_play"
                     visibility = "public"
+                    references = (
+                        _reference(
+                            "retrospective_observation",
+                            f"{source_game_id}/{decision_index}",
+                        ),
+                    )
+                elif "search_actual_card_comparison" in tokens:
+                    origin = "rule_derived"
+                    derivation = "deterministic_rule"
+                    availability = "after_actual_play"
+                    visibility = "public"
+                    references = (
+                        _reference(
+                            "retrospective_observation",
+                            f"{source_game_id}/{decision_index}",
+                        ),
+                        _reference("algorithm", "retrospective_search_comparison"),
+                    )
                 elif "immediate_baseline" in tokens:
                     origin = "heuristic_analysis"
                     derivation = "heuristic"

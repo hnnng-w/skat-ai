@@ -7,7 +7,12 @@ from skat_ai.application.provenance import (
     ApplicationProvenanceAttachment,
     ApplicationProvenanceBundle,
 )
-from skat_ai.field_provenance import FieldProvenanceEntry, FieldProvenanceSourceReference
+from skat_ai.errors import SkatAIValidationError
+from skat_ai.field_provenance import (
+    FieldProvenanceEntry,
+    FieldProvenanceSourceReference,
+    resolve_json_pointer,
+)
 from skat_ai.field_provenance_policy import InformationUseContext
 from skat_ai.fixed_three_player_historical_list import (
     build_serializable_fixed_three_player_historical_list,
@@ -26,6 +31,7 @@ from skat_ai.retrospective_review_provenance import (
     _reference,
     build_complete_provenance_attachment,
 )
+from skat_ai.v1_information_provenance_sources import exact_v1_json_equal
 
 HISTORICAL_LIST_PROVENANCE_VERSION = 1
 
@@ -100,19 +106,52 @@ def _list_entry(
 def _input_attachment(
     request: FixedThreePlayerHistoricalListAnalysisRequest,
     *,
+    source_document: Mapping[str, object],
     name: str = "historical_list/input",
     workflow: str = "fixed_three_player_historical_list",
 ) -> ApplicationProvenanceAttachment:
     list_id = request.historical_list.list_id
+    document = _serialize_request(request)
 
     def build(path: str, tokens: tuple[str, ...]) -> FieldProvenanceEntry:
-        references = (_list_reference(list_id),)
-        if tokens and tokens[0] == "lot_order":
+        try:
+            source_value = resolve_json_pointer(source_document, path)
+            retained_value = resolve_json_pointer(document, path)
+        except SkatAIValidationError:
+            exact_source = False
+        else:
+            exact_source = exact_v1_json_equal(source_value, retained_value)
+        if exact_source and tokens and tokens[0] == "historical_list":
+            references = (
+                FieldProvenanceSourceReference(
+                    reference_type="external_record",
+                    reference_id=f"historical_list/{list_id}",
+                    field_path=path,
+                    visibility="public",
+                ),
+            )
+            origin = "validated_copy"
+            derivation = "validated"
+        elif exact_source:
+            references = (
+                FieldProvenanceSourceReference(
+                    reference_type="request",
+                    reference_id="historical_list_input",
+                    field_path=path,
+                    visibility="public",
+                ),
+            )
             origin = "caller_supplied"
             derivation = "direct"
         else:
-            origin = "validated_copy"
-            derivation = "validated"
+            references = (
+                _reference(
+                    "rule_contract",
+                    "fixed_three_player_historical_list_normalization_v1",
+                ),
+            )
+            origin = "rule_derived"
+            derivation = "deterministic_rule"
         return _list_entry(
             path,
             origin=origin,
@@ -123,7 +162,7 @@ def _input_attachment(
     return build_complete_provenance_attachment(
         name=name,
         document_role="consumed_input",
-        document=_serialize_request(request),
+        document=document,
         information_use_context=_context(workflow),
         entry_builder=build,
     )
@@ -142,6 +181,41 @@ def _entry_fact_attachment(
     source_references = tuple(references)
 
     def build(path: str, tokens: tuple[str, ...]) -> FieldProvenanceEntry:
+        direct_references: tuple[FieldProvenanceSourceReference, ...] | None = None
+        if tokens in {("entry_id",), ("entry_kind",), ("played_at",)}:
+            source_path = (
+                "/historical_game/played_at"
+                if tokens == ("played_at",) and fact.game_id is not None
+                else path
+            )
+            direct_references = (
+                FieldProvenanceSourceReference(
+                    reference_type="external_record",
+                    reference_id=(
+                        f"historical_list/{aggregation.list_id}/entry/{fact.entry_number}"
+                    ),
+                    field_path=source_path,
+                    visibility="public",
+                ),
+            )
+        elif tokens == ("list_id",):
+            direct_references = (
+                FieldProvenanceSourceReference(
+                    reference_type="external_record",
+                    reference_id=f"historical_list/{aggregation.list_id}",
+                    field_path="/historical_list/list_id",
+                    visibility="public",
+                ),
+            )
+        elif tokens == ("game_id",) and fact.game_id is not None:
+            direct_references = (
+                FieldProvenanceSourceReference(
+                    reference_type="historical_game",
+                    reference_id=fact.game_id,
+                    field_path="/game_id",
+                    visibility="public",
+                ),
+            )
         rule_derived = bool(
             tokens
             and tokens[0]
@@ -166,21 +240,29 @@ def _entry_fact_attachment(
         return _list_entry(
             path,
             origin=(
-                "rule_derived"
+                "validated_copy"
+                if direct_references is not None
+                else "rule_derived"
                 if rule_derived
                 else "historical_aggregation"
                 if outcome
-                else "validated_copy"
+                else "rule_derived"
             ),
             derivation=(
-                "deterministic_rule"
+                "validated"
+                if direct_references is not None
+                else "deterministic_rule"
                 if rule_derived
                 else "exact_aggregate"
                 if outcome
-                else "validated"
+                else "deterministic_rule"
             ),
-            references=source_references,
-            availability="game_end" if fact.game_id is not None else "offline_review",
+            references=(
+                direct_references
+                if direct_references is not None
+                else source_references
+            ),
+            availability="offline_review",
         )
 
     return build_complete_provenance_attachment(
@@ -309,7 +391,14 @@ def _aggregation_entry_builder(
         elif tokens and tokens[0] == "applied_lot_order":
             origin = "caller_supplied"
             derivation = "direct"
-            references = (_list_reference(list_id),)
+            references = (
+                FieldProvenanceSourceReference(
+                    reference_type="request",
+                    reference_id="historical_list_input",
+                    field_path="/lot_order",
+                    visibility="public",
+                ),
+            )
         elif len(tokens) >= 3 and tokens[0] == "final_standings":
             standing_index = int(tokens[1])
             standings = document["final_standings"]
@@ -431,11 +520,13 @@ class HistoricalListProvenanceCollector:
     def build_bundle(
         self,
         root_result: Mapping[str, object],
+        *,
+        source_document: Mapping[str, object],
     ) -> ApplicationProvenanceBundle:
         if self._request is None or self._aggregation is None:
             raise ValueError("Historical-list provenance did not capture its values.")
         attachments: list[ApplicationProvenanceAttachment] = [
-            _input_attachment(self._request),
+            _input_attachment(self._request, source_document=source_document),
             *(
                 _entry_fact_attachment(self._aggregation, source_index)
                 for source_index in range(len(self._aggregation.progression))
@@ -456,18 +547,44 @@ class HistoricalListProvenanceCollector:
 
 def _comparison_input_attachment(
     request: FixedThreePlayerHistoricalListComparisonRequest,
+    *,
+    source_document: Mapping[str, object],
 ) -> ApplicationProvenanceAttachment:
+    document = _serialize_comparison_request(request)
+
+    def build(path: str, _tokens: tuple[str, ...]) -> FieldProvenanceEntry:
+        try:
+            source_value = resolve_json_pointer(source_document, path)
+            retained_value = resolve_json_pointer(document, path)
+        except SkatAIValidationError:
+            exact_source = False
+        else:
+            exact_source = exact_v1_json_equal(source_value, retained_value)
+        return _list_entry(
+            path,
+            origin="validated_copy" if exact_source else "rule_derived",
+            derivation="validated" if exact_source else "deterministic_rule",
+            references=(
+                FieldProvenanceSourceReference(
+                    reference_type="request",
+                    reference_id="historical_list_comparison_input",
+                    field_path=path,
+                    visibility="public",
+                )
+                if exact_source
+                else _reference(
+                    "rule_contract",
+                    "fixed_three_player_historical_list_normalization_v1",
+                ),
+            ),
+        )
+
     return build_complete_provenance_attachment(
         name="historical_list_comparison/input",
         document_role="consumed_input",
-        document=_serialize_comparison_request(request),
+        document=document,
         information_use_context=_context("fixed_three_player_historical_list_comparison"),
-        entry_builder=lambda path, _tokens: _list_entry(
-            path,
-            origin="validated_copy",
-            derivation="validated",
-            references=(_reference("request", "historical_list_comparison_input"),),
-        ),
+        entry_builder=build,
     )
 
 
@@ -562,6 +679,8 @@ class HistoricalListComparisonProvenanceCollector:
     def build_bundle(
         self,
         root_result: Mapping[str, object],
+        *,
+        source_document: Mapping[str, object],
     ) -> ApplicationProvenanceBundle:
         if self._request is None:
             raise ValueError("Historical-list comparison provenance captured no request.")
@@ -572,7 +691,10 @@ class HistoricalListComparisonProvenanceCollector:
         assert isinstance(sources, list)
         assert isinstance(pairs, list)
         attachments: list[ApplicationProvenanceAttachment] = [
-            _comparison_input_attachment(self._request),
+            _comparison_input_attachment(
+                self._request,
+                source_document=source_document,
+            ),
             *(
                 _comparison_source_attachment(source_index, source)
                 for source_index, source in enumerate(sources)

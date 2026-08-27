@@ -199,20 +199,20 @@ def execute_historical_game_workflow(
         or options.historical_tactical_motif_review
     ):
         snapshot_summary = dependencies.build_snapshots(historical_game_summary)
+        serialized_snapshot_summary = (
+            build_serializable_historical_decision_snapshot_summary(snapshot_summary)
+        )
         if provenance_collector is not None:
             provenance_collector.capture_decision_inputs(
                 snapshot_summary,
                 effective_review_settings=(_build_effective_review_provenance_settings(options)),
             )
+            if snapshot_summary.snapshots or options.decision_snapshots:
+                provenance_collector.capture_snapshot_summary(serialized_snapshot_summary)
     if options.decision_snapshots:
-        if snapshot_summary is None:
+        if snapshot_summary is None or serialized_snapshot_summary is None:
             raise ValueError("Historical decision snapshots were not generated.")
-        serialized_snapshot_summary = build_serializable_historical_decision_snapshot_summary(
-            snapshot_summary
-        )
         historical_game_summary["decision_snapshot_summary"] = serialized_snapshot_summary
-        if provenance_collector is not None:
-            provenance_collector.capture_snapshot_summary(serialized_snapshot_summary)
     if options.immediate_review:
         if snapshot_summary is None:
             raise ValueError("Historical decision snapshots were not generated.")

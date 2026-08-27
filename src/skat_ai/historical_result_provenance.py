@@ -3,11 +3,13 @@ from __future__ import annotations
 from collections.abc import Mapping
 
 from skat_ai.application.provenance import ApplicationProvenanceAttachment
-from skat_ai.errors import SkatAIInformationPolicyError
+from skat_ai.errors import SkatAIInformationPolicyError, SkatAIValidationError
 from skat_ai.field_provenance import (
     FieldProvenanceEntry,
     FieldProvenanceLedger,
+    build_json_pointer,
     parse_json_pointer,
+    resolve_json_pointer,
 )
 from skat_ai.field_provenance_coverage import (
     build_field_provenance_coverage_summary,
@@ -25,6 +27,7 @@ from skat_ai.settlement_result_provenance import (
     result_provenance_entry,
     result_source_reference,
 )
+from skat_ai.v1_information_provenance_sources import canonical_v1_external_reference
 
 HISTORICAL_RESULT_KEYS = frozenset(
     {
@@ -258,7 +261,7 @@ def _review_entry(
             (
                 result_source_reference(
                     "external_record",
-                    external_reference,
+                    canonical_v1_external_reference(external_reference),
                     visibility="engine_private",
                 ),
             )
@@ -370,7 +373,7 @@ def _review_entry(
                 derivation="deterministic_rule",
                 source_references=(
                     result_source_reference(
-                        "historical_game",
+                        "aggregate",
                         "final_outcome_context",
                     ),
                 ),
@@ -513,8 +516,8 @@ def _review_entry(
                 derivation="reconstruction",
                 source_references=(
                     result_source_reference(
-                        "historical_game",
-                        "coaching_source_game",
+                        "algorithm",
+                        "historical_information_set_replay_coaching_v1",
                     ),
                 ),
             )
@@ -522,10 +525,28 @@ def _review_entry(
             option_paths = {
                 "base_search_seed": "/search_seed",
                 "search_budget_profile": "/search_budget_profile",
-                "requested_budget": "/search_budget_profile",
                 "immediate_sample_count": "/immediate_sample_count",
                 "immediate_base_random_seed": "/immediate_base_random_seed",
             }
+            if report_tokens[1] == "requested_budget":
+                return result_provenance_entry(
+                    path,
+                    origin="rule_derived",
+                    visibility="public",
+                    available_from="offline_review",
+                    derivation="deterministic_rule",
+                    source_references=(
+                        result_source_reference(
+                            "request",
+                            "historical_review_options",
+                            field_path="/search_budget_profile",
+                        ),
+                        result_source_reference(
+                            "rule_contract",
+                            "information_set_budget_profile_conversion_v1",
+                        ),
+                    ),
+                )
             return result_provenance_entry(
                 path,
                 origin="validated_copy",
@@ -557,16 +578,31 @@ def _review_entry(
         field_name = tokens[-1]
         in_decision = "decisions" in tokens
         if in_decision and "actual" in field_name:
+            is_actual_card = field_name in {"actual_card", "actual_card_played"}
             return result_provenance_entry(
                 path,
-                origin="retrospective_attachment",
+                origin=(
+                    "retrospective_attachment" if is_actual_card else "rule_derived"
+                ),
                 visibility="public",
                 available_from="after_actual_play",
-                derivation="retrospective",
+                derivation=(
+                    "retrospective" if is_actual_card else "deterministic_rule"
+                ),
                 source_references=(
                     result_source_reference(
                         "retrospective_observation",
                         "historical_actual_card",
+                    ),
+                    *(
+                        ()
+                        if is_actual_card
+                        else (
+                            result_source_reference(
+                                "algorithm",
+                                "bounded_information_set_policy_search_v1",
+                            ),
+                        )
                     ),
                 ),
                 decision_index=decision_index,
@@ -855,7 +891,13 @@ def _historical_declaration_entry(
         visibility="public",
         available_from="request_start",
         derivation="direct",
-        source_references=(result_source_reference("algorithm", "game_declaration_defaults_v1"),),
+        source_references=(
+            result_source_reference(
+                "algorithm",
+                "game_declaration_defaults_v1",
+                field_path=f"/{field_name}",
+            ),
+        ),
     )
 
 
@@ -939,6 +981,84 @@ def _record_entry(
         )
     if record_tokens[:1] in {("game_end",), ("game_end_reason",)}:
         source_path = path.removeprefix("/historical_game_summary/record")
+        if (
+            len(record_tokens) >= 4
+            and record_tokens[:2] == ("game_end", "defender_responses")
+            and record_tokens[2].isdecimal()
+            and source_document is not None
+        ):
+            source_game = source_document.get("historical_game_input")
+            source_end = (
+                source_game.get("game_end")
+                if isinstance(source_game, Mapping)
+                else None
+            )
+            source_responses = (
+                source_end.get("defender_responses")
+                if isinstance(source_end, Mapping)
+                else None
+            )
+            record_end = _record(_summary(result)).get("game_end")
+            record_responses = (
+                record_end.get("defender_responses")
+                if isinstance(record_end, Mapping)
+                else None
+            )
+            output_index = int(record_tokens[2])
+            output_response = (
+                record_responses[output_index]
+                if isinstance(record_responses, (list, tuple))
+                and output_index < len(record_responses)
+                else None
+            )
+            output_player_id = (
+                output_response.get("defender_player_id")
+                if isinstance(output_response, Mapping)
+                else None
+            )
+            if isinstance(source_responses, (list, tuple)):
+                source_index = next(
+                    (
+                        index
+                        for index, response in enumerate(source_responses)
+                        if isinstance(response, Mapping)
+                        and response.get("defender_player_id") == output_player_id
+                    ),
+                    None,
+                )
+                if source_index is not None:
+                    source_path = build_json_pointer(
+                        (
+                            "game_end",
+                            "defender_responses",
+                            str(source_index),
+                            *record_tokens[3:],
+                        )
+                    )
+        elif record_tokens[-1].isdecimal() and source_document is not None:
+            source_parent_path = build_json_pointer(record_tokens[:-1])
+            try:
+                source_values = resolve_json_pointer(
+                    _historical_input(source_document),
+                    source_parent_path,
+                )
+                retained_value = resolve_json_pointer(result, path)
+            except SkatAIValidationError:
+                source_values = None
+                retained_value = None
+            if isinstance(source_values, (list, tuple)):
+                source_index = next(
+                    (
+                        index
+                        for index, value in enumerate(source_values)
+                        if value == retained_value
+                    ),
+                    None,
+                )
+                if source_index is not None:
+                    source_path = build_json_pointer(
+                        (*record_tokens[:-1], str(source_index))
+                    )
         return result_provenance_entry(
             path,
             origin="public_game_event",
@@ -1001,8 +1121,12 @@ def _derived_trick_entry(
         derivation="deterministic_rule" if rule_derived else "reconstruction",
         source_references=(
             result_source_reference(
-                "rule_contract" if rule_derived else "historical_game",
-                "trick_winner_and_point_rules" if rule_derived else game_id,
+                "rule_contract" if rule_derived else "algorithm",
+                (
+                    "trick_winner_and_point_rules"
+                    if rule_derived
+                    else "historical_legal_replay_v1"
+                ),
             ),
         ),
         dependency_paths=dependencies,
@@ -1027,7 +1151,6 @@ def _incomplete_trick_entry(
         derivation=("deterministic_rule" if path.endswith("/next_player_id") else "reconstruction"),
         source_references=(
             result_source_reference("algorithm", "historical_legal_replay_v1"),
-            _historical_reference(game_id),
         ),
         dependency_paths=leaf_paths_below(
             leaf_paths,
@@ -1123,7 +1246,6 @@ def _play_prefix_entry(
         derivation="reconstruction",
         source_references=(
             result_source_reference("algorithm", "historical_legal_replay_v1"),
-            _historical_reference(game_id),
         ),
         dependency_paths=leaf_paths_below(
             leaf_paths,
@@ -1340,10 +1462,10 @@ def _event_summary_entry(
         )
     return result_provenance_entry(
         path,
-        origin="rule_derived" if final_only else "public_game_event",
+        origin="rule_derived",
         visibility="post_game_only" if final_only else "public",
         available_from="game_end" if final_only else "after_public_event",
-        derivation="deterministic_rule" if final_only else "validated",
+        derivation="deterministic_rule",
         source_references=(
             result_source_reference("rule_contract", reference_id),
             result_source_reference("historical_event", f"{game_id}:event:0"),

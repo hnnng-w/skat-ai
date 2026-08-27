@@ -10,6 +10,8 @@ It accepts the same Root JSON documents as the legacy repository CLI, executes
 the existing internal Application layer, and returns the Root output document
 inside immutable public contracts. Output is unchanged by default; an explicit
 option adds bounded public field provenance. It performs no caller transport I/O.
+Issue #202 requires an internal four-stage provenance checkpoint around every
+execution before this unchanged optional public conversion.
 
 Issue #156 adds a separate additive `skat_ai.api.v1.session` facade. Issue #157
 extends it with Decision Observation and Checkpoint review export and adds the
@@ -115,6 +117,11 @@ The Opponent Statistics document and reference must be supplied together. No
 transport path, output destination, or quiet mode is accepted.
 `include_provenance` is a strict boolean. Its default `False` preserves the prior
 Root document; `True` adds one public-safe Root `field_provenance` sidecar.
+
+The implementation privately retains whether each option was omitted or
+explicitly supplied, including an explicit default. That source metadata is not
+a public dataclass field, does not affect equality or serialization, and remains
+stable through copy, deep copy, pickle, and `dataclasses.replace()`.
 
 `workflow_options` is one direct object. Its exact Position Analysis keys are:
 
@@ -310,11 +317,13 @@ aggregate-stage, or unredacted attachments. Coverage is recomputed against each
 exact declared public document and must remain complete. See
 [Complete Result provenance](complete_result_provenance.md) and
 [Public field provenance](public_field_provenance.md).
+Issue #202 closes the separate internal source-to-final-serialization enforcement
+gate without exposing its source attachments, bindings, or lifecycle checkpoint.
 Issue #141 adds private Package Resources, build-
 system metadata, Package Data, `py.typed`, Package-Root `__version__`, and
 Wheel/sdist validation without a Package version change. Issue #142 adds a
 separate installed CLI contract. The current Package version is `0.17.0`. Broader
-field-level enforcement and Confidence integration are not implied. See
+public field-level exposure and Confidence integration are not implied. See
 [Installed CLI](installed_cli.md) and
 [Packaging and distribution](packaging_and_distribution.md).
 

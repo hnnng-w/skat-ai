@@ -12,11 +12,18 @@ Position and Historical Root Result provenance. Issue #147 exposes the bounded
 public-safe Root Result and actual-artifact subset described in
 [Public field provenance](public_field_provenance.md).
 
+Issue #202 completes the internal all-seven-workflow lifecycle from the exact
+verified Request, effective Application options, and optional injected external
+document through pre-analysis Information Use Context enforcement, retained-
+stage source linkage, and exact final Result/artifact reconciliation. See
+[v1 information provenance enforcement](v1_information_provenance_enforcement.md).
+
 All seven Root workflows have complete internal Result ledgers. Public exposure
 is opt-in and intentionally narrower than those internal bundles: it selects one
 exact Root Result attachment plus attachments for artifacts actually returned,
 not consumed inputs, decisions, or intermediate stages. Broader end-to-end
-field-level enforcement remains separate work before `v1.0.0`.
+field-level enforcement is complete internally under Issue #202 without widening
+that public contract.
 
 Issue #139 adds internal Application orchestration version `1`; Issue #140 adds
 the executable public facade; Issues #141 and #142 add packaged resources,
@@ -60,7 +67,13 @@ The implementation is split across:
 * `field_provenance_coverage.py` for JSON-leaf enumeration and document coverage
   auditing;
 * `field_provenance_policy.py` for Information Use Context, use validation, and
-  public redaction.
+  public redaction;
+* `v1_information_provenance_sources.py` for exact consumed Request, effective-
+  option, and optional injected-external sources and bindings;
+* `v1_information_provenance_enforcement.py` for pre-analysis policy validation
+  and workflow-scoped retained-source linkage;
+* `v1_information_provenance_serialization.py` for exact Root Result/artifact
+  reconciliation and the immutable four-stage checkpoint.
 
 These modules are internal. They are not exported from `skat_ai`, `skat_ai.api`,
 `skat_ai.api.v1`, or `skat_ai.errors`.
@@ -537,20 +550,21 @@ specialized provenance status, Training Provenance, Opponent source provenance,
 Dataset Plan fingerprints, and historical-list identities remain authoritative
 and unchanged.
 
-## Remaining work
+## Issue #202 closure and retained boundaries
 
 The internal Application boundary carries live and retrospective Position,
 Historical Review, Historical Search Review, Replay Coaching, Dataset,
 Information-set Search Review/evaluation, Information-set Replay Coaching,
 Historical Tactical Motif Review, Preparation, Opponent, Profile, list,
 comparison, and complete Result provenance. Every Root Result ledger is complete
-and non-legacy. Issue #147
-publishes only one redacted Root Result ledger plus actual-artifact ledgers.
+and non-legacy. Issue #202 binds the exact verified Request, effective options,
+and optional external source to those retained stages, enforces use before
+analysis, and reconciles the exact final Result and actual artifacts without
+rerunning product work. Issue #147 still publishes only one redacted Root Result
+ledger plus actual-artifact ledgers.
 
-Broader adversarial enforcement outside implemented Application boundaries and
-complete field-level enforcement across every load, decision, intermediate, and
-serialization boundary remain open before `v1.0.0`. Confidence integration is
-not part of the provenance contract. Public Session Provenance version `1`
+Confidence integration is not part of the provenance contract. Public Session
+Provenance version `1`
 provides complete operation-specific ledgers for all 12 returned in-memory
 Session values, redacts engine-private references/dependencies, and recomputes
 complete coverage. Live local hands remain concrete-player `local_private`,

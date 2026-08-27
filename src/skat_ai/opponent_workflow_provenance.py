@@ -157,9 +157,15 @@ def _profile_attachment(
         if tokens and tokens[0] == "normalized_profile_statistics":
             origin = "rule_derived"
             derivation = "deterministic_rule"
+            references = (
+                _reference("algorithm", "opponent_profile_normalization_v1"),
+            )
         elif tokens and tokens[0] == "profile_derivation":
             origin = "heuristic_analysis"
             derivation = "heuristic"
+            references = (
+                _reference("algorithm", "opponent_profile_normalization_v1"),
+            )
             dependencies = tuple(
                 f"/normalized_profile_statistics/{field_name}"
                 for field_name in document["normalized_profile_statistics"]
@@ -167,11 +173,12 @@ def _profile_attachment(
         else:
             origin = "validated_copy"
             derivation = "validated"
+            references = (reference,)
         entry = _offline_entry(
             path,
             origin=origin,
             derivation=derivation,
-            references=(reference,),
+            references=references,
             subject_player_id=record.player_id,
         )
         if not dependencies:
@@ -214,17 +221,24 @@ def _summary_attachment(
             if len(tokens) >= 3 and tokens[2] == "normalized_profile_statistics":
                 origin = "rule_derived"
                 derivation = "deterministic_rule"
+                references = (
+                    _reference("algorithm", "opponent_profile_normalization_v1"),
+                )
             elif len(tokens) >= 3 and tokens[2] == "profile_derivation":
                 origin = "heuristic_analysis"
                 derivation = "heuristic"
+                references = (
+                    _reference("algorithm", "opponent_profile_normalization_v1"),
+                )
             else:
                 origin = "external_source"
                 derivation = "validated"
+                references = (_record_reference(record, record_index),)
             return _offline_entry(
                 path,
                 origin=origin,
                 derivation=derivation,
-                references=(_record_reference(record, record_index),),
+                references=references,
                 subject_player_id=record.player_id,
             )
         return _offline_entry(

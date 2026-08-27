@@ -19,8 +19,9 @@ matching Coverage Summary, and its Information Use Context.
 `ApplicationProvenanceBundle` retains the Application provenance version, the
 Position workflow identity, and canonical unique attachments.
 
-`ApplicationExecutionResult.provenance` is optional and defaults to `None`. A
-live or retrospective Position Application execution attaches one bundle.
+`ApplicationExecutionResult.provenance` is optional at the internal dataclass
+boundary and defaults to `None`. Canonical live or retrospective Position Root
+execution requires one bundle and one Issue #202 lifecycle checkpoint.
 Every Historical Application execution also attaches a bundle as documented in
 [Retrospective review provenance](retrospective_review_provenance.md).
 
@@ -175,10 +176,10 @@ the opt-in Root `field_provenance` field. Consumed-input and flat, Multi-Step,
 and Policy Comparison decision attachments remain internal. See
 [Public field provenance](public_field_provenance.md).
 
-## Remaining work
+## Retained boundary
 
 The bounded public Root Result contract, strict Schema, API option, and CLI
 presentation are implemented by Issue #147. Broader enforcement outside
-implemented Application boundaries and public exposure of decision-level
-attachments remain open; the current sidecar is not complete end-to-end live
-provenance.
+implemented retained stages is complete internally under Issue #202. Public
+exposure of decision-level attachments remains intentionally absent; the public
+sidecar is still not public end-to-end live provenance.
