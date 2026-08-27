@@ -335,9 +335,11 @@ every required traceability row, and records seven blockers plus the exact #201
 through #207 sequence. Issue #201 adds independent exhaustive official-rule
 evidence for R-01 and R-06, closes B-01 without product-code change, and leaves
 six blockers B-02 through B-07 at that point. Issue #202 makes P-10 and P-13
-`satisfied`, closes B-02, and leaves five blockers B-03 through B-07. The
-milestone remains not ready, and Issue #203, **Complete canonical Multi-Step
-phase coverage**, is next.
+`satisfied`, closes B-02, and leaves five blockers B-03 through B-07 at that
+point. Issue #203 completes all nine concrete canonical Multi-Step phases, makes
+P-19 `satisfied`, and closes B-03. Four blockers B-04 through B-07 remain. The
+milestone remains not ready, and Issue #204, **Decide and apply the v1 Package
+license boundary**, is next.
 
 The November 2022 ISkO and SkWO publication is the normative source for official
 rules and competition behavior. Product capabilities such as simulation,
@@ -923,8 +925,8 @@ See [Learning Corpus Tactical Cross-game Coaching](learning_corpus_tactical_cros
 
 ## Release decision rule
 
-The authoritative current status ledger, accepted limitations, closed B-01 and
-B-02, remaining B-03 through B-07 blockers, and ordered #201 through #207 plan are in the
+The authoritative current status ledger, accepted limitations, closed B-01
+through B-03, remaining B-04 through B-07 blockers, and ordered #201 through #207 plan are in the
 [v1.0 scope and traceability audit](v1_0_scope_and_traceability_audit.md).
 
 `v1.0.0` is not ready while any required gate lacks evidence, any validation or

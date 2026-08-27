@@ -1,6 +1,10 @@
 import random
 from typing import Any
 
+from skat_ai.canonical_multi_step_phase import (
+    COMPLETE_CURRENT_TRICK_THEN_CONTINUE,
+    build_canonical_multi_step_phase_plan_v1,
+)
 from skat_ai.card_selection import (
     DEFAULT_POLICY_COMPARISON_POLICIES,
     SEARCH_AWARE_MULTI_STEP_POLICIES,
@@ -21,6 +25,9 @@ from skat_ai.information_set_search_multi_step import (
     InformationSetSearchMultiStepDecisionV1,
     build_compact_information_set_search_decision_diagnostic_v1,
 )
+from skat_ai.information_set_search_workflow import (
+    INFORMATION_SET_SEARCH_RECOMMENDATION_METHOD,
+)
 from skat_ai.multi_step_recommendation import (
     LOCAL_POLICY_NO_RECOMMENDATION,
     build_compact_search_decision_diagnostic,
@@ -34,6 +41,7 @@ from skat_ai.simulation_provenance import (
     RecommendationDecisionObserver,
 )
 from skat_ai.strategic_metadata import StrategicMetadata
+from skat_ai.turn_phase import normalize_turn_phase
 
 
 def compare_multi_step_policies(
@@ -92,6 +100,39 @@ def compare_multi_step_policies(
             "Policy Comparison Search policy requires matching Search configuration."
         )
 
+    execution_opponent_lead_policy = opponent_lead_policy
+    execution_opponent_response_policy = opponent_response_policy
+    execution_left_policy_settings = left_opponent_policy_settings
+    execution_right_policy_settings = right_opponent_policy_settings
+    execution_response_policy_by_player = opponent_response_policy_by_player
+    if search_policy == INFORMATION_SET_SEARCH_RECOMMENDATION_METHOD:
+        if effective_opponent_policy_settings is None:
+            raise ValueError(
+                "Information-set Search comparison requires effective opponent policies."
+            )
+        execution_opponent_lead_policy = (
+            effective_opponent_policy_settings.global_lead_policy
+        )
+        execution_opponent_response_policy = (
+            effective_opponent_policy_settings.global_response_policy
+        )
+        execution_left_policy_settings = {
+            "opponent_lead_policy": effective_opponent_policy_settings.left_lead_policy,
+            "opponent_response_policy": (
+                effective_opponent_policy_settings.left_response_policy
+            ),
+        }
+        execution_right_policy_settings = {
+            "opponent_lead_policy": effective_opponent_policy_settings.right_lead_policy,
+            "opponent_response_policy": (
+                effective_opponent_policy_settings.right_response_policy
+            ),
+        }
+        execution_response_policy_by_player = {
+            "left": effective_opponent_policy_settings.left_response_policy,
+            "right": effective_opponent_policy_settings.right_response_policy,
+        }
+
     comparison_setup_seed = derive_simulation_child_seed(
         random_seed,
         "policy_comparison_setup",
@@ -125,11 +166,11 @@ def compare_multi_step_policies(
             expected_value_sample_count=expected_value_sample_count,
             strict_context=strict_context,
             strategic_metadata=strategic_metadata,
-            opponent_lead_policy=opponent_lead_policy,
-            opponent_response_policy=opponent_response_policy,
-            left_opponent_policy_settings=left_opponent_policy_settings,
-            right_opponent_policy_settings=right_opponent_policy_settings,
-            opponent_response_policy_by_player=opponent_response_policy_by_player,
+            opponent_lead_policy=execution_opponent_lead_policy,
+            opponent_response_policy=execution_opponent_response_policy,
+            left_opponent_policy_settings=execution_left_policy_settings,
+            right_opponent_policy_settings=execution_right_policy_settings,
+            opponent_response_policy_by_player=execution_response_policy_by_player,
             public_hand_constraints=public_hand_constraints,
             initial_hidden_world=copy_coherent_hidden_world(
                 shared_initial_hidden_world
@@ -219,8 +260,8 @@ def compare_multi_step_policies(
         "expected_value_sample_count": expected_value_sample_count,
         "use_basic_opponent_strategy": use_basic_opponent_strategy,
         "strict_context": strict_context,
-        "opponent_lead_policy": opponent_lead_policy,
-        "opponent_response_policy": opponent_response_policy,
+        "opponent_lead_policy": execution_opponent_lead_policy,
+        "opponent_response_policy": execution_opponent_response_policy,
         "policies": selected_policies,
         "policy_results": sorted_policy_results,
         "hidden_world": {
@@ -236,7 +277,25 @@ def compare_multi_step_policies(
     if inference_summary is not None:
         comparison_result["hidden_card_inference_summary"] = inference_summary
 
-    comparison_result["recommended_policy"] = build_policy_recommendation(comparison_result)
+    initial_phase = normalize_turn_phase(
+        trick_leader=state.trick_leader,
+        next_player=state.next_player,
+        current_trick_length=len(state.current_trick),
+    )
+    initial_plan = build_canonical_multi_step_phase_plan_v1(
+        initial_phase,
+        len(state.current_trick),
+    )
+    completion_without_local_decision = (
+        initial_plan is not None
+        and initial_plan.phase_action == COMPLETE_CURRENT_TRICK_THEN_CONTINUE
+        and all(result["steps_simulated"] == 0 for result in policy_results)
+    )
+    comparison_result["recommended_policy"] = (
+        None
+        if completion_without_local_decision
+        else build_policy_recommendation(comparison_result)
+    )
 
     return comparison_result
 

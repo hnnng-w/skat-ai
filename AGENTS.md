@@ -559,8 +559,10 @@ Issue #201 adds independent exhaustive official-rule evidence for R-01 and R-06
 without changing product code and closes B-01. Issue #202 completes mandatory
 internal load-to-final-serialization Provenance for all seven Root workflows,
 makes P-10 and P-13 `satisfied`, and closes B-02 without widening public
-Provenance. Five blockers B-03 through B-07 remain. `v1.0.0` is not ready; the
-next action is Issue #203, **Complete canonical Multi-Step phase coverage**. No
+Provenance. Issue #203 completes all nine concrete canonical Multi-Step phases,
+makes P-19 `satisfied`, and closes B-03 without widening Search or public
+contracts. Four blockers B-04 through B-07 remain. `v1.0.0` is not ready; the
+next action is Issue #204, **Decide and apply the v1 Package license boundary**. No
 v1 Release title,
 theme, date, tag, publication commit, or production model is frozen.
 
@@ -613,6 +615,8 @@ Major completed areas include:
 * timed non-terminal historical declarer-card-exposure continuation with persistent public-hand information
 * declared-Ouvert-aware Immediate, Multi-Step, Policy Comparison, flat review, and historical review simulation
 * coherent private hidden-world ownership across each Multi-Step path and shared-root Policy Comparison
+* exact nine-row canonical Multi-Step phase classification, same-World completion
+  of the three former opponent-only gaps, and local-Decision-only step counting
 * exact compatible-world counting, marginals, and DP-guided sampling from confirmed public failure-to-follow evidence
 * immutable information-safe bounded-Search views and exact legal states
 * Suit, Grand, and all four normal non-overbid Null exact-world Minimax
@@ -846,8 +850,9 @@ or Player-rating claim. Overbid Null replacement selection, broader tactical
 quality assessment outside retained complete-Search evidence, causal
 attribution, and player ratings are not required for v1; complete internal
 field-level information provenance is complete under Issue #202 without widening
-the public contract. Canonical Multi-Step phase coverage remains the Issue #203
-implementation gate.
+the public contract. Issue #203 completes canonical Multi-Step phase coverage;
+the remaining gates are B-04 through B-07, beginning with the Issue #204 Package-
+license decision.
 End-to-end local Live and Retrospective Session
 capture is implemented through public file Save/Load, automatic Checkpoints,
 accepted-Log actual-card observation, isolated review, explicit analysis, the

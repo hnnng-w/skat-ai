@@ -78,8 +78,8 @@ def test_can_prepare_player_action_supports_opponent_preparation_phases() -> Non
     ) is True
 
 
-def test_can_prepare_player_action_rejects_unsupported_valid_phases() -> None:
-    unsupported_states = [
+def test_can_prepare_player_action_supports_completion_phases() -> None:
+    completion_states = [
         GameState(
             game_type="grand",
             player_role="declarer",
@@ -106,8 +106,8 @@ def test_can_prepare_player_action_rejects_unsupported_valid_phases() -> None:
         ),
     ]
 
-    for state in unsupported_states:
-        assert can_prepare_player_action(state) is False
+    for state in completion_states:
+        assert can_prepare_player_action(state) is True
 
 
 def test_get_unsupported_next_player_reason() -> None:
@@ -207,25 +207,65 @@ def test_prepare_player_action_state_simulates_left_lead_and_right_response() ->
     assert len(prepared_state.current_trick) == 2
 
 
-def test_prepare_player_action_state_does_not_overwrite_non_empty_trick() -> None:
+def test_prepare_player_action_state_completes_non_empty_trick_without_local_card() -> None:
     state = GameState(
         game_type="grand",
         player_role="declarer",
-        hand=["SA", "S10"],
-        current_trick=["D7"],
+        hand=[],
+        current_trick=["SA"],
         trick_leader="me",
         next_player="left",
+    )
+
+    prepared_state, opponent_sequence_result = prepare_player_action_state(
+        current_state=state,
+        left_hand_size=1,
+        right_hand_size=1,
+        random_generator=random.Random(42),
+    )
+
+    assert opponent_sequence_result is not None
+    assert prepared_state.hand == []
+    assert prepared_state.current_trick == []
+    assert prepared_state.completed_tricks[-1]["cards"][0] == "SA"
+    assert prepared_state.completed_tricks[-1]["winner_player"] in {
+        "me",
+        "left",
+        "right",
+    }
+    assert len(opponent_sequence_result["_opponent_plays"]) == 2
+
+
+def test_prepare_player_action_state_rejects_completion_failure_to_progress(
+    monkeypatch,
+) -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=[],
+        current_trick=["SA"],
+        trick_leader="me",
+        next_player="left",
+    )
+
+    monkeypatch.setattr(
+        "skat_ai.opponent_sequence.simulate_opponents_to_complete_current_trick_once",
+        lambda **_kwargs: {
+            "next_state": state,
+            "_opponent_plays": (("left", "S7"), ("right", "S8")),
+            "_coherent_hidden_world": object(),
+        },
     )
 
     try:
         prepare_player_action_state(
             current_state=state,
-            left_hand_size=5,
-            right_hand_size=5,
+            left_hand_size=1,
+            right_hand_size=1,
             random_generator=random.Random(42),
         )
     except ValueError as error:
-        assert str(error) == get_unsupported_turn_phase_reason()
+        assert str(error) == "Canonical current-Trick completion failed to progress."
     else:
         raise AssertionError("Expected ValueError was not raised.")
 

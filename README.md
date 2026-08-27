@@ -37,9 +37,11 @@ official Skat rules arbitration.
 * Configurable card-selection policies
 * Policy comparison across card-selection strategies
 * Opt-in bounded Search, `auto`, or strict `information_set_search` at every Multi-Step local decision
+* Exact coverage of all nine concrete canonical Multi-Step phases, including
+  same-World completion when the local Card is already in the current Trick
 * Optional five-policy comparison with one configured Search method appended last
 * Safe nested Information-set Search Decisions and 16-field compact Policy Comparison diagnostics
-* Declared-Ouvert exact public-hand ownership in Immediate Analysis, supported Multi-Step paths, and Policy Comparison
+* Declared-Ouvert exact public-hand ownership in Immediate Analysis, all concrete canonical Multi-Step paths, and Policy Comparison
 * Opponent lead and response simulation
 * Opponent policy presets
 * Optional profile-based policy presets
@@ -1546,6 +1548,13 @@ calibrated. See
 [Coherent hidden-world simulation](docs/coherent_hidden_world_simulation.md) and
 [Hidden-card inference](docs/hidden_card_inference.md).
 
+Issue #203 classifies all nine concrete canonical phases. The three former gaps
+complete an already started Trick by simulating only its missing opponent Cards,
+preserve the already played local Card and local remaining hand, then continue
+from the exact winner through existing opponent preparation. Completion and
+preparation consume no local step; the first new local Decision remains index
+`0`. See [Canonical Multi-Step phase coverage](docs/canonical_multi_step_phase_coverage.md).
+
 Bounded Search supports flat post-game comparison, Historical Search Review,
 and deterministic Search-versus-Immediate dataset evaluation with immutable
 named work profiles. Independent Suit, Grand, and Null fixtures demonstrate
@@ -1598,6 +1607,10 @@ Results and 16-field compact diagnostics. Existing `auto`, flat, Historical, and
 Dataset behavior is unchanged. See [Information-set Search Multi-Step and Policy
 Comparison](docs/information_set_search_multi_step_and_policy_comparison.md).
 
+Issue #203 preserves that Search boundary across every canonical phase. Existing-
+Trick completion occurs first in the private coherent World; Search begins only
+at the resulting public local Decision and receives no coherent ownership.
+
 Issue #191 adds strict one-Decision Match execution through the existing Position
 Application exactly once, exact Report-source transfer, minimized
 Current-Snapshot Strategy Teacher Evidence, Dataset-v2 joins, cross-game method
@@ -1649,8 +1662,9 @@ broader solver, auction, learned-model, and hosted/remote work is post-v1. The
 Issue #201 [official-rule evidence](docs/v1_official_rule_evidence.md) closes the
 R-01/R-06 evidence gate B-01 without product-code change. Issue #202 closes B-02
 with mandatory internal end-to-end Provenance enforcement and makes P-10 and
-P-13 `satisfied`. The remaining v1 blockers are canonical Multi-Step phase
-closure, a human Package license decision, final installation/platform
+P-13 `satisfied`. Issue #203 completes canonical Multi-Step phase coverage,
+makes P-19 `satisfied`, and closes B-03. The remaining v1 blockers are a human
+Package license decision, final installation/platform
 evidence, final readiness evidence, and Package `1.0.0` Release preparation. The
 approved party-wide all-remaining-
 Tricks Claim now has
@@ -1859,9 +1873,10 @@ Runtime execution. Issue #184 adds the private bounded exhaustive exact AND/OR
   `v1.0.0` scope, seven blockers, and the exact #201 through #207 sequence. The
   Issue #201 independent official-rule oracle closes R-01, R-06, and B-01
 without product-code change. Issue #202 closes B-02 and makes P-10 and P-13
-  `satisfied`. Five blockers B-03 through B-07 remain; the milestone is not
-  ready, and Issue #203, **Complete canonical Multi-Step phase coverage**, is
-  next. No v1 Release title, theme,
+  `satisfied`. Issue #203 completes all nine concrete canonical Multi-Step
+  phases, makes P-19 `satisfied`, and closes B-03. Four blockers B-04 through
+  B-07 remain; the milestone is not ready, and Issue #204, **Decide and apply the
+  v1 Package license boundary**, is next. No v1 Release title, theme,
   date, tag, or publication commit is frozen.
 
 Current support and known limitations are tracked in the

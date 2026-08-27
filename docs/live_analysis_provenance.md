@@ -115,17 +115,20 @@ dependency.
 
 Multi-Step accepts an optional internal decision-provenance hook. Application
 execution first enforces the flat live-decision attachment before root inference
-or simulation. The per-decision hook then runs after public opponent preparation
-and before prepared-state Hidden-card inference, Search, or legacy card
+or simulation. Canonical existing-Trick completion and public opponent
+preparation occur before a new local Decision boundary. The per-decision hook
+then runs before prepared-state Hidden-card inference, Search, or legacy card
 selection. It receives only the prepared public/local state, public hand counts
-and constraints, Strategic Metadata, declaration, selection method, and
-seed-free settings. Direct Domain calls remain compatible when no hook is
-supplied.
+and constraints, Strategic Metadata, declaration, selection method, and seed-free
+settings. Direct Domain calls remain compatible when no hook is supplied.
 
 Live Position Application execution supplies the hook. Every attempted local
 decision therefore produces one complete attachment, including a Search-aware
-decision that stops without a recommendation. An unsupported turn phase creates
-no decision attachment because no local selection is reached.
+decision that stops without a recommendation. Terminal canonical completion and
+an unresolved `unsupported_turn_phase` stop create no Decision attachment because
+no local selection is reached. The completed Trick and chronological simulated-
+opponent transitions remain retained execution evidence and provenance
+construction reruns no stage.
 
 Policy Comparison threads the same hook through each policy path. Attachment
 identity uses canonical policy order, not score-sorted Result order. The shared

@@ -22,7 +22,8 @@ workflows, and the one `skat-ai = skat_ai.cli:main` Console Script are unchanged
 `information_set_search` is a strict Search-aware Multi-Step policy. At every
 local decision, the simulation:
 
-1. advances any supported opponent preparation in the coherent execution World;
+1. completes any existing canonical Trick and advances opponent preparation in
+   the coherent execution World;
 2. represents those actions in the current public state, hand sizes, public-hand
    constraints, and failure-to-follow evidence;
 3. derives one decision-local Search configuration;
@@ -33,6 +34,13 @@ local decision, the simulation:
 Opponent preparation, completion, and Search fixed-Player rollout reuse the
 same already resolved `EffectiveOpponentPolicySettings`; the simulation does not
 repeat Profile or precedence resolution.
+
+Issue #203 applies this boundary to all nine concrete canonical phases. In the
+three former gaps, only the missing old-Trick opponent Cards execute before the
+winner and continuation are derived. That prelude consumes no local Decision
+index or Search child seed. Search starts only if continuation reaches the first
+new public local Decision. See
+[Canonical Multi-Step phase coverage](canonical_multi_step_phase_coverage.md).
 
 The coherent execution World remains private. Its exact hands, hypothetical
 Skat, ownership map, root identity, and future path are not Search inputs. Search
@@ -129,13 +137,18 @@ All five paths receive independent copies of one shared coherent root World.
 Each path evolves its own copy. The Information-set Search row still performs a
 fresh public-state Search at every local decision and never receives or reuses
 the shared root, another path's Search Worlds, or a prior controlled Policy.
+The same effective opponent Policies drive any canonical completion prelude for
+every path, so no compared local Policy can affect play before its first local
+Decision.
 
 A Search path stopped without a recommendation remains visible with
 `eligible_for_recommendation = false` and
 `ineligible_reason = local_policy_no_recommendation`. It sorts after eligible
 rows and cannot become `recommended_policy`. Eligible rows retain the existing
 Policy Comparison ranking, including the existing Null objective and existing
-tie-breakers; Issue #190 adds no ranking objective.
+tie-breakers; Issue #190 adds no ranking objective. If canonical completion ends
+the local hand before any local Decision, every zero-step row remains visible and
+`recommended_policy` is null.
 
 ## Compact diagnostics
 
@@ -178,6 +191,11 @@ ledger covers the serialized Multi-Step and Policy Comparison branches. Public
 opt-in provenance remains the existing redacted Root Result mapping and does not
 expose intermediate attachments or private retained values.
 
+Canonical completion before a local boundary creates no synthetic Search
+Decision. Its completed Trick, public-state transition, constraints, void
+evidence, and final serialization remain retained by the same version-1 internal
+Provenance lifecycle.
+
 ## CLI, example, and validation
 
 The existing CLI fields and flags are sufficient:
@@ -216,6 +234,10 @@ global optimality. It does not identify the real deal, turn selected Worlds into
 calibrated probabilities, cover unselected Worlds, solve a complete contract, or
 provide a latency guarantee. Existing flat, Post-game, Historical Review, and
 Training Dataset evaluation behavior remains unchanged.
+
+Issue #203 subsequently completes only the canonical phase boundary. It changes
+no Information-set Search contract, budget, fixed-Player Policy, safe aggregate
+Result, Schema, CLI flag, example, or generated-scenario count.
 
 See [Information-set Search contracts](information_set_search_contracts.md), the
 [Information-set Search executor](information_set_search_executor.md), and

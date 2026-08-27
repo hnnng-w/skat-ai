@@ -399,8 +399,9 @@ website scraping, automatic cloud synchronization, distributed locking,
 encryption and key management, and automatic backup policy remain absent and are
 not v1 requirements. Issue #200 accepts the bounded Search, Claim, Settlement,
 and Coaching contracts. Issue #202 closes the internal field-level provenance
-implementation gate; canonical Multi-Step phase coverage remains the next
-implementation gate under Issue #203.
+implementation gate. Issue #203 closes canonical Multi-Step phase coverage
+without adding or changing any public contract. The remaining v1 gates begin
+with the Issue #204 Package-license decision.
 
 Internal Application orchestration version `1`, no-I/O execution for all seven
 Root workflows, legacy CLI transport parity, and auxiliary artifacts are

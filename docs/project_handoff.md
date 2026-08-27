@@ -537,9 +537,11 @@ Implemented:
 * strict simulation context checks
 * policy comparison
 * result serialization
-* canonical turn-phase-aware opponent preparation
-* supported preparation for empty left lead, empty right lead, and right response to an existing left lead
-* deterministic `unsupported_turn_phase` stops for valid phases that do not prepare a current local decision
+* exact nine-row canonical turn-phase classification
+* preparation for empty left lead, empty right lead, and right response to an existing left lead
+* same-World completion of the three former valid gaps without replaying the already played local Card
+* continuation from the exact completed-Trick winner to the first new local Decision
+* zero-step completion/preparation and unresolved-only `unsupported_turn_phase`
 * one immutable private hidden-world root per path, owner-aware card removal, and a fixed hypothetical skat
 * shared-root Policy Comparison with equal independent immutable policy-path copies
 * privacy-safe coherent-world count and status summaries without hidden card identities
@@ -1428,6 +1430,7 @@ Implemented:
 * `recommendation_workflow.py`
 * `ouvert_simulation.py`
 * `simulation_step.py`
+* `canonical_multi_step_phase.py`
 * `multi_step_simulation.py`
 * `multi_step_summary.py`
 * `simulation_context.py`
@@ -1731,8 +1734,11 @@ functionality. Issue #200 freezes the bounded `v1.0.0` scope and exact #201
 through #207 sequence. Issue #201 adds independent exhaustive official-rule
 evidence for R-01 and R-06 without product-code change and closes B-01. Six
 blockers B-02 through B-07 remained at that point. Issue #202 makes P-10 and P-13
-`satisfied`, closes B-02, and leaves five blockers B-03 through B-07. The
-milestone is not ready, and Issue #203 is next.
+`satisfied`, closes B-02, and leaves five blockers B-03 through B-07 at that
+point. Issue #203 completes all nine concrete canonical Multi-Step phases, makes
+P-19 `satisfied`, and closes B-03 without widening Search or public contracts.
+Four blockers B-04 through B-07 remain. The milestone is not ready, and Issue
+#204 is next.
 
 Historical published Package milestone: `v0.15.0`, providing usable manual post-
 game capture of one EuroSkat 36er Standard Match from descriptive video evidence.
@@ -2320,12 +2326,13 @@ Completed implementation scope:
 
 ## Next recommended action
 
-Begin Issue #203, **Complete canonical Multi-Step phase coverage**. Issue #201
-completes the independent exhaustive official-rule oracle, changes no product
-code, makes R-01 and R-06 `satisfied`, and closes B-01. Issue #202 completes the
-internal v1 information-Provenance lifecycle, makes P-10 and P-13 `satisfied`,
-and closes B-02 without widening public Provenance. Five blockers B-03 through
-B-07 remain. The published functional history remains Issues #182
+Begin Issue #204, **Decide and apply the v1 Package license boundary**. Issue
+#201 completes the independent exhaustive official-rule oracle, changes no
+product code, makes R-01 and R-06 `satisfied`, and closes B-01. Issue #202
+completes the internal v1 information-Provenance lifecycle, makes P-10 and P-13
+`satisfied`, and closes B-02 without widening public Provenance. Issue #203
+completes all nine concrete canonical Multi-Step phases, makes P-19 `satisfied`,
+and closes B-03. Four blockers B-04 through B-07 remain. The published functional history remains Issues #182
 through #196; Issues #197 through #199 remain audit, Release preparation, and
 publication synchronization only. `v1.0.0` is not ready, and no Release title,
 theme, date, tag, or publication commit is frozen.

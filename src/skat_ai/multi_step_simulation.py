@@ -4,6 +4,7 @@ import random
 from dataclasses import replace
 from typing import Any
 
+from skat_ai.canonical_multi_step_phase import COMPLETE_CURRENT_TRICK_THEN_CONTINUE
 from skat_ai.card_selection import (
     LEGACY_CARD_SELECTION_POLICIES,
     SEARCH_AWARE_MULTI_STEP_POLICIES,
@@ -43,6 +44,7 @@ from skat_ai.multi_step_summary import build_multi_step_summary
 from skat_ai.opponent_sequence import (
     can_prepare_player_action,
     extract_opponent_sequence_cards,
+    get_canonical_multi_step_phase_plan,
     get_unsupported_turn_phase_reason,
     prepare_player_action_state,
 )
@@ -81,8 +83,8 @@ def should_continue_multi_step_simulation(
     """
     Determines whether the multi-step simulation should continue.
 
-    A step continues only if the engine can either act locally now or prepare
-    a supported opponent sequence that reaches a local action.
+    A step continues only if the engine can act locally, prepare to a local
+    action, or complete the existing Trick and continue from its winner.
     """
     _ = step_index
 
@@ -97,14 +99,19 @@ def get_multi_step_stop_reason(
     """
     Returns a human-readable stop reason if simulation should stop.
     """
-    if current_state.hand == []:
-        return "Player has no cards left."
-
     if (
         strategic_metadata is not None
         and strategic_metadata.game_end_reason != "not_ended"
     ):
         return "Game is already complete."
+
+    if current_state.hand == []:
+        phase_plan = get_canonical_multi_step_phase_plan(current_state)
+        if (
+            phase_plan is None
+            or phase_plan.phase_action != COMPLETE_CURRENT_TRICK_THEN_CONTINUE
+        ):
+            return "Player has no cards left."
 
     _ = step_index
 
@@ -443,6 +450,50 @@ def simulate_multiple_steps(
             or len(prepared_world.right_hand) != prepared_right_hand_size
         ):
             raise ValueError("Prepared public and coherent-world hand sizes disagree.")
+        if prepared_state.hand == []:
+            terminal_inference_model = build_hidden_card_inference_model(
+                prepared_state,
+                prepared_left_hand_size,
+                prepared_right_hand_size,
+                prepared_constraints,
+            )
+            reconcile_hidden_world_with_state(
+                prepared_world,
+                prepared_state,
+                prepared_constraints,
+                hidden_card_inference_constraints=(
+                    terminal_inference_model.constraints
+                    if terminal_inference_model is not None
+                    else None
+                ),
+                step_index=step_index,
+            )
+            context = add_simulated_opponent_plays(context, preparation_plays)
+            context = update_public_hand_constraints(context, prepared_constraints)
+            context = update_hidden_world(context, prepared_world)
+            if preparation_plays:
+                context = add_simulation_event(
+                    context,
+                    {
+                        "type": "opponent_preparation_before_local_stop",
+                        "step_index": step_index,
+                        "opponent_cards": [
+                            card for _, card in preparation_plays
+                        ],
+                        "opponent_plays": preparation_plays,
+                    },
+                )
+            current_state = prepared_state
+            public_left_hand_size = prepared_left_hand_size
+            public_right_hand_size = prepared_right_hand_size
+            stop_reason = "Player has no cards left."
+            if strict_context:
+                validate_simulation_context(
+                    context,
+                    current_state,
+                    step_index=step_index,
+                )
+            break
         if decision_provenance_hook is not None:
             assert strategic_metadata is not None
             assert game_declaration is not None

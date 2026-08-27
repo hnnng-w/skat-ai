@@ -116,7 +116,7 @@ def test_equal_visible_states_with_changed_private_ownership_have_equal_provenan
     assert first_captured[0].document["game_state"]["hand"] == ("CA",)
 
 
-def test_unsupported_turn_phase_does_not_invoke_decision_hook() -> None:
+def test_canonical_completion_invokes_hook_only_at_new_local_decision() -> None:
     state = GameState(
         game_type="grand",
         player_role="declarer",
@@ -130,19 +130,26 @@ def test_unsupported_turn_phase_does_not_invoke_decision_hook() -> None:
 
     result = simulate_multiple_steps(
         state=state,
-        left_hand_size=1,
-        right_hand_size=1,
+        left_hand_size=2,
+        right_hand_size=2,
         step_count=1,
         random_seed=3,
         strategic_metadata=StrategicMetadata(),
         game_declaration=GameDeclaration("grand", matadors=1, bid_value=24),
-        initial_hidden_world=_world(state, ("C7",), ("C8",)),
+        initial_hidden_world=_world(
+            state,
+            ("C7", "H7"),
+            ("C8", "S7"),
+        ),
         decision_provenance_hook=lambda **kwargs: calls.append(kwargs),
     )
 
-    assert result["steps_simulated"] == 0
-    assert result["stop_reason"] == "unsupported_turn_phase"
-    assert calls == []
+    assert result["steps_simulated"] == 1
+    assert result["stop_reason"] == "Requested step count reached."
+    assert len(calls) == 1
+    assert calls[0]["decision_index"] == 0
+    assert calls[0]["state"].completed_tricks[0]["cards"] == ["CA", "C7", "C8"]
+    assert calls[0]["state"].hand == ["D7"]
 
 
 def test_search_inclusive_policy_comparison_threads_same_hook_once_per_policy(

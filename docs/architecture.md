@@ -137,14 +137,14 @@ publication is claimed.
 
 Issue #200 freezes the existing private local Match, Capture, Corpus, and
 Dataset-v2 architecture as the v1 boundary. No Public Match/Corpus/Dataset-v2
-API, Schema, Root workflow, or derived persistence is required for v1. The
-remaining architecture changes before v1 are limited to internal load-to-final-
-serialization Provenance enforcement and canonical Multi-Step phase closure.
-Broader solvers and hosted/remote integration are post-v1.
+API, Schema, Root workflow, or derived persistence is required for v1. Issue #202
+subsequently completes mandatory internal load-to-final-serialization Provenance
+without widening public Provenance. Issue #203 completes all nine concrete
+canonical Multi-Step phases without widening Search or public contracts. Broader
+solvers and hosted/remote integration are post-v1.
 
-Issue #202 completes the Provenance architecture change without widening public
-Provenance. Canonical Multi-Step phase coverage is the remaining implementation
-change, and Issue #203 is the exact next action.
+Four non-architecture blockers B-04 through B-07 remain. Issue #204, **Decide and
+apply the v1 Package license boundary**, is the exact next action.
 
 Issues #160 through #168 form the published `v0.15.0` Package baseline, and Issue
 #169 updated only Package/release metadata and documentation to complete Release
@@ -748,7 +748,8 @@ boundaries](claim_and_settlement_v1_boundaries.md).
 | `src/skat_ai/hidden_card_inference.py` | Exact public-evidence constraints, compatible-world DP counts and marginals, uniform sampling, and privacy-safe summaries. |
 | `src/skat_ai/simulation_context.py`    | Simulation context creation and strict-context checks. |
 | `src/skat_ai/simulation_step.py`       | Single simulation-step handling.                       |
-| `src/skat_ai/state_transition.py`      | Applies card plays and transitions game state.         |
+| `src/skat_ai/canonical_multi_step_phase.py` | Immutable version-1 exact nine-row phase-plan contract, policy constants, and builder validation. |
+| `src/skat_ai/state_transition.py`      | Applies local plays and immutable existing-Trick completion transitions. |
 | `src/skat_ai/multi_step_simulation.py` | Multi-step simulation orchestration.                   |
 | `src/skat_ai/multi_step_recommendation.py` | Immutable privacy-safe compatible-world Search decision and compact comparison diagnostics. |
 | `src/skat_ai/multi_step_summary.py`    | Serializable multi-step result summaries.              |
@@ -899,10 +900,12 @@ Immediate Analysis is available only when the normalized input state has
 top-level position unchanged and returns an unavailable Immediate Analysis shape.
 
 Multi-step simulation uses the normalized turn phase, not `next_player` alone.
-It can prepare an empty left lead through right response, an empty right lead,
-or right's response to an existing one-card left lead. Valid phases where the
-local player has already acted and only opponents remain stop with
-`unsupported_turn_phase` without mutating the state.
+It classifies all nine concrete canonical leader/Trick-length/next-Player rows.
+Three rows begin directly at a local action, three prepare an opponent lead or
+response through the first new local Decision, and three complete an already
+started Trick containing the local Card before continuing from its exact winner.
+Only unresolved non-concrete phases can stop with `unsupported_turn_phase`. See
+[Canonical Multi-Step phase coverage](canonical_multi_step_phase_coverage.md).
 
 Historical review may derive the same exact model from each snapshot's visible
 prefix, current trick, public hands, and legitimate skat knowledge. It excludes
@@ -916,8 +919,8 @@ rolling behavior remains unchanged.
 | File                                     | Purpose                                          |
 | ---------------------------------------- | ------------------------------------------------ |
 | `src/skat_ai/opponent_policy.py`         | Opponent policy definitions and selection logic. |
-| `src/skat_ai/opponent_lead.py`           | Opponent lead behavior.                          |
-| `src/skat_ai/opponent_sequence.py`       | Opponent play sequencing.                        |
+| `src/skat_ai/opponent_lead.py`           | Opponent lead/response behavior and coherent existing-Trick completion. |
+| `src/skat_ai/opponent_sequence.py`       | Canonical phase classification, bounded opponent sequencing, and continuation to the next local Decision. |
 | `src/skat_ai/opponent_policy_preset.py`  | Named policy presets.                            |
 | `src/skat_ai/opponent_profile_policy.py` | Profile-based policy recommendation.             |
 | `src/skat_ai/player_profile.py`          | Player profile modeling.                         |

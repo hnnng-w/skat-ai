@@ -125,13 +125,19 @@ to model-facing features or labels. Rolling
 opponent-policy evaluation remains a snapshot-based deterministic behavioral
 comparison and does not run Multi-Step or consume a private execution root.
 
-## Unchanged scope and non-goals
+## Canonical completion and non-goals
 
-Supported and unsupported turn phases and `unsupported_turn_phase` stops are
-unchanged. Search integration does not add automatic completion of opponent-only
-phases, new input fields, opponent Search, coherent-root access, path-global
-budgets, cross-decision caches, principal-line execution, behavioral or Bayesian
-hidden-card inference, learned behavior, model training, or confidence that the
-sampled root matches the real deal. Scoring, settlement, training versions, and
-rolling metrics remain unchanged. See
+Issue #203 extends the same coherent World across all nine concrete canonical
+phases. In three rows it completes the already started Trick by simulating only
+the missing opponent Cards, then continues from the derived concrete winner to
+the first new local Decision. The local Card already in the Trick is not replayed
+or removed again, and ownership is not resampled. See
+[Canonical Multi-Step phase coverage](canonical_multi_step_phase_coverage.md).
+
+This completion adds no new input field, opponent Search, coherent-root access
+for Search, path-global budget, cross-decision cache, principal-line execution,
+behavioral or Bayesian hidden-card inference, learned behavior, model training,
+or confidence that the sampled root matches the real deal. Scoring, settlement,
+training versions, and rolling metrics remain unchanged. An unresolved
+non-concrete phase may still stop with `unsupported_turn_phase`. See
 [Hidden-card inference](hidden_card_inference.md).

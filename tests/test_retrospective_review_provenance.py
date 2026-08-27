@@ -152,7 +152,7 @@ def test_flat_review_keeps_multi_step_outside_retrospective_decision_hooks() -> 
     )
 
     assert execution.result.document["multi_step_result"]["stop_reason"] == (
-        "unsupported_turn_phase"
+        "Requested step count reached."
     )
     assert execution.provenance is not None
     assert [attachment.name for attachment in execution.provenance.attachments] == [

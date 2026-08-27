@@ -1117,9 +1117,9 @@ def check_multi_step_partial_trick(data: dict[str, Any]) -> list[str]:
     return errors
 
 
-def check_unsupported_multi_step_phase(data: dict[str, Any]) -> list[str]:
+def check_canonical_multi_step_completion_phase(data: dict[str, Any]) -> list[str]:
     """
-    Checks the valid but unsupported Multi-Step phase stop branch.
+    Checks canonical completion before the next local Multi-Step Decision.
     """
     errors = []
     post_game_summary = data["post_game_review_summary"]
@@ -1151,19 +1151,23 @@ def check_unsupported_multi_step_phase(data: dict[str, Any]) -> list[str]:
         errors.append("expected populated multi_step_result")
         return errors
 
-    if multi_step_result["stop_reason"] != "unsupported_turn_phase":
-        errors.append("expected unsupported_turn_phase stop reason")
+    if multi_step_result["stop_reason"] != "Requested step count reached.":
+        errors.append("expected requested-step-count stop after canonical completion")
 
-    if multi_step_result["steps_simulated"] != 0:
-        errors.append("expected no simulated steps for unsupported phase")
+    if multi_step_result["steps_simulated"] != 1:
+        errors.append("expected one local step after canonical completion")
 
-    if multi_step_result["steps"] != []:
-        errors.append("expected no candidate simulation steps")
+    if len(multi_step_result["steps"]) != 1:
+        errors.append("expected one candidate simulation step")
+        return errors
 
-    final_state = multi_step_result["final_state"]
-    for field_name in ["hand", "current_trick", "trick_leader", "next_player"]:
-        if final_state[field_name] != data["position"][field_name]:
-            errors.append(f"expected final_state.{field_name} to be unchanged")
+    step = multi_step_result["steps"][0]
+    if step["step_index"] != 0:
+        errors.append("expected first new local Decision to use step index zero")
+    if step["prepared_state"]["hand"] != data["position"]["hand"]:
+        errors.append("expected initial completion to preserve the local hand")
+    if step["prepared_state"]["completed_tricks"][0]["cards"][0] != "S7":
+        errors.append("expected completed Trick to preserve the existing local Card")
 
     return errors
 
@@ -4672,7 +4676,7 @@ SCENARIOS = (
             / "generated_output_schema"
             / "grand_unsupported_multi_step_phase.json"
         ),
-        branch="unsupported valid Multi-Step phase with no candidate step",
+        branch="canonical current-Trick completion before one local Decision",
         cli_args=(
             "--multi-step",
             "1",
@@ -4681,7 +4685,7 @@ SCENARIOS = (
             "--expected-value-samples",
             "20",
         ),
-        check_output=check_unsupported_multi_step_phase,
+        check_output=check_canonical_multi_step_completion_phase,
     ),
     Scenario(
         name="policy_comparison",

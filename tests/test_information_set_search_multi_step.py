@@ -396,6 +396,85 @@ def test_compact_information_set_diagnostic_has_exact_safe_fields() -> None:
     assert diagnostic["fallback_used"] is False
 
 
+def test_information_set_search_runs_after_public_canonical_completion_only(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _data, _input_state, _settings, declaration, metadata, configuration, effective = (
+        _inputs()
+    )
+    configuration = replace(
+        configuration,
+        information_set_search_settings=replace(
+            configuration.information_set_search_settings,
+            max_depth_plies=3,
+            max_state_nodes=1000,
+            max_information_sets=1000,
+        ),
+    )
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        declarer_player="me",
+        hand=["D7"],
+        current_trick=["CA"],
+        trick_leader="me",
+        next_player="left",
+    )
+    world = CoherentHiddenWorld(
+        left_hand=("C7", "H7"),
+        right_hand=("C8", "S7"),
+        hypothetical_skat=tuple(
+            card
+            for card in get_full_deck()
+            if card not in {"D7", "CA", "C7", "H7", "C8", "S7"}
+        ),
+    )
+    workflow_calls = []
+    original_workflow = multi_step_module.execute_recommendation_workflow
+
+    def observed_workflow(**kwargs):
+        workflow_calls.append(kwargs)
+        return original_workflow(**kwargs)
+
+    monkeypatch.setattr(
+        multi_step_module,
+        "execute_recommendation_workflow",
+        observed_workflow,
+    )
+    result = simulate_multiple_steps(
+        state=state,
+        left_hand_size=2,
+        right_hand_size=2,
+        step_count=1,
+        random_seed=29,
+        card_selection_policy="information_set_search",
+        strategic_metadata=metadata,
+        game_declaration=declaration,
+        recommendation_configuration=configuration,
+        effective_opponent_policy_settings=effective,
+        initial_hidden_world=world,
+    )
+
+    assert len(workflow_calls) == 1
+    assert workflow_calls[0]["state"].hand == ["D7"]
+    assert workflow_calls[0]["state"].current_trick == []
+    assert workflow_calls[0]["state"].completed_tricks[-1]["cards"] == [
+        "CA",
+        "C7",
+        "C8",
+    ]
+    assert workflow_calls[0]["left_hand_size"] == 1
+    assert workflow_calls[0]["right_hand_size"] == 1
+    assert "coherent_hidden_world" not in workflow_calls[0]
+    assert "initial_hidden_world" not in workflow_calls[0]
+    assert result["steps"] == []
+    assert result["stop_reason"] == "local_policy_no_recommendation"
+    stopped = result["stopped_recommendation_decision"]
+    assert stopped.step_index == 0
+    assert stopped.recommendation_card is None
+    assert stopped.fallback_used is False
+
+
 def test_information_set_no_recommendation_stops_without_fallback() -> None:
     _data, state, settings, declaration, metadata, configuration, effective = _inputs()
     nondeterministic = replace(effective, left_response_policy="random_legal")
@@ -552,6 +631,117 @@ def test_information_set_policy_comparison_appends_one_eligible_safe_row_last() 
         "fallback_used",
     )
     assert "controlled_policy" not in _all_keys(row)
+
+
+def test_information_set_comparison_uses_one_effective_policy_neutral_prelude(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _data, _input_state, _settings, declaration, metadata, configuration, effective = (
+        _inputs()
+    )
+    highest = replace(
+        effective,
+        global_lead_policy="highest_point",
+        global_response_policy="highest_point",
+        left_lead_policy="highest_point",
+        left_response_policy="highest_point",
+        right_lead_policy="highest_point",
+        right_response_policy="highest_point",
+    )
+    state = GameState(
+        game_type="grand",
+        player_role="defender",
+        declarer_player="left",
+        hand=["D7"],
+        current_trick=["S7"],
+        trick_leader="me",
+        next_player="left",
+    )
+    captured_calls = []
+
+    def fake_simulate_multiple_steps(**kwargs):
+        captured_calls.append(kwargs)
+        summary = {
+            "requested_step_count": kwargs["step_count"],
+            "steps_simulated": 0,
+            "stop_reason": "Player has no cards left.",
+            "strict_context": kwargs["strict_context"],
+            "score_summary": {
+                "declarer_points_gained": 0,
+                "defender_points_gained": 0,
+                "final_point_swing": 0,
+                "local_point_swing": 0,
+            },
+            "context_summary": {},
+            "requested_method": "information_set_search",
+            "decisions_attempted": 0,
+            "decisions_executed": 0,
+            "search_recommendations_used": 0,
+            "immediate_fallbacks_used": 0,
+            "no_recommendation_count": 0,
+        }
+        return {
+            "final_state": kwargs["state"],
+            "summary": summary,
+            "stop_reason": "Player has no cards left.",
+            "steps": [],
+        }
+
+    monkeypatch.setattr(
+        "skat_ai.policy_comparison.simulate_multiple_steps",
+        fake_simulate_multiple_steps,
+    )
+
+    comparison = compare_multi_step_policies(
+        state=state,
+        left_hand_size=2,
+        right_hand_size=2,
+        step_count=1,
+        policies=["first_legal", "information_set_search"],
+        random_seed=31,
+        strategic_metadata=metadata,
+        opponent_lead_policy="lowest_point",
+        opponent_response_policy="lowest_point",
+        game_declaration=declaration,
+        recommendation_configuration=configuration,
+        effective_opponent_policy_settings=highest,
+    )
+
+    assert comparison["opponent_lead_policy"] == "highest_point"
+    assert comparison["opponent_response_policy"] == "highest_point"
+    assert {item["card_selection_policy"] for item in captured_calls} == {
+        "first_legal",
+        "information_set_search",
+    }
+    assert all(
+        item["opponent_lead_policy"] == "highest_point"
+        and item["opponent_response_policy"] == "highest_point"
+        for item in captured_calls
+    )
+    assert all(
+        item["opponent_response_policy_by_player"]
+        == {"left": "highest_point", "right": "highest_point"}
+        for item in captured_calls
+    )
+    assert all(
+        item["left_opponent_policy_settings"]
+        == {
+            "opponent_lead_policy": "highest_point",
+            "opponent_response_policy": "highest_point",
+        }
+        and item["right_opponent_policy_settings"]
+        == {
+            "opponent_lead_policy": "highest_point",
+            "opponent_response_policy": "highest_point",
+        }
+        for item in captured_calls
+    )
+    assert captured_calls[0]["initial_hidden_world"] == captured_calls[1][
+        "initial_hidden_world"
+    ]
+    assert captured_calls[0]["initial_hidden_world"] is not captured_calls[1][
+        "initial_hidden_world"
+    ]
 
 
 def test_information_set_policy_comparison_retains_stopped_ineligible_row_last() -> None:

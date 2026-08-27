@@ -396,6 +396,64 @@ def test_search_repeats_with_public_counts_fresh_budget_and_separate_seeds(
     }
 
 
+@pytest.mark.parametrize("method", [BOUNDED_SEARCH_METHOD, AUTO_METHOD])
+def test_search_runs_only_after_canonical_completion_boundary(
+    monkeypatch: pytest.MonkeyPatch,
+    method: str,
+) -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        declarer_player="me",
+        hand=["D7"],
+        current_trick=["CA"],
+        trick_leader="me",
+        next_player="left",
+    )
+    world = _world(state, ("C7", "H7"), ("C8", "S7"))
+    configuration = _configuration(method)
+    calls = []
+
+    def fake_workflow(**kwargs):
+        calls.append(kwargs)
+        return _workflow(kwargs["configuration"], kwargs["state"], "D7")
+
+    monkeypatch.setattr(
+        "skat_ai.multi_step_simulation.execute_recommendation_workflow",
+        fake_workflow,
+    )
+    result = simulate_multiple_steps(
+        state=state,
+        left_hand_size=2,
+        right_hand_size=2,
+        step_count=1,
+        random_seed=23,
+        card_selection_policy=method,
+        strategic_metadata=_live_metadata(),
+        game_declaration=GameDeclaration("grand", matadors=1, bid_value=24),
+        recommendation_configuration=configuration,
+        initial_hidden_world=world,
+    )
+
+    assert len(calls) == 1
+    assert calls[0]["state"].hand == ["D7"]
+    assert calls[0]["state"].current_trick == []
+    assert calls[0]["state"].completed_tricks[-1]["cards"] == ["CA", "C7", "C8"]
+    assert calls[0]["left_hand_size"] == 1
+    assert calls[0]["right_hand_size"] == 1
+    assert "coherent_hidden_world" not in calls[0]
+    assert "initial_hidden_world" not in calls[0]
+    assert calls[0]["configuration"].search_random_seed == (
+        derive_simulation_child_seed(
+            configuration.search_random_seed,
+            MULTI_STEP_BOUNDED_SEARCH_DECISION_STREAM,
+            child_index=0,
+        )
+    )
+    assert result["steps"][0]["step_index"] == 0
+    assert result["steps"][0]["candidate_card"] == "D7"
+
+
 @pytest.mark.parametrize(
     ("status", "stop_reason", "timeout"),
     [

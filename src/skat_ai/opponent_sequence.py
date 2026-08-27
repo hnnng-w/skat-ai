@@ -3,14 +3,22 @@ from __future__ import annotations
 import random
 from typing import TYPE_CHECKING, Any
 
+from skat_ai.canonical_multi_step_phase import (
+    COMPLETE_CURRENT_TRICK_THEN_CONTINUE,
+    LOCAL_ACTION,
+    PREPARE_TO_LOCAL_ACTION,
+    CanonicalMultiStepPhasePlanV1,
+    build_canonical_multi_step_phase_plan_v1,
+)
 from skat_ai.game_state import GameState
 from skat_ai.opponent_lead import (
     simulate_left_lead_and_right_response_once,
     simulate_opponent_lead_once,
+    simulate_opponents_to_complete_current_trick_once,
     simulate_right_response_to_left_lead_once,
 )
 from skat_ai.opponent_policy import get_opponent_policy_settings_for_player
-from skat_ai.public_hand_constraint import PublicHandConstraint
+from skat_ai.public_hand_constraint import PublicHandConstraint, remove_public_hand_cards
 from skat_ai.turn_phase import normalize_turn_phase
 
 if TYPE_CHECKING:
@@ -22,21 +30,32 @@ RIGHT_LEAD_PHASE = "right_lead"
 RIGHT_RESPONSE_TO_LEFT_LEAD_PHASE = "right_response_to_left_lead"
 
 
+def get_canonical_multi_step_phase_plan(
+    current_state: GameState,
+) -> CanonicalMultiStepPhasePlanV1 | None:
+    """Builds the canonical internal phase plan for one public state."""
+    current_trick_length = len(current_state.current_trick)
+    phase = normalize_turn_phase(
+        trick_leader=current_state.trick_leader,
+        next_player=current_state.next_player,
+        current_trick_length=current_trick_length,
+    )
+    return build_canonical_multi_step_phase_plan_v1(
+        phase,
+        current_trick_length,
+    )
+
+
 def can_prepare_player_action(
     current_state: GameState,
 ) -> bool:
     """
     Returns whether the engine can prepare a state where the player can act.
 
-    Supported cases:
-    - local player already acts now
-    - left leads an empty trick, then right responds
-    - right leads an empty trick
-    - left has led one card and right responds
+    All nine concrete canonical phases can act locally, prepare to the local
+    action, or complete the existing Trick and continue from its winner.
     """
-    return is_local_action_phase(current_state) or get_preparation_phase(
-        current_state
-    ) is not None
+    return get_canonical_multi_step_phase_plan(current_state) is not None
 
 
 def get_unsupported_next_player_reason(
@@ -49,19 +68,14 @@ def get_unsupported_next_player_reason(
 
 
 def get_unsupported_turn_phase_reason() -> str:
-    """Returns the stable stop reason for valid but unsupported turn phases."""
+    """Returns the stable stop reason for an unresolved non-canonical phase."""
     return UNSUPPORTED_TURN_PHASE_STOP_REASON
 
 
 def is_local_action_phase(current_state: GameState) -> bool:
     """Returns whether the normalized phase already has the local player next."""
-    phase = normalize_turn_phase(
-        trick_leader=current_state.trick_leader,
-        next_player=current_state.next_player,
-        current_trick_length=len(current_state.current_trick),
-    )
-
-    return phase.next_player == "me"
+    plan = get_canonical_multi_step_phase_plan(current_state)
+    return plan is not None and plan.phase_action == LOCAL_ACTION
 
 
 def get_preparation_phase(current_state: GameState) -> str | None:
@@ -72,6 +86,9 @@ def get_preparation_phase(current_state: GameState) -> str | None:
         next_player=current_state.next_player,
         current_trick_length=current_trick_length,
     )
+    plan = build_canonical_multi_step_phase_plan_v1(phase, current_trick_length)
+    if plan is None or plan.phase_action != PREPARE_TO_LOCAL_ACTION:
+        return None
 
     if (
         phase.trick_leader == "left"
@@ -97,6 +114,23 @@ def get_preparation_phase(current_state: GameState) -> str | None:
     return None
 
 
+def _advance_opponent_hand_sizes(
+    left_hand_size: int,
+    right_hand_size: int,
+    plays: tuple[tuple[str, str], ...],
+) -> tuple[int, int]:
+    for player, _card in plays:
+        if player == "left":
+            left_hand_size -= 1
+        elif player == "right":
+            right_hand_size -= 1
+        else:
+            raise ValueError(f"Unexpected opponent play owner: {player}")
+    if left_hand_size < 0 or right_hand_size < 0:
+        raise ValueError("Public opponent hand-size accounting became negative.")
+    return left_hand_size, right_hand_size
+
+
 def prepare_player_action_state(
     current_state: GameState,
     left_hand_size: int,
@@ -118,12 +152,17 @@ def prepare_player_action_state(
     - empty right lead: simulate right lead, then me acts second
     - empty left lead: simulate left lead and right response, then me acts third
     - one-card left lead: simulate only right's response, then me acts third
+    - local Card already played: complete the Trick and continue from its winner
 
     Returns:
     - prepared GameState
     - optional opponent sequence result
     """
-    if is_local_action_phase(current_state):
+    phase_plan = get_canonical_multi_step_phase_plan(current_state)
+    if phase_plan is None:
+        raise ValueError(get_unsupported_turn_phase_reason())
+
+    if phase_plan.phase_action == LOCAL_ACTION:
         if coherent_hidden_world is not None:
             from skat_ai.coherent_hidden_world import validate_coherent_hidden_world
 
@@ -141,6 +180,95 @@ def prepare_player_action_state(
         "opponent_lead_policy": opponent_lead_policy,
         "opponent_response_policy": opponent_response_policy,
     }
+
+    if phase_plan.phase_action == COMPLETE_CURRENT_TRICK_THEN_CONTINUE:
+        response_policy_by_player = {
+            player: get_opponent_policy_settings_for_player(
+                player=player,
+                opponent_policy_settings=opponent_policy_settings,
+                left_opponent_policy_settings=left_opponent_policy_settings,
+                right_opponent_policy_settings=right_opponent_policy_settings,
+            )["opponent_response_policy"]
+            for player in phase_plan.completion_players
+        }
+        completion_result = simulate_opponents_to_complete_current_trick_once(
+            state=current_state,
+            completion_players=phase_plan.completion_players,
+            left_hand_size=left_hand_size,
+            right_hand_size=right_hand_size,
+            random_generator=random_generator,
+            opponent_response_policy_by_player=response_policy_by_player,
+            public_hand_constraints=public_hand_constraints,
+            coherent_hidden_world=coherent_hidden_world,
+            coherent_step_index=coherent_step_index,
+        )
+        completion_plays = completion_result["_opponent_plays"]
+        completion_world = completion_result["_coherent_hidden_world"]
+        completed_state = completion_result["next_state"]
+        if len(completion_plays) != (
+            phase_plan.opponent_plays_required_to_complete_current_trick
+        ):
+            raise ValueError("Canonical current-Trick completion failed to progress.")
+        if (
+            completed_state.current_trick
+            or len(completed_state.completed_tricks)
+            != len(current_state.completed_tricks) + 1
+        ):
+            raise ValueError("Canonical current-Trick completion failed to progress.")
+        completed_constraints = remove_public_hand_cards(
+            public_hand_constraints,
+            [card for _, card in completion_plays],
+        )
+        completed_left_size, completed_right_size = _advance_opponent_hand_sizes(
+            left_hand_size,
+            right_hand_size,
+            completion_plays,
+        )
+
+        continuation_result = None
+        prepared_state = completed_state
+        if completed_state.hand:
+            prepared_state, continuation_result = prepare_player_action_state(
+                current_state=completed_state,
+                left_hand_size=completed_left_size,
+                right_hand_size=completed_right_size,
+                random_generator=random_generator,
+                opponent_lead_policy=opponent_lead_policy,
+                opponent_response_policy=opponent_response_policy,
+                left_opponent_policy_settings=left_opponent_policy_settings,
+                right_opponent_policy_settings=right_opponent_policy_settings,
+                public_hand_constraints=completed_constraints,
+                coherent_hidden_world=completion_world,
+                coherent_step_index=coherent_step_index,
+            )
+
+        result = {} if continuation_result is None else dict(continuation_result)
+        continuation_plays = (
+            ()
+            if continuation_result is None
+            else continuation_result.get("_opponent_plays", ())
+        )
+        if len(completion_plays) + len(continuation_plays) > 4:
+            raise ValueError("Canonical opponent prelude exceeded its execution bound.")
+        if prepared_state.hand and not is_local_action_phase(prepared_state):
+            raise ValueError("Canonical opponent preparation failed to reach local action.")
+        result.update(
+            {
+                "next_state": prepared_state,
+                "_canonical_phase_plan": phase_plan,
+                "_completed_current_trick": completion_result,
+                "_opponent_plays": (*completion_plays, *continuation_plays),
+                "_coherent_hidden_world": (
+                    completion_world
+                    if continuation_result is None
+                    else continuation_result.get(
+                        "_coherent_hidden_world",
+                        completion_world,
+                    )
+                ),
+            }
+        )
+        return prepared_state, result
 
     preparation_phase = get_preparation_phase(current_state)
 
@@ -228,6 +356,12 @@ def build_serializable_opponent_sequence_result(
     if opponent_sequence_result is None:
         return None
 
+    if not any(
+        opponent_sequence_result.get(field_name) is not None
+        for field_name in ("leader", "lead_card", "responder", "response_card")
+    ):
+        return None
+
     return {
         "leader": opponent_sequence_result.get("leader"),
         "lead_card": opponent_sequence_result.get("lead_card"),
@@ -244,6 +378,10 @@ def extract_opponent_sequence_cards(
     """
     if opponent_sequence_result is None:
         return []
+
+    opponent_plays = opponent_sequence_result.get("_opponent_plays")
+    if opponent_plays is not None:
+        return [card for _, card in opponent_plays]
 
     cards = []
 

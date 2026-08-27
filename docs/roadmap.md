@@ -781,7 +781,9 @@ Implemented:
   adjudication, and Historical-only Final Settlement runtime integration with
   privacy-bounded public output.
 * Structured declarer concession models accepted defender consent; structured defender concession applies joint liability without partner consent. Disputes are not modeled.
-* Multi-Step intentionally does not auto-complete every opponent-only continuation; valid phases where the local player has already acted stop with `unsupported_turn_phase`.
+* Multi-Step covers all nine concrete canonical phases, including the three
+  opponent-only continuations after the local Card is already in the Trick. An
+  unresolved non-concrete phase may still stop with `unsupported_turn_phase`.
 * Impossible Null settlement requires an external Suit or Grand replacement selection; it remains incomplete when that selection or its required matadors are unavailable.
 * Matador inference uses currently known declarer-card context and safe concrete-declarer completed-trick ownership facts; it does not reconstruct all possible matador information from complete historical trick ownership in every scenario.
 * Historical records support normal completion and all six terminal shortenings with at most one optional timed defender-open-play or declarer-card-exposure continuation. Multiple non-terminal events, arbitrary event streams, other claims, and other end reasons are not represented there.
@@ -1332,10 +1334,11 @@ learned-model, and hosted/remote work is post-v1.
 
 Issue #201 closes the exhaustive official-rule evidence gate without product-code
 change. Issue #202 closes internal load-to-serialization Provenance enforcement
-for all seven Root workflows without changing the bounded public contract. Before
-`v1.0.0`, the project still requires canonical Multi-Step phase closure, a human
-Package license decision, final installation/platform evidence, final readiness
-evidence, and Package `1.0.0` Release preparation. End-to-end
+for all seven Root workflows without changing the bounded public contract. Issue
+#203 closes canonical Multi-Step phase coverage for all nine concrete phases
+without widening Search or public contracts. Before `v1.0.0`, the project still
+requires a human Package license decision, final installation/platform evidence,
+final readiness evidence, and Package `1.0.0` Release preparation. End-to-end
 local Live and Retrospective Session capture is complete
 through Issues #150 through #157, including public files, automatic Checkpoints,
 accepted-Log observation, isolated review, explicit analysis, all 12 CLI
@@ -1528,6 +1531,7 @@ the bounded `v1.0.0` scope, seven blockers, and exact #201 through #207 sequence
 Issue #201 adds independent exhaustive official-rule evidence, makes R-01 and
 R-06 `satisfied`, and closes B-01 without product-code change. Six blockers B-02
 through B-07 remained at that point. Issue #202 makes P-10 and P-13 `satisfied`
-and closes B-02. Five blockers B-03 through B-07 remain; `v1.0.0` is unready,
-and Issue #203, **Complete canonical Multi-Step phase coverage**, is next. No v1 Release
-title, theme, date, tag, or publication commit is frozen.
+and closes B-02. Issue #203 makes P-19 `satisfied` and closes B-03. Four blockers
+B-04 through B-07 remain; `v1.0.0` is unready, and Issue #204, **Decide and apply
+the v1 Package license boundary**, is next. No v1 Release title, theme, date, tag,
+or publication commit is frozen.

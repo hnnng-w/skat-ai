@@ -171,6 +171,7 @@ def choose_basic_defender_response_card(
     game_type: str,
     player_index: int,
     partner_currently_winning: bool,
+    partner_index: int = 0,
 ) -> str:
     """Chooses a basic cooperative defender response card."""
     legal_cards = get_legal_cards(
@@ -185,7 +186,7 @@ def choose_basic_defender_response_card(
         game_type=game_type,
         player_index=player_index,
         partner_currently_winning=partner_currently_winning,
-        partner_index=0,
+        partner_index=partner_index,
         legal_cards=legal_cards,
     )[0]
 
@@ -400,6 +401,7 @@ def choose_opponent_response_card_by_policy(
     policy: str = "basic_trick_play",
     random_generator: random.Random | None = None,
     partner_currently_winning: bool = False,
+    partner_index: int = 0,
 ) -> str:
     """
     Chooses an opponent response card by policy.
@@ -442,6 +444,7 @@ def choose_opponent_response_card_by_policy(
             game_type=game_type,
             player_index=player_index,
             partner_currently_winning=partner_currently_winning,
+            partner_index=partner_index,
         )
     
     if policy == "basic_defender_lead":

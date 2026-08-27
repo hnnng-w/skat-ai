@@ -24,6 +24,9 @@ closes B-01 without product-code change, and synchronizes this current audit.
 Issue #202 completes mandatory internal load-to-final-serialization information-
 Provenance enforcement for all seven Root workflows, closes B-02, makes P-10 and
 P-13 `satisfied`, and preserves the bounded public Provenance contract.
+Issue #203 completes all nine concrete canonical Multi-Step phases, closes B-03,
+makes P-19 `satisfied`, and preserves coherent-World, Search, Provenance, public-
+contract, Schema, and generated-scenario-count boundaries.
 
 ## Source hierarchy
 
@@ -105,10 +108,10 @@ There are exactly 53 traceability rows whose `Required before v1.0` cell contain
 
 | Audit status | Count |
 | --- | ---: |
-| `satisfied` | 16 |
+| `satisfied` | 17 |
 | `satisfied_with_approved_bounded_scope` | 34 |
 | `evidence_required` | 1 |
-| `implementation_required` | 1 |
+| `implementation_required` | 0 |
 | `product_decision_required` | 1 |
 | `post_v1` | 0 |
 | `not_required` | 0 |
@@ -132,10 +135,10 @@ Every required row cites at least one direct automated evidence anchor:
 | E-Session | `tests/test_public_session_api.py`, `tests/test_public_session_files.py`, `tests/test_session_transitions.py`, `tests/test_session_cli.py` |
 | E-API | `tests/test_public_api_contracts.py`, `tests/test_public_python_api_v1.py`, `tests/test_installed_cli.py` |
 | E-Provenance | `tests/test_field_provenance_coverage.py`, `tests/test_application_provenance.py`, `tests/test_complete_result_provenance.py`, `tests/test_public_field_provenance.py`, `tests/test_v1_input_provenance.py`, `tests/test_v1_provenance_enforcement.py`, `tests/test_v1_provenance_serialization.py`, `tests/test_v1_provenance_adversarial.py` |
-| E-Simulation | `tests/test_simulation.py`, `tests/test_multi_step_simulation.py`, `tests/test_simulation_provenance.py` |
+| E-Simulation | `tests/test_simulation.py`, `tests/test_multi_step_simulation.py`, `tests/test_canonical_multi_step_phase.py`, `tests/test_canonical_multi_step_phase_execution.py`, `tests/test_simulation_provenance.py` |
 | E-Inference | `tests/test_hidden_card_inference.py`, `tests/test_bounded_search_information.py` |
 | E-Search | `tests/test_bounded_search_result.py`, `tests/test_bounded_search_quality_baselines.py`, `tests/test_bounded_search_benchmark.py` |
-| E-Information-set | `tests/test_information_set_search_executor.py`, `tests/test_information_set_search_multi_step.py`, `tests/test_information_set_search_benchmark.py` |
+| E-Information-set | `tests/test_information_set_search_executor.py`, `tests/test_information_set_search_multi_step.py`, `tests/test_canonical_multi_step_phase_execution.py`, `tests/test_information_set_search_benchmark.py` |
 | E-Recommendation | `tests/test_recommender.py`, `tests/test_recommendation_workflow.py`, `tests/test_live_search_recommendations.py` |
 | E-Policy | `tests/test_opponent_policy.py`, `tests/test_opponent_profile_policy.py`, `tests/test_opponent_statistics.py`, `tests/test_opponent_profile_derivation.py`, `tests/test_historical_opponent_statistics.py`, `tests/test_rolling_opponent_policy_evaluation.py` |
 | E-Review | `tests/test_post_game_review.py`, `tests/test_historical_search_review.py`, `tests/test_flat_retrospective_search_review.py` |
@@ -196,7 +199,7 @@ Every required row cites at least one direct automated evidence anchor:
 | P-16 | Evidence-constrained hidden-card inference | `supported` | `satisfied_with_approved_bounded_scope` | Exact structural compatible-world inference with uncalibrated concentration labels is the v1 contract. | None |
 | P-17 | Bounded search contracts | `partially_supported` | `satisfied_with_approved_bounded_scope` | Exact-world and compatible-world late-game PIMC, its integrations, work profiles, and deterministic evidence satisfy the bounded v1 solver contract. | None |
 | P-18 | Information-set Search | `partially_supported` | `satisfied_with_approved_bounded_scope` | Current three-Trick controlled-player selected-world Search and integrations satisfy the bounded v1 solver contract. | None |
-| P-19 | Multi-step simulation | `partially_supported` | `implementation_required` | Coherent-world behavior is retained, but every canonical valid turn phase must analyze, advance through documented preparation, or terminate under an approved non-error reason. | B-03 / #203 |
+| P-19 | Multi-step simulation | `partially_supported` | `satisfied` | All nine concrete canonical phases analyze directly, prepare to the first new local Decision, or complete the existing Trick and continue from its exact winner under one coherent World. Completion consumes no local step, Search remains public-state-only, terminal completion uses an existing non-error reason, and unresolved non-concrete phases retain the bounded fallback. | None |
 | P-20 | Card recommendations | `supported` | `satisfied` | Existing legal, objective-aware Immediate/Search/Auto recommendation behavior satisfies v1. | None |
 | P-21 | Opponent policies | `supported` | `satisfied` | Existing deterministic global and side-specific policies satisfy v1. | None |
 | P-22 | Player and opponent profiles | `partially_supported` | `satisfied_with_approved_bounded_scope` | Explainable rule-based, time-safe profile application is v1; learned profiles are `post_v1`. | None |
@@ -263,7 +266,7 @@ additional required rows, so they do not change the 53-row reconciliation.
 | P-16 | E-Inference | None within structural uncalibrated scope | None |
 | P-17 | E-Search | None within bounded PIMC scope | None |
 | P-18 | E-Information-set | None within three-Trick selected-world scope | None |
-| P-19 | E-Simulation, E-Information-set | Canonical valid-phase analysis, preparation, or approved termination | B-03 / #203 |
+| P-19 | E-Simulation, E-Information-set | None | None |
 | P-20 | E-Recommendation | None | None |
 | P-21 | E-Policy | None | None |
 | P-22 | E-Policy | None within rule-based Profile scope | None |
@@ -761,14 +764,15 @@ Issue #201 closes B-01 with the independent evidence documented in
 [v1 official-rule evidence](v1_official_rule_evidence.md). Issue #202 closes
 B-02 with the internal lifecycle documented in
 [v1 information provenance enforcement](v1_information_provenance_enforcement.md).
-`v1.0.0` is not ready. Exactly these five blockers remain:
+Issue #203 closes B-03 with the contract and direct evidence documented in
+[Canonical Multi-Step phase coverage](canonical_multi_step_phase_coverage.md).
+`v1.0.0` is not ready. Exactly these four blockers remain:
 
 | Blocker | Status | Required closure |
 | --- | --- | --- |
-| B-03 | `implementation_required` | Close canonical valid Multi-Step phase analysis/preparation/termination coverage without adding a broader solver. |
 | B-04 | `product_decision_required` | Human maintainer decides the Package license and resulting metadata/evidence boundary. |
 | B-05 | `evidence_required` | Complete the final all-seven-workflow Wheel/sdist clean-install matrix and fresh CPython 3.13 Windows/Ubuntu platform evidence. |
-| B-06 | `evidence_required` | After B-03 through B-05, record a clean final v1 scope/readiness audit, full local check, CI result, and clean worktree evidence. |
+| B-06 | `evidence_required` | After B-04 and B-05, record a clean final v1 scope/readiness audit, full local check, CI result, and clean worktree evidence. |
 | B-07 | `implementation_required` | After readiness approval, prepare Package `1.0.0`, matching version expectations, Changelog, and Release-candidate documentation without product behavior changes. |
 
 No blocker requires a new Claim interpretation, broader Search algorithm,
@@ -783,14 +787,15 @@ The smallest coherent follow-up sequence is frozen as:
 | ---: | --- | --- | --- | --- | --- | --- | --- | --- |
 | 1 | **#201 - Complete v1 official-rule evidence closure**; evidence | Rules and Settlement; R-01, R-06, B-01 | Add exhaustive card/rank and accepted Suit/Grand value/variant tables; change no approved rule interpretation. | #200; completed | No; focused tests/evidence only | None | None | Closed the official-rule evidence gate. |
 | 2 | **#202 - Complete internal v1 information-Provenance enforcement**; implementation and evidence | Provenance/privacy; P-10, P-13, B-02 | Implement and test loading, retained-stage linkage, final serialization, and adversarial closure. | #200 and completed #201; completed | Yes, internal enforcement | No new public field, version, or default behavior | None | Closed internal information-safety implementation before candidate validation. |
-| 3 | **#203 - Complete canonical Multi-Step phase coverage**; implementation and evidence | Simulation; P-19, B-03 | Analyze, prepare, or terminate every valid canonical phase under documented semantics; preserve coherent-world and Search boundaries. | Completed #202 | Yes, bounded phase handling | Existing fields only; behavior changes only for currently unsupported valid phases | None expected | Closes the final functional behavior gate. |
+| 3 | **#203 - Complete canonical Multi-Step phase coverage**; implementation and evidence | Simulation; P-19, B-03 | Analyze, prepare, or terminate every valid canonical phase under documented semantics; preserve coherent-world and Search boundaries. | Completed #202; completed | Yes, bounded phase handling | Existing fields only; one existing generated scenario changes from unsupported to executable without changing its identity, public shape, or the count | None | Closed the final functional behavior gate. |
 | 4 | **#204 - Decide and apply the v1 Package license boundary**; product decision and metadata | Packaging/license; P-09, B-04 | Obtain the human decision, then apply only the resulting metadata, files, tests, and documentation. | #200; ordered after #203 | No product behavior; decision-dependent metadata/files only | Package metadata only, not Python API or CLI behavior | None | Required legal/metadata decision before distribution evidence. |
 | 5 | **#205 - Complete the v1 installation and supported-platform matrix**; evidence | Packaging/platforms; P-34, B-05 | Add all-seven-Root-workflow source/Editable/Wheel/sdist evidence and verify CPython 3.13 on Windows and Ubuntu with current CLI/browser/download boundaries. | #201-#204 | No product behavior expected; validation scripts/tests may change | None | None | Produces final candidate installation/platform evidence. |
 | 6 | **#206 - Audit final v1.0.0 Release readiness**; documentation audit | All Gate clusters; B-06 | Reconcile #201 through #205, the 53-row ledger, exact counts, final full check, CI, diff, and Release blockers. | #205 and successful CI | No | None | None | Decides whether Release preparation may begin. |
 | 7 | **#207 - Prepare Package v1.0.0 and the Release candidate**; Release preparation | Release metadata; B-07 | Update Package version/current-version expectations, Changelog, and approved Release-candidate documentation; rerun final validation; do not publish. | #206 readiness approval | Version constants only; no product behavior | Package version metadata only | None expected | Produces the unpublished `1.0.0` Release candidate for human publication. |
 
-B-01 is closed by Issue #201, and B-02 is closed by Issue #202. Every remaining
-blocker B-03 through B-07 maps to exactly one planned Issue #203 through #207.
+B-01 is closed by Issue #201, B-02 by Issue #202, and B-03 by Issue #203. Every
+remaining blocker B-04 through B-07 maps to exactly one planned Issue #204 through
+#207.
 Publication, tagging, GitHub Release
 creation, and any post-publication synchronization remain human-controlled and
 are not frozen as Issue numbers here.
@@ -804,11 +809,12 @@ workflows, stable Public API/Session/CLI surfaces, 71 Schemas, six Session
 examples, 98 generated outputs, and ten Corpus downloads are accepted as the v1
 baseline under their documented limitations.
 
-The 53 required traceability rows are completely classified as 16 `satisfied`,
-34 `satisfied_with_approved_bounded_scope`, 1 `evidence_required`, 1
+The 53 required traceability rows are completely classified as 17 `satisfied`,
+34 `satisfied_with_approved_bounded_scope`, 1 `evidence_required`, 0
 `implementation_required`, and 1 `product_decision_required`. Issue #201 closes
-B-01 without product-code change, and Issue #202 closes B-02. Five blockers B-03
-through B-07 and the remaining #203 through #207 sequence remain. Therefore:
+B-01 without product-code change, Issue #202 closes B-02, and Issue #203 closes
+B-03. Four blockers B-04 through B-07 and the remaining #204 through #207
+sequence remain. Therefore:
 
 ```text
 v1.0.0 scope:
@@ -818,25 +824,25 @@ v1.0.0 implementation and evidence:
     incomplete
 
 v1.0.0 Release readiness:
-    blocked by B-03 through B-07
+    blocked by B-04 through B-07
 
 v1.0.0 Release title, theme, date, tag, and publication commit:
     not frozen
 ```
 
 The traceability audit is fully classified, every remaining blocker is mapped to
-the exact ordered plan, implementation is not complete, and Release preparation
-is not ready. The exact next action is Issue #203, **Complete canonical Multi-
-Step phase coverage**.
+the exact ordered plan, and Release preparation is not ready. The exact next
+action is Issue #204, **Decide and apply the v1 Package license boundary**.
 
 ## Exact next action
 
 | Conclusion field | Current result |
 | --- | --- |
 | Traceability | Fully classified: all 53 required rows have one audit status, direct evidence, missing-work state, and blocker owner. |
-| Blocker mapping | B-01 closed by #201 and B-02 closed by #202; exact one-to-one B-03 through B-07 to #203 through #207 remains. |
+| Blocker mapping | B-01 closed by #201, B-02 by #202, and B-03 by #203; exact one-to-one B-04 through B-07 to #204 through #207 remains. |
 | Issue #200 implementation | Not started; this audit changes documentation only. |
 | Issue #201 evidence closure | Complete; R-01 and R-06 are `satisfied`, and B-01 is closed without product-code change. |
 | Issue #202 Provenance closure | Complete; P-10 and P-13 are `satisfied`, and B-02 is closed without widening public Provenance. |
-| Release preparation | Not ready while B-03 through B-07 remain open. |
-| Next action | Issue #203, **Complete canonical Multi-Step phase coverage**. |
+| Issue #203 canonical phase closure | Complete; P-19 is `satisfied`, and B-03 is closed without widening Search or public contracts. |
+| Release preparation | Not ready while B-04 through B-07 remain open. |
+| Next action | Issue #204, **Decide and apply the v1 Package license boundary**. |

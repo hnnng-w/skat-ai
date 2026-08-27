@@ -45,6 +45,45 @@ def determine_next_player_from_completed_trick(
     return "unknown"
 
 
+def advance_state_after_existing_trick_completion(
+    state: GameState,
+    completed_trick: dict[str, Any],
+) -> GameState:
+    """Advances an opponent-completed Trick without changing the local hand."""
+    if len(state.current_trick) not in (1, 2):
+        raise ValueError("Existing Trick completion requires one or two Cards.")
+    if len(completed_trick.get("cards", ())) != 3:
+        raise ValueError("Existing Trick completion requires exactly three Cards.")
+    if completed_trick["cards"][: len(state.current_trick)] != state.current_trick:
+        raise ValueError("Completed Trick does not preserve the current Card prefix.")
+
+    next_player = determine_next_player_from_completed_trick(
+        completed_trick=completed_trick,
+        player_role=state.player_role,
+        declarer_player=state.declarer_player,
+    )
+    if next_player not in ("me", "left", "right"):
+        raise ValueError("Existing Trick completion requires a concrete winner.")
+
+    updated_completed_tricks = deepcopy(state.completed_tricks)
+    updated_completed_tricks.append(deepcopy(completed_trick))
+    return GameState(
+        game_type=state.game_type,
+        player_role=state.player_role,
+        hand=state.hand.copy(),
+        current_trick=[],
+        played_cards=state.played_cards.copy(),
+        skat=state.skat.copy(),
+        player_position=state.player_position,
+        declarer_player=state.declarer_player,
+        trick_leader=next_player,
+        completed_tricks=updated_completed_tricks,
+        declarer_points=state.declarer_points,
+        defender_points=state.defender_points,
+        next_player=next_player,
+    )
+
+
 def advance_state_after_detailed_trick(
     state: GameState,
     candidate_card: str,

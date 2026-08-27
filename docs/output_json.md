@@ -1651,9 +1651,12 @@ local-perspective swing fields:
 
 The output schema defines the stable `multi_step_result` structure, including
 serialized steps, `steps[].prepared_state`, candidate detailed results,
-`final_state`, context summaries, stop reasons such as
-`unsupported_turn_phase`, and both `final_point_swing` and
-`local_point_swing`.
+`final_state`, context summaries, stop reasons, and both `final_point_swing` and
+`local_point_swing`. All nine concrete canonical phases are executable. The
+existing `unsupported_turn_phase` reason remains only for an unresolved
+non-concrete phase and does not describe any canonical table row. Existing-Trick
+completion creates no step for an already played local Card; if the local hand is
+then empty, zero serialized steps and `Player has no cards left.` are returned.
 
 ## Policy comparison result
 

@@ -1981,7 +1981,7 @@ def test_cli_preserves_argparse_exit_two_for_parser_errors(
     assert expected_error in completed_process.stderr
 
 
-def test_cli_unsupported_multi_step_phase_remains_success(tmp_path) -> None:
+def test_cli_canonical_multi_step_completion_phase_remains_success(tmp_path) -> None:
     output_path = tmp_path / "result.json"
 
     completed_process = run_cli(
@@ -2000,14 +2000,17 @@ def test_cli_unsupported_multi_step_phase_remains_success(tmp_path) -> None:
     )
 
     assert completed_process.returncode == 0
-    assert "unsupported_turn_phase" in completed_process.stdout
+    assert "Requested step count reached." in completed_process.stdout
     assert completed_process.stderr == ""
     assert output_path.exists()
 
     with output_path.open("r", encoding="utf-8") as file:
         result = json.load(file)
 
-    assert result["multi_step_result"]["stop_reason"] == "unsupported_turn_phase"
+    multi_step_result = result["multi_step_result"]
+    assert multi_step_result["stop_reason"] == "Requested step count reached."
+    assert multi_step_result["steps_simulated"] == 1
+    assert multi_step_result["steps"][0]["step_index"] == 0
 
 
 def test_apply_cli_overrides_keeps_settings_when_no_overrides_are_given() -> None:

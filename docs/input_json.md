@@ -491,22 +491,30 @@ is `left` or `right`, the input remains valid when the phase is canonical, but
 Immediate Analysis returns an unavailable recommendation instead of analyzing a
 nonexistent local decision.
 
-Multi-Step can prepare these opponent-turn phases until the local player is next:
+Multi-Step classifies every concrete canonical phase:
 
-| Starting phase | Preparation |
-| -------------- | ----------- |
-| `trick_leader = left`, empty `current_trick`, `next_player = left` | Simulate left lead and right response. |
-| `trick_leader = right`, empty `current_trick`, `next_player = right` | Simulate right lead. |
-| `trick_leader = left`, one-card `current_trick`, `next_player = right` | Preserve the lead card and simulate only right's response. |
+| `trick_leader` | `current_trick` length | `next_player` | Initial action |
+| -------------- | ----------------------: | ------------- | -------------- |
+| `me` | 0 | `me` | Select a new local action. |
+| `me` | 1 | `left` | Complete the existing Trick through left and right, then continue from its winner. |
+| `me` | 2 | `right` | Complete the existing Trick through right, then continue from its winner. |
+| `left` | 0 | `left` | Simulate left lead and right response. |
+| `left` | 1 | `right` | Preserve the lead Card and simulate only right's response. |
+| `left` | 2 | `me` | Select a new local action. |
+| `right` | 0 | `right` | Simulate right lead. |
+| `right` | 1 | `me` | Select a new local action. |
+| `right` | 2 | `left` | Complete the existing Trick through left, then continue from its winner. |
 
-Valid phases where the local player has already acted and only an opponent action
-remains are not automatically completed. Multi-Step stops with
-`unsupported_turn_phase` and leaves the state unchanged for those phases.
+Completion never replays or removes the already played local Card. Completion
+and opponent preparation consume zero local steps; the first newly selected local
+Card remains `step_index = 0`. An unresolved empty `unknown/unknown` phase may
+still stop with `unsupported_turn_phase`. See
+[Canonical Multi-Step phase coverage](canonical_multi_step_phase_coverage.md).
 
 Multi-Step requires no new input field for hidden-world coherence. It samples one
 private execution root from the validated position, hand sizes, and any exact
 public-hand constraints, then preserves that ownership and a fixed hypothetical
-skat across all supported steps. Preparation and trick completion use the same
+skat across all supported steps. Preparation and Trick completion use the same
 world. Public constraints, including the supported two-hand combination, remain
 exact. Local decision policies never receive private unplayed ownership.
 
