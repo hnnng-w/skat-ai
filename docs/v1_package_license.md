@@ -69,9 +69,11 @@ CLI, workflow, or download contracts. Focused tests use deterministic local
 fixtures and perform no network access.
 
 No author, classifier, homepage, domain, project URL, second Console Script, or
-GUI Script metadata is added. The current Package remains version `0.17.0` with
-distribution `skat-ai`, import namespace `skat_ai`, Python `>=3.13`, and the one
-`skat-ai = skat_ai.cli:main` Console Script.
+GUI Script metadata is added. Issue #204 originally preserved the then-active
+Package identity. Issue #205 subsequently changes the current distribution and
+import namespace to `skatmind` and the one Console Script to
+`skatmind = skatmind.cli:main`. Package version remains `0.17.0` and Python
+metadata remains `>=3.13`.
 
 ## Direct dependency audit
 
@@ -82,24 +84,20 @@ the repository and Issue #204 changes no dependency declaration.
 | Declaration | Purpose and scope | Upstream license source | Upstream license | Vendored | Bounded distribution conclusion |
 | --- | --- | --- | --- | --- | --- |
 | `setuptools>=77.0.3` | PEP 517 build backend; build time | <https://github.com/pypa/setuptools/blob/main/LICENSE> | MIT | No | Its permissive terms do not conflict with distributing this project's source and artifacts under `AGPL-3.0-only`. |
-| `jsonschema>=4.0.0` | JSON Schema validation; runtime | <https://github.com/python-jsonschema/jsonschema/blob/main/COPYING> | MIT | No | Its permissive terms do not conflict with the selected project license. |
+| `jsonschema>=4.23.0` | JSON Schema validation; direct runtime dependency | <https://github.com/python-jsonschema/jsonschema/blob/main/COPYING> | MIT | No | Its permissive terms do not conflict with the selected project license. |
+| `referencing>=0.31.0` | Local JSON Schema resource registry and reference resolution; direct runtime dependency | <https://github.com/python-jsonschema/referencing/blob/main/COPYING> | MIT | No | Its permissive terms do not conflict with the selected project license. |
 | `build>=1.2.2` | Wheel/sdist frontend; development only | <https://github.com/pypa/build/blob/main/LICENSE> | MIT | No | It is development tooling and its permissive terms do not conflict with the selected project license. |
 | `pytest>=9.0.0` | Automated tests; development only | <https://github.com/pytest-dev/pytest/blob/main/LICENSE> | MIT | No | It is development tooling and its permissive terms do not conflict with the selected project license. |
 | `ruff>=0.14.0` | Linting and formatting; development only | <https://github.com/astral-sh/ruff/blob/main/LICENSE> | MIT | No | It is development tooling and its permissive terms do not conflict with the selected project license. |
 
-The source directly imports `referencing`, whose upstream license is MIT
-(<https://github.com/python-jsonschema/referencing/blob/main/COPYING>). It is not
-vendored and is present through current `jsonschema` releases, but the declared
-`jsonschema>=4.0.0` lower range does not guarantee it: `jsonschema` added
-`referencing` as a dependency after that lower bound. This is an existing
-dependency-declaration/lower-bound correctness gap, not an identified license
-incompatibility. Issue #204 cannot change dependencies. B-05/#206 must not claim
-the final installation matrix until Issue #206 has reconciled the direct import
-with the supported dependency declarations and validated lower bounds. That
-reconciliation is part of #206's existing installation-matrix ownership; it adds
-no Issue to the exact #205 through #208 sequence and changes nothing in Issue
-#204. Future dependency upgrades still require normal dependency and license
-review.
+Issue #204 itself changed no dependency. Issue #206 subsequently reconciles the
+two direct Production imports with the exact ordered declarations above and
+validates the minimum-supported versions `jsonschema==4.23.0` and
+`referencing==0.31.0` in isolated Wheel and sdist environments. Neither direct
+dependency is vendored and neither has an upper bound. Both remain MIT-licensed;
+no license incompatibility is identified. This technically closes B-05 subject
+to the merged Ubuntu CI condition. Future dependency upgrades still require
+normal dependency and license review.
 
 This is a bounded repository audit, not an automated legal opinion or a claim
 about every future transitive version.
@@ -110,7 +108,7 @@ The current bundled and repository evidence families were reviewed as follows:
 
 | Family | Audit result |
 | --- | --- |
-| Python source | Project source under `src/skat_ai`; no third-party source tree or generated vendor directory found. |
+| Python source | Project source under `src/skatmind`; no third-party source tree or generated vendor directory found. |
 | JSON Schemas | The 71 authoritative files under `schemas/` and their byte-identical Package Resource mirrors are project schemas; no third-party metaschema is bundled. |
 | Capture HTML/CSS/JavaScript | The template, stylesheet, and vanilla JavaScript are first-party Package Data with no framework, CDN, font, image, or copied library. |
 | Corpus HTML/CSS/JavaScript | The template, stylesheet, and vanilla JavaScript are first-party Package Data with no framework, CDN, font, image, or copied library. |
@@ -172,12 +170,13 @@ B-09 / Issue #208:
     preparation.
 ```
 
-The exact next action and pre-v1 sequence are:
+The current pre-v1 sequence is:
 
-1. #205: Rename the complete project and public Package surface to SkatMind.
-2. #206: Complete the v1 installation and supported-platform matrix.
-3. #207: Perform the final technical v1.0.0 Release-readiness audit.
-4. #208: Perform maintainer v1.0.0 user acceptance testing.
+1. #205: completed the SkatMind rename and migration boundary.
+2. #206: implements the v1 installation and supported-platform matrix; formal
+   closure is conditional on both merged Ubuntu jobs passing.
+3. #207: perform the final technical v1.0.0 release-readiness audit.
+4. #208: perform maintainer v1.0.0 user acceptance testing.
 
 Release preparation remains B-07 and occurs only after #208 and any accepted
 findings are resolved. Its Issue number is not frozen; it is expected to be #209

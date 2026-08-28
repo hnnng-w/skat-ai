@@ -425,10 +425,13 @@ def test_packaging_and_cli_add_no_public_api_exports() -> None:
     assert (PROJECT_ROOT / "src" / "skatmind" / "py.typed").is_file()
 
 
-def test_jsonschema_is_runtime_dependency_and_dev_tools_remain_optional() -> None:
+def test_schema_libraries_are_runtime_dependencies_and_dev_tools_remain_optional() -> None:
     pyproject = tomllib.loads((PROJECT_ROOT / "pyproject.toml").read_text(encoding="utf-8"))
 
-    assert pyproject["project"]["dependencies"] == ["jsonschema>=4.0.0"]
+    assert pyproject["project"]["dependencies"] == [
+        "jsonschema>=4.23.0",
+        "referencing>=0.31.0",
+    ]
     assert pyproject["project"]["optional-dependencies"]["dev"] == [
         "build>=1.2.2",
         "pytest>=9.0.0",

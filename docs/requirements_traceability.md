@@ -370,8 +370,13 @@ metadata and closes B-04 without changing product behavior or active Package
 identity. Issue #205 completes the hard-cut SkatMind Package, import, CLI,
 resource, Schema, active-identifier, and strict legacy persisted-input migration,
 makes P-09 `satisfied`, and closes B-08. B-09 remains a maintainer-UAT Gate
-outside the 53-row ledger. `v1.0.0` is not ready, and Issue #206, **Complete the
-v1 installation and supported-platform matrix**, is the next action.
+outside the 53-row ledger. Issue #206 adds exact direct dependency floors and the
+source/Editable/Wheel/sdist Windows/Ubuntu matrix, making P-34 `satisfied` and
+technically closing B-05 after local Windows evidence. Formal Issue closure
+remains conditional on green merged Ubuntu `check` and
+`v1-supported-platform-matrix` jobs. `v1.0.0` is not ready; Issue #207,
+**Perform the final technical v1.0.0 release-readiness audit**, is next after that
+condition.
 
 ## Status vocabulary
 
@@ -390,12 +395,12 @@ Only these values are used in the `Current status` column:
 An output field alone is not evidence of support.
 
 Issue #200 applies its separate v1 Gate vocabulary to every row whose `Required
-before v1.0` cell contains `Yes`. After Issue #205, the authoritative ledger
-contains 53 rows: 18 `satisfied`, 34
-`satisfied_with_approved_bounded_scope`, 1 `evidence_required`, 0
-`implementation_required`, and 0
+before v1.0` cell contains `Yes`. The Issue #206 technical ledger contains 53
+rows: 19 `satisfied`, 34 `satisfied_with_approved_bounded_scope`, 0
+`evidence_required`, 0 `implementation_required`, and 0
 `product_decision_required`. No required row is unclassified. B-09 is outside
-this ledger. See the
+this ledger. Issue #206 closure remains conditional on both merged Ubuntu jobs.
+See the
 [v1.0 scope and traceability audit](v1_0_scope_and_traceability_audit.md).
 
 ## ISkO individual-game matrix
@@ -765,7 +770,7 @@ maintainer's manual publication. See
 | Learned opponent models | SkatMind product | Not applicable | `not_supported` | No learned model exists; current profiles and policies are deterministic and rule-based. | Approved historical features, model artifact, versioning, and inference contract. | Training, evaluation, deployment, fallback, and explainability details are not designed. | Define separate post-v1.0 acceptance criteria before implementation. | Post-v1.0 | No |
 | Machine-learning model training | SkatMind product | Not applicable | `not_supported` | No training pipeline exists. | Approved dataset, target, evaluation protocol, reproducibility, and artifact policy. | Historical training-data representation does not itself authorize model training. | Define separate post-v1.0 card-decision model acceptance criteria before implementation. | Post-v1.0 | No |
 | Generated-output validation | SkatMind product | Not applicable | `supported` | The published `v0.17.0` matrix generates, semantically checks, and schema-validates 98 deterministic scenarios. Issue #186 preserves the historical published `v0.16.0` first 85 and appends three Historical Claim scenarios; Issue #189 appends four Information-set Search scenarios; Issue #190 appends Multi-Step and Policy Comparison scenarios; Issue #192 appends two Information-set Replay Coaching scenarios; Issue #194 preserves those first 96 and appends two Tactical Motif Review scenarios. Historical published `v0.13.0`, `v0.12.0`, `v0.11.0`, and `v0.10.0` counts remain 77, 70, 64, and 59. | Repository examples/fixtures, 71 schemas, and deterministic Root/Session CLI settings. | The matrix is representative rather than exhaustive; append-only additions do not rewrite historical published Release evidence. | Keep active and published counts explicit; retain prior order and add deterministic coverage for each stable user-facing branch. | v1.0 | Yes |
-| Release and regression checks | SkatMind product | Not applicable | `supported` | `scripts/check.ps1` and CI run Ruff, 71-Schema parity, Root/Session examples, 98 scenarios, Wheel/sdist inspection, clean API/Root/Session/Capture/Corpus CLI and browser smoke, and pytest on Python 3.13. | Development dependencies and supported platform tooling. | Passing checks proves tested behavior, not complete ISkO/SkWO compliance or Package-index publication; GitHub Releases is the authoritative publication record. | Require clean local/CI checks, exact Capture/Corpus resources, one Console Script, installed/module/Legacy/API parity, and human-controlled publication. | v1.0 | Yes |
+| Release and regression checks | SkatMind product | Not applicable | `supported` | `scripts/check.ps1` and the preserved CI `check` job run Ruff, 71-Schema parity, Root/Session examples, 98 scenarios, Wheel/sdist inspection, clean API/Root/Session/Capture/Corpus CLI and browser smoke, and pytest on Python 3.13. Issue #206 declares exact `jsonschema>=4.23.0` and `referencing>=0.31.0` direct floors, validates Production-import reconciliation, resolved source/Editable/Wheel/sdist and exact-minimum Wheel/sdist environments, `pip check`, all seven workflows, resources, Provenance, Session, Capture, Corpus, errors, Exit Codes, semantic parity, and repository non-mutation on Windows 11 and the dedicated Ubuntu job. | Development dependencies and supported platform tooling. | Passing checks proves tested behavior, not complete ISkO/SkWO compliance, Python 3.14/macOS/browser-vendor/hardware/latency support, or Package-index publication; GitHub Releases is authoritative. | Require the local Windows matrix/full check and green merged Ubuntu `check` plus `v1-supported-platform-matrix` jobs, exact Capture/Corpus resources, one Console Script, installed/module/Legacy/API parity, and human-controlled publication. | v1.0; Issue #206 technical evidence complete subject to merged Ubuntu CI | Yes |
 
 The Field-level information provenance row's reference to 77 outputs is its
 historical `v0.13.0` introduction evidence. The current and frozen v1 baseline is

@@ -566,8 +566,12 @@ contracts. Issue #204 applies the `AGPL-3.0-only` Package boundary and closes
 B-04. Issue #205 completes the hard-cut SkatMind Package/import/CLI/resource/
 Schema/identifier migration, strict legacy persisted-input support, and reviewed
 historical-evidence boundary, makes P-09 `satisfied`, and closes B-08. B-09 adds
-maintainer UAT outside the 53-row ledger. `v1.0.0` is not ready; the next action
-is Issue #206, **Complete the v1 installation and supported-platform matrix**.
+maintainer UAT outside the 53-row ledger. Issue #206 adds exact direct dependency
+floors and the validation-only source/Editable/Wheel/sdist Windows/Ubuntu matrix,
+makes P-34 `satisfied`, and technically closes B-05. Formal Issue closure remains
+conditional on both merged Ubuntu jobs passing. `v1.0.0` is not ready; after that
+condition, the next action is Issue #207, **Perform the final technical v1.0.0
+release-readiness audit**.
 No v1 Release title, theme, date, tag, publication commit, or production model is
 frozen.
 
@@ -842,7 +846,8 @@ Dataset/Corpus path. Issue #192 adds separate Information-set Replay Coaching an
 Match Historical Information-set Review/Coaching. Issue #193 adds separate local
 benchmark evidence for the unchanged executor. Performance acceptance for v1 is
 the deterministic functional and structural-work contract; fresh supported-
-platform evidence remains required, while latency guarantees are not a v1 gate.
+platform evidence is implemented by Issue #206, with formal closure conditional
+on the two merged Ubuntu jobs, while latency guarantees are not a v1 gate.
 There is no
 cross-decision global Policy, equilibrium, global optimality, or calibrated
 probability claim. Issue #194 adds deterministic structural Historical Tactical
@@ -858,8 +863,9 @@ field-level information provenance is complete under Issue #202 without widening
 the public contract. Issue #203 completes canonical Multi-Step phase coverage;
 Issue #204 closes the Package-license decision with exact `AGPL-3.0-only` legal
 files and PEP 639 metadata. Issue #205 completes the SkatMind rename and closes
-B-08. The next gate is #206 platform evidence, followed by #207 technical
-readiness audit and #208 maintainer UAT before B-07 Release preparation.
+B-08. Issue #206 completes the technical platform matrix; merged Ubuntu CI is its
+remaining Issue-closure condition. The next gate is #207 technical readiness
+audit, followed by #208 maintainer UAT before B-07 Release preparation.
 End-to-end local Live and Retrospective Session
 capture is implemented through public file Save/Load, automatic Checkpoints,
 accepted-Log actual-card observation, isolated review, explicit analysis, the

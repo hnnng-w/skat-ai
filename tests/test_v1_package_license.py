@@ -117,7 +117,10 @@ def test_pep_639_source_metadata_preserves_the_package_baseline() -> None:
         "requires": ["setuptools>=77.0.3"],
         "build-backend": "setuptools.build_meta",
     }
-    assert project["dependencies"] == ["jsonschema>=4.0.0"]
+    assert project["dependencies"] == [
+        "jsonschema>=4.23.0",
+        "referencing>=0.31.0",
+    ]
     assert project["optional-dependencies"]["dev"] == [
         "build>=1.2.2",
         "pytest>=9.0.0",
@@ -242,7 +245,8 @@ def test_documented_dependency_and_bundled_asset_audit_is_complete() -> None:
     documentation = (PROJECT_ROOT / "docs" / "v1_package_license.md").read_text(encoding="utf-8")
     for expected in (
         "setuptools>=77.0.3",
-        "jsonschema>=4.0.0",
+        "jsonschema>=4.23.0",
+        "referencing>=0.31.0",
         "build>=1.2.2",
         "pytest>=9.0.0",
         "ruff>=0.14.0",
@@ -254,8 +258,7 @@ def test_documented_dependency_and_bundled_asset_audit_is_complete() -> None:
         "examples",
         "documentation assets",
         "AGPL-3.0-only",
-        "referencing",
-        "lower-bound correctness gap",
-        "B-05/#206",
+        "minimum-supported",
+        "B-05",
     ):
         assert expected in documentation

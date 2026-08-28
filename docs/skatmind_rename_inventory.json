@@ -307,7 +307,7 @@
                         },
                         {
                             "path":  "docs/packaging_and_distribution.md",
-                            "line":  343,
+                            "line":  360,
                             "token":  "hyphenated_identity",
                             "count":  1,
                             "classification":  "historical_evidence",
@@ -316,7 +316,7 @@
                         },
                         {
                             "path":  "docs/packaging_and_distribution.md",
-                            "line":  343,
+                            "line":  360,
                             "token":  "underscore_identity",
                             "count":  1,
                             "classification":  "historical_evidence",
@@ -379,7 +379,7 @@
                         },
                         {
                             "path":  "docs/project_handoff.md",
-                            "line":  1892,
+                            "line":  1895,
                             "token":  "hyphenated_identity",
                             "count":  1,
                             "classification":  "historical_evidence",
@@ -388,7 +388,7 @@
                         },
                         {
                             "path":  "docs/project_handoff.md",
-                            "line":  1893,
+                            "line":  1896,
                             "token":  "underscore_identity",
                             "count":  1,
                             "classification":  "historical_evidence",
@@ -406,7 +406,7 @@
                         },
                         {
                             "path":  "docs/requirements_traceability.md",
-                            "line":  585,
+                            "line":  590,
                             "token":  "hyphenated_identity",
                             "count":  1,
                             "classification":  "historical_evidence",
@@ -415,7 +415,7 @@
                         },
                         {
                             "path":  "docs/requirements_traceability.md",
-                            "line":  585,
+                            "line":  590,
                             "token":  "underscore_identity",
                             "count":  2,
                             "classification":  "historical_evidence",
@@ -703,52 +703,7 @@
                         },
                         {
                             "path":  "docs/v1_package_license.md",
-                            "line":  73,
-                            "token":  "hyphenated_identity",
-                            "count":  1,
-                            "classification":  "historical_evidence",
-                            "line_sha256":  "e75b09f975ecbee99dd0642c14a644fd07230ae078baaf90d6d5b52a1f68fdc6",
-                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
-                        },
-                        {
-                            "path":  "docs/v1_package_license.md",
-                            "line":  73,
-                            "token":  "underscore_identity",
-                            "count":  1,
-                            "classification":  "historical_evidence",
-                            "line_sha256":  "e75b09f975ecbee99dd0642c14a644fd07230ae078baaf90d6d5b52a1f68fdc6",
-                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
-                        },
-                        {
-                            "path":  "docs/v1_package_license.md",
-                            "line":  74,
-                            "token":  "hyphenated_identity",
-                            "count":  1,
-                            "classification":  "historical_evidence",
-                            "line_sha256":  "3e2f1579b634037f709783fc0665581ef7010af232b791ed5b87a91fa4b4ae81",
-                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
-                        },
-                        {
-                            "path":  "docs/v1_package_license.md",
-                            "line":  74,
-                            "token":  "underscore_identity",
-                            "count":  1,
-                            "classification":  "historical_evidence",
-                            "line_sha256":  "3e2f1579b634037f709783fc0665581ef7010af232b791ed5b87a91fa4b4ae81",
-                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
-                        },
-                        {
-                            "path":  "docs/v1_package_license.md",
-                            "line":  113,
-                            "token":  "underscore_identity",
-                            "count":  1,
-                            "classification":  "historical_evidence",
-                            "line_sha256":  "c862621406f32a32061e294d653d7ad9427b3c8c3d43ca87ac99f880d717f94d",
-                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
-                        },
-                        {
-                            "path":  "docs/v1_package_license.md",
-                            "line":  154,
+                            "line":  152,
                             "token":  "hyphenated_identity",
                             "count":  1,
                             "classification":  "historical_evidence",
@@ -757,7 +712,7 @@
                         },
                         {
                             "path":  "docs/v1_package_license.md",
-                            "line":  154,
+                            "line":  152,
                             "token":  "underscore_identity",
                             "count":  1,
                             "classification":  "historical_evidence",
@@ -793,7 +748,7 @@
                         },
                         {
                             "path":  "README.md",
-                            "line":  1345,
+                            "line":  1349,
                             "token":  "hyphenated_identity",
                             "count":  1,
                             "classification":  "historical_evidence",
@@ -802,7 +757,7 @@
                         },
                         {
                             "path":  "README.md",
-                            "line":  1345,
+                            "line":  1349,
                             "token":  "underscore_identity",
                             "count":  1,
                             "classification":  "historical_evidence",
@@ -811,7 +766,7 @@
                         },
                         {
                             "path":  "README.md",
-                            "line":  1420,
+                            "line":  1424,
                             "token":  "hyphenated_identity",
                             "count":  1,
                             "classification":  "historical_evidence",
@@ -820,7 +775,7 @@
                         },
                         {
                             "path":  "README.md",
-                            "line":  1420,
+                            "line":  1424,
                             "token":  "underscore_identity",
                             "count":  1,
                             "classification":  "historical_evidence",
@@ -829,7 +784,7 @@
                         },
                         {
                             "path":  "README.md",
-                            "line":  1707,
+                            "line":  1711,
                             "token":  "hyphenated_identity",
                             "count":  1,
                             "classification":  "historical_evidence",
@@ -838,7 +793,7 @@
                         },
                         {
                             "path":  "README.md",
-                            "line":  1708,
+                            "line":  1712,
                             "token":  "underscore_identity",
                             "count":  1,
                             "classification":  "historical_evidence",
@@ -847,7 +802,7 @@
                         },
                         {
                             "path":  "README.md",
-                            "line":  1743,
+                            "line":  1747,
                             "token":  "underscore_identity",
                             "count":  1,
                             "classification":  "historical_evidence",

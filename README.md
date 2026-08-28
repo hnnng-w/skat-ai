@@ -622,9 +622,10 @@ Result/artifact serialization without widening that public view. See
 
 * Python 3.13 or newer
 * PowerShell for helper scripts on Windows
-* Runtime dependency:
+* Exact direct runtime dependencies:
 
-  * `jsonschema`
+  * `jsonschema>=4.23.0`
+  * `referencing>=0.31.0`
 * Development dependencies from `.[dev]`, including:
 
   * `build`
@@ -659,7 +660,9 @@ python -m build
 ```
 
 See [Packaging and distribution](docs/packaging_and_distribution.md) for Package
-Data, schema synchronization, clean-install validation, and current boundaries.
+Data and artifact validation, and the
+[v1 installation and supported-platform matrix](docs/v1_installation_and_supported_platform_matrix.md)
+for exact dependencies, installation forms, platform evidence, and boundaries.
 
 The installation exposes both Package CLI forms:
 
@@ -1300,6 +1303,7 @@ Detailed documentation is split into topic-specific files:
 * [Performance rating](docs/performance_rating.md)
 * [Examples](docs/examples.md)
 * [Architecture](docs/architecture.md)
+* [v1 installation and supported-platform matrix](docs/v1_installation_and_supported_platform_matrix.md)
 * [Requirements traceability](docs/requirements_traceability.md)
 * [v1.0 scope](docs/v1_scope.md)
 * [v1.0 scope and traceability audit](docs/v1_0_scope_and_traceability_audit.md)
@@ -1882,10 +1886,14 @@ without product-code change. Issue #202 closes B-02 and makes P-10 and P-13
   `AGPL-3.0-only` Package boundary and closes B-04. Issue #205 completes the
   hard-cut SkatMind Package, import, CLI, resource, Schema, identifier, and strict
   legacy persisted-input migration boundary, makes P-09 `satisfied`, and closes
-  B-08. The separate B-09 maintainer-UAT Gate sits outside the 53-row ledger.
-  The milestone is not ready, and Issue #206, **Complete the v1 installation and
-  supported-platform matrix**, is next. No v1 Release title, theme, date, tag, or
-  publication commit is frozen.
+  B-08. Issue #206 declares the exact direct runtime dependencies, adds the
+  source/Editable/Wheel/sdist resolved matrix plus minimum Wheel/sdist evidence,
+  and prepares P-34 as `satisfied` and B-05 as closed. Issue closure remains
+  conditional on green `check` and `v1-supported-platform-matrix` jobs on the
+  merged commit. The separate B-09 maintainer-UAT Gate sits outside the 53-row
+  ledger. The milestone is not ready; after that CI condition, Issue #207,
+  **Perform the final technical v1.0.0 release-readiness audit**, is next. No v1
+  Release title, theme, date, tag, or publication commit is frozen.
 
 Current support and known limitations are tracked in the
 [requirements traceability matrix](docs/requirements_traceability.md). Product

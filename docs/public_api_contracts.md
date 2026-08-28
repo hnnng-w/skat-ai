@@ -407,7 +407,10 @@ without adding or changing any public contract. Issue #204 applies the exact
 `AGPL-3.0-only` Package metadata without changing public Python or CLI behavior.
 Issue #205 completes the SkatMind public Package/import/module/CLI rename and
 strict persisted-input migration boundary, makes P-09 `satisfied`, and closes
-B-08. The next gate is B-05/#206 installation and supported-platform evidence.
+B-08. Issue #206 adds dependency metadata and validation-only installation/
+platform evidence without changing any public export, field, version, error,
+Exit Code, workflow identity, workflow order, or default. After its merged Ubuntu
+CI condition, the next gate is B-06/#207.
 
 Internal Application orchestration version `1`, no-I/O execution for all seven
 Root workflows, legacy CLI transport parity, and auxiliary artifacts are

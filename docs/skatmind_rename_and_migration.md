@@ -206,15 +206,18 @@ git remote -v
 
 ## Gate result
 
-Issue #205 makes P-09 `satisfied` and closes B-08 at the technical ledger level.
-Manual GitHub rename and redirect verification remain the final human Issue-
-closure step. The 53 required rows are then 18 `satisfied`, 34
-`satisfied_with_approved_bounded_scope`, 1 `evidence_required`, 0
+Issue #205 makes P-09 `satisfied` and closes B-08. The maintainer completed the
+GitHub rename and local remote verification. Issue #206 separately adds exact
+direct dependency floors and the installation/platform matrix, so the technical
+53-row ledger becomes 19 `satisfied`, 34
+`satisfied_with_approved_bounded_scope`, 0 `evidence_required`, 0
 `implementation_required`, and 0 `product_decision_required`.
 
-The remaining blockers are B-05, B-06, B-07, and B-09. B-09 remains outside the
-53-row ledger. The exact next action is Issue #206, **Complete the v1 installation
-and supported-platform matrix**. The rename changes product identity, packaging,
-migration, and presentation only; it does not change Skat rules, Search,
-Recommendation, Settlement, Coaching, Tactical, Dataset, list, Statistics,
-security, dependency, build-backend, license, or Package-version behavior.
+Issue #206 formal closure remains conditional on green merged Ubuntu `check` and
+`v1-supported-platform-matrix` jobs. After that condition, the remaining blockers
+are B-06, B-07, and B-09; B-09 remains outside the 53-row ledger. The exact next
+action is Issue #207, **Perform the final technical v1.0.0 release-readiness
+audit**. The rename itself changed product identity, packaging, migration, and
+presentation only; Issue #206 owns the later dependency metadata change. Neither
+Issue changes Skat rules, Search, Recommendation, Settlement, Coaching, Tactical,
+Dataset, list, Statistics, security, build backend, license, or Package version.

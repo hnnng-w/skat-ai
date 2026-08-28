@@ -26,9 +26,10 @@ Package Data is declared for:
 * `skatmind.capture_web` HTML, CSS, and JavaScript resources;
 * `skatmind.corpus_web` HTML, CSS, and JavaScript resources.
 
-The Package name remains `skatmind`, the Package version is `0.17.0`, the
-Python requirement remains `>=3.13`, and `jsonschema` remains the runtime
-dependency. The `dev` extra includes `build`, pytest, and Ruff.
+The Package name remains `skatmind`, the Package version is `0.17.0`, and the
+Python requirement remains `>=3.13`. The exact ordered direct runtime
+dependencies are `jsonschema>=4.23.0` and `referencing>=0.31.0`. The `dev` extra
+includes `build`, pytest, and Ruff.
 
 The project declares exactly one Console Script:
 
@@ -263,8 +264,9 @@ verifies:
 * every installed schema has exact repository filename and byte parity, valid
   UTF-8 and JSON, and its unchanged `$id`;
 * Root input/output references resolve locally with output validation enabled;
-* `parse_request()` and `execute_document()` run a compact copied existing
-  Opponent Statistics Root example;
+* `parse_request()` and `execute_document()` run all seven Root workflows with
+  default Provenance omission, complete opt-in Provenance, warnings, and actual
+  artifacts;
 * `skatmind --help`, `skatmind --version`, `python -m skatmind --help`, and
   `python -m skatmind --version` succeed with no repository or `PYTHONPATH`;
 * installed and module CLI quiet JSON exactly matches the Public API Root result;
@@ -305,10 +307,25 @@ verifies:
   failure Code `1`;
 * no GUI Script, second Console Script, or installed root `main` module exists.
 
-Wheel and sdist smoke Results must be equal. Legacy Session CLI parity remains a
+Wheel and sdist smoke Results must be equal. Every clean environment now also
+runs `pip check`, imports both direct runtime dependencies, and records their
+exact installed versions. Legacy Session CLI parity remains a
 repository-checkout gate because root `main.py` is intentionally not installed.
 Legacy Capture and Corpus help parity are repository-checkout gates for the same
 reason.
+
+Issue #206 adds the separate reusable
+`scripts/validate_v1_supported_platform_matrix.py` around these existing smoke
+helpers instead of duplicating them. It validates resolved source, Editable,
+Wheel, and sdist installations, plus Wheel and sdist installed with `--no-deps`
+against exact `jsonschema==4.23.0` and `referencing==0.31.0` floors. Every cell
+runs outside the repository, runs `pip check`, and participates in complete
+semantic comparison with normalization limited to approved
+`wall_clock_elapsed_ms` values. Static import inventory requires every
+Production third-party import to match Package metadata. Content snapshots reject
+repository mutation, and successful JSON retains no path, credential, machine-
+identity, timestamp, or elapsed-time field. See
+[v1 installation and supported-platform matrix](v1_installation_and_supported_platform_matrix.md).
 
 ## Local and CI gates
 
@@ -321,24 +338,24 @@ The complete local check runs, in fail-fast order:
 5. distribution artifact and clean-install validation;
 6. pytest.
 
-GitHub Actions retains Python 3.13 and the Editable `.[dev]` installation, then
-runs the same parity and distribution scripts in addition to the existing Ruff,
-schema, generated-output, and pytest gates. Installed CLI checks reuse the same
-Wheel/sdist build and two clean environments; no duplicate build or distribution
-step exists. No CI step uploads or publishes an artifact.
+GitHub Actions retains the existing `check` job with Python 3.13 and the Editable
+`.[dev]` installation, then runs the same parity and distribution scripts in
+addition to Ruff, schema, generated-output, and pytest gates. The separate job
+named exactly `v1-supported-platform-matrix` uses `ubuntu-latest` and Python 3.13,
+installs only required build tooling, runs the standalone matrix, and does not
+rerun full pytest. No CI step uploads or publishes an artifact.
 
 ## Remaining boundaries
 
 For the bounded v1 Package, release acceptance uses CPython 3.13 on Windows 11
-through Windows PowerShell 5.1 and on Ubuntu through the equivalent GitHub Actions
-commands. Package metadata remains `>=3.13`, but no broader Python-version,
-macOS, hardware, named-browser, or cross-machine latency matrix is claimed. The
-final v1 clean-install gate must exercise all seven Root workflows from both
-Wheel and sdist; current distribution smoke uses one compact Root example while
-repository tests cover all seven, so that broader clean-install evidence remains
-a follow-up gate. B-05/#206 also owns reconciliation of the existing direct
-`referencing` import with the declared runtime lower bounds before certifying the
-final matrix; Issue #204 intentionally changes no dependency.
+through Windows PowerShell 5.1 and on Ubuntu through the dedicated GitHub Actions
+job. Package metadata remains `>=3.13`, but no Python 3.14, macOS, hardware,
+named-browser, or cross-machine latency matrix is claimed. Issue #206 reconciles
+both direct Production imports with exact lower bounds and implements all-seven-
+workflow source/Editable/Wheel/sdist evidence. P-34 and B-05 closure remains
+conditional on the local Windows matrix and full check plus green merged Ubuntu
+`check` and `v1-supported-platform-matrix` jobs. Issue #204 intentionally changed
+no dependency; Issue #206 owns the later metadata correction.
 
 Issue #142 added the installed `skat-ai` command and `python -m skat_ai` without a
 public schema-resource API, new workflow, Root-output metadata, Provenance field,
@@ -385,5 +402,7 @@ the post-publication documentation only. GitHub Releases is authoritative, and
 no Package-index or PyPI publication is claimed.
 
 The authoritative license boundary is in [v1 Package license](v1_package_license.md).
-The v1 packaging, platform, and distribution matrix is in the
+The executable v1 packaging, platform, and distribution matrix is in
+[v1 installation and supported-platform matrix](v1_installation_and_supported_platform_matrix.md),
+and its Gate classification is in the
 [v1.0 scope and traceability audit](v1_0_scope_and_traceability_audit.md).

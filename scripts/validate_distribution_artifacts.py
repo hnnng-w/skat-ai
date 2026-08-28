@@ -70,9 +70,61 @@ BOUNDED_MULTI_STEP_SMOKE_EXAMPLE = (
 DEFAULT_POLICY_COMPARISON_SMOKE_EXAMPLE = (
     PROJECT_ROOT / "examples" / "grand_second_position.json"
 )
+ROOT_WORKFLOW_SMOKE_EXAMPLES = (
+    (
+        "position_analysis",
+        PROJECT_ROOT / "examples" / "grand_second_position.json",
+        ("--samples", "1", "--seed", "42"),
+        {"sample_count_override": 1, "random_seed_override": 42},
+    ),
+    (
+        "historical_game",
+        PROJECT_ROOT / "examples" / "historical_grand_normal_completion.json",
+        (),
+        {},
+    ),
+    (
+        "training_dataset",
+        PROJECT_ROOT / "examples" / "training_dataset_normal_play.json",
+        (),
+        {},
+    ),
+    (
+        "training_dataset_preparation",
+        PROJECT_ROOT / "examples" / "training_dataset_preparation_unavailable.json",
+        (),
+        {},
+    ),
+    (
+        "opponent_statistics",
+        PROJECT_ROOT / "examples" / "opponent_statistics.json",
+        (),
+        {},
+    ),
+    (
+        "fixed_three_player_historical_list",
+        PROJECT_ROOT / "examples" / "fixed_three_player_historical_list_mixed.json",
+        (),
+        {},
+    ),
+    (
+        "fixed_three_player_historical_list_comparison",
+        PROJECT_ROOT / "examples" / "fixed_three_player_historical_list_comparison.json",
+        (),
+        {},
+    ),
+)
 PACKAGE_NAME = "skatmind"
 PACKAGE_VERSION = "0.17.0"
 PACKAGE_LICENSE_EXPRESSION = "AGPL-3.0-only"
+RUNTIME_DEPENDENCIES = (
+    "jsonschema>=4.23.0",
+    "referencing>=0.31.0",
+)
+MINIMUM_RUNTIME_DEPENDENCIES = (
+    "jsonschema==4.23.0",
+    "referencing==0.31.0",
+)
 EXPECTED_LICENSE_FILES = ("LICENSE", "COPYRIGHT")
 EXPECTED_LICENSE_SHA256 = "d8a6cc31abc16b6748c7a21f21611f5a1ec33f67d22ca23d7da1c19b95496bee"
 EXPECTED_COPYRIGHT_BYTES = b"Copyright (C) 2026 Henning Wiese\n"
@@ -239,6 +291,10 @@ def _validate_source_license_metadata() -> None:
         project.get("license-files") == list(EXPECTED_LICENSE_FILES),
         "pyproject.toml does not declare exactly LICENSE and COPYRIGHT.",
     )
+    _require(
+        project.get("dependencies") == list(RUNTIME_DEPENDENCIES),
+        "pyproject.toml does not declare the exact ordered runtime dependencies.",
+    )
     for forbidden in ("authors", "classifiers", "gui-scripts", "urls"):
         _require(
             forbidden not in project,
@@ -282,8 +338,9 @@ def _validate_metadata(metadata: Message, *, artifact_name: str) -> None:
 
     requirements = metadata.get_all("Requires-Dist", [])
     _require(
-        any(requirement.startswith("jsonschema>=4.0.0") for requirement in requirements),
-        f"{artifact_name} is missing the jsonschema runtime dependency.",
+        [requirement for requirement in requirements if "extra ==" not in requirement]
+        == list(RUNTIME_DEPENDENCIES),
+        f"{artifact_name} does not contain the exact ordered runtime dependencies.",
     )
     for dependency in ("build>=1.2.2", "pytest>=9.0.0", "ruff>=0.14.0"):
         _require(
@@ -888,6 +945,7 @@ from pathlib import Path, PurePosixPath
 from urllib.parse import urlencode
 
 import skatmind
+import skatmind.errors as public_errors
 from skatmind.api.v1 import (
     ExecutionOptionsV1,
     WorkflowV1,
@@ -952,6 +1010,11 @@ from skatmind.session_persistence_contracts import (
 
 cwd = Path.cwd().resolve()
 repository_root = Path(os.environ["SKATMIND_REPOSITORY_ROOT"]).resolve()
+installation_form = os.environ.get("SKATMIND_INSTALLATION_FORM", "wheel")
+external_source_root_value = os.environ.get("SKATMIND_EXTERNAL_SOURCE_ROOT")
+external_source_root = (
+    None if external_source_root_value is None else Path(external_source_root_value).resolve()
+)
 document = json.loads((cwd / "opponent_statistics.json").read_text(encoding="utf-8"))
 information_set_search_document = json.loads(
     (cwd / "information-set-search.json").read_text(encoding="utf-8")
@@ -1950,6 +2013,120 @@ assert assistant_output[-1] == "Assistant closed."
 assistant_loaded = session_files.load_session_file(assistant_path)
 assert assistant_loaded.value.document.state.session_id == "assistant-distribution"
 
+root_workflow_specs = (
+    (
+        "position_analysis",
+        "root-position_analysis.json",
+        {"sample_count_override": 1, "random_seed_override": 42},
+    ),
+    ("historical_game", "root-historical_game.json", {}),
+    ("training_dataset", "root-training_dataset.json", {}),
+    (
+        "training_dataset_preparation",
+        "root-training_dataset_preparation.json",
+        {},
+    ),
+    ("opponent_statistics", "root-opponent_statistics.json", {}),
+    (
+        "fixed_three_player_historical_list",
+        "root-fixed_three_player_historical_list.json",
+        {},
+    ),
+    (
+        "fixed_three_player_historical_list_comparison",
+        "root-fixed_three_player_historical_list_comparison.json",
+        {},
+    ),
+)
+root_workflow_results = {}
+for workflow_name, input_name, workflow_options in root_workflow_specs:
+    root_document = json.loads((cwd / input_name).read_text(encoding="utf-8"))
+    root_request = parse_request(root_document)
+    assert root_request.workflow.value == workflow_name
+    default_root_execution = execute_document(
+        root_document,
+        options=ExecutionOptionsV1(
+            validate_output=True,
+            workflow_options=workflow_options,
+        ),
+        input_reference=input_name,
+    )
+    provenance_root_execution = execute_document(
+        root_document,
+        options=ExecutionOptionsV1(
+            validate_output=True,
+            include_provenance=True,
+            workflow_options=workflow_options,
+        ),
+        input_reference=input_name,
+    )
+    default_root_result = serialize_result(default_root_execution)
+    provenance_root_result = serialize_result(provenance_root_execution)
+    assert default_root_execution.field_provenance is None
+    assert "field_provenance" not in default_root_result["document"]
+    assert provenance_root_execution.field_provenance is not None
+    assert provenance_root_execution.field_provenance.result.coverage_summary[
+        "provenance_complete"
+    ] is True
+    assert "field_provenance" in provenance_root_result["document"]
+    root_workflow_results[workflow_name] = {
+        "default": default_root_result,
+        "provenance": provenance_root_result,
+    }
+
+artifact_document = json.loads(
+    (cwd / "root-training_dataset.json").read_text(encoding="utf-8")
+)
+artifact_execution = execute_document(
+    artifact_document,
+    options=ExecutionOptionsV1(
+        validate_output=True,
+        include_provenance=True,
+        workflow_options={
+            "operation": "historical_opponent_statistics_aggregation",
+            "export_opponent_statistics": True,
+        },
+    ),
+    input_reference="root-training_dataset.json",
+)
+artifact_result = serialize_result(artifact_execution)
+assert [artifact["name"] for artifact in artifact_result["artifacts"]] == [
+    "opponent_statistics_input"
+]
+assert artifact_execution.field_provenance is not None
+assert [artifact.artifact_name for artifact in artifact_execution.field_provenance.artifacts] == [
+    "opponent_statistics_input"
+]
+
+if os.environ.get("SKATMIND_FULL_ROOT_CLI_MATRIX") == "1":
+    for workflow_name, _input_name, _workflow_options in root_workflow_specs:
+        expected_document = root_workflow_results[workflow_name]["provenance"]["document"]
+        for invocation in ("installed", "module", "legacy"):
+            cli_document = json.loads(
+                (cwd / f"root-{invocation}-{workflow_name}.json").read_text(
+                    encoding="utf-8"
+                )
+            )
+            assert cli_document == expected_document
+
+assert public_errors.CLI_EXIT_CODE_SUCCESS == 0
+assert public_errors.CLI_EXIT_CODE_FAILURE == 1
+assert public_errors.CLI_EXIT_CODE_USAGE == 2
+public_error_codes = {
+    error_type.__name__: error_type("matrix error").code
+    for error_type in (
+        public_errors.SkatMindError,
+        public_errors.SkatMindValidationError,
+        public_errors.SkatMindWorkflowError,
+        public_errors.SkatMindInformationPolicyError,
+        public_errors.SkatMindSchemaError,
+        public_errors.SkatMindSerializationError,
+        public_errors.SkatMindResourceError,
+        public_errors.SkatMindInvariantError,
+        public_errors.SkatMindCliUsageError,
+    )
+}
+
 request = parse_request(document)
 default_execution = execute_document(
     document,
@@ -2244,6 +2421,11 @@ assert distribution.metadata.get_all("License-Expression", []) == ["AGPL-3.0-onl
 assert distribution.metadata.get_all("License-File", []) == ["LICENSE", "COPYRIGHT"]
 assert distribution.metadata.get_all("License", []) == []
 assert distribution.metadata.get_all("Classifier", []) == []
+assert [
+    requirement
+    for requirement in distribution.metadata.get_all("Requires-Dist", [])
+    if "extra ==" not in requirement
+] == ["jsonschema>=4.23.0", "referencing>=0.31.0"]
 license_entries = {}
 for entry in distribution.files or ():
     path = PurePosixPath(str(entry).replace("\\", "/"))
@@ -2267,7 +2449,11 @@ entry_points = [
 assert entry_points == [("console_scripts", "skatmind", "skatmind.cli:main")]
 marker = importlib.resources.files(skatmind).joinpath("py.typed")
 assert marker.is_file() and marker.read_bytes() == b""
-assert Path(distribution.locate_file("skatmind/py.typed")).is_file()
+if installation_form == "editable":
+    assert external_source_root is not None
+    assert external_source_root.joinpath("src", "skatmind", "py.typed").is_file()
+else:
+    assert Path(distribution.locate_file("skatmind/py.typed")).is_file()
 assert importlib.util.find_spec("skatmind.__main__") is not None
 assert importlib.util.find_spec("main") is None
 legacy_namespace = "skat" + "_ai"
@@ -2298,7 +2484,11 @@ for module_name, module in sorted(sys.modules.items()):
     if module_file is None:
         continue
     module_path = Path(module_file).resolve()
-    assert any(module_path.is_relative_to(site_root) for site_root in site_roots)
+    if installation_form == "editable":
+        assert external_source_root is not None
+        assert module_path.is_relative_to(external_source_root / "src")
+    else:
+        assert any(module_path.is_relative_to(site_root) for site_root in site_roots)
     assert not module_path.is_relative_to(repository_root)
     loaded_paths.append(str(module_path))
 for value in sys.path:
@@ -2366,6 +2556,14 @@ print(json.dumps({
             "download_count": len(corpus_download_routes),
             "source_removal_invalidated_downloads": True,
         },
+        "root_workflows": root_workflow_results,
+        "artifact_execution": artifact_result,
+        "public_error_codes": public_error_codes,
+        "exit_codes": {
+            "success": public_errors.CLI_EXIT_CODE_SUCCESS,
+            "failure": public_errors.CLI_EXIT_CODE_FAILURE,
+            "usage": public_errors.CLI_EXIT_CODE_USAGE,
+        },
     },
     "schema_names": resource_names,
     "schema_ids": schema_ids,
@@ -2418,12 +2616,53 @@ def _run_cli_check(
     return completed
 
 
+def _installation_commands(
+    python: Path,
+    artifact: Path,
+    *,
+    editable: bool,
+    minimum_dependencies: tuple[str, ...] | None,
+) -> tuple[tuple[str, ...], ...]:
+    commands: list[tuple[str, ...]] = []
+    if minimum_dependencies is not None:
+        commands.append(
+            (
+                str(python),
+                "-m",
+                "pip",
+                "install",
+                "--no-input",
+                *minimum_dependencies,
+            )
+        )
+    install_command = [
+        str(python),
+        "-m",
+        "pip",
+        "install",
+        "--no-input",
+    ]
+    if minimum_dependencies is not None:
+        install_command.append("--no-deps")
+    if editable:
+        install_command.append("--editable")
+    install_command.append(str(artifact))
+    commands.append(tuple(install_command))
+    commands.append((str(python), "-m", "pip", "check"))
+    return tuple(commands)
+
+
 def _install_and_smoke(
     artifact: Path,
     *,
     label: str,
     temporary_root: Path,
     expected_schemas: dict[str, bytes],
+    installation_form: str = "wheel",
+    editable: bool = False,
+    minimum_dependencies: tuple[str, ...] | None = None,
+    external_source_root: Path | None = None,
+    full_root_cli_matrix: bool = False,
 ) -> dict[str, object]:
     environment_directory = temporary_root / f"venv-{label}"
     venv.EnvBuilder(with_pip=True, clear=True).create(environment_directory)
@@ -2510,6 +2749,12 @@ def _install_and_smoke(
             json.dumps(source_document, separators=(",", ":")),
             encoding="utf-8",
         )
+    for workflow_name, source, _cli_options, _workflow_options in ROOT_WORKFLOW_SMOKE_EXAMPLES:
+        source_document = json.loads(source.read_text(encoding="utf-8"))
+        (consumer_directory / f"root-{workflow_name}.json").write_text(
+            json.dumps(source_document, separators=(",", ":")),
+            encoding="utf-8",
+        )
     (consumer_directory / "session-create.json").write_text(
         json.dumps(
             {
@@ -2553,18 +2798,61 @@ def _install_and_smoke(
     )
 
     environment = _sanitized_environment()
+    installation_commands = _installation_commands(
+        python,
+        artifact,
+        editable=editable,
+        minimum_dependencies=minimum_dependencies,
+    )
+    if minimum_dependencies is not None:
+        _run(
+            list(installation_commands[0]),
+            cwd=consumer_directory,
+            environment=environment,
+        )
+        install_command = installation_commands[1]
+        pip_check_command = installation_commands[2]
+    else:
+        install_command = installation_commands[0]
+        pip_check_command = installation_commands[1]
     _run(
-        [
-            str(python),
-            "-m",
-            "pip",
-            "install",
-            "--no-input",
-            str(artifact),
-        ],
+        list(install_command),
         cwd=consumer_directory,
         environment=environment,
     )
+    _run(
+        list(pip_check_command),
+        cwd=consumer_directory,
+        environment=environment,
+    )
+    dependency_version_program = (
+        "import importlib, importlib.metadata, json; "
+        "names=('jsonschema','referencing'); "
+        "[importlib.import_module(name) for name in names]; "
+        "print(json.dumps({name: importlib.metadata.version(name) for name in names}, "
+        "sort_keys=True))"
+    )
+    dependency_versions_completed = _run(
+        [str(python), "-I", "-c", dependency_version_program],
+        cwd=consumer_directory,
+        environment=environment,
+    )
+    try:
+        dependency_versions = json.loads(dependency_versions_completed.stdout)
+    except json.JSONDecodeError as error:
+        raise DistributionValidationError(
+            f"{label} dependency version check did not emit valid JSON."
+        ) from error
+    _require(
+        isinstance(dependency_versions, dict)
+        and set(dependency_versions) == {"jsonschema", "referencing"},
+        f"{label} did not report the exact direct runtime dependencies.",
+    )
+    if minimum_dependencies is not None:
+        _require(
+            dependency_versions == {"jsonschema": "4.23.0", "referencing": "0.31.0"},
+            f"{label} silently substituted a newer direct runtime dependency.",
+        )
     _require(console_script.is_file(), f"{label} did not install the skatmind command.")
     legacy_script_name = "skat" + "-ai" + (".exe" if os.name == "nt" else "")
     legacy_console_script = console_script.parent / legacy_script_name
@@ -2707,6 +2995,36 @@ def _install_and_smoke(
             option in legacy_corpus_help.stdout,
             f"{label} Legacy corpus --help omits {option!r}.",
         )
+
+    if full_root_cli_matrix:
+        root_cli_prefixes = (
+            ("installed", installed_prefix),
+            ("module", module_prefix),
+            ("legacy", [str(python), str(legacy_main)]),
+        )
+        for workflow_name, _source, cli_options, _workflow_options in ROOT_WORKFLOW_SMOKE_EXAMPLES:
+            input_name = f"root-{workflow_name}.json"
+            for invocation_name, prefix in root_cli_prefixes:
+                output_name = f"root-{invocation_name}-{workflow_name}.json"
+                root_completed = _run_cli_check(
+                    [
+                        *prefix,
+                        "--input",
+                        input_name,
+                        "--output",
+                        output_name,
+                        *cli_options,
+                        "--include-provenance",
+                        "--quiet",
+                    ],
+                    cwd=consumer_directory,
+                    environment=environment,
+                    expected_returncode=0,
+                )
+                _require(
+                    not root_completed.stdout and not root_completed.stderr,
+                    f"{label} {invocation_name} {workflow_name} was not a quiet success.",
+                )
 
     for prefix, default_output_name, provenance_output_name in (
         (
@@ -3234,6 +3552,11 @@ def _install_and_smoke(
 
     smoke_environment = environment.copy()
     smoke_environment["SKATMIND_REPOSITORY_ROOT"] = str(PROJECT_ROOT)
+    smoke_environment["SKATMIND_INSTALLATION_FORM"] = installation_form
+    if external_source_root is not None:
+        smoke_environment["SKATMIND_EXTERNAL_SOURCE_ROOT"] = str(external_source_root)
+    if full_root_cli_matrix:
+        smoke_environment["SKATMIND_FULL_ROOT_CLI_MATRIX"] = "1"
     smoke_program_path = consumer_directory / "installed-smoke.py"
     smoke_program_path.write_text(SMOKE_PROGRAM, encoding="utf-8")
     completed = _run(
@@ -3248,11 +3571,16 @@ def _install_and_smoke(
             f"{label} smoke test did not emit valid JSON: {completed.stdout!r}"
         ) from error
     _require(isinstance(result, dict), f"{label} smoke test emitted a non-object result.")
+    result["environment"] = {
+        "direct_dependency_versions": dependency_versions,
+        "pip_check": "passed",
+    }
     return result
 
 
-def validate_distribution_artifacts() -> None:
-    before_snapshot = _repository_artifact_snapshot()
+def _build_and_inspect_distribution_artifacts(
+    temporary_root: Path,
+) -> tuple[Path, Path, Path, dict[str, bytes]]:
     _validate_source_license_metadata()
     expected_legal_files = _expected_legal_file_bytes()
     expected_schemas = _expected_schema_bytes()
@@ -3264,69 +3592,77 @@ def validate_distribution_artifacts() -> None:
         f"Expected {EXPECTED_SCHEMA_RESOURCE_COUNT} authoritative schemas, "
         f"found {len(expected_schemas)}.",
     )
+    _require(
+        not temporary_root.is_relative_to(PROJECT_ROOT),
+        "Distribution validation temporary directory must be outside the repository.",
+    )
+    source_copy = temporary_root / "source"
+    distribution_directory = temporary_root / "dist"
+    _copy_source_tree(source_copy)
+    distribution_directory.mkdir()
+    _run(
+        [
+            sys.executable,
+            "-m",
+            "build",
+            "--outdir",
+            str(distribution_directory),
+            str(source_copy),
+        ],
+        cwd=temporary_root,
+        environment=_sanitized_environment(disable_user_site=False),
+    )
+
+    wheels = sorted(distribution_directory.glob("*.whl"))
+    sdists = sorted(distribution_directory.glob("*.tar.gz"))
+    _require(len(wheels) == 1, "Build must produce exactly one Wheel.")
+    _require(len(sdists) == 1, "Build must produce exactly one sdist.")
+    _require(
+        set(distribution_directory.iterdir()) == {wheels[0], sdists[0]},
+        "Build output contains unexpected artifacts.",
+    )
+
+    wheel_metadata = _inspect_wheel(
+        wheels[0],
+        expected_schemas,
+        expected_modules,
+        expected_capture_resources,
+        expected_corpus_resources,
+        expected_legal_files,
+    )
+    sdist_metadata = _inspect_sdist(
+        sdists[0],
+        expected_schemas,
+        expected_modules,
+        expected_capture_resources,
+        expected_corpus_resources,
+        expected_legal_files,
+    )
+    _require(
+        wheel_metadata["Name"] == sdist_metadata["Name"]
+        and wheel_metadata["Version"] == sdist_metadata["Version"],
+        "Wheel and sdist core metadata differ.",
+    )
+    return source_copy, wheels[0], sdists[0], expected_schemas
+
+
+def validate_distribution_artifacts() -> None:
+    before_snapshot = _repository_artifact_snapshot()
 
     with tempfile.TemporaryDirectory(prefix="skatmind-distribution-") as temporary_name:
         temporary_root = Path(temporary_name).resolve()
-        _require(
-            not temporary_root.is_relative_to(PROJECT_ROOT),
-            "Distribution validation temporary directory must be outside the repository.",
-        )
-        source_copy = temporary_root / "source"
-        distribution_directory = temporary_root / "dist"
-        _copy_source_tree(source_copy)
-        distribution_directory.mkdir()
-        _run(
-            [
-                sys.executable,
-                "-m",
-                "build",
-                "--outdir",
-                str(distribution_directory),
-                str(source_copy),
-            ],
-            cwd=temporary_root,
-            environment=_sanitized_environment(disable_user_site=False),
-        )
-
-        wheels = sorted(distribution_directory.glob("*.whl"))
-        sdists = sorted(distribution_directory.glob("*.tar.gz"))
-        _require(len(wheels) == 1, "Build must produce exactly one Wheel.")
-        _require(len(sdists) == 1, "Build must produce exactly one sdist.")
-        _require(
-            set(distribution_directory.iterdir()) == {wheels[0], sdists[0]},
-            "Build output contains unexpected artifacts.",
-        )
-
-        wheel_metadata = _inspect_wheel(
-            wheels[0],
-            expected_schemas,
-            expected_modules,
-            expected_capture_resources,
-            expected_corpus_resources,
-            expected_legal_files,
-        )
-        sdist_metadata = _inspect_sdist(
-            sdists[0],
-            expected_schemas,
-            expected_modules,
-            expected_capture_resources,
-            expected_corpus_resources,
-            expected_legal_files,
-        )
-        _require(
-            wheel_metadata["Name"] == sdist_metadata["Name"]
-            and wheel_metadata["Version"] == sdist_metadata["Version"],
-            "Wheel and sdist core metadata differ.",
+        _source_copy, wheel, sdist, expected_schemas = (
+            _build_and_inspect_distribution_artifacts(temporary_root)
         )
 
         wheel_smoke = _install_and_smoke(
-            wheels[0],
+            wheel,
             label="wheel",
             temporary_root=temporary_root,
             expected_schemas=expected_schemas,
         )
         sdist_smoke = _install_and_smoke(
-            sdists[0],
+            sdist,
             label="sdist",
             temporary_root=temporary_root,
             expected_schemas=expected_schemas,

@@ -78,10 +78,12 @@ unregistered retrieval is rejected, so reference resolution does not use the
 network. Draft 2020-12, input `FormatChecker`, deterministic first-error
 selection, and canonical RFC 6901 paths are unchanged.
 
-Wheel and sdist inspection plus separate clean installations verify exact source,
+Wheel/sdist inspection and the Issue #206 source, Editable, Wheel, and sdist
+resolved matrix plus exact-minimum Wheel/sdist lanes verify exact source,
 archive, and installed-resource filename and byte parity, UTF-8 and JSON
-validity, unchanged `$id` values, and Root input/output local-reference
-resolution. See [Packaging and distribution](packaging_and_distribution.md).
+validity, unchanged `$id` values, all 71 local loads, and Root input/output local-
+reference resolution. See [Packaging and distribution](packaging_and_distribution.md)
+and the [v1 installation and supported-platform matrix](v1_installation_and_supported_platform_matrix.md).
 
 The input schema checks things such as:
 
@@ -410,6 +412,10 @@ Session examples and ordered 98-scenario matrix unless a later blocker changes
 stable public behavior. No current blocker is expected to require a new Schema or
 scenario. Private Match, Corpus, and Learning Dataset-v2 values remain outside
 the public Schema set.
+
+Issue #206 changes no Schema filename, `$id`, byte, example, generated scenario,
+or stable output. The baseline remains 71 authoritative Schemas, 71 packaged
+Schema Resources, six Session examples, and 98 generated outputs.
 
 The scenario matrix is intentionally bounded. It covers representative
 user-facing CLI workflows, including explicit-input live recommendation, JSON

@@ -28,7 +28,10 @@ def test_build_metadata_package_discovery_and_package_data_are_explicit() -> Non
     assert pyproject["project"]["readme"] == "README.md"
     assert pyproject["project"]["license"] == "AGPL-3.0-only"
     assert pyproject["project"]["license-files"] == ["LICENSE", "COPYRIGHT"]
-    assert pyproject["project"]["dependencies"] == ["jsonschema>=4.0.0"]
+    assert pyproject["project"]["dependencies"] == [
+        "jsonschema>=4.23.0",
+        "referencing>=0.31.0",
+    ]
     assert pyproject["project"]["scripts"] == {"skatmind": "skatmind.cli:main"}
     assert pyproject["project"]["optional-dependencies"]["dev"] == [
         "build>=1.2.2",
@@ -211,3 +214,5 @@ def test_distribution_gate_is_centralized_in_local_check_and_ci() -> None:
     for content in (local_check, ci_check):
         assert content.count("scripts/sync_packaged_schemas.py --check") == 1
         assert content.count("scripts/validate_distribution_artifacts.py") == 1
+    assert "scripts/validate_v1_supported_platform_matrix.py" not in local_check
+    assert ci_check.count("scripts/validate_v1_supported_platform_matrix.py") == 1

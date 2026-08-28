@@ -1741,8 +1741,11 @@ Four blockers B-04 through B-07 remained at that point. Issue #204 applies exact
 `AGPL-3.0-only` legal files and PEP 639 metadata and closes B-04. Issue #205
 completes the hard-cut SkatMind identity and migration boundary, makes P-09
 `satisfied`, and closes B-08, while B-09 adds maintainer UAT outside the 53-row
-ledger. Four blockers B-05, B-06, B-07, and B-09 remain. The milestone is not
-ready, and Issue #206 is next.
+ledger. Issue #206 adds exact direct dependency floors, resolved source/Editable/
+Wheel/sdist evidence, minimum Wheel/sdist evidence, and separate Windows/Ubuntu
+matrix execution. It prepares P-34 as `satisfied` and B-05 as technically closed,
+conditional on both merged Ubuntu jobs passing. B-06, B-07, and B-09 remain. The
+milestone is not ready, and Issue #207 is next after that CI condition.
 
 Historical published Package milestone: `v0.15.0`, providing usable manual post-
 game capture of one EuroSkat 36er Standard Match from descriptive video evidence.
@@ -2209,7 +2212,8 @@ Completed implementation scope:
   repository-local benchmark evidence and satisfies the bounded v0.17.0
   performance-evidence contract. Issue #200 accepts deterministic functional and
   structural-work evidence for v1; cross-machine latency guarantees are not v1
-  requirements, while fresh supported-platform evidence remains required.
+  requirements. Issue #206 adds the required CPython 3.13 Windows/Ubuntu
+  installation evidence, with formal closure pending green merged Ubuntu CI.
   Compatible-world Minimax evaluates the frozen selected
   sequence and aggregates one exact common prefix, but it is determinization-based
   and subject to strategy fusion. Neither method is an optimal imperfect-
@@ -2330,13 +2334,16 @@ Completed implementation scope:
 
 ## Next recommended action
 
-Begin Issue #206, **Complete the v1 installation and supported-platform matrix**.
+After both merged Ubuntu jobs for Issue #206 pass, begin Issue #207, **Perform the
+final technical v1.0.0 release-readiness audit**.
 Issues #201 through #203 close B-01 through B-03. Issue #204 applies the exact
 `AGPL-3.0-only` Package boundary and closes B-04 without changing product
 behavior. Issue #205 completes the SkatMind identity and migration boundary,
-makes P-09 `satisfied`, and closes B-08. #206 owns installation/platform
-evidence, #207 owns the final technical audit, and #208 owns the separate B-09
-maintainer-UAT Gate outside the 53-row ledger. B-07 Release preparation occurs
+makes P-09 `satisfied`, and closes B-08. #206 implements installation/platform
+evidence and technically closes B-05; its formal closure remains conditional on
+green merged `check` and `v1-supported-platform-matrix` jobs. #207 owns the final
+technical audit, and #208 owns the separate B-09 maintainer-UAT Gate outside the
+53-row ledger. B-07 Release preparation occurs
 only after #208 and remediation of accepted findings; its Issue number is not
 frozen. The published functional history remains Issues #182 through #196;
 Issues #197 through #199 remain audit, Release preparation, and publication

@@ -147,8 +147,11 @@ Issue #204 applies `AGPL-3.0-only` and closes B-04 without changing product
 behavior or active Package identity. Issue #205 completes the hard-cut SkatMind
 Package/import/CLI/resource/Schema/identifier migration, strict legacy input-only
 compatibility, and reviewed historical-evidence boundary. P-09 is `satisfied`
-and B-08 is closed. Four blockers B-05, B-06, B-07, and B-09 remain; B-09 is
-outside the 53-row ledger. Issue #206 is the exact next action.
+and B-08 is closed. Issue #206 adds exact direct dependency floors and a reusable
+validation-only source/Editable/Wheel/sdist supported-platform matrix. P-34 is
+prepared as `satisfied` and B-05 is technically closed, conditional on both
+merged Ubuntu jobs passing. B-06, B-07, and B-09 remain; B-09 is outside the
+53-row ledger. Issue #207 is the exact next action after that CI condition.
 
 Issues #160 through #168 form the published `v0.15.0` Package baseline, and Issue
 #169 updated only Package/release metadata and documentation to complete Release
@@ -1144,6 +1147,7 @@ Output is designed to be regression-friendly and schema-validatable.
 | `schemas/session.schema.json`                  | Strict standalone Public Session API Commands, values, Results, creation input, persistence/file transport, observations, review exports, and optional provenance. |
 | `scripts/validate_examples_schema.py`          | Validates input examples against the input schema.                       |
 | `scripts/validate_generated_outputs_schema.py` | Generates selected outputs and validates them against the output schema. |
+| `scripts/validate_v1_supported_platform_matrix.py` | Builds external artifacts/environments and validates the version-1 installation, dependency-lane, and Windows/Ubuntu surface matrix without publication. |
 | `scripts/check.ps1`                            | Runs the combined project check.                                         |
 
 ## Tests

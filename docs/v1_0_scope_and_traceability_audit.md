@@ -30,8 +30,11 @@ contract, Schema, and generated-scenario-count boundaries.
 Issue #204 applies the exact `AGPL-3.0-only` Package boundary and closes B-04.
 Issue #205 completes the hard-cut SkatMind product, distribution, import, CLI,
 resource, Schema, identifier, and strict legacy-input migration boundary, makes
-P-09 `satisfied`, and closes B-08. The GitHub repository rename and local remote
-update remain explicit maintainer verification steps before Issue #205 is closed.
+P-09 `satisfied`, and closes B-08. Issue #206 declares exact direct runtime
+dependency floors and adds the validation-only source/Editable/Wheel/sdist,
+resolved/minimum, Windows/Ubuntu matrix. It makes P-34 `satisfied` and technically
+closes B-05 after local Windows evidence; formal Issue closure remains conditional
+on both merged Ubuntu jobs passing.
 
 ## Source hierarchy
 
@@ -113,9 +116,9 @@ There are exactly 53 traceability rows whose `Required before v1.0` cell contain
 
 | Audit status | Count |
 | --- | ---: |
-| `satisfied` | 18 |
+| `satisfied` | 19 |
 | `satisfied_with_approved_bounded_scope` | 34 |
-| `evidence_required` | 1 |
+| `evidence_required` | 0 |
 | `implementation_required` | 0 |
 | `product_decision_required` | 0 |
 | `post_v1` | 0 |
@@ -151,7 +154,7 @@ Every required row cites at least one direct automated evidence anchor:
 | E-Tactical | `tests/test_historical_tactical_motif_review.py`, `tests/test_learning_corpus_tactical_motif.py` |
 | E-Dataset | `tests/test_training_dataset.py`, `tests/test_training_dataset_preparation.py`, `tests/test_dataset_partition_audit.py`, `tests/test_learning_dataset_v2.py` |
 | E-Output | `tests/test_examples.py`, `scripts/validate_examples_schema.py`, `scripts/validate_generated_outputs_schema.py` |
-| E-Distribution | `tests/test_v1_package_license.py`, `tests/test_packaging_and_distribution.py`, `tests/test_installed_cli.py`, `scripts/validate_distribution_artifacts.py`, and `scripts/check.ps1` |
+| E-Distribution | `tests/test_v1_package_license.py`, `tests/test_packaging_and_distribution.py`, `tests/test_v1_supported_platform_matrix.py`, `tests/test_installed_cli.py`, `scripts/validate_distribution_artifacts.py`, `scripts/validate_v1_supported_platform_matrix.py`, `scripts/check.ps1`, and the two Ubuntu jobs |
 
 ### ISkO required rows
 
@@ -219,7 +222,7 @@ Every required row cites at least one direct automated evidence anchor:
 | P-31 | Historical player statistics | `supported` | `satisfied` | Current exact supported-game aggregation and export satisfies v1. | None |
 | P-32 | Rolling opponent-policy evaluation | `supported` | `satisfied_with_approved_bounded_scope` | Current known-opponent behavioral imitation evaluation satisfies v1 without a strategic-quality claim. | None |
 | P-33 | Generated-output validation | `supported` | `satisfied` | The frozen append-only 98-scenario matrix is the v1 baseline unless a blocker changes stable behavior. | None |
-| P-34 | Release and regression checks | `supported` | `evidence_required` | Repository gates exist; #206 must reconcile the direct `referencing` import with supported dependency declarations/lower bounds before fresh final-candidate local and CI evidence. | B-05 / #206, then B-06 / #207 |
+| P-34 | Release and regression checks | `supported` | `satisfied` | Issue #206 declares exact `jsonschema>=4.23.0` and `referencing>=0.31.0` direct floors, reconciles every Production third-party import, and adds resolved source/Editable/Wheel/sdist plus exact-minimum Wheel/sdist evidence across all seven workflows, Provenance, artifacts, errors, Session, Capture, Corpus, resources, semantic parity, `pip check`, repository non-mutation, Windows 11, and Ubuntu CI. Formal Issue closure remains conditional on both merged Ubuntu jobs passing. | None; B-06 / #207 follows the merged-CI condition |
 
 No required row remains unclassified or merely partially supported without an
 approved bounded interpretation or exact blocker. B-09 is a separate Release-
@@ -288,7 +291,7 @@ B-09 is likewise a separate maintainer-acceptance Gate outside that ledger.
 | P-31 | E-Policy, E-Historical | None | None |
 | P-32 | E-Policy, E-Dataset | None within behavioral-imitation scope | None |
 | P-33 | E-Output | None | None |
-| P-34 | E-Distribution | Reconcile the direct `referencing` import and runtime lower bounds; then produce fresh final source/Editable/Wheel/sdist and Windows/Ubuntu evidence and the final technical audit | B-05 / #206, then B-06 / #207 |
+| P-34 | E-Distribution | None; exact direct floors and source/Editable/Wheel/sdist Windows/Ubuntu evidence are implemented, with formal Issue closure conditional on both merged Ubuntu jobs | None; B-06 / #207 follows that condition |
 
 ## Rules and Settlement
 
@@ -336,7 +339,7 @@ The approved v1 solver contract is the implemented bounded contract:
 | Calibrated probabilities | `post_v1` | Compatible-world and concentration values remain structural and uncalibrated. |
 | Wider Search bounds | `post_v1` | More than current five-Trick exact/PIMC or three-Trick Information-set bounds is later work. |
 | Production performance acceptance | `satisfied_with_approved_bounded_scope` | Deterministic functional and structural-work signatures, bounded completion, and local reference measurements are the acceptance contract; elapsed time is diagnostic only. |
-| Supported hardware/platform evidence | `evidence_required` | Final CPython 3.13 Windows and Ubuntu evidence is required after implementation blockers close. |
+| Supported hardware/platform evidence | `satisfied` | Issue #206 validates CPython 3.13 on Windows 11/PowerShell 5.1 and Ubuntu GitHub Actions; merged Ubuntu job success remains the formal Issue-closure condition. |
 | Cross-machine latency guarantees | `not_required` | No SLO, P95/P99, or millisecond guarantee is part of v1. |
 | Dedicated production Budget profiles | `not_required` | Existing immutable work profiles remain budgets, not latency contracts. |
 
@@ -600,26 +603,29 @@ The v1 platform boundary is:
   packaged standards-based assets, without a named browser-vendor matrix; and
 * remote binding remains unsupported.
 
-Fresh Windows and Ubuntu evidence is required for the final v1 candidate. Wider
-Python and operating-system matrices may be added later but are not v1 gates.
+Issue #206 adds the final Windows runner and separate Ubuntu matrix job. Formal
+closure remains conditional on both Ubuntu jobs passing on the merged commit.
+Wider Python and operating-system matrices may be added later but are not v1
+gates.
 
 ## Packaging and license
 
 The v1 Package boundary retains Setuptools PEP 517, one Wheel, one sdist,
 `py.typed`, 71 packaged byte-identical Schemas, packaged Capture/Corpus assets,
-one runtime dependency, one `dev` extra, and exactly one Console Script.
+two exact direct runtime dependencies, one `dev` extra, and exactly one Console
+Script.
 
 | Metadata dimension | Frozen pre-v1 value and v1 acceptance |
 | --- | --- |
 | Build backend | `setuptools.build_meta` with `setuptools>=77.0.3` |
 | Python metadata | `requires-python = ">=3.13"`; metadata permits later compatible Python versions, while the frozen v1 evidence matrix certifies CPython 3.13 only |
-| Runtime dependency | Issue #204 preserves `jsonschema>=4.0.0`; #206 must reconcile the direct `referencing` import with supported declarations and lower bounds before final acceptance |
+| Runtime dependencies | Exactly `jsonschema>=4.23.0` then `referencing>=0.31.0`; exact minimum evidence uses `jsonschema==4.23.0` and `referencing==0.31.0` |
 | Development extra | `build>=1.2.2`, `pytest>=9.0.0`, and `ruff>=0.14.0` |
 | Console Script | Exactly `skatmind = skatmind.cli:main` |
 | Artifact forms | One pure-Python Wheel and one sdist, plus source and Editable-install validation |
 | Package data | `py.typed`, 71 Schema Resources, and packaged Capture/Corpus templates, CSS, and JavaScript |
 | Package license | `AGPL-3.0-only` with exact root `LICENSE` and `COPYRIGHT`, PEP 639 Core Metadata, Wheel/sdist/installed bytes, and focused dependency/asset audit |
-| Final evidence | Clean source, Editable, Wheel, and sdist acceptance with fresh Windows/Ubuntu results under #206 |
+| Final evidence | Resolved source, Editable, Wheel, and sdist plus exact-minimum Wheel/sdist acceptance on Windows and the dedicated Ubuntu job; formal closure requires both merged Ubuntu jobs |
 
 Clean-install validation for the final candidate must cover:
 
@@ -670,21 +676,22 @@ The cross-surface coverage matrix is:
 
 | Workflow or stable major submode | Schema | Root example | Session example | Generated output | Public API | Installed CLI | Module CLI | Legacy CLI | Distribution smoke | Provenance |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Position: Immediate, Search, Auto, Information-set, Multi-Step, Policy Comparison | Yes | Yes | Position export path | Yes | Yes | Yes | Yes | Yes | Current; refresh #206 | Complete Root Result plus retained stages |
-| Historical: flat/Search/Information-set Review, Replay Coaching, Tactical Review, bounded Claim | Yes | Yes | Historical export path | Yes | Yes | Yes | Yes | Yes | Current; refresh #206 | Complete Root Result plus retained stages |
-| Training Dataset: materialization, Search/Information-set evaluation, statistics export | Yes | Yes | N/A | Yes | Yes | Yes | Yes | Yes | Current; refresh #206 | Complete Root Result and actual artifact |
-| Training Dataset Preparation: Known-player and unseen-player | Yes | Yes | N/A | Yes | Yes | Yes | Yes | Yes | Current; refresh #206 | Complete Root Result |
-| Opponent Statistics | Yes | Yes | N/A | Yes | Yes | Yes | Yes | Yes | Current; refresh #206 | Complete Root Result |
-| Fixed three-player Historical List | Yes | Yes | N/A | Yes | Yes | Yes | Yes | Yes | Current; refresh #206 | Complete Root Result |
-| Fixed three-player Historical List Comparison | Yes | Yes | N/A | Yes | Yes | Yes | Yes | Yes | Current; refresh #206 | Complete Root Result |
-| Session API/files, 12 Commands, Assistant, Position/Historical execution | Yes | N/A | Six exact files | Eight scenarios | Session API | Yes | Yes | Yes | Current; refresh #206 | Separate complete Session provenance |
-| Private Match Capture and analysis | No public Schema | N/A | N/A | N/A | Private only | Yes | Yes | Yes | Packaged assets and loopback smoke; refresh #206 | Specialized source/report evidence only |
-| Private Corpus and ten downloads | No public Schema | N/A | N/A | N/A | Private only | Yes | Yes | Yes | Packaged assets/download smoke; refresh #206 | Specialized fingerprints and evidence only |
+| Position: Immediate, Search, Auto, Information-set, Multi-Step, Policy Comparison | Yes | Yes | Position export path | Yes | Yes | Yes | Yes | Yes | Issue #206 matrix complete | Complete Root Result plus retained stages |
+| Historical: flat/Search/Information-set Review, Replay Coaching, Tactical Review, bounded Claim | Yes | Yes | Historical export path | Yes | Yes | Yes | Yes | Yes | Issue #206 matrix complete | Complete Root Result plus retained stages |
+| Training Dataset: materialization, Search/Information-set evaluation, statistics export | Yes | Yes | N/A | Yes | Yes | Yes | Yes | Yes | Issue #206 matrix complete | Complete Root Result and actual artifact |
+| Training Dataset Preparation: Known-player and unseen-player | Yes | Yes | N/A | Yes | Yes | Yes | Yes | Yes | Issue #206 matrix complete | Complete Root Result |
+| Opponent Statistics | Yes | Yes | N/A | Yes | Yes | Yes | Yes | Yes | Issue #206 matrix complete | Complete Root Result |
+| Fixed three-player Historical List | Yes | Yes | N/A | Yes | Yes | Yes | Yes | Yes | Issue #206 matrix complete | Complete Root Result |
+| Fixed three-player Historical List Comparison | Yes | Yes | N/A | Yes | Yes | Yes | Yes | Yes | Issue #206 matrix complete | Complete Root Result |
+| Session API/files, 12 Commands, Assistant, Position/Historical execution | Yes | N/A | Six exact files | Eight scenarios | Session API | Yes | Yes | Yes | Issue #206 matrix complete | Separate complete Session provenance |
+| Private Match Capture and analysis | No public Schema | N/A | N/A | N/A | Private only | Yes | Yes | Yes | Issue #206 packaged assets and loopback smoke complete | Specialized source/report evidence only |
+| Private Corpus and ten downloads | No public Schema | N/A | N/A | N/A | Private only | Yes | Yes | Yes | Issue #206 packaged assets/download smoke complete | Specialized fingerprints and evidence only |
 
 This matrix records stable public and private transport coverage without turning
-private Match or Corpus surfaces into Root workflows. B-05/#206 requires fresh final
-candidate execution across the current source, Editable, Wheel, sdist, Windows,
-and Ubuntu boundaries; it does not imply a missing example, Schema, or workflow.
+private Match or Corpus surfaces into Root workflows. Issue #206 executes the
+source, Editable, Wheel, sdist, Windows, and Ubuntu boundaries; formal closure
+remains conditional on both merged Ubuntu jobs. It does not imply a missing
+example, Schema, or workflow.
 
 The exact ordered `SCENARIOS` tuple in
 `scripts/validate_generated_outputs_schema.py` remains authoritative. No rewrite
@@ -785,11 +792,13 @@ Issue #204 closes B-04 with the decision and direct evidence documented in
 [v1 Package license](v1_package_license.md). Issue #205 closes B-08 with the
 rename and migration boundary documented in
 [SkatMind rename and migration](skatmind_rename_and_migration.md). `v1.0.0` is
-not ready. Exactly these four blockers remain; B-09 is outside the 53-row ledger:
+not ready. Issue #206 technically closes B-05 with the matrix documented in
+[v1 installation and supported-platform matrix](v1_installation_and_supported_platform_matrix.md);
+that closure becomes effective only after both merged Ubuntu jobs pass. Exactly
+these three blockers then remain; B-09 is outside the 53-row ledger:
 
 | Blocker | Status | Required closure |
 | --- | --- | --- |
-| B-05 | `evidence_required` | After the rename, reconcile the direct `referencing` import with supported dependency declarations/lower bounds, then complete the final all-seven-workflow source/Editable/Wheel/sdist matrix and fresh CPython 3.13 Windows/Ubuntu evidence under #206. |
 | B-06 | `evidence_required` | After B-05, record the final technical v1 scope/readiness audit, full local check, CI result, and clean worktree evidence under #207. |
 | B-07 | `implementation_required` | After B-09 and resolution of accepted UAT findings, prepare Package `1.0.0`, matching version expectations, Changelog, and Release-candidate documentation without product behavior changes. Its Issue number is not frozen. |
 | B-09 | `evidence_required` | After the final technical audit, complete hands-on maintainer v1.0.0 user acceptance testing under #208 and resolve every accepted finding before Release preparation. |
@@ -809,12 +818,13 @@ The smallest coherent follow-up sequence is frozen as:
 | 3 | **#203 - Complete canonical Multi-Step phase coverage**; implementation and evidence | Simulation; P-19, B-03 | Analyze, prepare, or terminate every valid canonical phase under documented semantics; preserve coherent-world and Search boundaries. | Completed #202; completed | Yes, bounded phase handling | Existing fields only; one existing generated scenario changes from unsupported to executable without changing its identity, public shape, or the count | None | Closed the final functional behavior gate. |
 | 4 | **#204 - Decide and apply the v1 Package license boundary**; product decision and metadata | Packaging/license; B-04 and P-09's license portion | Apply exact `AGPL-3.0-only` legal files, PEP 639 metadata, artifact evidence, audit, and documentation. | #200; ordered after #203; completed | No product behavior; metadata/files only | Package license metadata only, not Python API or CLI behavior | None | Closes B-04 before the rename and distribution evidence. |
 | 5 | **#205 - Rename the complete project and public Package surface to SkatMind**; implementation and migration | Public Package identity; P-09, B-08 | Coordinate repository `hnnng-w/skatmind`, distribution/import/CLI/resource/current-documentation migration, compatibility, and persisted/hashed identifier boundaries. | Completed #204; completed, with manual GitHub rename verification retained before Issue closure | Yes, focused rename and migration work | Public Package/import/module/CLI identity changes under the approved migration contract | No count or structure change; all 71 Schema identities migrate | Completes the required pre-v1 public identity. |
-| 6 | **#206 - Complete the v1 installation and supported-platform matrix**; evidence | Packaging/platforms; P-34, B-05 | Reconcile the direct `referencing` import with supported dependency declarations/lower bounds, add all-seven-Root-workflow source/Editable/Wheel/sdist evidence, and verify CPython 3.13 on Windows and Ubuntu with the renamed CLI/browser/download boundaries. | Completed #205 | No product behavior expected; Package dependency metadata and validation scripts/tests may change | Package dependency metadata may be corrected; no Python API or CLI behavior change | None | Produces final candidate installation/platform evidence. |
+| 6 | **#206 - Complete the v1 installation and supported-platform matrix**; evidence | Packaging/platforms; P-34, B-05 | Declare exact direct dependency floors, add all-seven-Root-workflow resolved source/Editable/Wheel/sdist and exact-minimum Wheel/sdist evidence, and verify CPython 3.13 on Windows and Ubuntu with the renamed CLI/browser/download boundaries. | Completed #205; implementation and local Windows evidence complete; formal closure conditional on both merged Ubuntu jobs | No product behavior; Package dependency metadata and validation scripts/tests only | Exact dependency metadata only; no Python API or CLI behavior change | None | Technically closes B-05; Issue remains open until merged Ubuntu CI is green. |
 | 7 | **#207 - Perform the final technical v1.0.0 Release-readiness audit**; documentation audit | All technical Gate clusters; B-06 | Reconcile #201 through #206, the 53-row ledger, exact counts, final full check, CI, diff, and technical Release blockers. | #206 and successful CI | No | None | None | Decides whether maintainer UAT may begin. |
 | 8 | **#208 - Perform maintainer v1.0.0 user acceptance testing**; evidence | Release process; B-09 | Execute hands-on maintainer UAT after #207 and record and resolve every accepted finding before Release preparation. | #207 technical-readiness approval | No product behavior expected; accepted findings may require separate remediation Issues | None expected | None expected | Provides the required human acceptance Gate outside the 53-row ledger. |
 
-B-01 is closed by #201, B-02 by #202, B-03 by #203, B-04 by #204, and B-08 by
-#205. The exact next action is B-05/#206, followed by B-06/#207 and B-09/#208.
+B-01 is closed by #201, B-02 by #202, B-03 by #203, B-04 by #204, B-08 by
+#205, and B-05 technically by #206. After both merged Ubuntu jobs pass, the exact
+next action is B-06/#207, followed by B-09/#208.
 Release preparation remains B-07 and occurs only after #208 and remediation of
 all accepted findings. Its Issue number is not frozen; it is expected to be #209
 only when #208 produces no remediation Issues. Publication, tagging, GitHub
@@ -830,13 +840,14 @@ workflows, stable Public API/Session/CLI surfaces, 71 Schemas, six Session
 examples, 98 generated outputs, and ten Corpus downloads are accepted as the v1
 baseline under their documented limitations.
 
-The 53 required traceability rows are completely classified as 18 `satisfied`,
-34 `satisfied_with_approved_bounded_scope`, 1 `evidence_required`, 0
+The 53 required traceability rows are completely classified as 19 `satisfied`,
+34 `satisfied_with_approved_bounded_scope`, 0 `evidence_required`, 0
 `implementation_required`, and 0 `product_decision_required`. Issue #201 closes
 B-01 without product-code change, Issue #202 closes B-02, and Issue #203 closes
 B-03. Issue #204 applies `AGPL-3.0-only` and closes B-04 without product-code
-change. Issue #205 completes the SkatMind migration and closes B-08. Four blockers
-B-05, B-06, B-07, and B-09 remain, with B-09 outside the 53-row ledger.
+change. Issue #205 completes the SkatMind migration and closes B-08. Issue #206
+technically closes B-05, conditional on both merged Ubuntu jobs. B-06, B-07, and
+B-09 remain, with B-09 outside the 53-row ledger.
 Therefore:
 
 ```text
@@ -847,28 +858,29 @@ v1.0.0 implementation and evidence:
     incomplete
 
 v1.0.0 Release readiness:
-    blocked by B-05, B-06, B-07, and B-09
+    blocked by B-06, B-07, and B-09 after the Issue #206 merged-CI condition
 
 v1.0.0 Release title, theme, date, tag, and publication commit:
     not frozen
 ```
 
 The traceability audit is fully classified, every remaining blocker is mapped to
-the exact ordered plan, and Release preparation is not ready. The exact next
-action is Issue #206, **Complete the v1 installation and supported-platform
-matrix**.
+the exact ordered plan, and Release preparation is not ready. After both merged
+Ubuntu jobs for Issue #206 pass, the exact next action is Issue #207, **Perform
+the final technical v1.0.0 release-readiness audit**.
 
 ## Exact next action
 
 | Conclusion field | Current result |
 | --- | --- |
 | Traceability | Fully classified: all 53 required rows have one audit status, direct evidence, missing-work state, and blocker owner. |
-| Blocker mapping | B-01 closed by #201, B-02 by #202, B-03 by #203, B-04 by #204, and B-08 by #205; B-05/#206, B-06/#207, and B-09/#208 remain, followed by unnumbered B-07 Release preparation. |
+| Blocker mapping | B-01 closed by #201, B-02 by #202, B-03 by #203, B-04 by #204, B-08 by #205, and B-05 technically by #206 subject to merged Ubuntu CI; B-06/#207 and B-09/#208 remain, followed by unnumbered B-07 Release preparation. |
 | Issue #200 implementation | Complete; this audit changes documentation only. |
 | Issue #201 evidence closure | Complete; R-01 and R-06 are `satisfied`, and B-01 is closed without product-code change. |
 | Issue #202 Provenance closure | Complete; P-10 and P-13 are `satisfied`, and B-02 is closed without widening public Provenance. |
 | Issue #203 canonical phase closure | Complete; P-19 is `satisfied`, and B-03 is closed without widening Search or public contracts. |
 | Issue #204 Package license closure | Complete after successful validation; exact `AGPL-3.0-only` legal files and PEP 639 evidence close B-04 without product behavior or active-name changes. |
-| Issue #205 SkatMind rename closure | Complete after successful validation; P-09 is `satisfied`, B-08 is closed, and the maintainer must verify the manual GitHub repository rename before closing the Issue. |
-| Release preparation | Not ready while B-05, B-06, B-07, and B-09 remain open; B-09 is outside the required-row ledger. |
-| Next action | Issue #206, **Complete the v1 installation and supported-platform matrix**. |
+| Issue #205 SkatMind rename closure | Complete; P-09 is `satisfied`, B-08 is closed, and the maintainer verified the GitHub repository rename. |
+| Issue #206 installation/platform closure | Technical implementation and local Windows evidence prepare P-34 as `satisfied` and B-05 as closed; formal Issue closure remains conditional on green merged Ubuntu `check` and `v1-supported-platform-matrix` jobs. |
+| Release preparation | Not ready while B-06, B-07, and B-09 remain; B-09 is outside the required-row ledger. |
+| Next action | After the Issue #206 merged-CI condition, Issue #207, **Perform the final technical v1.0.0 release-readiness audit**. |

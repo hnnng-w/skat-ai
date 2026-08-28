@@ -343,9 +343,12 @@ behavior or active Package identity. Five blockers B-05 through B-09 remain,
 with B-09 outside the 53-row ledger. Issue #205 subsequently completes the
 SkatMind Package, import, CLI, resource, Schema, identifier, and strict legacy
 persisted-input migration boundary, makes P-09 `satisfied`, and closes B-08.
-Four blockers B-05, B-06, B-07, and B-09 remain. The milestone remains not ready,
-and Issue #206, **Complete the v1 installation and supported-platform matrix**,
-is next.
+Issue #206 adds exact direct dependency floors and the validation-only source/
+Editable/Wheel/sdist Windows/Ubuntu matrix, makes P-34 `satisfied`, and
+technically closes B-05. Formal closure remains conditional on both merged Ubuntu
+jobs passing. B-06, B-07, and B-09 remain. The milestone remains not ready, and
+Issue #207, **Perform the final technical v1.0.0 release-readiness audit**, is
+next after that condition.
 
 The November 2022 ISkO and SkWO publication is the normative source for official
 rules and competition behavior. Product capabilities such as simulation,
@@ -649,8 +652,9 @@ For the table below, Issue #193 supersedes older broad wording that says
 Information-set Search performance evidence remains open. Repository-local
 benchmark evidence implements the bounded v0.17.0 performance contract.
 Issue #200 accepts deterministic functional and structural work as the bounded v1
-performance contract. Final Windows and Ubuntu candidate evidence remains
-required; cross-machine latency guarantees are not required.
+performance contract. Issue #206 implements final Windows and Ubuntu candidate
+evidence; formal closure remains conditional on green merged Ubuntu CI. Cross-
+machine latency guarantees are not required.
 
 Issue #200 supersedes any pre-audit completion-row wording below that calls an
 accepted bounded limitation open before v1. Bounded solver, Claim, Settlement,
@@ -681,8 +685,9 @@ Teacher/Dataset/Corpus path with no new Schema or scenario. At that point, Match
 Historical Information-set execution and Replay Coaching classification remained
 open; both are completed separately by Issue #192 with one new Schema and two
 scenarios. Issue #193 completes bounded repository-local benchmark evidence.
-Final supported-platform evidence remains required. Latency guarantees are not a
-v1 gate, and broader solver directions are post-v1.
+Issue #206 adds the separate supported-platform evidence without a latency
+threshold. Latency guarantees are not a v1 gate, and broader solver directions
+are post-v1.
 
 Issues #156 and #157 supersede older rows below that call the Public Session API,
 Session Provenance/Schema, public file transport, automatic/actual-card
@@ -726,8 +731,8 @@ GUI/platform/cloud/encryption layers are not v1 requirements.
 | Private Session persistence and resume | The private version-1 document/codec/file boundary provides deterministic State/content fingerprints, strict typed reconstruction and accepted-Log replay, canonical Checkpoints, recomputed lineage, canonical UTF-8 files, optimistic outcomes, and atomic replacement. Stable public Save/Load and all-three-form CLI orchestration preserve those semantics and omit paths from Results. Distributed locking, migration, merge/retry, encryption, cloud sync, and automatic backup remain open. |
 | Examples | Examples cover each supported Root contract family and six strict Session creation/Command/correction/persistence documents; every example passes its applicable Schema and semantic validation. |
 | Generated-output validation | The published `v0.17.0` matrix has 98 scenarios: the historical published `v0.16.0`, `v0.15.0`, and `v0.14.0` 85 remain unchanged, followed by three Issue #186 Historical Claim scenarios, four Issue #189 Information-set Search scenarios, two Issue #190 Multi-Step/Policy Comparison scenarios, two Issue #192 Information-set Replay Coaching scenarios, and two Issue #194 Tactical Motif Review scenarios. The historical published `v0.13.0` first 77 and historical published `v0.12.0` 70 remain Release evidence. |
-| Python 3.13 | `pyproject.toml` requires Python 3.13 or newer, Ruff targets `py313`, GitHub Actions uses Python 3.13, Editable, Wheel, and sdist installation succeed on Python 3.13, and the full check passes there without a version matrix. |
-| Regression testing | Ruff, 71-Schema packaged parity, Root and Session example validation, 98-scenario generated-output validation, distribution build and clean-install API/installed/module Root, Session, Capture, and Corpus CLI validation are the published `v0.17.0` gates. The published Package passes 7,479 tests in 921.96s. The historical published `v0.16.0` Package passes 6,925 tests in 1083.48s with its 63-Schema and 85-scenario baseline. The historical published `v0.15.0` Package baseline passed 6,510 tests, and the published `v0.14.0` baseline remains historical evidence for 5,892 tests. |
+| Python 3.13 | `pyproject.toml` requires Python 3.13 or newer and Ruff targets `py313`; v1 certification is CPython 3.13 only. Issue #206 validates resolved source, Editable, Wheel, and sdist plus exact-minimum Wheel and sdist on Windows 11/PowerShell 5.1 and Ubuntu GitHub Actions. No Python 3.14 or macOS certification is claimed. |
+| Regression testing | Ruff, 71-Schema packaged parity, Root and Session example validation, 98-scenario generated-output validation, distribution build and clean-install API/installed/module Root, Session, Capture, and Corpus CLI validation remain the full gate. Issue #206 adds direct-import inventory, exact dependency floors, `pip check`, all-seven workflow/provenance/artifact/error evidence, semantic installation-form parity, repository non-mutation, and a separate Ubuntu matrix job without rerunning full pytest. The published Package passes 7,479 tests in 921.96s. Historical published counts remain unchanged. |
 | Documentation | README, public field provenance, installed CLI, packaging, architecture, input/output, scoring, game-end, overbid, performance, examples, schema validation, roadmap, handoff, traceability, and scope documentation agree with behavior, rule ownership, stable fields, limitations, Python baseline, and release baseline. |
 | Release hygiene | The human-reviewed `v0.17.0` candidate had only intended changes; Package metadata and Changelog used the approved version; `git diff --check` and the full check passed; the human maintainer created the tag and GitHub Release on 2026-08-25 at `8187fbe`. Issue #199 synchronizes that publication without product changes. |
 
@@ -932,9 +937,12 @@ See [Learning Corpus Tactical Cross-game Coaching](learning_corpus_tactical_cros
 ## Release decision rule
 
 The authoritative current status ledger, accepted limitations, closed B-01
-through B-04 and B-08, remaining B-05, B-06, B-07, and B-09 blockers, and the
-ordered #206 through #208 plan are in the
+through B-05 and B-08, remaining B-06, B-07, and B-09 blockers, and the ordered
+#207 through #208 plan are in the
 [v1.0 scope and traceability audit](v1_0_scope_and_traceability_audit.md).
+
+B-05 closure is effective only after the local Windows evidence and both merged
+Ubuntu jobs pass. Until then Issue #206 remains open and #207 does not begin.
 
 `v1.0.0` is not ready while any required gate lacks evidence, any validation or
 test listed for a v1.0-required traceability row remains incomplete, any such

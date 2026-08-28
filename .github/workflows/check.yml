@@ -44,3 +44,23 @@ jobs:
 
       - name: Run tests
         run: python -m pytest
+
+  v1-supported-platform-matrix:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+
+      - name: Install required build tooling
+        run: python -m pip install "build>=1.2.2"
+
+      - name: Validate the v1 supported-platform matrix
+        run: >-
+          python scripts/validate_v1_supported_platform_matrix.py
+          --expected-platform ubuntu_github_actions_cpython_3_13
