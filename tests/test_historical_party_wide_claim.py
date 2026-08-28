@@ -21,56 +21,56 @@ from test_replay_coaching_contracts import (
 )
 from test_training_dataset import build_training_input
 
-import skat_ai.historical_game as historical_game_module
-import skat_ai.historical_party_wide_claim as adapter_module
-import skat_ai.party_wide_claim_adjudication as adjudication_module
-from skat_ai.api.v1 import ExecutionOptionsV1, execute_document, serialize_result
-from skat_ai.errors import SkatAIInvariantError
-from skat_ai.fixed_three_player_historical_list import (
+import skatmind.historical_game as historical_game_module
+import skatmind.historical_party_wide_claim as adapter_module
+import skatmind.party_wide_claim_adjudication as adjudication_module
+from skatmind.api.v1 import ExecutionOptionsV1, execute_document, serialize_result
+from skatmind.errors import SkatMindInvariantError
+from skatmind.fixed_three_player_historical_list import (
     build_fixed_three_player_historical_list,
     build_fixed_three_player_historical_list_entry_facts,
 )
-from skat_ai.fixed_three_player_historical_list_aggregation import (
+from skatmind.fixed_three_player_historical_list_aggregation import (
     build_fixed_three_player_historical_list_aggregation,
 )
-from skat_ai.fixed_three_player_historical_list_comparison import (
+from skatmind.fixed_three_player_historical_list_comparison import (
     build_fixed_three_player_historical_list_comparison,
 )
-from skat_ai.historical_decision_snapshot import build_historical_decision_snapshots
-from skat_ai.historical_game import (
+from skatmind.historical_decision_snapshot import build_historical_decision_snapshots
+from skatmind.historical_game import (
     build_historical_game_record,
     build_historical_game_summary,
     build_historical_game_summary_from_input,
     build_serializable_historical_record,
 )
-from skat_ai.historical_game_end import (
+from skatmind.historical_game_end import (
     HISTORICAL_GAME_END_REASONS,
     HISTORICAL_PARTY_WIDE_CLAIM_SCHEMA_VERSION,
     HistoricalPartyWideAllRemainingTricksClaim,
     build_serializable_historical_game_end,
 )
-from skat_ai.historical_opponent_statistics import (
+from skatmind.historical_opponent_statistics import (
     aggregate_historical_opponent_statistics,
 )
-from skat_ai.historical_result_provenance import (
+from skatmind.historical_result_provenance import (
     build_historical_game_result_attachment,
 )
-from skat_ai.historical_search_review import (
+from skatmind.historical_search_review import (
     build_historical_search_review_coaching_analysis,
 )
-from skat_ai.party_wide_claim_proof_contracts import (
+from skatmind.party_wide_claim_proof_contracts import (
     build_unavailable_party_wide_claim_proof_preparation_v1,
     build_unavailable_party_wide_claim_proof_result_v1,
 )
-from skat_ai.replay_coaching_report import build_replay_coaching_report
-from skat_ai.replay_coaching_report_context import (
+from skatmind.replay_coaching_report import build_replay_coaching_report
+from skatmind.replay_coaching_report_context import (
     build_replay_coaching_outcome_context,
 )
-from skat_ai.rolling_opponent_policy_evaluation import (
+from skatmind.rolling_opponent_policy_evaluation import (
     build_serializable_rolling_opponent_policy_evaluation,
     evaluate_rolling_opponent_policy_predictions,
 )
-from skat_ai.training_dataset import (
+from skatmind.training_dataset import (
     build_training_dataset_input,
     build_training_dataset_summary,
 )
@@ -693,7 +693,7 @@ def test_unexpected_executor_and_adjudicator_states_are_invariant_errors() -> No
             "execute_party_wide_claim_proof_v1",
             return_value=unavailable_proof,
         ),
-        pytest.raises(SkatAIInvariantError, match="did not return a complete Result"),
+        pytest.raises(SkatMindInvariantError, match="did not return a complete Result"),
     ):
         build_historical_game_summary(record)
 
@@ -773,7 +773,7 @@ def test_claim_replay_coaching_uses_retained_settlement_without_rerunning_claim(
     summary = build_historical_game_summary(record)
     snapshots = build_historical_decision_snapshots(summary)
     monkeypatch.setattr(
-        "skat_ai.historical_search_review.solve_compatible_world_minimax",
+        "skatmind.historical_search_review.solve_compatible_world_minimax",
         _historical_fake_search,
     )
     coaching = build_historical_search_review_coaching_analysis(
@@ -785,7 +785,7 @@ def test_claim_replay_coaching_uses_retained_settlement_without_rerunning_claim(
 
     with (
         patch(
-            "skat_ai.replay_coaching_report.build_historical_game_summary",
+            "skatmind.replay_coaching_report.build_historical_game_summary",
             wraps=build_historical_game_summary,
         ) as summary_builder,
         patch.object(
@@ -809,11 +809,11 @@ def test_public_historical_reviews_and_coaching_support_claim_game(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.setattr(
-        "skat_ai.historical_search_review.solve_compatible_world_minimax",
+        "skatmind.historical_search_review.solve_compatible_world_minimax",
         _historical_fake_search,
     )
     monkeypatch.setattr(
-        "skat_ai.historical_search_review.recommend_card_by_expected_value",
+        "skatmind.historical_search_review.recommend_card_by_expected_value",
         _historical_fake_immediate,
     )
     with (

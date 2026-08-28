@@ -1,6 +1,6 @@
 import pytest
 
-from skat_ai.objective_utility import (
+from skatmind.objective_utility import (
     calculate_expected_objective_utility,
     calculate_null_horizon_objective_utility,
     calculate_null_horizon_utility_from_states,

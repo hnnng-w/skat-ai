@@ -4,15 +4,15 @@ import json
 import tomllib
 from pathlib import Path
 
-import skat_ai
-import skat_ai._version as version_module
+import skatmind
+import skatmind._version as version_module
 from scripts import sync_packaged_schemas
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 SCHEMA_DIRECTORY = PROJECT_ROOT / "schemas"
-PACKAGED_SCHEMA_DIRECTORY = PROJECT_ROOT / "src" / "skat_ai" / "schema_resources"
-CAPTURE_RESOURCE_DIRECTORY = PROJECT_ROOT / "src" / "skat_ai" / "capture_web"
-CORPUS_RESOURCE_DIRECTORY = PROJECT_ROOT / "src" / "skat_ai" / "corpus_web"
+PACKAGED_SCHEMA_DIRECTORY = PROJECT_ROOT / "src" / "skatmind" / "schema_resources"
+CAPTURE_RESOURCE_DIRECTORY = PROJECT_ROOT / "src" / "skatmind" / "capture_web"
+CORPUS_RESOURCE_DIRECTORY = PROJECT_ROOT / "src" / "skatmind" / "corpus_web"
 
 
 def test_build_metadata_package_discovery_and_package_data_are_explicit() -> None:
@@ -22,14 +22,14 @@ def test_build_metadata_package_discovery_and_package_data_are_explicit() -> Non
         "requires": ["setuptools>=77.0.3"],
         "build-backend": "setuptools.build_meta",
     }
-    assert pyproject["project"]["name"] == "skat-ai"
+    assert pyproject["project"]["name"] == "skatmind"
     assert pyproject["project"]["version"] == "0.17.0"
     assert pyproject["project"]["requires-python"] == ">=3.13"
     assert pyproject["project"]["readme"] == "README.md"
     assert pyproject["project"]["license"] == "AGPL-3.0-only"
     assert pyproject["project"]["license-files"] == ["LICENSE", "COPYRIGHT"]
     assert pyproject["project"]["dependencies"] == ["jsonschema>=4.0.0"]
-    assert pyproject["project"]["scripts"] == {"skat-ai": "skat_ai.cli:main"}
+    assert pyproject["project"]["scripts"] == {"skatmind": "skatmind.cli:main"}
     assert pyproject["project"]["optional-dependencies"]["dev"] == [
         "build>=1.2.2",
         "pytest>=9.0.0",
@@ -37,22 +37,23 @@ def test_build_metadata_package_discovery_and_package_data_are_explicit() -> Non
     ]
     assert pyproject["tool"]["setuptools"]["packages"]["find"] == {
         "where": ["src"],
-        "include": ["skat_ai*"],
+        "include": ["skatmind*"],
     }
     assert pyproject["tool"]["setuptools"]["package-data"] == {
-        "skat_ai": ["py.typed"],
-        "skat_ai.schema_resources": ["*.schema.json"],
-        "skat_ai.capture_web": [
+        "skatmind": ["py.typed"],
+        "skatmind.schema_resources": ["*.schema.json"],
+        "skatmind.capture_web": [
             "templates/*.html",
             "assets/*.css",
             "assets/*.js",
         ],
-        "skat_ai.corpus_web": [
+        "skatmind.corpus_web": [
             "templates/*.html",
             "assets/*.css",
             "assets/*.js",
         ],
     }
+    assert not (PROJECT_ROOT / "src" / ("skat" + "_ai")).exists()
     for forbidden in (
         "authors",
         "classifiers",
@@ -84,13 +85,13 @@ def test_packaged_schema_mirror_has_exact_filename_byte_and_id_parity() -> None:
     for name, content in packaged.items():
         schema = json.loads(content.decode("utf-8"))
         assert isinstance(schema, dict)
-        assert schema["$id"] == f"https://example.local/skat-ai/{name}"
+        assert schema["$id"] == f"https://example.local/skatmind/{name}"
         schema_ids.append(schema["$id"])
     assert len(schema_ids) == len(set(schema_ids))
 
 
 def test_schema_resource_package_and_typing_marker_are_available() -> None:
-    resources = importlib.resources.files("skat_ai.schema_resources")
+    resources = importlib.resources.files("skatmind.schema_resources")
     resource_names = sorted(
         resource.name
         for resource in resources.iterdir()
@@ -98,14 +99,14 @@ def test_schema_resource_package_and_typing_marker_are_available() -> None:
     )
 
     assert resource_names == sorted(path.name for path in SCHEMA_DIRECTORY.glob("*.schema.json"))
-    assert (PROJECT_ROOT / "src" / "skat_ai" / "py.typed").read_bytes() == b""
-    marker = importlib.resources.files(skat_ai).joinpath("py.typed")
+    assert (PROJECT_ROOT / "src" / "skatmind" / "py.typed").read_bytes() == b""
+    marker = importlib.resources.files(skatmind).joinpath("py.typed")
     assert marker.is_file()
     assert marker.read_bytes() == b""
 
 
 def test_capture_web_resources_are_local_package_data() -> None:
-    resources = importlib.resources.files("skat_ai.capture_web")
+    resources = importlib.resources.files("skatmind.capture_web")
     expected = {
         "templates/page.html",
         "assets/capture.css",
@@ -125,7 +126,7 @@ def test_capture_web_resources_are_local_package_data() -> None:
 
 
 def test_corpus_web_resources_are_local_package_data() -> None:
-    resources = importlib.resources.files("skat_ai.corpus_web")
+    resources = importlib.resources.files("skatmind.corpus_web")
     expected = {
         "templates/page.html",
         "assets/corpus.css",
@@ -145,9 +146,9 @@ def test_corpus_web_resources_are_local_package_data() -> None:
 
 
 def test_match_player_statistics_modules_are_package_discovered() -> None:
-    import skat_ai.match_player_statistics_context as context_module
-    import skat_ai.match_player_statistics_preparation as preparation_module
-    import skat_ai.match_player_statistics_updates as updates_module
+    import skatmind.match_player_statistics_context as context_module
+    import skatmind.match_player_statistics_preparation as preparation_module
+    import skatmind.match_player_statistics_updates as updates_module
 
     assert context_module.MATCH_PLAYER_STATISTICS_CONTEXT_VERSION == 1
     assert preparation_module.MATCH_PLAYER_STATISTICS_PREPARATION_VERSION == 1
@@ -186,13 +187,13 @@ def test_schema_sync_check_is_deterministic_and_does_not_modify_files(
 
 
 def test_package_version_uses_distribution_metadata() -> None:
-    assert importlib.metadata.version("skat-ai") == "0.17.0"
-    assert skat_ai.__version__ == "0.17.0"
+    assert importlib.metadata.version("skatmind") == "0.17.0"
+    assert skatmind.__version__ == "0.17.0"
 
 
 def test_source_only_version_fallback_reads_no_repository_file(monkeypatch) -> None:
     def metadata_missing(_distribution_name: str) -> str:
-        raise importlib.metadata.PackageNotFoundError("skat-ai")
+        raise importlib.metadata.PackageNotFoundError("skatmind")
 
     def unexpected_open(*_args, **_kwargs):
         raise AssertionError("Version fallback attempted a repository-file read.")

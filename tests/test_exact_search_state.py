@@ -2,8 +2,8 @@ from dataclasses import FrozenInstanceError
 
 import pytest
 
-from skat_ai.deck import get_full_deck
-from skat_ai.exact_search_state import (
+from skatmind.deck import get_full_deck
+from skatmind.exact_search_state import (
     ExactSearchPlay,
     ExactSearchState,
     apply_exact_search_card,
@@ -11,9 +11,9 @@ from skat_ai.exact_search_state import (
     get_exact_search_legal_cards,
     get_exact_search_terminal_facts,
 )
-from skat_ai.game_declaration import GameDeclaration
-from skat_ai.rules import get_trick_points
-from skat_ai.turn_phase import CONCRETE_PLAYERS
+from skatmind.game_declaration import GameDeclaration
+from skatmind.rules import get_trick_points
+from skatmind.turn_phase import CONCRETE_PLAYERS
 
 
 def _initial_hands() -> dict[str, list[str]]:

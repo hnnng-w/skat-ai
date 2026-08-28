@@ -9,14 +9,14 @@ from test_session_decision_observation import (
     _observed,
 )
 
-import skat_ai.api.v1.session as session
-import skat_ai.api.v1.session.contracts as session_contracts
-import skat_ai.api.v1.session.execution as session_execution
-import skat_ai.session_checkpoint_review as checkpoint_review
-import skat_ai.session_decision_observation as decision_observation
-import skat_ai.session_provenance as session_provenance
-from skat_ai.field_provenance_coverage import enumerate_json_leaf_paths
-from skat_ai.session_history import build_session_state_from_accepted_prefix_v1
+import skatmind.api.v1.session as session
+import skatmind.api.v1.session.contracts as session_contracts
+import skatmind.api.v1.session.execution as session_execution
+import skatmind.session_checkpoint_review as checkpoint_review
+import skatmind.session_decision_observation as decision_observation
+import skatmind.session_provenance as session_provenance
+from skatmind.field_provenance_coverage import enumerate_json_leaf_paths
+from skatmind.session_history import build_session_state_from_accepted_prefix_v1
 
 FIRST_52_SESSION_EXPORTS = (
     "PUBLIC_SESSION_API_VERSION",

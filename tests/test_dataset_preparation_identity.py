@@ -4,7 +4,7 @@ import pytest
 from test_historical_game import build_historical_input
 from test_training_dataset_preparation import build_preparation_input
 
-from skat_ai.dataset_preparation_identity import (
+from skatmind.dataset_preparation_identity import (
     DATASET_KNOWN_OPPONENT_SEED_DOMAIN,
     DATASET_UNSEEN_PLAYER_SEED_DOMAIN,
     build_source_content_fingerprint,
@@ -12,7 +12,7 @@ from skat_ai.dataset_preparation_identity import (
     derive_dataset_partition_seed,
     derive_dataset_partition_tie_break_key,
 )
-from skat_ai.training_dataset_preparation import (
+from skatmind.training_dataset_preparation import (
     build_training_dataset_preparation_request,
 )
 

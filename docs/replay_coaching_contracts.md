@@ -2,8 +2,8 @@
 
 ## Version and scope
 
-`src/skat_ai/replay_coaching_evidence.py`,
-`src/skat_ai/replay_coaching_assessment.py`, and the focused prioritization,
+`src/skatmind/replay_coaching_evidence.py`,
+`src/skatmind/replay_coaching_assessment.py`, and the focused prioritization,
 guidance, and report modules define Replay Coaching contracts:
 
 ```text
@@ -33,7 +33,7 @@ Report version 1 composes the complete one-game report. It does not implement
 tactical detectors or cross-game coaching.
 
 The version numbers, maxima, eligibility, ranking, recurrence, scope, pattern,
-Turning Point, high-impact, and template rules are `skat-ai` product
+Turning Point, high-impact, and template rules are `skatmind` product
 conventions. They are not official Skat rule classifications.
 
 ## Information policy

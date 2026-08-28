@@ -21,11 +21,11 @@ from test_session_transitions import (
     _players,
 )
 
-import skat_ai.session_history as history_module
-from skat_ai.deck import get_full_deck
-from skat_ai.errors import SkatAIInvariantError
-from skat_ai.game_declaration import GameDeclaration
-from skat_ai.session_commands import (
+import skatmind.session_history as history_module
+from skatmind.deck import get_full_deck
+from skatmind.errors import SkatMindInvariantError
+from skatmind.game_declaration import GameDeclaration
+from skatmind.session_commands import (
     PromoteSessionToRetrospectiveCommandV1,
     RecordSessionDealtCardCommandV1,
     RecordSessionDiscardCommandV1,
@@ -37,17 +37,17 @@ from skat_ai.session_commands import (
     SetSessionGameMetadataCommandV1,
     SetSessionPublicHandCommandV1,
 )
-from skat_ai.session_decision_checkpoint import build_session_decision_checkpoint_v1
-from skat_ai.session_historical_export import export_session_historical_game_request_v1
-from skat_ai.session_history import (
+from skatmind.session_decision_checkpoint import build_session_decision_checkpoint_v1
+from skatmind.session_historical_export import export_session_historical_game_request_v1
+from skatmind.session_history import (
     build_session_state_from_accepted_prefix_v1,
     classify_session_decision_checkpoint_v1,
     correct_session_command_v1,
     rewind_session_state_v1,
 )
-from skat_ai.session_history_contracts import SessionCommandCorrectionV1
-from skat_ai.session_position_export import export_session_position_analysis_request_v1
-from skat_ai.session_transitions import (
+from skatmind.session_history_contracts import SessionCommandCorrectionV1
+from skatmind.session_position_export import export_session_position_analysis_request_v1
+from skatmind.session_transitions import (
     create_session_state_v1,
     replay_session_state_v1,
 )
@@ -210,7 +210,7 @@ def test_prefix_builder_reconstructs_without_normal_command_application(monkeypa
     def forbidden_apply(*_args, **_kwargs):
         raise AssertionError("Prefix reconstruction called normal State application.")
 
-    import skat_ai.session_transitions as transitions
+    import skatmind.session_transitions as transitions
 
     monkeypatch.setattr(transitions, "apply_session_command_v1", forbidden_apply)
     replay_session_state_v1(source)
@@ -778,7 +778,7 @@ def test_checkpoint_lineage_rejects_wrong_session_and_forged_checkpoint() -> Non
 
     forged = copy.copy(checkpoint)
     object.__setattr__(forged, "source_capture_mode", "unknown")
-    with pytest.raises(SkatAIInvariantError, match="Checkpoint"):
+    with pytest.raises(SkatMindInvariantError, match="Checkpoint"):
         classify_session_decision_checkpoint_v1(state, forged)
 
 
@@ -1055,5 +1055,5 @@ def test_history_functions_validate_exact_types_and_forged_source_first() -> Non
 
     forged = copy.copy(state)
     object.__setattr__(forged, "revision", 1)
-    with pytest.raises(SkatAIInvariantError, match="revision"):
+    with pytest.raises(SkatMindInvariantError, match="revision"):
         rewind_session_state_v1(forged, expected_revision=2, target_revision=2)

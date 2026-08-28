@@ -198,7 +198,7 @@ Search-status and evidence counts.
 The path-free export document kind is:
 
 ```text
-skat_ai_learning_corpus_strategy_teacher_evidence
+skatmind_learning_corpus_strategy_teacher_evidence
 ```
 
 The export builder wraps one already-built collection. Serialization performs one

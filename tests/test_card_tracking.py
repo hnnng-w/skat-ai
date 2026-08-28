@@ -1,7 +1,7 @@
-from skat_ai.card_tracking import get_seen_cards, get_unseen_cards, get_unseen_cards_for_state
-from skat_ai.deck import get_full_deck
-from skat_ai.game_state import GameState
-from skat_ai.input_loader import build_local_game_state_from_input
+from skatmind.card_tracking import get_seen_cards, get_unseen_cards, get_unseen_cards_for_state
+from skatmind.deck import get_full_deck
+from skatmind.game_state import GameState
+from skatmind.input_loader import build_local_game_state_from_input
 
 
 def test_full_deck_contains_32_cards() -> None:

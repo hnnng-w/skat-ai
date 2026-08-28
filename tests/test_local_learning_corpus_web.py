@@ -10,24 +10,24 @@ from urllib.parse import urlencode
 import pytest
 from test_learning_corpus_strategy_teacher import _changed_report, _source_bundle
 
-import skat_ai.corpus_web.server as server_module
-import skat_ai.corpus_web.uploads as uploads_module
-from skat_ai.corpus_web.context import LearningCorpusWebContextV1
-from skat_ai.corpus_web.contracts import LEARNING_CORPUS_WEB_MAX_REQUEST_BYTES
-from skat_ai.corpus_web.downloads import (
+import skatmind.corpus_web.server as server_module
+import skatmind.corpus_web.uploads as uploads_module
+from skatmind.corpus_web.context import LearningCorpusWebContextV1
+from skatmind.corpus_web.contracts import LEARNING_CORPUS_WEB_MAX_REQUEST_BYTES
+from skatmind.corpus_web.downloads import (
     LEARNING_CORPUS_ALL_PREPARED_DOWNLOAD_KINDS,
     build_learning_corpus_prepared_download_v1,
 )
-from skat_ai.corpus_web.server import (
+from skatmind.corpus_web.server import (
     serve_learning_corpus_web_in_thread_v1,
     start_learning_corpus_web_server_v1,
 )
-from skat_ai.match_analysis_report_source_export import (
+from skatmind.match_analysis_report_source_export import (
     build_match_analysis_report_source_export_v1,
     serialize_match_analysis_report_source_export_v1,
 )
-from skat_ai.match_workspace_operations import replace_match_workspace_definition_v1
-from skat_ai.match_workspace_persistence_codec import (
+from skatmind.match_workspace_operations import replace_match_workspace_definition_v1
+from skatmind.match_workspace_persistence_codec import (
     build_match_workspace_persistence_document_v1,
 )
 
@@ -85,7 +85,7 @@ def _multipart(
     file_content: bytes,
     filename: str = "caller-private-name.json",
 ) -> tuple[bytes, str]:
-    boundary = "skat-ai-http-boundary"
+    boundary = "skatmind-http-boundary"
     parts = [
         f'--{boundary}\r\nContent-Disposition: form-data; name="{name}"\r\n\r\n{value}\r\n'.encode()
         for name, value in fields.items()

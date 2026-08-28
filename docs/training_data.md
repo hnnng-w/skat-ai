@@ -1,6 +1,6 @@
 # Training data
 
-`skat-ai` supports a separate versioned workflow that converts supported
+`skatmind` supports a separate versioned workflow that converts supported
 historical play prefixes into deterministic training or evaluation records.
 It stores provenance and explicit partitions and derives one information-safe
 sample for every historical card play. It does not train, select, evaluate, or

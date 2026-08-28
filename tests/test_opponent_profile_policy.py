@@ -1,4 +1,4 @@
-from skat_ai.opponent_profile_policy import (
+from skatmind.opponent_profile_policy import (
     apply_profile_based_policy_preset,
     apply_profile_based_side_policy_preset,
     choose_actionable_profile_policy_preset,
@@ -8,7 +8,7 @@ from skat_ai.opponent_profile_policy import (
     is_aggressive_profile,
     is_cautious_defender_profile,
 )
-from skat_ai.player_profile import PlayerProfile
+from skatmind.player_profile import PlayerProfile
 
 
 def test_get_profile_data_confidence_unknown() -> None:

@@ -6,12 +6,12 @@ from itertools import product
 
 import pytest
 
-from skat_ai.bounded_search_information import (
+from skatmind.bounded_search_information import (
     SearchRemainingHandSize,
     build_live_search_information_view,
 )
-from skat_ai.bounded_search_result import RequestedSearchBudget
-from skat_ai.compatible_search_world import (
+from skatmind.bounded_search_result import RequestedSearchBudget
+from skatmind.compatible_search_world import (
     COMPATIBLE_SEARCH_WORLD_SELECTION_VERSION,
     CompatibleSearchWorldSelection,
     CompatibleSearchWorldSpace,
@@ -19,15 +19,15 @@ from skat_ai.compatible_search_world import (
     build_exact_search_state_from_compatible_world,
     select_compatible_search_worlds,
 )
-from skat_ai.deck import get_full_deck
-from skat_ai.exact_search_state import (
+from skatmind.deck import get_full_deck
+from skatmind.exact_search_state import (
     apply_exact_search_card,
     build_exact_search_state,
     get_exact_search_legal_cards,
 )
-from skat_ai.game_declaration import GameDeclaration
-from skat_ai.game_state import GameState
-from skat_ai.hidden_card_inference import (
+from skatmind.game_declaration import GameDeclaration
+from skatmind.game_state import GameState
+from skatmind.hidden_card_inference import (
     EFFECTIVE_CATEGORY_ORDER,
     OWNER_ORDER,
     CompatibleAssignmentProblem,
@@ -39,11 +39,11 @@ from skat_ai.hidden_card_inference import (
     sample_compatible_hidden_worlds,
     validate_compatible_hidden_world,
 )
-from skat_ai.public_hand_constraint import (
+from skatmind.public_hand_constraint import (
     DEFENDER_OPEN_PLAY_CONTINUATION_SOURCE,
     PublicHandConstraint,
 )
-from skat_ai.turn_phase import CONCRETE_PLAYERS
+from skatmind.turn_phase import CONCRETE_PLAYERS
 
 
 def _declaration(game_type: str = "grand", *, hand_game: bool = False) -> GameDeclaration:
@@ -624,7 +624,7 @@ def test_exact_enumeration_does_not_derive_or_consume_a_random_stream(
     view, _ = _view_after_plies(24, public_players=("left", "right"))
     world_space = build_compatible_search_world_space(view)
     monkeypatch.setattr(
-        "skat_ai.compatible_search_world.derive_simulation_child_seed",
+        "skatmind.compatible_search_world.derive_simulation_child_seed",
         lambda *_args, **_kwargs: pytest.fail("exact enumeration consumed randomness"),
     )
 

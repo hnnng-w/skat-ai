@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 from jsonschema import Draft202012Validator, ValidationError
 
-from skat_ai.bounded_search_result import (
+from skatmind.bounded_search_result import (
     AggregateSearchCandidateResult,
     BoundedSearchResult,
     ConsumedSearchBudget,

@@ -1,4 +1,4 @@
-from skat_ai.card_selection import (
+from skatmind.card_selection import (
     calculate_expected_point_swing,
     choose_card_by_policy,
     choose_first_legal_card,
@@ -7,7 +7,7 @@ from skat_ai.card_selection import (
     choose_lowest_point_card,
     get_legal_cards_for_state,
 )
-from skat_ai.game_state import GameState
+from skatmind.game_state import GameState
 
 
 def test_get_legal_cards_for_state_returns_legal_cards() -> None:

@@ -2,8 +2,8 @@ from dataclasses import FrozenInstanceError, fields
 
 import pytest
 
-from skat_ai.bounded_search_result import RequestedSearchBudget
-from skat_ai.search_budget_profiles import (
+from skatmind.bounded_search_result import RequestedSearchBudget
+from skatmind.search_budget_profiles import (
     SEARCH_BUDGET_PROFILE_IDENTIFIERS,
     SEARCH_BUDGET_PROFILES,
     get_search_budget_profile,

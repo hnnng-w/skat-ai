@@ -2,7 +2,7 @@ from dataclasses import FrozenInstanceError
 
 import pytest
 
-from skat_ai.tactical_motif_contracts import (
+from skatmind.tactical_motif_contracts import (
     HISTORICAL_TACTICAL_MOTIF_REVIEW_METHOD,
     HISTORICAL_TACTICAL_MOTIF_REVIEW_VERSION,
     MATCH_HISTORICAL_TACTICAL_MOTIF_INTEGRATION_VERSION,

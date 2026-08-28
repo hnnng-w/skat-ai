@@ -5,7 +5,7 @@ from pathlib import Path
 from jsonschema import Draft202012Validator
 from referencing import Registry, Resource
 
-from skat_ai.api.v1 import ExecutionOptionsV1, execute_document
+from skatmind.api.v1 import ExecutionOptionsV1, execute_document
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 SCHEMAS_DIR = PROJECT_ROOT / "schemas"
@@ -61,7 +61,7 @@ def test_information_set_replay_coaching_schema_metadata_is_stable() -> None:
 
     assert schema["$schema"] == "https://json-schema.org/draft/2020-12/schema"
     assert schema["$id"] == (
-        "https://example.local/skat-ai/"
+        "https://example.local/skatmind/"
         "historical_information_set_replay_coaching.schema.json"
     )
     assert schema["additionalProperties"] is False

@@ -8,21 +8,21 @@ from typing import get_args
 
 import pytest
 
-import skat_ai
-import skat_ai.api.v1 as api_v1
-import skat_ai.party_wide_claim_evidence as evidence_module
+import skatmind
+import skatmind.api.v1 as api_v1
+import skatmind.party_wide_claim_evidence as evidence_module
 from scripts.validate_generated_outputs_schema import SCENARIOS
-from skat_ai.api.v1 import WorkflowV1
-from skat_ai.deck import get_full_deck
-from skat_ai.game_end import VALID_GAME_END_REASONS
-from skat_ai.game_shortening import GameShortening
-from skat_ai.historical_game import (
+from skatmind.api.v1 import WorkflowV1
+from skatmind.deck import get_full_deck
+from skatmind.game_end import VALID_GAME_END_REASONS
+from skatmind.game_shortening import GameShortening
+from skatmind.historical_game import (
     HistoricalPlay,
     HistoricalTrick,
     build_historical_game_record,
 )
-from skat_ai.historical_game_end import HISTORICAL_GAME_END_REASONS
-from skat_ai.party_wide_claim_contracts import (
+from skatmind.historical_game_end import HISTORICAL_GAME_END_REASONS
+from skatmind.party_wide_claim_contracts import (
     PARTY_WIDE_ALL_REMAINING_TRICKS_CLAIM_KIND,
     PARTY_WIDE_CLAIM_BOUND_POLICY,
     PARTY_WIDE_CLAIM_EVIDENCE_POLICY,
@@ -43,7 +43,7 @@ from skat_ai.party_wide_claim_contracts import (
     build_party_wide_all_remaining_tricks_claim_v1,
     validate_party_wide_claim_against_evidence_v1,
 )
-from skat_ai.party_wide_claim_evidence import (
+from skatmind.party_wide_claim_evidence import (
     PARTY_WIDE_CLAIM_EVIDENCE_VERSION,
     PARTY_WIDE_CLAIM_EXACT_STATE_CONTEXT_VERSION,
     PartyWideClaimEvidenceV1,
@@ -51,7 +51,7 @@ from skat_ai.party_wide_claim_evidence import (
     build_party_wide_claim_evidence_v1,
     build_party_wide_claim_exact_state_context_v1,
 )
-from skat_ai.party_wide_claim_proof_contracts import (
+from skatmind.party_wide_claim_proof_contracts import (
     PARTY_WIDE_CLAIM_PROOF_PREPARATION_STATUSES,
     PARTY_WIDE_CLAIM_PROOF_PREPARATION_VERSION,
     PARTY_WIDE_CLAIM_PROOF_REQUEST_VERSION,
@@ -72,8 +72,8 @@ from skat_ai.party_wide_claim_proof_contracts import (
     build_valid_party_wide_claim_proof_result_v1,
     prepare_party_wide_claim_proof_request_v1,
 )
-from skat_ai.rules import get_legal_cards, get_trick_points, get_trick_winner
-from skat_ai.settlement_normative_matrix import (
+from skatmind.rules import get_legal_cards, get_trick_points, get_trick_winner
+from skatmind.settlement_normative_matrix import (
     PARTY_WIDE_ALL_REMAINING_TRICKS_CLAIM_V1,
     PARTY_WIDE_ALL_REMAINING_TRICKS_CLAIM_V1_QUANTIFIERS,
     SETTLEMENT_NORMATIVE_MATRIX_VERSION,
@@ -1061,7 +1061,7 @@ def test_representative_line_rejects_owned_bedienpflicht_violation() -> None:
 
 def test_claim_modules_have_no_proof_search_runtime_or_settlement_execution() -> None:
     module_paths = tuple(
-        PROJECT_ROOT / "src" / "skat_ai" / name
+        PROJECT_ROOT / "src" / "skatmind" / name
         for name in (
             "party_wide_claim_contracts.py",
             "party_wide_claim_evidence.py",
@@ -1124,10 +1124,10 @@ def test_matrix_runtime_public_cli_schema_example_and_package_baselines_are_curr
     assert len(cases) == 61
     assert approved.implementation_status == SUPPORTED_AS_IS
     assert approved.implementation_modules == (
-        "skat_ai.historical_game_end",
-        "skat_ai.historical_party_wide_claim",
-        "skat_ai.party_wide_claim_proof_executor",
-        "skat_ai.party_wide_claim_adjudication",
+        "skatmind.historical_game_end",
+        "skatmind.historical_party_wide_claim",
+        "skatmind.party_wide_claim_proof_executor",
+        "skatmind.party_wide_claim_adjudication",
     )
     assert approved.stable_unavailable_reason is None
     assert approved.proof_policy == PARTY_WIDE_ALL_REMAINING_TRICKS_CLAIM_V1
@@ -1142,7 +1142,7 @@ def test_matrix_runtime_public_cli_schema_example_and_package_baselines_are_curr
     }
     assert len(HISTORICAL_GAME_END_REASONS) == 7
     assert len(VALID_GAME_END_REASONS) == 6
-    assert skat_ai.__all__ == ("api", "errors", "__version__")
+    assert skatmind.__all__ == ("api", "errors", "__version__")
     for name in (
         "PartyWideAllRemainingTricksClaimV1",
         "PartyWideClaimEvidenceV1",
@@ -1153,7 +1153,7 @@ def test_matrix_runtime_public_cli_schema_example_and_package_baselines_are_curr
     assert len(WorkflowV1) == 7
     assert len(tuple((PROJECT_ROOT / "schemas").glob("*.schema.json"))) == 71
     assert (
-        len(tuple((PROJECT_ROOT / "src" / "skat_ai" / "schema_resources").glob("*.schema.json")))
+        len(tuple((PROJECT_ROOT / "src" / "skatmind" / "schema_resources").glob("*.schema.json")))
         == 71
     )
     assert {
@@ -1163,9 +1163,9 @@ def test_matrix_runtime_public_cli_schema_example_and_package_baselines_are_curr
     project = tomllib.loads((PROJECT_ROOT / "pyproject.toml").read_text(encoding="utf-8"))[
         "project"
     ]
-    assert project["version"] == skat_ai.__version__ == "0.17.0"
+    assert project["version"] == skatmind.__version__ == "0.17.0"
     assert project["requires-python"] == ">=3.13"
-    assert project["scripts"] == {"skat-ai": "skat_ai.cli:main"}
+    assert project["scripts"] == {"skatmind": "skatmind.cli:main"}
 
 
 def test_new_values_are_frozen_slotted_and_builder_controlled() -> None:

@@ -1,4 +1,4 @@
-from skat_ai.opponent_policy_preset import (
+from skatmind.opponent_policy_preset import (
     apply_opponent_policy_preset,
     build_serializable_opponent_policy_presets,
     get_opponent_policy_settings_for_preset,

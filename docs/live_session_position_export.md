@@ -75,7 +75,7 @@ Unavailable readiness returns `SessionRequestExportV1` with target
 `position_analysis`, no Request, and only current Position-blocking Diagnostics.
 It invokes no Position builder. If readiness says available but replayed facts
 cannot produce a valid existing Position document, the exporter raises
-`SkatAIInvariantError` and retains the underlying builder failure as its cause.
+`SkatMindInvariantError` and retains the underlying builder failure as its cause.
 
 ## Stable-to-relative mapping
 
@@ -176,7 +176,7 @@ only an available Position export from the same Session and revision. It replays
 the State once, reconstructs the expected Position Request from the embedded
 analysis options without another replay, and requires exact export equality.
 Forged identity, revision, options, mapping, or Request content raises
-`SkatAIInvariantError` or contract validation failure.
+`SkatMindInvariantError` or contract validation failure.
 
 A Checkpoint is not appended to Session State and is not updated after later
 Play, event, promotion, or other accepted Commands. It has no generated ID,

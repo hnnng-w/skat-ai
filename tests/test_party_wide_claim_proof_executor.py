@@ -17,29 +17,29 @@ from test_party_wide_claim_contracts import (
     _prefix_tricks,
 )
 
-import skat_ai
-import skat_ai.api.v1 as api_v1
-import skat_ai.party_wide_claim_evidence as evidence_module
-import skat_ai.party_wide_claim_proof_contracts as proof_contracts_module
-import skat_ai.party_wide_claim_proof_executor as executor_module
+import skatmind
+import skatmind.api.v1 as api_v1
+import skatmind.party_wide_claim_evidence as evidence_module
+import skatmind.party_wide_claim_proof_contracts as proof_contracts_module
+import skatmind.party_wide_claim_proof_executor as executor_module
 from scripts.validate_generated_outputs_schema import SCENARIOS
-from skat_ai.api.v1 import WorkflowV1
-from skat_ai.errors import SkatAIInvariantError
-from skat_ai.game_end import VALID_GAME_END_REASONS
-from skat_ai.game_shortening import GameShortening
-from skat_ai.historical_game import build_historical_game_record
-from skat_ai.historical_game_end import HISTORICAL_GAME_END_REASONS
-from skat_ai.historical_game_event import HistoricalGameEvent
-from skat_ai.party_wide_claim_contracts import (
+from skatmind.api.v1 import WorkflowV1
+from skatmind.errors import SkatMindInvariantError
+from skatmind.game_end import VALID_GAME_END_REASONS
+from skatmind.game_shortening import GameShortening
+from skatmind.historical_game import build_historical_game_record
+from skatmind.historical_game_end import HISTORICAL_GAME_END_REASONS
+from skatmind.historical_game_event import HistoricalGameEvent
+from skatmind.party_wide_claim_contracts import (
     build_party_wide_all_remaining_tricks_claim_v1,
 )
-from skat_ai.party_wide_claim_proof_contracts import (
+from skatmind.party_wide_claim_proof_contracts import (
     PARTY_WIDE_CLAIM_PROOF_UNAVAILABLE_REASONS,
     PartyWideClaimProofMoveV1,
     build_unavailable_party_wide_claim_proof_preparation_v1,
     prepare_party_wide_claim_proof_request_v1,
 )
-from skat_ai.party_wide_claim_proof_executor import (
+from skatmind.party_wide_claim_proof_executor import (
     PARTY_WIDE_CLAIM_PROOF_ACTOR_POLICY,
     PARTY_WIDE_CLAIM_PROOF_COMPLETION_POLICY,
     PARTY_WIDE_CLAIM_PROOF_COUNTER_POLICY,
@@ -52,7 +52,7 @@ from skat_ai.party_wide_claim_proof_executor import (
     PARTY_WIDE_CLAIM_PROOF_TERMINAL_POLICY,
     execute_party_wide_claim_proof_v1,
 )
-from skat_ai.settlement_normative_matrix import (
+from skatmind.settlement_normative_matrix import (
     PARTY_WIDE_ALL_REMAINING_TRICKS_CLAIM_V1,
     SETTLEMENT_NORMATIVE_MATRIX_VERSION,
     SUPPORTED_AS_IS,
@@ -61,7 +61,7 @@ from skat_ai.settlement_normative_matrix import (
 )
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-EXECUTOR_PATH = PROJECT_ROOT / "src" / "skat_ai" / "party_wide_claim_proof_executor.py"
+EXECUTOR_PATH = PROJECT_ROOT / "src" / "skatmind" / "party_wide_claim_proof_executor.py"
 
 DECLARER_MIXED_DECK = (
     "CQ",
@@ -314,14 +314,14 @@ def test_executor_rejects_non_preparation_and_forged_available_values() -> None:
     )
     wrong_version = copy.copy(preparation)
     object.__setattr__(wrong_version, "party_wide_claim_proof_preparation_version", 2)
-    with pytest.raises(SkatAIInvariantError):
+    with pytest.raises(SkatMindInvariantError):
         execute_party_wide_claim_proof_v1(wrong_version)
 
     forged_request = copy.copy(preparation.request)
     object.__setattr__(forged_request, "proof_policy", "compatible_world_minimax_v1")
     mismatched_request = copy.copy(preparation)
     object.__setattr__(mismatched_request, "request", forged_request)
-    with pytest.raises(SkatAIInvariantError, match="canonical rebuild"):
+    with pytest.raises(SkatMindInvariantError, match="canonical rebuild"):
         execute_party_wide_claim_proof_v1(mismatched_request)
 
     forged_context = copy.copy(preparation.request.exact_state_context)
@@ -330,7 +330,7 @@ def test_executor_rejects_non_preparation_and_forged_available_values() -> None:
     object.__setattr__(context_request, "exact_state_context", forged_context)
     mismatched_context = copy.copy(preparation)
     object.__setattr__(mismatched_context, "request", context_request)
-    with pytest.raises(SkatAIInvariantError):
+    with pytest.raises(SkatMindInvariantError):
         execute_party_wide_claim_proof_v1(mismatched_context)
 
     for field_name, field_value in (
@@ -341,7 +341,7 @@ def test_executor_rejects_non_preparation_and_forged_available_values() -> None:
     ):
         forged = copy.copy(preparation)
         object.__setattr__(forged, field_name, field_value)
-        with pytest.raises(SkatAIInvariantError):
+        with pytest.raises(SkatMindInvariantError):
             execute_party_wide_claim_proof_v1(forged)
 
     for field_name, field_value in (
@@ -352,7 +352,7 @@ def test_executor_rejects_non_preparation_and_forged_available_values() -> None:
         object.__setattr__(forged_request, field_name, field_value)
         forged = copy.copy(preparation)
         object.__setattr__(forged, "request", forged_request)
-        with pytest.raises(SkatAIInvariantError, match="canonical rebuild"):
+        with pytest.raises(SkatMindInvariantError, match="canonical rebuild"):
             execute_party_wide_claim_proof_v1(forged)
 
     changed_claim = copy.copy(preparation.claim)
@@ -365,14 +365,14 @@ def test_executor_rejects_non_preparation_and_forged_available_values() -> None:
     object.__setattr__(changed_claim, "claimant_player_id", other_defender)
     claim_mismatch = copy.copy(preparation)
     object.__setattr__(claim_mismatch, "claim", changed_claim)
-    with pytest.raises(SkatAIInvariantError):
+    with pytest.raises(SkatMindInvariantError):
         execute_party_wide_claim_proof_v1(claim_mismatch)
 
     changed_evidence = copy.copy(evidence)
     object.__setattr__(changed_evidence, "game_id", "forged-game-id")
     evidence_mismatch = copy.copy(preparation)
     object.__setattr__(evidence_mismatch, "evidence", changed_evidence)
-    with pytest.raises(SkatAIInvariantError, match="canonical rebuild"):
+    with pytest.raises(SkatMindInvariantError, match="canonical rebuild"):
         execute_party_wide_claim_proof_v1(evidence_mismatch)
 
 
@@ -407,7 +407,7 @@ def test_executor_rejects_forged_unavailable_values_without_execution(monkeypatc
     ):
         forged = copy.copy(preparation)
         object.__setattr__(forged, field_name, field_value)
-        with pytest.raises(SkatAIInvariantError):
+        with pytest.raises(SkatMindInvariantError):
             execute_party_wide_claim_proof_v1(forged)
 
     incomplete = build_unavailable_party_wide_claim_proof_preparation_v1(
@@ -416,7 +416,7 @@ def test_executor_rejects_forged_unavailable_values_without_execution(monkeypatc
     )
     forged_incomplete = copy.copy(incomplete)
     object.__setattr__(forged_incomplete, "evidence", evidence)
-    with pytest.raises(SkatAIInvariantError):
+    with pytest.raises(SkatMindInvariantError):
         execute_party_wide_claim_proof_v1(forged_incomplete)
 
 
@@ -811,18 +811,18 @@ def test_executor_has_no_budget_time_random_search_settlement_or_direct_rule_pat
     forbidden_imports = {
         "random",
         "time",
-        "skat_ai.api",
-        "skat_ai.cli",
-        "skat_ai.compatible_world_minimax",
-        "skat_ai.defender_open_play",
-        "skat_ai.exact_rest_trick_proof",
-        "skat_ai.final_settlement",
-        "skat_ai.game_end",
-        "skat_ai.historical_game",
-        "skat_ai.perfect_information_minimax",
-        "skat_ai.recommender",
-        "skat_ai.rules",
-        "skat_ai.settlement_normative_matrix",
+        "skatmind.api",
+        "skatmind.cli",
+        "skatmind.compatible_world_minimax",
+        "skatmind.defender_open_play",
+        "skatmind.exact_rest_trick_proof",
+        "skatmind.final_settlement",
+        "skatmind.game_end",
+        "skatmind.historical_game",
+        "skatmind.perfect_information_minimax",
+        "skatmind.recommender",
+        "skatmind.rules",
+        "skatmind.settlement_normative_matrix",
     }
     assert forbidden_imports.isdisjoint(imports)
     call_names = {
@@ -854,7 +854,7 @@ def test_executor_has_no_budget_time_random_search_settlement_or_direct_rule_pat
 
 
 def test_existing_defender_proof_and_runtime_matrix_boundaries_are_current() -> None:
-    from skat_ai.exact_rest_trick_proof import prove_defender_rest_tricks
+    from skatmind.exact_rest_trick_proof import prove_defender_rest_tricks
 
     valid = prove_defender_rest_tricks(
         build_one_trick_state(me=("C7",), left=("CJ",), right=("C8",)),
@@ -869,8 +869,8 @@ def test_existing_defender_proof_and_runtime_matrix_boundaries_are_current() -> 
     assert (valid.status, invalid.status) == ("valid", "invalid")
     assert invalid.line[-1].trick_winner == "me"
     for path in (
-        PROJECT_ROOT / "src" / "skat_ai" / "exact_rest_trick_proof.py",
-        PROJECT_ROOT / "src" / "skat_ai" / "defender_open_play.py",
+        PROJECT_ROOT / "src" / "skatmind" / "exact_rest_trick_proof.py",
+        PROJECT_ROOT / "src" / "skatmind" / "defender_open_play.py",
     ):
         assert "party_wide_claim_proof_executor" not in path.read_text(encoding="utf-8")
 
@@ -882,10 +882,10 @@ def test_existing_defender_proof_and_runtime_matrix_boundaries_are_current() -> 
     assert len(cases) == 61
     assert approved.implementation_status == SUPPORTED_AS_IS
     assert approved.implementation_modules == (
-        "skat_ai.historical_game_end",
-        "skat_ai.historical_party_wide_claim",
-        "skat_ai.party_wide_claim_proof_executor",
-        "skat_ai.party_wide_claim_adjudication",
+        "skatmind.historical_game_end",
+        "skatmind.historical_party_wide_claim",
+        "skatmind.party_wide_claim_proof_executor",
+        "skatmind.party_wide_claim_adjudication",
     )
     assert approved.stable_unavailable_reason is None
     assert approved.proof_policy == PARTY_WIDE_ALL_REMAINING_TRICKS_CLAIM_V1
@@ -910,27 +910,27 @@ def test_public_cli_schema_example_generated_and_package_boundaries_are_unchange
         "PARTY_WIDE_CLAIM_PROOF_EXECUTION_METHOD",
         "execute_party_wide_claim_proof_v1",
     )
-    assert skat_ai.__all__ == ("api", "errors", "__version__")
+    assert skatmind.__all__ == ("api", "errors", "__version__")
     assert all(name not in api_v1.__all__ for name in private_names)
     assert len(WorkflowV1) == 7
     cli_source = "\n".join(
         path.read_text(encoding="utf-8")
-        for path in (PROJECT_ROOT / "src" / "skat_ai" / "cli").rglob("*.py")
+        for path in (PROJECT_ROOT / "src" / "skatmind" / "cli").rglob("*.py")
     )
     assert "party_wide_claim" not in cli_source
     external_executor_references = tuple(
         path
-        for path in (PROJECT_ROOT / "src" / "skat_ai").rglob("*.py")
+        for path in (PROJECT_ROOT / "src" / "skatmind").rglob("*.py")
         if path != EXECUTOR_PATH
         if "party_wide_claim_proof_executor" in path.read_text(encoding="utf-8")
     )
     assert external_executor_references == (
-        PROJECT_ROOT / "src" / "skat_ai" / "historical_party_wide_claim.py",
-        PROJECT_ROOT / "src" / "skat_ai" / "settlement_normative_matrix.py",
+        PROJECT_ROOT / "src" / "skatmind" / "historical_party_wide_claim.py",
+        PROJECT_ROOT / "src" / "skatmind" / "settlement_normative_matrix.py",
     )
     assert len(tuple((PROJECT_ROOT / "schemas").glob("*.schema.json"))) == 71
     assert (
-        len(tuple((PROJECT_ROOT / "src" / "skat_ai" / "schema_resources").glob("*.schema.json")))
+        len(tuple((PROJECT_ROOT / "src" / "skatmind" / "schema_resources").glob("*.schema.json")))
         == 71
     )
     assert {
@@ -940,9 +940,9 @@ def test_public_cli_schema_example_generated_and_package_boundaries_are_unchange
     project = tomllib.loads((PROJECT_ROOT / "pyproject.toml").read_text(encoding="utf-8"))[
         "project"
     ]
-    assert project["version"] == skat_ai.__version__ == "0.17.0"
+    assert project["version"] == skatmind.__version__ == "0.17.0"
     assert project["requires-python"] == ">=3.13"
-    assert project["scripts"] == {"skat-ai": "skat_ai.cli:main"}
+    assert project["scripts"] == {"skatmind": "skatmind.cli:main"}
 
 
 def test_result_reuses_existing_contract_without_new_public_fields() -> None:

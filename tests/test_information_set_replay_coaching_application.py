@@ -6,25 +6,25 @@ from pathlib import Path
 import pytest
 from test_historical_information_set_search_review import _unavailable_builder
 
-from skat_ai.application import (
+from skatmind.application import (
     ApplicationExecutionOptions,
     HistoricalGameApplicationOptions,
     build_application_invocation,
     execute_application_invocation,
 )
-from skat_ai.application.execution import (
+from skatmind.application.execution import (
     ApplicationWorkflowDependencies,
     validate_application_invocation,
 )
-from skat_ai.application.historical_game_workflow import (
+from skatmind.application.historical_game_workflow import (
     HistoricalGameWorkflowDependencies,
 )
-from skat_ai.errors import SkatAIValidationError, SkatAIWorkflowError
-from skat_ai.historical_decision_snapshot import build_historical_decision_snapshots
-from skat_ai.historical_information_set_search_review import (
+from skatmind.errors import SkatMindValidationError, SkatMindWorkflowError
+from skatmind.historical_decision_snapshot import build_historical_decision_snapshots
+from skatmind.historical_information_set_search_review import (
     build_historical_information_set_search_review_v1,
 )
-from skat_ai.public_field_provenance import build_public_field_provenance_bundle
+from skatmind.public_field_provenance import build_public_field_provenance_bundle
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -198,7 +198,7 @@ def _all_keys(value: object) -> set[str]:
 def test_option_defaults_to_false_and_rejects_non_boolean_values() -> None:
     assert HistoricalGameApplicationOptions().information_set_replay_coaching is False
 
-    with pytest.raises(SkatAIValidationError, match="must be a boolean"):
+    with pytest.raises(SkatMindValidationError, match="must be a boolean"):
         HistoricalGameApplicationOptions(information_set_replay_coaching=1)
 
 
@@ -215,7 +215,7 @@ def test_search_and_coaching_families_are_exactly_exclusive(
         **{existing_mode: True, information_set_mode: True, "search_seed": 1}
     )
 
-    with pytest.raises(SkatAIWorkflowError, match="cannot be combined"):
+    with pytest.raises(SkatMindWorkflowError, match="cannot be combined"):
         validate_application_invocation(_invocation(options))
 
 
@@ -233,7 +233,7 @@ def test_information_set_family_pair_and_shared_modes_validate_together() -> Non
         )
     )
 
-    with pytest.raises(SkatAIWorkflowError, match="require search_seed"):
+    with pytest.raises(SkatMindWorkflowError, match="require search_seed"):
         validate_application_invocation(
             _invocation(
                 HistoricalGameApplicationOptions(

@@ -75,8 +75,8 @@ The implementation is split across:
 * `v1_information_provenance_serialization.py` for exact Root Result/artifact
   reconciliation and the immutable four-stage checkpoint.
 
-These modules are internal. They are not exported from `skat_ai`, `skat_ai.api`,
-`skat_ai.api.v1`, or `skat_ai.errors`.
+These modules are internal. They are not exported from `skatmind`, `skatmind.api`,
+`skatmind.api.v1`, or `skatmind.errors`.
 
 Issues #150 through #155 separate internal Session contracts, projection,
 replay, incremental validation, transitions, canonical Retrospective Historical
@@ -480,7 +480,7 @@ availability requires a matching context index at or after the entry index.
 
 `is_field_provenance_entry_available()` returns the policy result.
 `validate_field_provenance_entry_use()` raises
-`SkatAIInformationPolicyError` with the entry path and a generic message when
+`SkatMindInformationPolicyError` with the entry path and a generic message when
 use is denied. It does not include source values or private identities.
 
 ## Public redaction and serialization
@@ -494,7 +494,7 @@ field-specific private counts are not retained. The source ledger is unchanged.
 Internal serializers are deterministic and explicit about nullable fields. The
 public-safe ledger serializer rejects any unredacted engine-private entry or
 reference, and rejects unresolved dependency paths, with
-`SkatAISerializationError`. It does not silently redact; callers with engine-
+`SkatMindSerializationError`. It does not silently redact; callers with engine-
 private details must invoke the redaction helper first. An already-safe ledger
 can be serialized directly.
 

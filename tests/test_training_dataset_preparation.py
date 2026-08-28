@@ -7,16 +7,16 @@ from test_historical_declarer_concession import build_concession_prefix
 from test_historical_game import build_historical_input
 from test_training_dataset import build_training_input
 
-from skat_ai.dataset_partition_plan import (
+from skatmind.dataset_partition_plan import (
     COMPONENT_BALANCED_UNSEEN_PLAYER_ALGORITHM,
     DatasetPartitionAssignment,
     build_complete_dataset_partition_plan,
 )
-from skat_ai.training_dataset import (
+from skatmind.training_dataset import (
     build_serializable_training_dataset_input,
     build_training_dataset_input,
 )
-from skat_ai.training_dataset_preparation import (
+from skatmind.training_dataset_preparation import (
     TRAINING_DATASET_PREPARATION_VERSION,
     DatasetPartitionWeights,
     build_dataset_partition_weights,

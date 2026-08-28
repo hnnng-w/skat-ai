@@ -7,7 +7,7 @@ historical dataset records. Normal targets contribute 30 decisions; concession
 and other shortened targets contribute their validated zero through 29 actual
 card plays. Open-card-throw targets include no throw or statement decision.
 
-`skat-ai` can evaluate whether an existing profile-derived deterministic policy
+`skatmind` can evaluate whether an existing profile-derived deterministic policy
 describes observed historical card choices better than the fixed
 `simple_lowest` baseline. This is a known-opponent behavioral imitation
 evaluation. It does not measure optimal play, expected value, recommendation

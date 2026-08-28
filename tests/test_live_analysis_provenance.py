@@ -4,44 +4,44 @@ from pathlib import Path
 
 import pytest
 
-import skat_ai.api.v1 as api_v1
-import skat_ai.application.position_workflow as position_workflow_module
-import skat_ai.live_analysis_provenance as live_provenance_module
-from skat_ai.api.v1 import WorkflowV1
-from skat_ai.application import (
+import skatmind.api.v1 as api_v1
+import skatmind.application.position_workflow as position_workflow_module
+import skatmind.live_analysis_provenance as live_provenance_module
+from skatmind.api.v1 import WorkflowV1
+from skatmind.application import (
     ApplicationExecutionOptions,
     ApplicationExternalDocuments,
     PositionAnalysisApplicationOptions,
     build_application_invocation,
     execute_application_invocation,
 )
-from skat_ai.application.execution import ApplicationWorkflowDependencies
-from skat_ai.application.position_workflow import (
+from skatmind.application.execution import ApplicationWorkflowDependencies
+from skatmind.application.position_workflow import (
     PositionWorkflowDependencies,
 )
-from skat_ai.application.provenance import ApplicationProvenanceAttachment
-from skat_ai.deck import get_full_deck
-from skat_ai.errors import SkatAIInformationPolicyError
-from skat_ai.field_provenance import (
+from skatmind.application.provenance import ApplicationProvenanceAttachment
+from skatmind.deck import get_full_deck
+from skatmind.errors import SkatMindInformationPolicyError
+from skatmind.field_provenance import (
     FieldProvenanceEntry,
     FieldProvenanceLedger,
     build_serializable_field_provenance_ledger,
 )
-from skat_ai.field_provenance_coverage import validate_field_provenance_coverage
-from skat_ai.field_provenance_policy import (
+from skatmind.field_provenance_coverage import validate_field_provenance_coverage
+from skatmind.field_provenance_policy import (
     InformationUseContext,
     redact_field_provenance_ledger_for_public_output,
 )
-from skat_ai.game_declaration import GameDeclaration
-from skat_ai.game_state import GameState
-from skat_ai.live_analysis_provenance import (
+from skatmind.game_declaration import GameDeclaration
+from skatmind.game_state import GameState
+from skatmind.live_analysis_provenance import (
     build_live_decision_provenance_attachment,
     build_live_position_result_provenance_attachment,
 )
-from skat_ai.public_hand_constraint import PublicHandConstraint
-from skat_ai.recommender import recommend_card_by_expected_value
-from skat_ai.simulation_provenance import build_safe_selection_settings
-from skat_ai.strategic_metadata import StrategicMetadata
+from skatmind.public_hand_constraint import PublicHandConstraint
+from skatmind.recommender import recommend_card_by_expected_value
+from skatmind.simulation_provenance import build_safe_selection_settings
+from skatmind.strategic_metadata import StrategicMetadata
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 EXAMPLES = PROJECT_ROOT / "examples"
@@ -219,7 +219,7 @@ def test_decision_builder_rejects_unauthorized_skat_and_public_hand_sources() ->
         ),
         "simulation_scope": False,
     }
-    with pytest.raises(SkatAIInformationPolicyError) as skat_error:
+    with pytest.raises(SkatMindInformationPolicyError) as skat_error:
         build_live_decision_provenance_attachment(
             public_hand_constraints=(),
             **common,
@@ -228,7 +228,7 @@ def test_decision_builder_rejects_unauthorized_skat_and_public_hand_sources() ->
     assert "SQ" not in str(skat_error.value)
 
     state.skat = []
-    with pytest.raises(SkatAIInformationPolicyError) as constraint_error:
+    with pytest.raises(SkatMindInformationPolicyError) as constraint_error:
         build_live_decision_provenance_attachment(
             public_hand_constraints=(
                 PublicHandConstraint(
@@ -706,7 +706,7 @@ def test_context_use_is_enforced_before_analysis_and_simulation(monkeypatch) -> 
             )
         ),
     )
-    with pytest.raises(SkatAIInformationPolicyError, match="not available"):
+    with pytest.raises(SkatMindInformationPolicyError, match="not available"):
         execute_application_invocation(
             invocation,
             dependencies=ApplicationWorkflowDependencies(

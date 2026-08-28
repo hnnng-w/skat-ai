@@ -4,20 +4,20 @@ from pathlib import Path
 
 import pytest
 
-from skat_ai.historical_information_set_search_review import (
+from skatmind.historical_information_set_search_review import (
     derive_historical_information_set_search_decision_seed,
 )
-from skat_ai.information_set_search_comparison import (
+from skatmind.information_set_search_comparison import (
     build_information_set_search_comparison_pre_actual_analysis_v1,
 )
-from skat_ai.information_set_search_evaluation import (
+from skatmind.information_set_search_evaluation import (
     DEFAULT_INFORMATION_SET_SEARCH_EVALUATION_PARTITIONS,
     INFORMATION_SET_SEARCH_EVALUATION_METHOD,
     INFORMATION_SET_SEARCH_EVALUATION_POLICY,
     build_information_set_search_evaluation_v1,
     evaluate_information_set_search_dataset_v1,
 )
-from skat_ai.training_dataset import build_training_dataset_input
+from skatmind.training_dataset import build_training_dataset_input
 
 ROOT = Path(__file__).resolve().parents[1]
 

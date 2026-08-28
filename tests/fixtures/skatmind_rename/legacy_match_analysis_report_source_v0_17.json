@@ -1,0 +1,466 @@
+{
+  "match_analysis_report_source_export_version": 1,
+  "document_kind": "skat_ai_match_analysis_report_source",
+  "report_id": "abfc7618e626db01848fcb19803aeafa079caf52a8293c001430dae6412b39d1",
+  "report": {
+    "match_analysis_report_version": 1,
+    "report_id": "abfc7618e626db01848fcb19803aeafa079caf52a8293c001430dae6412b39d1",
+    "report_kind": "decision_analysis",
+    "match_id": "match-teacher",
+    "workspace_revision": 1,
+    "match_position": 3,
+    "decision_index": 1,
+    "value": {
+      "match_analysis_execution_version": 1,
+      "status": "executed",
+      "match_id": "match-teacher",
+      "workspace_revision": 1,
+      "match_position": 3,
+      "game_id": "observed-game-3",
+      "decision_index": 1,
+      "unavailable_reason": null,
+      "skipped_reason": null,
+      "options": {
+        "match_decision_analysis_options_version": 1,
+        "recommendation_method": "immediate_expected_value",
+        "immediate_sample_count": 1,
+        "immediate_random_seed": 0,
+        "search_random_seed": null,
+        "search_budget_profile": "historical_review_v1",
+        "use_profile_presets": true
+      },
+      "profile_binding": {
+        "decision_index": 1,
+        "acting_player_id": "player-a",
+        "left_opponent_player_id": "player-b",
+        "right_opponent_player_id": "player-c",
+        "left_temporal_status": "absent",
+        "right_temporal_status": "absent",
+        "left_profile_available": false,
+        "right_profile_available": false,
+        "left_actionable_policy_preset": null,
+        "right_actionable_policy_preset": null
+      },
+      "request": {
+        "api_contract_version": 1,
+        "workflow": "position_analysis",
+        "document": {
+          "game_type": "grand",
+          "player_role": "defender",
+          "declarer_player": "left",
+          "player_position": "forehand",
+          "trick_leader": "me",
+          "hand": [
+            "CA",
+            "C10",
+            "CK",
+            "CQ",
+            "CJ",
+            "C9",
+            "C8",
+            "C7",
+            "SA",
+            "S10"
+          ],
+          "current_trick": [],
+          "played_cards": [],
+          "completed_tricks": [],
+          "declarer_points": 0,
+          "defender_points": 0,
+          "next_player": "me",
+          "skat": [],
+          "skat_visibility": "unknown",
+          "left_hand_size": 10,
+          "right_hand_size": 10,
+          "sample_count": 1,
+          "random_seed": 0,
+          "use_basic_opponent_strategy": true,
+          "analysis_mode": "post_game_review",
+          "actual_card_played": "CA",
+          "game_end_reason": "not_ended",
+          "game_declaration": {
+            "game_type": "grand",
+            "hand_game": false,
+            "ouvert": false,
+            "schneider_announced": false,
+            "schwarz_announced": false,
+            "matadors": null,
+            "bid_value": 18
+          },
+          "recommendation_method": "immediate_expected_value"
+        }
+      },
+      "result": {
+        "api_contract_version": 1,
+        "workflow": "position_analysis",
+        "document": {
+          "input_file": "match:match-teacher:workspace:1:position:3:decision:1",
+          "position": {
+            "game_type": "grand",
+            "player_role": "defender",
+            "player_position": "forehand",
+            "declarer_player": "left",
+            "trick_leader": "me",
+            "hand": [
+              "CA",
+              "C10",
+              "CK",
+              "CQ",
+              "CJ",
+              "C9",
+              "C8",
+              "C7",
+              "SA",
+              "S10"
+            ],
+            "current_trick": [],
+            "played_cards": [],
+            "completed_tricks": [],
+            "declarer_points": 0,
+            "defender_points": 0,
+            "next_player": "me",
+            "skat": []
+          },
+          "settings": {
+            "left_hand_size": 10,
+            "right_hand_size": 10,
+            "sample_count": 1,
+            "random_seed": 0,
+            "use_basic_opponent_strategy": true,
+            "recommendation_method": "immediate_expected_value",
+            "bounded_search_settings": null
+          },
+          "opponent_policy_settings": {
+            "opponent_lead_policy": "lowest_point",
+            "opponent_response_policy": "lowest_point"
+          },
+          "left_opponent_policy_settings": {
+            "opponent_lead_policy": "lowest_point",
+            "opponent_response_policy": "lowest_point"
+          },
+          "right_opponent_policy_settings": {
+            "opponent_lead_policy": "lowest_point",
+            "opponent_response_policy": "lowest_point"
+          },
+          "profile_preset_settings": {
+            "use_profile_presets": true
+          },
+          "analysis_metadata": {
+            "strategic_metadata": {
+              "analysis_mode": "post_game_review",
+              "skat_visibility": "unknown",
+              "game_end_reason": "not_ended"
+            },
+            "left_player_profile": {
+              "games_played": null,
+              "solo_games_played": null,
+              "defender_games_played": null,
+              "solo_rate": null,
+              "defender_rate": null,
+              "solo_win_rate": null,
+              "hand_game_rate": null,
+              "suit_game_rate": null,
+              "grand_rate": null,
+              "null_game_rate": null,
+              "defender_win_rate": null
+            },
+            "right_player_profile": {
+              "games_played": null,
+              "solo_games_played": null,
+              "defender_games_played": null,
+              "solo_rate": null,
+              "defender_rate": null,
+              "solo_win_rate": null,
+              "hand_game_rate": null,
+              "suit_game_rate": null,
+              "grand_rate": null,
+              "null_game_rate": null,
+              "defender_win_rate": null
+            },
+            "recommended_opponent_policy_presets": {
+              "left_player_recommended_preset": "simple_lowest",
+              "right_player_recommended_preset": "simple_lowest"
+            }
+          },
+          "information_policy_summary": {
+            "analysis_mode": "post_game_review",
+            "skat_visibility": "unknown",
+            "game_end_reason": "not_ended",
+            "live_information_enforced": false,
+            "known_post_game_skat_allowed": true,
+            "known_skat_cards_allowed": true,
+            "ended_game_allowed": true,
+            "unverifiable_completed_trick_winner_metadata_allowed": true
+          },
+          "post_game_review_summary": {
+            "is_available": true,
+            "reason": "actual_card_played_provided",
+            "actual_card_played": "CA",
+            "recommended_card": "SA",
+            "actual_expected_point_swing": -13.0,
+            "recommended_expected_point_swing": 15.0,
+            "expected_point_swing_difference": 28.0,
+            "decision_quality": "mistake",
+            "decision_factors": [
+              "lower_expected_point_swing_than_recommendation",
+              "large_expected_point_swing_gap"
+            ],
+            "decision_explanation": "The actual card has a much lower expected point swing than the recommended card. Missed expected point swing: 28.00.",
+            "actual_card_rank": 10,
+            "recommended_card_rank": 1,
+            "candidate_count": 10,
+            "better_card_count": 9
+          },
+          "game_declaration": {
+            "game_type": "grand",
+            "hand_game": false,
+            "ouvert": false,
+            "schneider_announced": false,
+            "schwarz_announced": false,
+            "matadors": null,
+            "bid_value": 18
+          },
+          "game_value_summary": {
+            "game_type": "grand",
+            "is_null_game": false,
+            "base_value": 24,
+            "game_level": null,
+            "game_value": null,
+            "details": {
+              "matadors": null,
+              "matador_multiplier": null,
+              "hand_game": false,
+              "schneider_announced": false,
+              "schwarz_announced": false,
+              "ouvert": false,
+              "modifier_multiplier": 0,
+              "is_complete": false
+            }
+          },
+          "overbid_summary": {
+            "bid_value": 18,
+            "game_value": null,
+            "is_overbid": null,
+            "margin": null,
+            "required_game_value": null,
+            "status": "unknown_game_value"
+          },
+          "legal_cards": [
+            "CA",
+            "C10",
+            "CK",
+            "CQ",
+            "CJ",
+            "C9",
+            "C8",
+            "C7",
+            "SA",
+            "S10"
+          ],
+          "analysis_report": [
+            {
+              "card": "SA",
+              "win_rate": 1.0,
+              "average_trick_points": 15.0,
+              "average_points_won": 15.0,
+              "average_points_lost": 0.0,
+              "expected_point_swing": 15.0,
+              "is_recommended": true
+            },
+            {
+              "card": "S10",
+              "win_rate": 1.0,
+              "average_trick_points": 10.0,
+              "average_points_won": 10.0,
+              "average_points_lost": 0.0,
+              "expected_point_swing": 10.0,
+              "is_recommended": false
+            },
+            {
+              "card": "CJ",
+              "win_rate": 1.0,
+              "average_trick_points": 6.0,
+              "average_points_won": 6.0,
+              "average_points_lost": 0.0,
+              "expected_point_swing": 6.0,
+              "is_recommended": false
+            },
+            {
+              "card": "C7",
+              "win_rate": 1.0,
+              "average_trick_points": 2.0,
+              "average_points_won": 2.0,
+              "average_points_lost": 0.0,
+              "expected_point_swing": 2.0,
+              "is_recommended": false
+            },
+            {
+              "card": "C9",
+              "win_rate": 0.0,
+              "average_trick_points": 2.0,
+              "average_points_won": 0.0,
+              "average_points_lost": 2.0,
+              "expected_point_swing": -2.0,
+              "is_recommended": false
+            },
+            {
+              "card": "C8",
+              "win_rate": 0.0,
+              "average_trick_points": 2.0,
+              "average_points_won": 0.0,
+              "average_points_lost": 2.0,
+              "expected_point_swing": -2.0,
+              "is_recommended": false
+            },
+            {
+              "card": "CQ",
+              "win_rate": 0.0,
+              "average_trick_points": 5.0,
+              "average_points_won": 0.0,
+              "average_points_lost": 5.0,
+              "expected_point_swing": -5.0,
+              "is_recommended": false
+            },
+            {
+              "card": "CK",
+              "win_rate": 0.0,
+              "average_trick_points": 6.0,
+              "average_points_won": 0.0,
+              "average_points_lost": 6.0,
+              "expected_point_swing": -6.0,
+              "is_recommended": false
+            },
+            {
+              "card": "C10",
+              "win_rate": 0.0,
+              "average_trick_points": 12.0,
+              "average_points_won": 0.0,
+              "average_points_lost": 12.0,
+              "expected_point_swing": -12.0,
+              "is_recommended": false
+            },
+            {
+              "card": "CA",
+              "win_rate": 0.0,
+              "average_trick_points": 13.0,
+              "average_points_won": 0.0,
+              "average_points_lost": 13.0,
+              "expected_point_swing": -13.0,
+              "is_recommended": false
+            }
+          ],
+          "strategic_summary": "Strategic summary: SA is recommended because it has the best expected point swing. It is ahead of S10 by 5.00 expected points and by 0.000 win rate.",
+          "score_summary": {
+            "explicit_declarer_points": 0,
+            "explicit_defender_points": 0,
+            "completed_trick_declarer_points": 0,
+            "completed_trick_defender_points": 0,
+            "total_declarer_points": 0,
+            "total_defender_points": 0
+          },
+          "game_result_summary": {
+            "declarer_points": 0,
+            "defender_points": 0,
+            "points_remaining": 120,
+            "is_complete": false,
+            "winner": "undecided",
+            "status": "in_progress",
+            "raw_schneider_status": "declarer_made_schneider",
+            "raw_schwarz_status": "declarer_made_schwarz",
+            "effective_schneider_status": "pending",
+            "effective_schwarz_status": "pending",
+            "thresholds": {
+              "declarer_win": 61,
+              "defender_win": 60,
+              "schneider": 30,
+              "schwarz": 0,
+              "total_card_points": 120
+            }
+          },
+          "adjusted_game_result_summary": {
+            "declarer_points": 0,
+            "defender_points": 0,
+            "points_remaining": 120,
+            "is_complete": false,
+            "winner": "undecided",
+            "status": "in_progress",
+            "raw_schneider_status": "declarer_made_schneider",
+            "raw_schwarz_status": "declarer_made_schwarz",
+            "effective_schneider_status": "pending",
+            "effective_schwarz_status": "pending",
+            "thresholds": {
+              "declarer_win": 61,
+              "defender_win": 60,
+              "schneider": 30,
+              "schwarz": 0,
+              "total_card_points": 120
+            },
+            "game_end_reason": "not_ended",
+            "remaining_points_recipient": null,
+            "remaining_points_assigned": 0
+          },
+          "final_settlement_summary": {
+            "is_complete": false,
+            "missing_inputs": [
+              "complete_card_points",
+              "game_value"
+            ],
+            "declarer_won_by_card_points": null,
+            "winner": null,
+            "game_value": null,
+            "effective_game_value": null,
+            "bid_value": 18,
+            "settlement_score": null,
+            "is_loss": null,
+            "is_overbid": null,
+            "overbid_margin": null,
+            "overbid_status": "unknown_game_value",
+            "overbid_required_game_value": null,
+            "notes": [
+              "Settlement score uses simplified Skat logic.",
+              "Lost declarer games are counted as -2 * effective_game_value.",
+              "Overbid settlement is supported for suit and grand games when required_game_value is available."
+            ]
+          },
+          "performance_rating_summary": {
+            "is_implemented": false,
+            "is_partially_implemented": false,
+            "implemented_scope": null,
+            "unsupported_scope": "performance_rating_not_implemented",
+            "rating_system": null,
+            "table_player_count": 3,
+            "basis": "individual_game_settlement",
+            "game_outcome": "incomplete",
+            "settlement_score": null,
+            "rating_score": null,
+            "declarer_rating_score": null,
+            "declarer_rating_points": null,
+            "counterparty_rating_points": null,
+            "defender_rating_points": null,
+            "unsupported_reason": "performance_rating_not_implemented",
+            "notes": [
+              "Performance rating is separate from individual game settlement.",
+              "rating_score currently represents the declarer's rating score.",
+              "List, series, and tournament rating are not fully implemented yet.",
+              "final_settlement_summary remains the source for single-game settlement."
+            ]
+          },
+          "recommendation": {
+            "card": "SA",
+            "reason": "This card has the highest estimated immediate expected point swing: 15.00."
+          },
+          "recommendation_method_summary": {
+            "requested_method": "immediate_expected_value",
+            "effective_method": "immediate_expected_value",
+            "search_attempted": false,
+            "fallback_used": false,
+            "fallback_method": null,
+            "analysis_report_method": "immediate_expected_value"
+          },
+          "bounded_search_result": null
+        },
+        "warnings": []
+      }
+    }
+  }
+}

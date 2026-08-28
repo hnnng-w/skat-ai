@@ -4,11 +4,11 @@ from pathlib import Path
 
 import pytest
 
-import skat_ai.application.execution as application_execution_module
-import skat_ai.application.position_workflow as position_workflow_module
-import skat_ai.information_view as information_view_module
-from skat_ai.api.v1 import WorkflowV1
-from skat_ai.application import (
+import skatmind.application.execution as application_execution_module
+import skatmind.application.position_workflow as position_workflow_module
+import skatmind.information_view as information_view_module
+from skatmind.api.v1 import WorkflowV1
+from skatmind.application import (
     ApplicationExecutionOptions,
     ApplicationExternalDocuments,
     HistoricalGameApplicationOptions,
@@ -16,30 +16,30 @@ from skat_ai.application import (
     build_application_invocation,
     execute_application_invocation,
 )
-from skat_ai.errors import (
-    SkatAIInformationPolicyError,
-    SkatAIInvariantError,
-    SkatAIValidationError,
+from skatmind.errors import (
+    SkatMindInformationPolicyError,
+    SkatMindInvariantError,
+    SkatMindValidationError,
 )
-from skat_ai.field_provenance import (
+from skatmind.field_provenance import (
     FieldProvenanceEntry,
     FieldProvenanceExemption,
     FieldProvenanceLedger,
     FieldProvenanceSourceReference,
 )
-from skat_ai.field_provenance_coverage import (
+from skatmind.field_provenance_coverage import (
     build_field_provenance_coverage_summary,
     validate_field_provenance_coverage,
 )
-from skat_ai.field_provenance_policy import (
+from skatmind.field_provenance_policy import (
     InformationUseContext,
     validate_field_provenance_entry_use,
 )
-from skat_ai.v1_information_provenance_enforcement import (
+from skatmind.v1_information_provenance_enforcement import (
     validate_v1_information_provenance_enforcement_version,
     validate_v1_retained_stage_linkage,
 )
-from skat_ai.v1_information_provenance_sources import (
+from skatmind.v1_information_provenance_sources import (
     build_v1_information_provenance_sources,
     canonical_v1_external_reference,
     exact_v1_json_equal,
@@ -99,7 +99,7 @@ def _entry(**overrides) -> FieldProvenanceEntry:
 
 @pytest.mark.parametrize("version", (True, False, 0, 2, "1", None))
 def test_enforcement_version_rejects_boolean_and_non_one_values(version: object) -> None:
-    with pytest.raises(SkatAIValidationError):
+    with pytest.raises(SkatMindValidationError):
         validate_v1_information_provenance_enforcement_version(version)
 
 
@@ -125,7 +125,7 @@ def test_enforcement_version_rejects_boolean_and_non_one_values(version: object)
 def test_private_temporal_and_engine_values_are_denied_before_authorized_stage(
     entry: FieldProvenanceEntry,
 ) -> None:
-    with pytest.raises(SkatAIInformationPolicyError, match="not available") as caught:
+    with pytest.raises(SkatMindInformationPolicyError, match="not available") as caught:
         validate_field_provenance_entry_use(
             entry,
             InformationUseContext(
@@ -147,7 +147,7 @@ def test_complete_coverage_rejects_uncovered_orphaned_overlapping_and_legacy() -
         visibility="public",
         available_from="request_start",
     )
-    with pytest.raises(SkatAIValidationError, match="no provenance"):
+    with pytest.raises(SkatMindValidationError, match="no provenance"):
         validate_field_provenance_coverage(
             document,
             FieldProvenanceLedger(
@@ -157,7 +157,7 @@ def test_complete_coverage_rejects_uncovered_orphaned_overlapping_and_legacy() -
                 limitations=(),
             ),
         )
-    with pytest.raises(SkatAIValidationError, match="legacy_untracked"):
+    with pytest.raises(SkatMindValidationError, match="legacy_untracked"):
         FieldProvenanceLedger(
             status="complete",
             entries=(entry,),
@@ -178,21 +178,21 @@ def test_dependency_missing_self_cycle_and_temporal_inversion_are_rejected() -> 
         visibility="public",
         available_from="request_start",
     )
-    with pytest.raises(SkatAIValidationError, match="existing entry"):
+    with pytest.raises(SkatMindValidationError, match="existing entry"):
         FieldProvenanceLedger(
             status="complete",
             entries=(replace(current, dependency_paths=("/missing",)),),
             exemptions=(),
             limitations=(),
         )
-    with pytest.raises(SkatAIValidationError, match="itself"):
+    with pytest.raises(SkatMindValidationError, match="itself"):
         replace(current, dependency_paths=("/current",))
     later = _entry(
         field_path="/later",
         visibility="public",
         available_from="game_end",
     )
-    with pytest.raises(SkatAIValidationError, match="precede"):
+    with pytest.raises(SkatMindValidationError, match="precede"):
         FieldProvenanceLedger(
             status="complete",
             entries=(replace(current, dependency_paths=("/later",)), later),
@@ -216,7 +216,7 @@ def test_mutated_source_binding_is_rejected_against_exact_invocation() -> None:
         ),
     )
 
-    with pytest.raises(SkatAIInvariantError, match="binding"):
+    with pytest.raises(SkatMindInvariantError, match="binding"):
         validate_v1_information_provenance_sources(invocation, forged)
 
 
@@ -260,7 +260,7 @@ def test_mutated_source_timing_ledger_is_rejected_against_exact_invocation() -> 
         ),
     )
 
-    with pytest.raises(SkatAIInvariantError, match="ledger"):
+    with pytest.raises(SkatMindInvariantError, match="ledger"):
         validate_v1_information_provenance_sources(invocation, forged_sources)
 
 
@@ -297,7 +297,7 @@ def test_cross_workflow_retained_reference_is_rejected() -> None:
         ),
     )
 
-    with pytest.raises(SkatAIInvariantError, match="not authorized"):
+    with pytest.raises(SkatMindInvariantError, match="not authorized"):
         validate_v1_retained_stage_linkage(
             invocation,
             execution.information_provenance_enforcement.sources,
@@ -343,7 +343,7 @@ def test_retained_exact_source_timing_cannot_be_downgraded() -> None:
         ),
     )
 
-    with pytest.raises(SkatAIInvariantError, match="predates its exact source"):
+    with pytest.raises(SkatMindInvariantError, match="predates its exact source"):
         validate_v1_retained_stage_linkage(
             invocation,
             execution.information_provenance_enforcement.sources,
@@ -385,7 +385,7 @@ def test_retained_cross_boundary_index_cannot_predate_its_source() -> None:
         ),
     )
 
-    with pytest.raises(SkatAIInvariantError, match="exact-source Decision"):
+    with pytest.raises(SkatMindInvariantError, match="exact-source Decision"):
         validate_v1_retained_stage_linkage(
             invocation,
             execution.information_provenance_enforcement.sources,
@@ -426,7 +426,7 @@ def test_retained_exact_source_visibility_cannot_be_widened() -> None:
         ),
     )
 
-    with pytest.raises(SkatAIInvariantError, match="widens exact-source visibility"):
+    with pytest.raises(SkatMindInvariantError, match="widens exact-source visibility"):
         validate_v1_retained_stage_linkage(
             invocation,
             execution.information_provenance_enforcement.sources,
@@ -455,7 +455,7 @@ def test_pathless_live_hand_is_reconciled_with_the_position_source() -> None:
         ),
     )
 
-    with pytest.raises(SkatAIInvariantError, match="exact source"):
+    with pytest.raises(SkatMindInvariantError, match="exact source"):
         validate_v1_retained_stage_linkage(
             invocation,
             execution.information_provenance_enforcement.sources,
@@ -486,7 +486,7 @@ def test_pathless_direct_copy_is_reconciled_with_its_bound_source() -> None:
         ),
     )
 
-    with pytest.raises(SkatAIInvariantError, match="exact source"):
+    with pytest.raises(SkatMindInvariantError, match="exact source"):
         validate_v1_retained_stage_linkage(
             invocation,
             execution.information_provenance_enforcement.sources,
@@ -517,7 +517,7 @@ def test_pathless_nested_external_record_is_reconciled_with_its_source() -> None
         ),
     )
 
-    with pytest.raises(SkatAIInvariantError, match="exact source"):
+    with pytest.raises(SkatMindInvariantError, match="exact source"):
         validate_v1_retained_stage_linkage(
             invocation,
             execution.information_provenance_enforcement.sources,
@@ -551,7 +551,7 @@ def test_retained_exact_copy_requires_a_source_reference() -> None:
         ),
     )
 
-    with pytest.raises(SkatAIInvariantError, match="no source reference"):
+    with pytest.raises(SkatMindInvariantError, match="no source reference"):
         validate_v1_retained_stage_linkage(
             invocation,
             execution.information_provenance_enforcement.sources,
@@ -586,7 +586,7 @@ def test_retained_exact_copy_rejects_an_unresolved_source_path() -> None:
         ),
     )
 
-    with pytest.raises(SkatAIInvariantError, match="path is missing"):
+    with pytest.raises(SkatMindInvariantError, match="path is missing"):
         validate_v1_retained_stage_linkage(
             invocation,
             execution.information_provenance_enforcement.sources,
@@ -631,7 +631,7 @@ def test_historical_replay_exact_copy_requires_its_explicit_source_path() -> Non
         ),
     )
 
-    with pytest.raises(SkatAIInvariantError, match="path is unresolved"):
+    with pytest.raises(SkatMindInvariantError, match="path is unresolved"):
         validate_v1_retained_stage_linkage(
             invocation,
             execution.information_provenance_enforcement.sources,
@@ -704,7 +704,7 @@ def test_training_target_actual_card_is_reconciled_with_observed_play() -> None:
         ),
     )
 
-    with pytest.raises(SkatAIInvariantError, match="exact source"):
+    with pytest.raises(SkatMindInvariantError, match="exact source"):
         validate_v1_retained_stage_linkage(
             invocation,
             execution.information_provenance_enforcement.sources,
@@ -792,7 +792,7 @@ def test_retained_entry_cannot_self_authorize_aggregate_context(
         ),
     )
 
-    with pytest.raises(SkatAIInvariantError, match=message):
+    with pytest.raises(SkatMindInvariantError, match=message):
         validate_v1_retained_stage_linkage(
             invocation,
             execution.information_provenance_enforcement.sources,
@@ -865,7 +865,7 @@ def test_live_hidden_skat_is_enforced_after_local_sanitization(
         input_reference="fixture://leaking-sanitizer",
     )
 
-    with pytest.raises(SkatAIInvariantError, match="Local consumed Request"):
+    with pytest.raises(SkatMindInvariantError, match="Local consumed Request"):
         execute_application_invocation(invocation)
     assert handler_called is False
 
@@ -961,7 +961,7 @@ def test_input_reference_origin_cannot_self_disable_exact_reconciliation() -> No
         ),
     )
 
-    with pytest.raises(SkatAIInvariantError, match="classification changed"):
+    with pytest.raises(SkatMindInvariantError, match="classification changed"):
         validate_v1_retained_stage_linkage(
             invocation,
             execution.information_provenance_enforcement.sources,
@@ -1006,7 +1006,7 @@ def test_bound_source_origin_cannot_self_disable_exact_reconciliation() -> None:
         ),
     )
 
-    with pytest.raises(SkatAIInvariantError, match="resolvable exact source"):
+    with pytest.raises(SkatMindInvariantError, match="resolvable exact source"):
         validate_v1_retained_stage_linkage(
             invocation,
             execution.information_provenance_enforcement.sources,
@@ -1056,7 +1056,7 @@ def test_rule_reference_cannot_disable_historical_exact_reconciliation() -> None
         ),
     )
 
-    with pytest.raises(SkatAIInvariantError, match="does not match its exact source"):
+    with pytest.raises(SkatMindInvariantError, match="does not match its exact source"):
         validate_v1_retained_stage_linkage(
             invocation,
             execution.information_provenance_enforcement.sources,
@@ -1090,7 +1090,7 @@ def test_defaulted_position_value_must_match_canonical_defaults() -> None:
         ),
     )
 
-    with pytest.raises(SkatAIInvariantError, match="does not match its exact source"):
+    with pytest.raises(SkatMindInvariantError, match="does not match its exact source"):
         validate_v1_retained_stage_linkage(
             invocation,
             execution.information_provenance_enforcement.sources,
@@ -1126,7 +1126,7 @@ def test_historical_snapshot_cannot_change_from_retained_summary() -> None:
         ),
     )
 
-    with pytest.raises(SkatAIInvariantError, match="retained Snapshot summary"):
+    with pytest.raises(SkatMindInvariantError, match="retained Snapshot summary"):
         validate_v1_retained_stage_linkage(
             invocation,
             execution.information_provenance_enforcement.sources,
@@ -1167,7 +1167,7 @@ def test_coordinated_historical_snapshot_copies_cannot_change_checkpoint() -> No
         ),
     )
 
-    with pytest.raises(SkatAIInvariantError, match="trusted Snapshot checkpoint"):
+    with pytest.raises(SkatMindInvariantError, match="trusted Snapshot checkpoint"):
         validate_v1_retained_stage_linkage(
             invocation,
             execution.information_provenance_enforcement.sources,
@@ -1208,7 +1208,7 @@ def test_training_summary_feature_is_bound_to_retained_feature() -> None:
         ),
     )
 
-    with pytest.raises(SkatAIInvariantError, match="exact aggregate"):
+    with pytest.raises(SkatMindInvariantError, match="exact aggregate"):
         validate_v1_retained_stage_linkage(
             invocation,
             execution.information_provenance_enforcement.sources,

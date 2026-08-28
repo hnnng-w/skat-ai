@@ -1,7 +1,7 @@
 # Ouvert-aware simulation
 
 Declared Ouvert makes the declarer's complete current hand public to all three
-players. `skat-ai` represents that exact ownership with source
+players. `skatmind` represents that exact ownership with source
 `declared_ouvert` and visibility scope `all_players`.
 
 This support applies to every valid existing Ouvert declaration: Suit Ouvert,

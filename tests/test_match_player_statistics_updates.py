@@ -5,7 +5,7 @@ import pytest
 from test_match_capture_contracts import _statistics_record
 from test_match_workspace_contracts import _definition, _observed_game
 
-from skat_ai.match_player_statistics_updates import (
+from skatmind.match_player_statistics_updates import (
     MATCH_PLAYER_STATISTICS_UPDATE_OPERATIONS,
     MATCH_PLAYER_STATISTICS_UPDATE_STATUSES,
     MATCH_PLAYER_STATISTICS_UPDATE_VERSION,
@@ -14,8 +14,8 @@ from skat_ai.match_player_statistics_updates import (
     clear_match_player_statistics_snapshot_v1,
     set_match_player_statistics_snapshot_v1,
 )
-from skat_ai.match_workspace_contracts import create_match_workspace_v1
-from skat_ai.match_workspace_operations import set_match_workspace_observed_game_v1
+from skatmind.match_workspace_contracts import create_match_workspace_v1
+from skatmind.match_workspace_operations import set_match_workspace_observed_game_v1
 
 
 def _workspace_with_snapshot():

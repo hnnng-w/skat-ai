@@ -5,9 +5,9 @@ from pathlib import Path
 
 import pytest
 
-import skat_ai.api.v1.provenance as public_contract_module
-import skat_ai.public_field_provenance as public_builder_module
-from skat_ai.api.v1 import (
+import skatmind.api.v1.provenance as public_contract_module
+import skatmind.public_field_provenance as public_builder_module
+from skatmind.api.v1 import (
     PUBLIC_FIELD_PROVENANCE_DOCUMENT_SCOPES,
     PUBLIC_FIELD_PROVENANCE_ROOT_FIELD,
     PUBLIC_FIELD_PROVENANCE_VERSION,
@@ -18,21 +18,21 @@ from skat_ai.api.v1 import (
     WorkflowV1,
     execute_document,
 )
-from skat_ai.application import (
+from skatmind.application import (
     ApplicationExecutionOptions,
     TrainingDatasetApplicationOptions,
     build_application_invocation,
     execute_application_invocation,
 )
-from skat_ai.errors import SkatAIInvariantError, SkatAIValidationError
-from skat_ai.field_provenance import (
+from skatmind.errors import SkatMindInvariantError, SkatMindValidationError
+from skatmind.field_provenance import (
     FieldProvenanceLedger,
     FieldProvenanceSourceReference,
 )
-from skat_ai.field_provenance_coverage import (
+from skatmind.field_provenance_coverage import (
     build_field_provenance_coverage_summary,
 )
-from skat_ai.public_field_provenance import build_public_field_provenance_bundle
+from skatmind.public_field_provenance import build_public_field_provenance_bundle
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 EXAMPLES = PROJECT_ROOT / "examples"
@@ -174,7 +174,7 @@ def test_public_attachment_rejects_malformed_nested_values_with_stable_errors() 
     invalid_documents.append(invalid_pointer)
 
     for document in invalid_documents:
-        with pytest.raises(SkatAIValidationError):
+        with pytest.raises(SkatMindValidationError):
             FieldProvenanceAttachmentV1(**document)
 
 
@@ -192,7 +192,7 @@ def test_public_result_reconciles_typed_artifact_provenance_with_actual_artifact
     assert execution.field_provenance is not None
     assert len(execution.artifacts) == len(execution.field_provenance.artifacts) == 1
 
-    with pytest.raises(SkatAIValidationError, match="actual execution artifacts"):
+    with pytest.raises(SkatMindValidationError, match="actual execution artifacts"):
         replace(execution, artifacts=())
 
 
@@ -391,7 +391,7 @@ def test_public_builder_rejects_impossible_result_and_artifact_mismatches(
         attachments.append(artifact_attachment)
     object.__setattr__(application.provenance, "attachments", tuple(attachments))
 
-    with pytest.raises(SkatAIInvariantError, match=match):
+    with pytest.raises(SkatMindInvariantError, match=match):
         build_public_field_provenance_bundle(application)
 
 
@@ -427,7 +427,7 @@ def test_public_builder_rejects_redaction_that_would_make_coverage_incomplete() 
         ),
     )
 
-    with pytest.raises(SkatAIInvariantError, match="not complete"):
+    with pytest.raises(SkatMindInvariantError, match="not complete"):
         build_public_field_provenance_bundle(application)
 
 

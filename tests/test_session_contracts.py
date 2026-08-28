@@ -6,18 +6,18 @@ from types import MappingProxyType
 
 import pytest
 
-import skat_ai
-import skat_ai.api.v1 as api_v1
+import skatmind
+import skatmind.api.v1 as api_v1
 from scripts.validate_generated_outputs_schema import SCENARIOS
-from skat_ai.api.v1 import WorkflowV1
-from skat_ai.cli import execution as cli
-from skat_ai.game_declaration import GameDeclaration
-from skat_ai.game_state import GameState
-from skat_ai.historical_game import (
+from skatmind.api.v1 import WorkflowV1
+from skatmind.cli import execution as cli
+from skatmind.game_declaration import GameDeclaration
+from skatmind.game_state import GameState
+from skatmind.historical_game import (
     HistoricalGameRecord,
     build_historical_game_summary_from_input,
 )
-from skat_ai.session_commands import (
+from skatmind.session_commands import (
     SESSION_COMMAND_ALLOWED_PHASES,
     SESSION_COMMAND_KINDS,
     SESSION_COMMAND_TYPES,
@@ -37,7 +37,7 @@ from skat_ai.session_commands import (
     SetSessionGameMetadataCommandV1,
     SetSessionPublicHandCommandV1,
 )
-from skat_ai.session_contracts import (
+from skatmind.session_contracts import (
     SESSION_CAPTURE_MODES,
     SESSION_CONTRACT_VERSION,
     SESSION_IDENTIFIER_POLICY,
@@ -51,7 +51,7 @@ from skat_ai.session_contracts import (
     SessionPlayerV1,
     SessionStateV1,
 )
-from skat_ai.session_validation import (
+from skatmind.session_validation import (
     SESSION_DIAGNOSTIC_CODES,
     SESSION_DIAGNOSTIC_SEVERITIES,
     SESSION_EXPORT_READINESS_STATUSES,
@@ -1295,12 +1295,12 @@ def test_session_state_serialization_has_exact_fields_and_immutable_nested_value
 
 
 def test_no_unversioned_transition_export_parser_or_persistence_surface_exists() -> None:
-    import skat_ai.session_commands as commands
-    import skat_ai.session_contracts as contracts
-    import skat_ai.session_incremental_validation as incremental_validation
-    import skat_ai.session_projection as projection
-    import skat_ai.session_transitions as transitions
-    import skat_ai.session_validation as validation
+    import skatmind.session_commands as commands
+    import skatmind.session_contracts as contracts
+    import skatmind.session_incremental_validation as incremental_validation
+    import skatmind.session_projection as projection
+    import skatmind.session_transitions as transitions
+    import skatmind.session_validation as validation
 
     for module in (
         commands,
@@ -1353,7 +1353,7 @@ def test_existing_engine_contracts_replay_public_api_cli_and_counts_are_unchange
     )["historical_game_input"]
     assert build_historical_game_summary_from_input(historical)["status"] == "complete"
 
-    assert skat_ai.__all__ == ("api", "errors", "__version__")
+    assert skatmind.__all__ == ("api", "errors", "__version__")
     assert tuple(workflow.value for workflow in WorkflowV1) == (
         "position_analysis",
         "historical_game",
@@ -1370,9 +1370,9 @@ def test_existing_engine_contracts_replay_public_api_cli_and_counts_are_unchange
         for option in action.option_strings
     )
     assert len(tuple((PROJECT_ROOT / "schemas").glob("*.schema.json"))) == 71
-    packaged_schema_directory = PROJECT_ROOT / "src" / "skat_ai" / "schema_resources"
+    packaged_schema_directory = PROJECT_ROOT / "src" / "skatmind" / "schema_resources"
     assert len(tuple(packaged_schema_directory.glob("*.schema.json"))) == 71
     assert len(SCENARIOS) == 98
     pyproject = tomllib.loads((PROJECT_ROOT / "pyproject.toml").read_text(encoding="utf-8"))
     assert pyproject["project"]["version"] == "0.17.0"
-    assert skat_ai.__version__ == "0.17.0"
+    assert skatmind.__version__ == "0.17.0"

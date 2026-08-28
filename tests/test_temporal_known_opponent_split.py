@@ -6,19 +6,19 @@ from test_historical_declarer_concession import build_concession_prefix
 from test_historical_game import build_historical_input, rebuild_historical_suffix
 from test_training_dataset_preparation import build_preparation_input
 
-import skat_ai.dataset_partition_plan as partition_plan_module
-import skat_ai.temporal_known_opponent_split as split_module
-import skat_ai.training_dataset_preparation as preparation_module
-from skat_ai.dataset_partition_audit import (
+import skatmind.dataset_partition_plan as partition_plan_module
+import skatmind.temporal_known_opponent_split as split_module
+import skatmind.training_dataset_preparation as preparation_module
+from skatmind.dataset_partition_audit import (
     audit_training_dataset_partitions,
     build_serializable_dataset_partition_audit,
 )
-from skat_ai.dataset_partition_plan import (
+from skatmind.dataset_partition_plan import (
     TEMPORAL_KNOWN_OPPONENT_ALGORITHM,
     build_serializable_dataset_partition_plan,
     validate_dataset_partition_plan,
 )
-from skat_ai.training_dataset_preparation import (
+from skatmind.training_dataset_preparation import (
     DatasetPartitionWeights,
     build_dataset_preparation_source_facts,
     build_serializable_training_dataset_preparation_request,

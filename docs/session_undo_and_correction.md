@@ -283,8 +283,8 @@ Settlement, Application, file I/O, timeout, or background task.
 
 ## Current boundary
 
-The implementation remains under `skat_ai.session_history*` and is exposed
-through the additive `skat_ai.api.v1.session` namespace. Issue #157 adds
+The implementation remains under `skatmind.session_history*` and is exposed
+through the additive `skatmind.api.v1.session` namespace. Issue #157 adds
 installed/module/Legacy `session undo` and `session correct`, optimistic file
 Save, automatic collection of a newly Position-ready State, lineage display,
 examples, and generated scenarios without changing history semantics. Only

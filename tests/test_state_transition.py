@@ -1,7 +1,7 @@
-from skat_ai.game_history import build_score_summary
-from skat_ai.game_state import GameState
-from skat_ai.simulation import simulate_immediate_trick_once_detailed
-from skat_ai.state_transition import (
+from skatmind.game_history import build_score_summary
+from skatmind.game_state import GameState
+from skatmind.simulation import simulate_immediate_trick_once_detailed
+from skatmind.state_transition import (
     advance_state_after_detailed_trick,
     determine_next_player_from_completed_trick,
     remove_card_from_hand,

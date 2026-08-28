@@ -1,6 +1,6 @@
 ---
 
-description: Run the full skat-ai project check
+description: Run the full skatmind project check
 agent: build
 ------------
 

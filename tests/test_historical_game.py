@@ -4,26 +4,26 @@ from dataclasses import replace
 
 import pytest
 
-from skat_ai.deck import get_full_deck
-from skat_ai.hidden_card_inference import build_hidden_card_inference_model
-from skat_ai.historical_decision_snapshot import (
+from skatmind.deck import get_full_deck
+from skatmind.hidden_card_inference import build_hidden_card_inference_model
+from skatmind.historical_decision_snapshot import (
     build_historical_decision_snapshots,
     build_serializable_historical_decision_snapshot_summary,
 )
-from skat_ai.historical_game import (
+from skatmind.historical_game import (
     build_historical_game_record,
     build_historical_game_summary,
     build_historical_game_summary_from_input,
 )
-from skat_ai.historical_game_review import (
+from skatmind.historical_game_review import (
     HistoricalGameReviewSettings,
     _build_reviewed_decision,
     build_historical_game_review_summary,
 )
-from skat_ai.historical_snapshot_adapter import (
+from skatmind.historical_snapshot_adapter import (
     build_position_from_historical_snapshot,
 )
-from skat_ai.rules import get_legal_cards, get_trick_winner
+from skatmind.rules import get_legal_cards, get_trick_winner
 
 PLAYER_IDS_BY_SEAT = ["player-a", "player-b", "player-c"]
 
@@ -550,7 +550,7 @@ def test_complete_historical_review_reconciles_rows_players_and_quality_counts(
     monkeypatch,
 ) -> None:
     monkeypatch.setattr(
-        "skat_ai.historical_game_review.recommend_card_by_expected_value",
+        "skatmind.historical_game_review.recommend_card_by_expected_value",
         build_stub_expected_value_recommendation,
     )
     record, snapshot_summary = build_typed_historical_review_inputs(
@@ -614,7 +614,7 @@ def test_historical_review_derives_decision_seeds_and_preserves_unseeded_nulls(
         )
 
     monkeypatch.setattr(
-        "skat_ai.historical_game_review.recommend_card_by_expected_value",
+        "skatmind.historical_game_review.recommend_card_by_expected_value",
         capture_seed,
     )
     record, snapshot_summary = build_typed_historical_review_inputs(
@@ -652,7 +652,7 @@ def test_historical_review_does_not_convert_unexpected_simulation_errors(
         raise RuntimeError("unexpected simulation failure")
 
     monkeypatch.setattr(
-        "skat_ai.historical_game_review.recommend_card_by_expected_value",
+        "skatmind.historical_game_review.recommend_card_by_expected_value",
         fail_simulation,
     )
     record, snapshot_summary = build_typed_historical_review_inputs(
@@ -683,7 +683,7 @@ def test_historical_review_uses_only_snapshot_state_for_unchanged_prefix(
         )
 
     monkeypatch.setattr(
-        "skat_ai.historical_game_review.recommend_card_by_expected_value",
+        "skatmind.historical_game_review.recommend_card_by_expected_value",
         capture_state,
     )
     data = build_historical_input()
@@ -795,7 +795,7 @@ def test_historical_inference_and_recommendation_ignore_future_hidden_ownership(
     ]
 def test_historical_review_actual_card_is_only_a_decision_label(monkeypatch) -> None:
     monkeypatch.setattr(
-        "skat_ai.historical_game_review.recommend_card_by_expected_value",
+        "skatmind.historical_game_review.recommend_card_by_expected_value",
         build_stub_expected_value_recommendation,
     )
     record, snapshot_summary = build_typed_historical_review_inputs(
@@ -833,7 +833,7 @@ def test_historical_review_actual_card_is_only_a_decision_label(monkeypatch) -> 
 
 def test_ouvert_historical_review_uses_normal_reviewed_path(monkeypatch) -> None:
     monkeypatch.setattr(
-        "skat_ai.historical_game_review.recommend_card_by_expected_value",
+        "skatmind.historical_game_review.recommend_card_by_expected_value",
         build_stub_expected_value_recommendation,
     )
     data = build_historical_input(game_type="null", hand_game=True)

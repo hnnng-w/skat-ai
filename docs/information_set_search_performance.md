@@ -186,9 +186,11 @@ six Session examples, and 96 generated-output scenarios. Issue #194 subsequently
 adds one unrelated Tactical Motif Review Schema and two scenarios, so the current
 working totals are 71 Schemas and 98 scenarios without changing this benchmark.
 
-The existing `benchmarks/bounded_search_late_game_v1.json` corpus and
-`scripts/benchmark_bounded_search.py` runner remain byte-identical and continue
-to measure `compatible_world_minimax_v1` separately.
+The existing `benchmarks/bounded_search_late_game_v1.json` corpus remains
+byte-identical. Issue #205 changes only the active Package import in
+`scripts/benchmark_bounded_search.py` to `skatmind`; the runner continues to
+measure `compatible_world_minimax_v1` separately with unchanged benchmark
+behavior.
 
 See [Information-set Search contracts](information_set_search_contracts.md),
 [Information-set Search executor](information_set_search_executor.md),

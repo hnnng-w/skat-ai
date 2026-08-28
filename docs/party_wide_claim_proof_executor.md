@@ -58,7 +58,7 @@ An available preparation is fully reconciled before traversal. The executor:
 2. rebuilds the existing Proof Request exactly once from the retained Claim,
    Evidence, and Exact State Context;
 3. requires exact equality with the stored Request;
-4. raises `SkatAIInvariantError` for forged internal inconsistency.
+4. raises `SkatMindInvariantError` for forged internal inconsistency.
 
 It does not rebuild Evidence, replay Historical play, rebuild the Exact State
 Context, or construct another `ExactSearchState`.

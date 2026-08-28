@@ -42,8 +42,8 @@ The Learning Corpus browser is a separate private command family available in
 all three supported forms:
 
 ```powershell
-skat-ai corpus --corpus CORPUS_ROOT
-python -m skat_ai corpus --corpus CORPUS_ROOT
+skatmind corpus --corpus CORPUS_ROOT
+python -m skatmind corpus --corpus CORPUS_ROOT
 python main.py corpus --corpus CORPUS_ROOT
 ```
 
@@ -205,10 +205,15 @@ The strict source document has exactly:
 
 ```text
 match_analysis_report_source_export_version = 1
-document_kind = skat_ai_match_analysis_report_source
+document_kind = skatmind_match_analysis_report_source
 report_id
 report
 ```
+
+The Report-source reader also accepts the exact pre-rename kind and Report-ID
+domain as strict input-only compatibility. A current download or rewritten
+serialization always emits the canonical kind and canonical Report ID. See
+[SkatMind rename and migration](skatmind_rename_and_migration.md).
 
 The nested value must be the complete canonical version-1 Match Analysis Report
 for one executed Decision Analysis. It must retain exact identity fields,
@@ -450,7 +455,7 @@ Dataset, partition, Summary, or security rule.
 
 The Standard Library server binds only to `127.0.0.1`. Startup creates a random
 token used only in the initial bootstrap query. A valid bootstrap request sets
-the `skat_ai_corpus_token` cookie with `Path=/`, `HttpOnly`, and
+the `skatmind_corpus_token` cookie with `Path=/`, `HttpOnly`, and
 `SameSite=Strict`, then redirects to a token-free URL. Access logging is disabled
 so the bootstrap token is not written by the server.
 

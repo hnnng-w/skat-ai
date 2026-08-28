@@ -1,6 +1,6 @@
 # Performance rating
 
-This document explains the performance-rating layer in `skat-ai`.
+This document explains the performance-rating layer in `skatmind`.
 
 Performance rating is intentionally separated from single-game settlement.
 

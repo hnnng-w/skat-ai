@@ -9,27 +9,27 @@ from test_historical_game import build_historical_input
 from test_historical_opponent_profiles import stub_expected_value_recommendation
 from test_training_dataset import build_training_input
 
-from skat_ai.dataset_partition_audit import audit_training_dataset_partitions
-from skat_ai.defender_concession import (
+from skatmind.dataset_partition_audit import audit_training_dataset_partitions
+from skatmind.defender_concession import (
     DefenderConcession,
     adjudicate_defender_concession,
 )
-from skat_ai.final_settlement import build_final_settlement_summary
-from skat_ai.game_result import build_game_result_summary_from_score_summary
-from skat_ai.historical_decision_snapshot import build_historical_decision_snapshots
-from skat_ai.historical_game import (
+from skatmind.final_settlement import build_final_settlement_summary
+from skatmind.game_result import build_game_result_summary_from_score_summary
+from skatmind.historical_decision_snapshot import build_historical_decision_snapshots
+from skatmind.historical_game import (
     build_historical_game_record,
     build_historical_game_summary_from_input,
 )
-from skat_ai.historical_game_review import build_historical_game_review_summary
-from skat_ai.historical_opponent_statistics import (
+from skatmind.historical_game_review import build_historical_game_review_summary
+from skatmind.historical_opponent_statistics import (
     aggregate_historical_opponent_statistics,
 )
-from skat_ai.rolling_opponent_policy_evaluation import (
+from skatmind.rolling_opponent_policy_evaluation import (
     build_serializable_rolling_opponent_policy_evaluation,
     evaluate_rolling_opponent_policy_predictions,
 )
-from skat_ai.training_dataset import (
+from skatmind.training_dataset import (
     build_training_dataset_input,
     build_training_dataset_summary,
 )
@@ -528,7 +528,7 @@ def test_review_uses_actual_plays_and_never_adds_a_terminal_event(
     monkeypatch,
 ) -> None:
     monkeypatch.setattr(
-        "skat_ai.historical_game_review.recommend_card_by_expected_value",
+        "skatmind.historical_game_review.recommend_card_by_expected_value",
         stub_expected_value_recommendation,
     )
     for data, expected_count in (

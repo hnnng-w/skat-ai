@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 
 import main as main_module
-from skat_ai.bounded_search_result import (
+from skatmind.bounded_search_result import (
     BOUNDED_SEARCH_ANALYSIS_METHOD,
     BOUNDED_SEARCH_SCHEMA_VERSION,
     AggregateSearchCandidateResult,
@@ -10,8 +10,8 @@ from skat_ai.bounded_search_result import (
     ConsumedSearchBudget,
     rank_search_candidate_results,
 )
-from skat_ai.rules import get_legal_cards
-from skat_ai.terminal_utility import TERMINAL_UTILITY_VERSION
+from skatmind.rules import get_legal_cards
+from skatmind.terminal_utility import TERMINAL_UTILITY_VERSION
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -106,7 +106,7 @@ def test_flat_search_review_runs_independent_immediate_and_treats_ties_as_equiva
         return "S10", "Independent Immediate baseline.", values
 
     monkeypatch.setattr(
-        "skat_ai.recommendation_workflow.solve_compatible_world_minimax", search
+        "skatmind.recommendation_workflow.solve_compatible_world_minimax", search
     )
     monkeypatch.setattr(main_module, "recommend_card_by_expected_value", immediate)
 

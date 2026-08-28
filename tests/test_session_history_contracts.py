@@ -5,16 +5,16 @@ import pytest
 from test_session_contracts import _all_commands
 from test_session_transitions import _apply, _players
 
-from skat_ai.session_commands import (
+from skatmind.session_commands import (
     PromoteSessionToRetrospectiveCommandV1,
     RecordSessionDealtCardCommandV1,
     SetSessionGameMetadataCommandV1,
 )
-from skat_ai.session_history import (
+from skatmind.session_history import (
     correct_session_command_v1,
     rewind_session_state_v1,
 )
-from skat_ai.session_history_contracts import (
+from skatmind.session_history_contracts import (
     SESSION_BRANCHING_POLICY,
     SESSION_CHECKPOINT_LINEAGE_VERSION,
     SESSION_CHECKPOINT_RELATIONSHIPS,
@@ -31,7 +31,7 @@ from skat_ai.session_history_contracts import (
     SessionCorrectionResultV1,
     SessionUndoResultV1,
 )
-from skat_ai.session_transitions import create_session_state_v1
+from skatmind.session_transitions import create_session_state_v1
 
 
 def _metadata_state():

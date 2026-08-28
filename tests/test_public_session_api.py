@@ -12,18 +12,18 @@ from test_session_decision_checkpoint import _checkpoint
 from test_session_persistence_codec import _commands
 from test_session_transitions import _complete_retrospective_session
 
-import skat_ai.api.v1 as api_v1
-import skat_ai.api.v1.session as session
-import skat_ai.api.v1.session.execution as session_execution
-import skat_ai.session_provenance as session_provenance
-from skat_ai.api.v1.session.schema_validation import validate_session_result_document
-from skat_ai.errors import (
-    SkatAISchemaError,
-    SkatAISerializationError,
-    SkatAIValidationError,
+import skatmind.api.v1 as api_v1
+import skatmind.api.v1.session as session
+import skatmind.api.v1.session.execution as session_execution
+import skatmind.session_provenance as session_provenance
+from skatmind.api.v1.session.schema_validation import validate_session_result_document
+from skatmind.errors import (
+    SkatMindSchemaError,
+    SkatMindSerializationError,
+    SkatMindValidationError,
 )
-from skat_ai.field_provenance_coverage import enumerate_json_leaf_paths
-from skat_ai.session_commands import SetSessionGameMetadataCommandV1
+from skatmind.field_provenance_coverage import enumerate_json_leaf_paths
+from skatmind.session_commands import SetSessionGameMetadataCommandV1
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
@@ -146,7 +146,7 @@ def test_public_session_namespace_and_version_contract_are_exact() -> None:
     assert session.__all__ == SESSION_EXPORTS
     assert len(session.__all__) == 59
     assert session.PUBLIC_SESSION_API_VERSION == 1
-    assert session.PUBLIC_SESSION_API_NAMESPACE == "skat_ai.api.v1.session"
+    assert session.PUBLIC_SESSION_API_NAMESPACE == "skatmind.api.v1.session"
     assert session.PUBLIC_SESSION_API_COMPATIBILITY_POLICY == "additive_until_v1_0"
     assert session.SESSION_API_OPERATIONS == (
         "create",
@@ -193,9 +193,9 @@ def test_public_session_namespace_and_version_contract_are_exact() -> None:
 
 
 def test_public_session_reexports_preserve_internal_type_identity() -> None:
-    from skat_ai.session_commands import SetSessionGameMetadataCommandV1 as InternalCommand
-    from skat_ai.session_contracts import SessionPlayerV1 as InternalPlayer
-    from skat_ai.session_persistence_contracts import (
+    from skatmind.session_commands import SetSessionGameMetadataCommandV1 as InternalCommand
+    from skatmind.session_contracts import SessionPlayerV1 as InternalPlayer
+    from skatmind.session_persistence_contracts import (
         SessionPersistenceDocumentV1 as InternalDocument,
     )
 
@@ -213,9 +213,9 @@ def test_options_and_result_are_strict_immutable_and_omit_null_provenance() -> N
     assert not hasattr(options, "__dict__")
     with pytest.raises(FrozenInstanceError):
         options.validate_output = False
-    with pytest.raises(SkatAIValidationError, match="validate_output"):
+    with pytest.raises(SkatMindValidationError, match="validate_output"):
         session.SessionApiOptionsV1(validate_output=1)
-    with pytest.raises(SkatAIValidationError, match="include_provenance"):
+    with pytest.raises(SkatMindValidationError, match="include_provenance"):
         session.SessionApiOptionsV1(include_provenance=0)
 
     result = _created_state()
@@ -224,9 +224,9 @@ def test_options_and_result_are_strict_immutable_and_omit_null_provenance() -> N
     assert "field_provenance" not in serialized
     serialized["value"]["session_id"] = "changed"
     assert result.value.session_id == "public-session"
-    with pytest.raises(SkatAISerializationError):
+    with pytest.raises(SkatMindSerializationError):
         session.serialize_session_result(result.to_dict())
-    with pytest.raises(SkatAIValidationError, match="value"):
+    with pytest.raises(SkatMindValidationError, match="value"):
         session.SessionApiResultV1(operation="apply_command", value=result.value)
 
 
@@ -246,7 +246,7 @@ def test_command_parser_uses_strict_schema_and_exact_internal_type() -> None:
     ):
         invalid = _metadata_document()
         mutation(invalid)
-        with pytest.raises(SkatAISchemaError):
+        with pytest.raises(SkatMindSchemaError):
             session.parse_session_command(invalid)
 
 
@@ -506,7 +506,7 @@ def test_result_rejects_provenance_unrelated_to_its_exact_value() -> None:
         },
         session_context=genuine.result.session_context,
     )
-    with pytest.raises(SkatAIValidationError, match="coverage"):
+    with pytest.raises(SkatMindValidationError, match="coverage"):
         session.SessionApiResultV1(
             operation="create",
             value=created.value,
@@ -526,7 +526,7 @@ def test_result_rejects_provenance_unrelated_to_its_exact_value() -> None:
         coverage_summary=genuine.result.coverage_summary,
         session_context=mismatched_context,
     )
-    with pytest.raises(SkatAIValidationError, match="context"):
+    with pytest.raises(SkatMindValidationError, match="context"):
         session.SessionApiResultV1(
             operation="create",
             value=created.value,
@@ -703,7 +703,7 @@ def test_validate_output_false_skips_only_final_session_result_schema(monkeypatc
     )
     assert result.value.revision == 0
 
-    with pytest.raises(SkatAIValidationError):
+    with pytest.raises(SkatMindValidationError):
         session.create_session(
             session_id="",
             players=_players(),
@@ -717,7 +717,7 @@ def test_session_schema_is_draft_2020_12_strict_packaged_and_byte_identical() ->
     packaged_path = (
         PROJECT_ROOT
         / "src"
-        / "skat_ai"
+        / "skatmind"
         / "schema_resources"
         / "session.schema.json"
     )
@@ -771,7 +771,7 @@ def test_resume_schema_rejects_unknown_nested_fields_before_internal_resume() ->
     document = session.build_session_persistence_document(state).value.to_dict()
     invalid = copy.deepcopy(document)
     invalid["state"]["validation"]["unknown"] = True
-    with pytest.raises(SkatAISchemaError):
+    with pytest.raises(SkatMindSchemaError):
         session.resume_session_document(invalid)
 
 
@@ -780,7 +780,7 @@ def test_session_result_schema_rejects_status_and_checkpoint_workflow_tampering(
     applied = session.apply_session_command(created.value, _metadata_document())
     invalid_transition = applied.to_dict()
     invalid_transition["value"]["status"] = "rejected"
-    with pytest.raises(SkatAISchemaError):
+    with pytest.raises(SkatMindSchemaError):
         validate_session_result_document(invalid_transition)
 
     state, position_export, _ = _checkpoint()
@@ -789,5 +789,5 @@ def test_session_result_schema_rejects_status_and_checkpoint_workflow_tampering(
         position_export=position_export,
     ).to_dict()
     checkpoint["value"]["request"]["workflow"] = "historical_game"
-    with pytest.raises(SkatAISchemaError):
+    with pytest.raises(SkatMindSchemaError):
         validate_session_result_document(checkpoint)

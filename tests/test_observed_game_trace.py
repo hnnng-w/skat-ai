@@ -11,14 +11,14 @@ from test_observed_game_contracts import (
     observed_plays_from_historical,
 )
 
-from skat_ai.game_declaration import GameDeclaration
-from skat_ai.match_source_metadata import MediaTimecodeV1
-from skat_ai.observed_game_trace import (
+from skatmind.game_declaration import GameDeclaration
+from skatmind.match_source_metadata import MediaTimecodeV1
+from skatmind.observed_game_trace import (
     ObservedGameTraceSummaryV1,
     ObservedPlayV1,
     validate_observed_game_trace_v1,
 )
-from skat_ai.rules import get_legal_cards, get_trick_winner
+from skatmind.rules import get_legal_cards, get_trick_winner
 
 
 def _plays_for_discards(data: dict, discarded_cards: tuple[str, str]):

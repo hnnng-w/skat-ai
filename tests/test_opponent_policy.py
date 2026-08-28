@@ -1,6 +1,6 @@
 import random
 
-from skat_ai.opponent_policy import (
+from skatmind.opponent_policy import (
     choose_basic_defender_lead_card,
     choose_basic_defender_response_card,
     choose_basic_trick_play_card,

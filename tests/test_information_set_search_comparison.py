@@ -3,7 +3,7 @@ from dataclasses import FrozenInstanceError
 import pytest
 from test_information_set_search_state_and_preparation import _find_view, _request
 
-from skat_ai.bounded_search_result import (
+from skatmind.bounded_search_result import (
     BOUNDED_SEARCH_ANALYSIS_METHOD,
     BOUNDED_SEARCH_SCHEMA_VERSION,
     AggregateSearchCandidateResult,
@@ -12,13 +12,13 @@ from skat_ai.bounded_search_result import (
     RequestedSearchBudget,
     rank_search_candidate_results,
 )
-from skat_ai.historical_information_set_search_review import (
+from skatmind.historical_information_set_search_review import (
     HISTORICAL_INFORMATION_SET_SEARCH_REVIEW_METHOD,
     HISTORICAL_INFORMATION_SET_SEARCH_REVIEW_VERSION,
     INFORMATION_SET_SEARCH_HISTORICAL_POLICY,
     INFORMATION_SET_SEARCH_PROFILE_POLICY,
 )
-from skat_ai.information_set_search_comparison import (
+from skatmind.information_set_search_comparison import (
     INFORMATION_SET_SEARCH_ACTUAL_CARD_POLICY,
     INFORMATION_SET_SEARCH_BASELINE_POLICY,
     INFORMATION_SET_SEARCH_COMPARISON_METHOD,
@@ -30,24 +30,24 @@ from skat_ai.information_set_search_comparison import (
     build_information_set_search_comparison_pre_actual_analysis_v1,
     build_serializable_information_set_search_comparison_v1,
 )
-from skat_ai.information_set_search_contracts import (
+from skatmind.information_set_search_contracts import (
     build_unavailable_information_set_search_result_v1,
 )
-from skat_ai.information_set_search_evaluation import (
+from skatmind.information_set_search_evaluation import (
     INFORMATION_SET_SEARCH_EVALUATION_METHOD,
     INFORMATION_SET_SEARCH_EVALUATION_POLICY,
     INFORMATION_SET_SEARCH_EVALUATION_VERSION,
 )
-from skat_ai.information_set_search_executor import (
+from skatmind.information_set_search_executor import (
     execute_information_set_search_v1,
 )
-from skat_ai.information_set_search_preparation import (
+from skatmind.information_set_search_preparation import (
     prepare_information_set_search_v1,
 )
-from skat_ai.information_set_search_public import (
+from skatmind.information_set_search_public import (
     build_public_information_set_search_result_v1,
 )
-from skat_ai.terminal_utility import TERMINAL_UTILITY_VERSION
+from skatmind.terminal_utility import TERMINAL_UTILITY_VERSION
 
 
 @pytest.fixture(scope="module")

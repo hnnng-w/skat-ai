@@ -7,10 +7,10 @@ from types import SimpleNamespace
 import pytest
 
 import main as legacy_main
-import skat_ai.cli.capture as capture_cli
-import skat_ai.cli.execution as root_cli
-from skat_ai.capture_web.contracts import MATCH_CAPTURE_WEB_BIND_HOST
-from skat_ai.cli.capture_parser import (
+import skatmind.cli.capture as capture_cli
+import skatmind.cli.execution as root_cli
+from skatmind.capture_web.contracts import MATCH_CAPTURE_WEB_BIND_HOST
+from skatmind.cli.capture_parser import (
     MATCH_CAPTURE_CLI_COMMAND,
     MATCH_CAPTURE_CLI_VERSION,
     build_capture_argument_parser,
@@ -72,10 +72,10 @@ def test_capture_parser_defaults_valid_port_no_open_and_invocation_identity() ->
         "no_open": True,
     }
     assert build_capture_argument_parser(invocation_style="installed").prog == (
-        "skat-ai capture"
+        "skatmind capture"
     )
     assert build_capture_argument_parser(invocation_style="module").prog == (
-        "python -m skat_ai capture"
+        "python -m skatmind capture"
     )
     assert build_capture_argument_parser(invocation_style="legacy").prog == (
         "python main.py capture"
@@ -111,7 +111,7 @@ def test_capture_parser_rejects_missing_or_unsupported_options(argv: list[str]) 
 @pytest.mark.parametrize(
     ("command", "usage"),
     (
-        ([sys.executable, "-m", "skat_ai", "capture", "--help"], "python -m skat_ai capture"),
+        ([sys.executable, "-m", "skatmind", "capture", "--help"], "python -m skatmind capture"),
         ([sys.executable, "main.py", "capture", "--help"], "python main.py capture"),
     ),
 )

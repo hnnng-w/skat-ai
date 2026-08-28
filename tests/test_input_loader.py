@@ -1,6 +1,6 @@
 import pytest
 
-from skat_ai.input_loader import (
+from skatmind.input_loader import (
     build_game_state_from_input,
     build_local_game_state_from_input,
     get_analysis_metadata_from_input,

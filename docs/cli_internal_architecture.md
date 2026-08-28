@@ -40,29 +40,29 @@ Match Capture Application boundary.
 The three supported invocation forms remain:
 
 ```text
-skat-ai
-python -m skat_ai
+skatmind
+python -m skatmind
 python main.py
 ```
 
-`skat-ai` is still the only Console Script and resolves exactly to
-`skat_ai.cli:main`. `python -m skat_ai` calls the same Package-owned Root CLI
+`skatmind` is still the only Console Script and resolves exactly to
+`skatmind.cli:main`. `python -m skatmind` calls the same Package-owned Root CLI
 with module invocation identity. Repository-root `main.py` remains a thin
 Legacy compatibility facade and is not included in distributions.
 
-`skat_ai.cli.__all__` remains exactly `("main",)`. Leading dispatch precedence
+`skatmind.cli.__all__` remains exactly `("main",)`. Leading dispatch precedence
 is `corpus`, then `capture`, then `session`, then the existing Root parser. All
 three command-family imports remain lazy.
 
 ## Learning Corpus CLI and browser transport
 
-Issue #179 adds `src/skat_ai/cli/corpus_parser.py` for the exact `corpus` command,
+Issue #179 adds `src/skatmind/cli/corpus_parser.py` for the exact `corpus` command,
 required `--corpus`, optional `--port` default `8766`, and `--no-open`.
-`src/skat_ai/cli/corpus.py` owns one-root startup, browser opening, interrupt
+`src/skatmind/cli/corpus.py` owns one-root startup, browser opening, interrupt
 shutdown, and Exit Code translation. Installed, module, and Legacy forms share
 the same Package implementation and one Console Script.
 
-The internal `src/skat_ai/corpus_web/` package separates strict multipart
+The internal `src/skatmind/corpus_web/` package separates strict multipart
 uploads, synchronized one-root context, optimistic import/Current-selection
 operations, a max-2,048 process-local Strategy Teacher source store, source-safe
 unlocked artifact preparation, minimized state/rendering, seven authenticated
@@ -73,13 +73,13 @@ See [Learning Corpus browser workflows](learning_corpus_browser_workflows.md).
 
 ## Capture CLI and browser transport
 
-`src/skat_ai/cli/capture_parser.py` owns Capture CLI version `1`, the exact
+`src/skatmind/cli/capture_parser.py` owns Capture CLI version `1`, the exact
 `capture` command identity, invocation-specific help, required `--workspace`,
-optional `--port`, and `--no-open`. `src/skat_ai/cli/capture.py` owns startup,
+optional `--port`, and `--no-open`. `src/skatmind/cli/capture.py` owns startup,
 browser opening, interrupt shutdown, and Exit Code translation. It delegates the
 server to the focused Web package and imports no Match Capture rules directly.
 
-The internal `src/skat_ai/capture_web/` package separates independent Web and
+The internal `src/skatmind/capture_web/` package separates independent Web and
 Protocol contracts, transport-only timecodes, the locked one-file context,
 browser-safe state, operation parsing, server rendering, packaged assets,
 security, and Standard Library HTTP lifecycle. Every applied mutation invokes
@@ -92,7 +92,7 @@ transport makes an external network request.
 
 ## Root CLI modules
 
-`src/skat_ai/cli/execution.py` is the compatibility facade. It retains the
+`src/skatmind/cli/execution.py` is the compatibility facade. It retains the
 historically required constants, aliases, helpers, wrappers, presentation
 functions, dependency names, `_run_cli`, `run_cli`, and `main`. Its broad import
 surface exists for repository-root Legacy compatibility; new Package code should
@@ -116,7 +116,7 @@ shared formatting. They do not load or write files, execute Application or
 Public API workflows, or mutate Result mappings.
 
 The Root CLI calls internal Application orchestration directly. It does not
-execute through `skat_ai.api.v1.execute()`.
+execute through `skatmind.api.v1.execute()`.
 
 ## Legacy compatibility
 
@@ -165,7 +165,7 @@ dispatch characterization with transport execution.
 
 ## Session CLI modules
 
-`src/skat_ai/cli/session.py` is the Session compatibility facade. It retains the
+`src/skatmind/cli/session.py` is the Session compatibility facade. It retains the
 Session CLI constants, parser functions, strict JSON loader, `run_session_cli`,
 and existing helper aliases and signatures used by Package tests and internal
 callers. It builds explicit operation services so the characterized collector
@@ -210,7 +210,7 @@ save Session files.
 
 ## Assistant boundary
 
-The Assistant no longer imports `skat_ai.cli.session` or reaches through that
+The Assistant no longer imports `skatmind.cli.session` or reaches through that
 facade to private underscore-prefixed implementation functions. It imports the
 focused parser, context, Checkpoint, and Application services directly. Its
 action order, phase availability, prompts, strict inline JSON wording, injected

@@ -11,7 +11,7 @@
         "partition": "train",
         "provenance": {
           "source_type": "synthetic",
-          "source_name": "skat-ai evaluation example",
+          "source_name": "skatmind evaluation example",
           "source_record_id": "example-source-001",
           "collected_at": "2026-07-11T00:00:00Z",
           "notes": "Earlier profile-history source game."
@@ -63,7 +63,7 @@
         "partition": "validation",
         "provenance": {
           "source_type": "synthetic",
-          "source_name": "skat-ai evaluation example",
+          "source_name": "skatmind evaluation example",
           "source_record_id": "example-target-001",
           "collected_at": "2026-07-21T00:00:00Z",
           "notes": "Later target game with stable players in changed seats."

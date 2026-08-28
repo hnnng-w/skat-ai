@@ -17,17 +17,17 @@ from test_replay_coaching_contracts import (
     _search_result,
 )
 
-from skat_ai.bounded_search_result import rank_search_candidate_results
-from skat_ai.historical_decision_snapshot import build_historical_decision_snapshots
-from skat_ai.historical_game import (
+from skatmind.bounded_search_result import rank_search_candidate_results
+from skatmind.historical_decision_snapshot import build_historical_decision_snapshots
+from skatmind.historical_game import (
     build_historical_game_record,
     build_historical_game_summary,
 )
-from skat_ai.historical_search_review import (
+from skatmind.historical_search_review import (
     build_historical_search_review_internal_result,
 )
-from skat_ai.replay_coaching_assessment import ReplayCoachingDecisionAssessment
-from skat_ai.replay_coaching_key_decisions import (
+from skatmind.replay_coaching_assessment import ReplayCoachingDecisionAssessment
+from skatmind.replay_coaching_key_decisions import (
     MAX_REPLAY_COACHING_KEY_DECISIONS,
     REPLAY_COACHING_KEY_DECISION_SELECTION_REASONS,
     REPLAY_COACHING_PRIORITIZATION_VERSION,
@@ -36,13 +36,13 @@ from skat_ai.replay_coaching_key_decisions import (
     build_serializable_replay_coaching_key_decision,
     get_replay_coaching_primary_gap,
 )
-from skat_ai.replay_coaching_prioritization import (
+from skatmind.replay_coaching_prioritization import (
     ReplayCoachingPrioritizationResult,
     build_replay_coaching_prioritization_result,
     build_serializable_replay_coaching_prioritization_result,
     validate_replay_coaching_assessment_sequence,
 )
-from skat_ai.replay_coaching_turning_points import (
+from skatmind.replay_coaching_turning_points import (
     REPLAY_COACHING_TURNING_POINT_FACTORS,
     REPLAY_COACHING_TURNING_POINT_LIMITATIONS,
     ReplayCoachingTurningPoint,
@@ -209,11 +209,11 @@ def _historical_reverse_search(**kwargs):
 
 def _analyzed_game(monkeypatch, data: dict, *, search=_historical_fake_search):
     monkeypatch.setattr(
-        "skat_ai.historical_search_review.solve_compatible_world_minimax",
+        "skatmind.historical_search_review.solve_compatible_world_minimax",
         search,
     )
     monkeypatch.setattr(
-        "skat_ai.historical_search_review.recommend_card_by_expected_value",
+        "skatmind.historical_search_review.recommend_card_by_expected_value",
         _historical_fake_immediate,
     )
     record = build_historical_game_record(data)
@@ -1102,10 +1102,10 @@ def test_prioritization_does_not_rerun_search_or_immediate(monkeypatch) -> None:
         return _historical_fake_immediate(**kwargs)
 
     monkeypatch.setattr(
-        "skat_ai.historical_search_review.solve_compatible_world_minimax", search
+        "skatmind.historical_search_review.solve_compatible_world_minimax", search
     )
     monkeypatch.setattr(
-        "skat_ai.historical_search_review.recommend_card_by_expected_value",
+        "skatmind.historical_search_review.recommend_card_by_expected_value",
         immediate,
     )
     internal = build_historical_search_review_internal_result(
@@ -1127,11 +1127,11 @@ def test_public_game_builder_supports_record_and_assessments_from_typed_adapter(
     data = build_historical_input(game_type="clubs", declarer_player_id="player-a")
     record, snapshots = build_typed_historical_review_inputs(data)
     monkeypatch.setattr(
-        "skat_ai.historical_search_review.solve_compatible_world_minimax",
+        "skatmind.historical_search_review.solve_compatible_world_minimax",
         _historical_fake_search,
     )
     monkeypatch.setattr(
-        "skat_ai.historical_search_review.recommend_card_by_expected_value",
+        "skatmind.historical_search_review.recommend_card_by_expected_value",
         _historical_fake_immediate,
     )
     internal = build_historical_search_review_internal_result(

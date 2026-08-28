@@ -4,11 +4,11 @@ from dataclasses import FrozenInstanceError, fields, replace
 import pytest
 from test_match_workspace_contracts import _definition
 
-from skat_ai.match_workspace_contracts import create_match_workspace_v1
-from skat_ai.match_workspace_persistence_codec import (
+from skatmind.match_workspace_contracts import create_match_workspace_v1
+from skatmind.match_workspace_persistence_codec import (
     build_match_workspace_persistence_document_v1,
 )
-from skat_ai.match_workspace_persistence_contracts import (
+from skatmind.match_workspace_persistence_contracts import (
     MATCH_WORKSPACE_CONFLICT_POLICY,
     MATCH_WORKSPACE_CONTENT_FINGERPRINT_POLICY,
     MATCH_WORKSPACE_DOCUMENT_KIND,
@@ -22,7 +22,7 @@ from skat_ai.match_workspace_persistence_contracts import (
     MatchWorkspaceResumeResultV1,
     MatchWorkspaceWriteResultV1,
 )
-from skat_ai.match_workspace_progress import build_match_workspace_progress_v1
+from skatmind.match_workspace_progress import build_match_workspace_progress_v1
 
 
 def _document():
@@ -33,7 +33,7 @@ def _document():
 
 def test_persistence_constants_policies_and_contract_fields_are_exact() -> None:
     assert MATCH_WORKSPACE_PERSISTENCE_VERSION == 1
-    assert MATCH_WORKSPACE_DOCUMENT_KIND == "skat_ai_match_workspace"
+    assert MATCH_WORKSPACE_DOCUMENT_KIND == "skatmind_match_workspace"
     assert (
         MATCH_WORKSPACE_STATE_FINGERPRINT_POLICY
         == "sha256_canonical_match_workspace_v1"

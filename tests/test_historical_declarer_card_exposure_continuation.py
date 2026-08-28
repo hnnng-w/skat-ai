@@ -13,30 +13,30 @@ from test_input_schema import INPUT_VALIDATOR
 from test_output_schema import OUTPUT_VALIDATOR
 from test_training_dataset import build_training_input
 
-from skat_ai.dataset_partition_audit import audit_training_dataset_partitions
-from skat_ai.historical_decision_snapshot import (
+from skatmind.dataset_partition_audit import audit_training_dataset_partitions
+from skatmind.historical_decision_snapshot import (
     build_historical_decision_snapshots,
     build_serializable_historical_decision_snapshot_summary,
 )
-from skat_ai.historical_game import (
+from skatmind.historical_game import (
     build_historical_game_record,
     build_historical_game_summary,
     build_historical_game_summary_from_input,
     build_serializable_historical_record,
 )
-from skat_ai.historical_game_review import build_historical_game_review_summary
-from skat_ai.historical_opponent_statistics import (
+from skatmind.historical_game_review import build_historical_game_review_summary
+from skatmind.historical_opponent_statistics import (
     aggregate_historical_opponent_statistics,
     build_exportable_opponent_statistics_input,
 )
-from skat_ai.historical_play_prefix import replay_historical_state_at_play_boundary
-from skat_ai.historical_snapshot_adapter import build_position_from_historical_snapshot
-from skat_ai.rolling_opponent_policy_evaluation import (
+from skatmind.historical_play_prefix import replay_historical_state_at_play_boundary
+from skatmind.historical_snapshot_adapter import build_position_from_historical_snapshot
+from skatmind.rolling_opponent_policy_evaluation import (
     build_serializable_rolling_opponent_policy_evaluation,
     evaluate_rolling_opponent_policy_predictions,
 )
-from skat_ai.simulation import generate_sampled_hidden_state
-from skat_ai.training_dataset import (
+from skatmind.simulation import generate_sampled_hidden_state
+from skatmind.training_dataset import (
     build_training_dataset_input,
     build_training_dataset_summary,
 )
@@ -465,7 +465,7 @@ def test_review_reuses_the_same_constraint_without_event_decisions(monkeypatch) 
         )
 
     monkeypatch.setattr(
-        "skat_ai.historical_game_review.recommend_card_by_expected_value",
+        "skatmind.historical_game_review.recommend_card_by_expected_value",
         capture_constraint,
     )
     data = build_event_record()
@@ -595,9 +595,9 @@ def test_event_never_invokes_exact_rest_trick_proof(monkeypatch) -> None:
     def fail_proof(*args, **kwargs):
         raise AssertionError("The continuation event must not invoke exact proof.")
 
-    monkeypatch.setattr("skat_ai.defender_open_play.prove_defender_rest_tricks", fail_proof)
+    monkeypatch.setattr("skatmind.defender_open_play.prove_defender_rest_tricks", fail_proof)
     monkeypatch.setattr(
-        "skat_ai.historical_game_review.recommend_card_by_expected_value",
+        "skatmind.historical_game_review.recommend_card_by_expected_value",
         build_stub_expected_value_recommendation,
     )
     data = build_event_record()

@@ -12,7 +12,7 @@ Describe the feature or improvement.
 
 ## Why it matters
 
-Explain why this would improve the Skat AI tool.
+Explain why this would improve the SkatMind tool.
 
 ## Proposed solution
 

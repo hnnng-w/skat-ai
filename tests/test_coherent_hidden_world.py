@@ -3,8 +3,8 @@ from dataclasses import FrozenInstanceError
 
 import pytest
 
-from skat_ai.card_tracking import get_unseen_cards
-from skat_ai.coherent_hidden_world import (
+from skatmind.card_tracking import get_unseen_cards
+from skatmind.coherent_hidden_world import (
     CoherentHiddenWorld,
     HiddenWorldProvenance,
     apply_hidden_world_plays,
@@ -14,18 +14,18 @@ from skat_ai.coherent_hidden_world import (
     reconcile_hidden_world_with_state,
     remove_card_from_hidden_world,
 )
-from skat_ai.game_state import GameState
-from skat_ai.multi_step_simulation import simulate_multiple_steps
-from skat_ai.opponent_lead import (
+from skatmind.game_state import GameState
+from skatmind.multi_step_simulation import simulate_multiple_steps
+from skatmind.opponent_lead import (
     simulate_left_lead_and_right_response_once,
     simulate_opponent_lead_once,
     simulate_right_response_to_left_lead_once,
 )
-from skat_ai.opponent_sequence import prepare_player_action_state
-from skat_ai.policy_comparison import compare_multi_step_policies
-from skat_ai.public_hand_constraint import PublicHandConstraint
-from skat_ai.simulation import simulate_immediate_trick_once_detailed
-from skat_ai.simulation_context import SimulationContext, validate_simulation_context
+from skatmind.opponent_sequence import prepare_player_action_state
+from skatmind.policy_comparison import compare_multi_step_policies
+from skatmind.public_hand_constraint import PublicHandConstraint
+from skatmind.simulation import simulate_immediate_trick_once_detailed
+from skatmind.simulation_context import SimulationContext, validate_simulation_context
 
 
 def _state() -> GameState:
@@ -57,7 +57,7 @@ def _world_from_hands(
 def test_builder_samples_one_deterministic_tuple_backed_root_world(monkeypatch) -> None:
     calls = 0
 
-    from skat_ai.simulation import generate_sampled_hidden_state as real_sampler
+    from skatmind.simulation import generate_sampled_hidden_state as real_sampler
 
     def counting_sampler(**kwargs):
         nonlocal calls
@@ -65,7 +65,7 @@ def test_builder_samples_one_deterministic_tuple_backed_root_world(monkeypatch) 
         return real_sampler(**kwargs)
 
     monkeypatch.setattr(
-        "skat_ai.coherent_hidden_world.generate_sampled_hidden_state",
+        "skatmind.coherent_hidden_world.generate_sampled_hidden_state",
         counting_sampler,
     )
     state = _state()
@@ -85,7 +85,7 @@ def test_builder_samples_one_deterministic_tuple_backed_root_world(monkeypatch) 
 
 
 def test_root_world_assigns_every_unseen_card_exactly_once() -> None:
-    from skat_ai.card_tracking import get_unseen_cards
+    from skatmind.card_tracking import get_unseen_cards
 
     state = _state()
     world = build_coherent_hidden_world(state, 4, 5, random.Random(7))
@@ -136,7 +136,7 @@ def test_builder_rejects_invalid_public_constraints_before_sampling(
         raise AssertionError("sampler must not run")
 
     monkeypatch.setattr(
-        "skat_ai.coherent_hidden_world.generate_sampled_hidden_state",
+        "skatmind.coherent_hidden_world.generate_sampled_hidden_state",
         fail_if_sampled,
     )
     invalid_constraint = PublicHandConstraint(player="left", cards=("X1",))
@@ -389,7 +389,7 @@ def test_exact_world_immediate_completion_bypasses_sampling_and_returns_transiti
     world = _world_from_hands(state, ("S8", "H10"), ("D7",))
 
     monkeypatch.setattr(
-        "skat_ai.simulation.generate_random_opponent_hands",
+        "skatmind.simulation.generate_random_opponent_hands",
         lambda **_kwargs: pytest.fail("exact-world execution must not sample"),
     )
     result = simulate_immediate_trick_once_detailed(
@@ -422,7 +422,7 @@ def test_exact_world_opponent_preparation_bypasses_sampling_and_removes_owner_ca
     world = _world_from_hands(state, ("H10",), ("S7", "D10"))
 
     monkeypatch.setattr(
-        "skat_ai.opponent_lead.generate_random_opponent_hands",
+        "skatmind.opponent_lead.generate_random_opponent_hands",
         lambda **_kwargs: pytest.fail("exact-world preparation must not sample"),
     )
     result = simulate_opponent_lead_once(
@@ -442,7 +442,7 @@ def test_exact_world_covers_all_supported_preparation_paths_without_sampling(
     monkeypatch,
 ) -> None:
     monkeypatch.setattr(
-        "skat_ai.opponent_lead.generate_random_opponent_hands",
+        "skatmind.opponent_lead.generate_random_opponent_hands",
         lambda **_kwargs: pytest.fail("exact-world preparation must not sample"),
     )
     left_lead_state = GameState(
@@ -560,7 +560,7 @@ def test_multi_step_builds_one_root_and_reconciles_complete_path(monkeypatch) ->
         next_player="me",
     )
     calls = 0
-    from skat_ai.multi_step_simulation import (
+    from skatmind.multi_step_simulation import (
         build_coherent_hidden_world as real_builder,
     )
 
@@ -570,7 +570,7 @@ def test_multi_step_builds_one_root_and_reconciles_complete_path(monkeypatch) ->
         return real_builder(**kwargs)
 
     monkeypatch.setattr(
-        "skat_ai.multi_step_simulation.build_coherent_hidden_world",
+        "skatmind.multi_step_simulation.build_coherent_hidden_world",
         counting_builder,
     )
     result = simulate_multiple_steps(
@@ -623,7 +623,7 @@ def test_highest_expected_value_receives_only_public_counterfactual_inputs(
         }
 
     monkeypatch.setattr(
-        "skat_ai.card_selection.estimate_immediate_trick_values_for_legal_cards",
+        "skatmind.card_selection.estimate_immediate_trick_values_for_legal_cards",
         fake_estimator,
     )
     result = simulate_multiple_steps(
@@ -754,7 +754,7 @@ def test_policy_comparison_passes_equal_distinct_root_copies(monkeypatch) -> Non
         }
 
     monkeypatch.setattr(
-        "skat_ai.policy_comparison.simulate_multiple_steps",
+        "skatmind.policy_comparison.simulate_multiple_steps",
         fake_simulate_multiple_steps,
     )
     result = compare_multi_step_policies(

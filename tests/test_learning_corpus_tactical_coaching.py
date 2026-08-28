@@ -7,7 +7,7 @@ from test_learning_corpus_human_evidence import _store
 from test_learning_corpus_strategy_teacher import _changed_report, _snapshot, _source_bundle
 from test_match_workspace_contracts import _complete_observed_game, _definition, _set_game
 
-from skat_ai.bounded_search_result import (
+from skatmind.bounded_search_result import (
     BOUNDED_SEARCH_ANALYSIS_METHOD,
     BOUNDED_SEARCH_SCHEMA_VERSION,
     AggregateSearchCandidateResult,
@@ -15,23 +15,23 @@ from skat_ai.bounded_search_result import (
     ConsumedSearchBudget,
     rank_search_candidate_results,
 )
-from skat_ai.learning_corpus_player_catalog import (
+from skatmind.learning_corpus_player_catalog import (
     build_learning_corpus_player_catalog_v1,
 )
-from skat_ai.learning_corpus_strategy_teacher import (
+from skatmind.learning_corpus_strategy_teacher import (
     build_learning_corpus_strategy_teacher_report_source_v1,
 )
-from skat_ai.learning_corpus_strategy_teacher_builder import (
+from skatmind.learning_corpus_strategy_teacher_builder import (
     build_learning_corpus_strategy_teacher_evidence_collection_v1,
 )
-from skat_ai.learning_corpus_tactical_coaching_assessment import (
+from skatmind.learning_corpus_tactical_coaching_assessment import (
     _assessment_values,
     _immediate_assessment_values,
     _information_set_assessment_values,
     _semantic_assessments,
     build_learning_corpus_tactical_coaching_teacher_assessment_v1,
 )
-from skat_ai.learning_corpus_tactical_coaching_contracts import (
+from skatmind.learning_corpus_tactical_coaching_contracts import (
     LEARNING_CORPUS_TACTICAL_COACHING_ACTIONABLE_POLICY,
     LEARNING_CORPUS_TACTICAL_COACHING_ACTUAL_CARD_POLICY,
     LEARNING_CORPUS_TACTICAL_COACHING_ASSESSMENT_SCOPES,
@@ -80,30 +80,30 @@ from skat_ai.learning_corpus_tactical_coaching_contracts import (
     _build_coaching_identifier_v1,
     _identity_material_v1,
 )
-from skat_ai.learning_corpus_tactical_coaching_export import (
+from skatmind.learning_corpus_tactical_coaching_export import (
     LEARNING_CORPUS_TACTICAL_CROSS_GAME_COACHING_DOCUMENT_KIND,
     LearningCorpusTacticalCrossGameCoachingExportV1,
     build_learning_corpus_tactical_cross_game_coaching_export_v1,
     serialize_learning_corpus_tactical_cross_game_coaching_export_v1,
 )
-from skat_ai.learning_corpus_tactical_cross_game_coaching import (
+from skatmind.learning_corpus_tactical_cross_game_coaching import (
     _focus_priority,
     build_learning_corpus_tactical_cross_game_coaching_report_v1,
 )
-from skat_ai.learning_corpus_tactical_motif_builder import (
+from skatmind.learning_corpus_tactical_motif_builder import (
     build_learning_corpus_tactical_motif_evidence_collection_v1,
 )
-from skat_ai.learning_corpus_tactical_motif_evidence import (
+from skatmind.learning_corpus_tactical_motif_evidence import (
     _build_learning_corpus_skipped_tactical_motif_decision_v1,
     _build_learning_corpus_tactical_motif_collection_v1,
 )
-from skat_ai.learning_corpus_tactical_motif_summary import (
+from skatmind.learning_corpus_tactical_motif_summary import (
     build_learning_corpus_tactical_motif_cross_game_summary_v1,
 )
-from skat_ai.match_workspace_contracts import create_match_workspace_v1
-from skat_ai.rules import get_legal_cards
-from skat_ai.tactical_motif_contracts import TACTICAL_MOTIF_FAMILIES, TACTICAL_MOTIF_TYPES
-from skat_ai.terminal_utility import TERMINAL_UTILITY_VERSION
+from skatmind.match_workspace_contracts import create_match_workspace_v1
+from skatmind.rules import get_legal_cards
+from skatmind.tactical_motif_contracts import TACTICAL_MOTIF_FAMILIES, TACTICAL_MOTIF_TYPES
+from skatmind.terminal_utility import TERMINAL_UTILITY_VERSION
 
 
 def _coaching_sources(store, teacher_sources=()):
@@ -430,12 +430,12 @@ def test_versions_vocabularies_policies_limitations_and_domains_are_exact() -> N
         LEARNING_CORPUS_TACTICAL_CROSS_GAME_COACHING_REPORT_FINGERPRINT_DOMAIN,
         LEARNING_CORPUS_TACTICAL_CROSS_GAME_COACHING_EXPORT_ID_DOMAIN,
     ) == (
-        b"skat-ai\0learning_corpus_tactical_coaching_teacher_assessment_v1\0",
-        b"skat-ai\0learning_corpus_tactical_coaching_decision_summary_v1\0",
-        b"skat-ai\0learning_corpus_tactical_coaching_focus_area_v1\0",
-        b"skat-ai\0learning_corpus_tactical_coaching_player_report_v1\0",
-        b"skat-ai\0learning_corpus_tactical_cross_game_coaching_report_v1\0",
-        b"skat-ai\0learning_corpus_tactical_cross_game_coaching_export_v1\0",
+        b"skatmind\0learning_corpus_tactical_coaching_teacher_assessment_v1\0",
+        b"skatmind\0learning_corpus_tactical_coaching_decision_summary_v1\0",
+        b"skatmind\0learning_corpus_tactical_coaching_focus_area_v1\0",
+        b"skatmind\0learning_corpus_tactical_coaching_player_report_v1\0",
+        b"skatmind\0learning_corpus_tactical_cross_game_coaching_report_v1\0",
+        b"skatmind\0learning_corpus_tactical_cross_game_coaching_export_v1\0",
     )
     assert fields(LearningCorpusTacticalCoachingTeacherAssessmentV1)[1].name == (
         "teacher_assessment_id"
@@ -881,7 +881,7 @@ def test_bounded_completed_common_prefix_is_descriptive_only(monkeypatch) -> Non
         )
 
     monkeypatch.setattr(
-        "skat_ai.recommendation_workflow.solve_compatible_world_minimax",
+        "skatmind.recommendation_workflow.solve_compatible_world_minimax",
         partial_search,
     )
     _workspace, _snapshot, _result, _source_report, source, store = _source_bundle(
@@ -911,7 +911,7 @@ def test_repeated_below_best_decisions_across_games_build_bounded_focus(
         )
 
     monkeypatch.setattr(
-        "skat_ai.recommendation_workflow.solve_compatible_world_minimax",
+        "skatmind.recommendation_workflow.solve_compatible_world_minimax",
         search,
     )
     first = _source_bundle(
@@ -934,7 +934,7 @@ def test_repeated_below_best_decisions_across_games_build_bounded_focus(
         current=(first[1], second[1]),
     )
     monkeypatch.setattr(
-        "skat_ai.recommendation_workflow.solve_compatible_world_minimax",
+        "skatmind.recommendation_workflow.solve_compatible_world_minimax",
         lambda **_kwargs: pytest.fail("Coaching reran bounded Search"),
     )
 
@@ -989,7 +989,7 @@ def test_repeated_below_best_decisions_in_two_games_of_one_match_build_focus(
         )
 
     monkeypatch.setattr(
-        "skat_ai.recommendation_workflow.solve_compatible_world_minimax",
+        "skatmind.recommendation_workflow.solve_compatible_world_minimax",
         search,
     )
     definition = _definition(match_id="match-tactical-two-games")
@@ -1040,7 +1040,7 @@ def test_two_below_best_decisions_in_one_game_do_not_build_focus(monkeypatch) ->
         )
 
     monkeypatch.setattr(
-        "skat_ai.recommendation_workflow.solve_compatible_world_minimax",
+        "skatmind.recommendation_workflow.solve_compatible_world_minimax",
         search,
     )
     first = _source_bundle(
@@ -1089,7 +1089,7 @@ def test_distinct_semantic_complete_search_disagreement_is_mixed(monkeypatch) ->
         )
 
     monkeypatch.setattr(
-        "skat_ai.recommendation_workflow.solve_compatible_world_minimax",
+        "skatmind.recommendation_workflow.solve_compatible_world_minimax",
         search,
     )
     second = _source_bundle(
@@ -1141,7 +1141,7 @@ def test_player_focus_areas_are_capped_at_five(monkeypatch) -> None:
         )
 
     monkeypatch.setattr(
-        "skat_ai.recommendation_workflow.solve_compatible_world_minimax",
+        "skatmind.recommendation_workflow.solve_compatible_world_minimax",
         search,
     )
     bundles = tuple(

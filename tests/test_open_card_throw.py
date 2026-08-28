@@ -4,19 +4,19 @@ from pathlib import Path
 import pytest
 
 from main import build_analysis_result
-from skat_ai.final_settlement import build_final_settlement_summary
-from skat_ai.game_declaration import build_game_declaration_from_input
-from skat_ai.game_history import calculate_completed_trick_points_by_side
-from skat_ai.game_result import build_game_result_summary_from_points
-from skat_ai.game_shortening import build_game_shortening
-from skat_ai.game_value import build_game_value_summary
-from skat_ai.input_validation import validate_position_input
-from skat_ai.open_card_throw import (
+from skatmind.final_settlement import build_final_settlement_summary
+from skatmind.game_declaration import build_game_declaration_from_input
+from skatmind.game_history import calculate_completed_trick_points_by_side
+from skatmind.game_result import build_game_result_summary_from_points
+from skatmind.game_shortening import build_game_shortening
+from skatmind.game_value import build_game_value_summary
+from skatmind.input_validation import validate_position_input
+from skatmind.open_card_throw import (
     OpenCardThrow,
     adjudicate_open_card_throw,
     resolve_open_card_throw_context,
 )
-from skat_ai.overbid import build_overbid_summary
+from skatmind.overbid import build_overbid_summary
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 EXAMPLE_PATH = PROJECT_ROOT / "examples" / "open_card_throw.json"
@@ -485,7 +485,7 @@ def test_cli_result_is_private_and_does_not_run_exact_rest_trick_solver(monkeypa
         raise AssertionError("exact rest-trick solver must not run")
 
     monkeypatch.setattr(
-        "skat_ai.defender_open_play.prove_defender_rest_tricks",
+        "skatmind.defender_open_play.prove_defender_rest_tricks",
         fail_if_called,
     )
     result = build_analysis_result(str(EXAMPLE_PATH))

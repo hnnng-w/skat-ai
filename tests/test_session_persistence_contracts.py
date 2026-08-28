@@ -5,9 +5,9 @@ from inspect import signature
 import pytest
 from test_session_decision_checkpoint import _checkpoint
 
-from skat_ai.session_history_contracts import SessionCheckpointLineageV1
-from skat_ai.session_persistence_codec import build_session_persistence_document_v1
-from skat_ai.session_persistence_contracts import (
+from skatmind.session_history_contracts import SessionCheckpointLineageV1
+from skatmind.session_persistence_codec import build_session_persistence_document_v1
+from skatmind.session_persistence_contracts import (
     SESSION_PERSISTENCE_CHECKPOINT_POLICY,
     SESSION_PERSISTENCE_CONFLICT_POLICY,
     SESSION_PERSISTENCE_CONTENT_FINGERPRINT_POLICY,
@@ -35,7 +35,7 @@ def _document():
 
 def test_persistence_constants_policies_and_contract_fields_are_exact() -> None:
     assert SESSION_PERSISTENCE_VERSION == 1
-    assert SESSION_PERSISTENCE_DOCUMENT_KIND == "skat_ai_session"
+    assert SESSION_PERSISTENCE_DOCUMENT_KIND == "skatmind_session"
     assert SESSION_PERSISTENCE_STATE_POLICY == "authoritative_accepted_log_state"
     assert SESSION_PERSISTENCE_CHECKPOINT_POLICY == "caller_supplied_frozen_checkpoints"
     assert SESSION_PERSISTENCE_STATE_FINGERPRINT_POLICY == "sha256_canonical_session_state_v1"

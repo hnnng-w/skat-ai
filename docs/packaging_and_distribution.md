@@ -18,15 +18,15 @@ requires = ["setuptools>=77.0.3"]
 build-backend = "setuptools.build_meta"
 ```
 
-Package discovery is rooted at `src/` and explicitly includes `skat_ai*`.
+Package discovery is rooted at `src/` and explicitly includes `skatmind*`.
 Package Data is declared for:
 
-* `skat_ai/py.typed`;
-* every `skat_ai.schema_resources/*.schema.json` resource;
-* `skat_ai.capture_web` HTML, CSS, and JavaScript resources;
-* `skat_ai.corpus_web` HTML, CSS, and JavaScript resources.
+* `skatmind/py.typed`;
+* every `skatmind.schema_resources/*.schema.json` resource;
+* `skatmind.capture_web` HTML, CSS, and JavaScript resources;
+* `skatmind.corpus_web` HTML, CSS, and JavaScript resources.
 
-The Package name remains `skat-ai`, the Package version is `0.17.0`, the
+The Package name remains `skatmind`, the Package version is `0.17.0`, the
 Python requirement remains `>=3.13`, and `jsonschema` remains the runtime
 dependency. The `dev` extra includes `build`, pytest, and Ruff.
 
@@ -34,7 +34,7 @@ The project declares exactly one Console Script:
 
 ```toml
 [project.scripts]
-skat-ai = "skat_ai.cli:main"
+skatmind = "skatmind.cli:main"
 ```
 
 The project declares exactly:
@@ -78,13 +78,13 @@ at its root. The Wheel `RECORD` includes their exact SHA-256 hashes and sizes.
 The three supported forms are:
 
 ```text
-skat-ai
-python -m skat_ai
+skatmind
+python -m skatmind
 python main.py
 ```
 
-The first two are installed Package interfaces. `skat_ai/__main__.py` delegates
-module execution to the same `skat_ai.cli:main` implementation. Root `main.py`
+The first two are installed Package interfaces. `skatmind/__main__.py` delegates
+module execution to the same `skatmind.cli:main` implementation. Root `main.py`
 is a repository-only Legacy facade and is not installed. All three share option,
 validation, Application execution, JSON, presentation, error, and Exit Code
 semantics. Help changes only its command identity and examples: installed and
@@ -151,7 +151,7 @@ at 62 Schemas. Issues #186, #189, #192, and #194 add the eight published
 Every `*.schema.json` file is mirrored without transformation into:
 
 ```text
-src/skat_ai/schema_resources/
+src/skatmind/schema_resources/
 ```
 
 Synchronize the mirror after an intentional authoritative schema change:
@@ -173,11 +173,11 @@ run check mode before schema and distribution validation.
 ## Runtime loading
 
 The public Python API loads schemas through `importlib.resources` from the
-private `skat_ai.schema_resources` Package. It no longer derives a repository
+private `skatmind.schema_resources` Package. It no longer derives a repository
 root, reads the authoritative source directory at runtime, depends on the current
 working directory, or requires concrete filesystem paths.
 
-Loading remains lazy. Importing `skat_ai` or `skat_ai.api.v1` does not enumerate
+Loading remains lazy. Importing `skatmind` or `skatmind.api.v1` does not enumerate
 or read schema resources. The first input or output validation builds the
 corresponding cached Draft 2020-12 validator from every packaged resource.
 
@@ -204,14 +204,14 @@ than Package Data or installed writable files.
 
 ## Typing and version metadata
 
-`src/skat_ai/py.typed` marks the distribution as typed under PEP 561. It adds no
+`src/skatmind/py.typed` marks the distribution as typed under PEP 561. It adds no
 runtime type-checker dependency.
 
-The Package Root exports `skat_ai.__version__`. Installed and Editable
+The Package Root exports `skatmind.__version__`. Installed and Editable
 distributions resolve it through:
 
 ```python
-importlib.metadata.version("skat-ai")
+importlib.metadata.version("skatmind")
 ```
 
 The current value is `0.17.0`. A source-only environment without installed
@@ -232,13 +232,13 @@ Wheel inspection verifies:
 * exact `.dist-info/licenses/` legal-file bytes and their complete Wheel
   `RECORD` hashes and sizes;
 * the declared runtime and development dependencies;
-* every `skat_ai` Python module;
+* every `skatmind` Python module;
 * `py.typed` and all 71 byte-identical schema resources;
 * exact Capture Web template, CSS, and JavaScript resource bytes;
 * exact Corpus Web template, CSS, and JavaScript resource bytes;
 * a valid pure-Python Wheel and RECORD;
-* exact `skat-ai = skat_ai.cli:main` Console Script metadata and
-  `skat_ai/__main__.py`;
+* exact `skatmind = skatmind.cli:main` Console Script metadata and
+  `skatmind/__main__.py`;
 * absence of repository tests, examples, generated outputs, root `main.py`, a
   second Console Script, GUI Script, or script payload.
 
@@ -247,7 +247,7 @@ sdist inspection verifies:
 * `pyproject.toml`, `README.md`, exact root `LICENSE` and `COPYRIGHT`, Package
   sources, `py.typed`, and every schema, Capture Web, and Corpus Web resource;
 * build and core metadata sufficient to build and install the same Package;
-* exact Console Script metadata and `src/skat_ai/__main__.py`;
+* exact Console Script metadata and `src/skatmind/__main__.py`;
 * absence of a source-authored `setup.py`, root `main.py`, a second command, and
   any GUI Script.
 
@@ -256,7 +256,7 @@ installs from an external working directory with `PYTHONPATH` removed, and
 verifies:
 
 * imports resolve from that environment's `site-packages`;
-* `skat_ai.__version__ == "0.17.0"`;
+* `skatmind.__version__ == "0.17.0"`;
 * exact installed `License-Expression` and `License-File` metadata plus exact
   `.dist-info/licenses/LICENSE` and `.dist-info/licenses/COPYRIGHT` bytes;
 * `py.typed` is locatable;
@@ -265,17 +265,17 @@ verifies:
 * Root input/output references resolve locally with output validation enabled;
 * `parse_request()` and `execute_document()` run a compact copied existing
   Opponent Statistics Root example;
-* `skat-ai --help`, `skat-ai --version`, `python -m skat_ai --help`, and
-  `python -m skat_ai --version` succeed with no repository or `PYTHONPATH`;
+* `skatmind --help`, `skatmind --version`, `python -m skatmind --help`, and
+  `python -m skatmind --version` succeed with no repository or `PYTHONPATH`;
 * installed and module CLI quiet JSON exactly matches the Public API Root result;
-* `skat_ai.api.v1.session.files` imports and public Session Save/Load preserve
+* `skatmind.api.v1.session.files` imports and public Session Save/Load preserve
   strict resume and path-free Results;
-* installed `skat-ai session --help` and module
-  `python -m skat_ai session --help` succeed;
-* installed `skat-ai capture --help` and module
-  `python -m skat_ai capture --help` succeed;
-* installed `skat-ai corpus --help` and module
-  `python -m skat_ai corpus --help` succeed with exact options and default port;
+* installed `skatmind session --help` and module
+  `python -m skatmind session --help` succeed;
+* installed `skatmind capture --help` and module
+  `python -m skatmind capture --help` succeed;
+* installed `skatmind corpus --help` and module
+  `python -m skatmind corpus --help` succeed with exact options and default port;
 * Session `new`, `apply`, and `show` operate through a caller-selected file;
 * Session-triggered Position analysis, Checkpoint observation/review, and
   Retrospective finalization reuse the existing Application workflows;
@@ -351,9 +351,9 @@ output scenarios, while the historical `v0.13.0` 77 scenarios remain unchanged.
 
 Issue #204 applies `AGPL-3.0-only`, closes B-04, and leaves Package and Release
 publication human-controlled. It adds no Package-index or PyPI publication.
-P-09 remains `implementation_required` under the separate complete SkatMind
-rename blocker B-08/#205; the current Package/import/CLI names remain unchanged
-until that work. Session
+Issue #205 subsequently changes the active distribution, import namespace,
+module, and sole Console Script to `skatmind`, changes the version display to
+`SkatMind 0.17.0`, preserves Package version `0.17.0`, and closes B-08. Session
 file paths are caller-selected; no default directory, second Console Script,
 remote browser deployment, online-platform adapter, cloud synchronization,
 distributed locking, encryption/key management, or automatic backup policy is

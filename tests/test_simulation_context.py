@@ -1,5 +1,5 @@
-from skat_ai.game_state import GameState
-from skat_ai.simulation_context import (
+from skatmind.game_state import GameState
+from skatmind.simulation_context import (
     SimulationContext,
     add_simulated_opponent_card,
     add_simulated_opponent_cards,
@@ -11,7 +11,7 @@ from skat_ai.simulation_context import (
     get_unique_simulated_opponent_cards,
     validate_no_duplicate_simulated_opponent_cards,
 )
-from skat_ai.strategic_metadata import StrategicMetadata
+from skatmind.strategic_metadata import StrategicMetadata
 
 
 def test_simulation_context_defaults_to_empty_lists() -> None:

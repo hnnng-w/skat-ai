@@ -8,12 +8,12 @@ from test_match_workspace_materialization import (
     _mixed_complete_workspace,
 )
 
-from skat_ai.match_analysis_contracts import (
+from skatmind.match_analysis_contracts import (
     MatchDecisionAnalysisOptionsV1,
     build_match_analysis_report_v1,
     prepare_match_materialization_report_v1,
 )
-from skat_ai.match_analysis_exports import (
+from skatmind.match_analysis_exports import (
     MatchArtifactExportV1,
     build_match_historical_game_collection_export_v1,
     build_match_historical_list_aggregation_export_v1,
@@ -23,9 +23,9 @@ from skat_ai.match_analysis_exports import (
     build_match_training_source_collection_export_v1,
     canonical_match_artifact_json_bytes_v1,
 )
-from skat_ai.match_decision_analysis import execute_match_decision_analysis_v1
-from skat_ai.match_workspace_contracts import create_match_workspace_v1
-from skat_ai.match_workspace_materialization import (
+from skatmind.match_decision_analysis import execute_match_decision_analysis_v1
+from skatmind.match_workspace_contracts import create_match_workspace_v1
+from skatmind.match_workspace_materialization import (
     build_match_workspace_materialization_v1,
 )
 

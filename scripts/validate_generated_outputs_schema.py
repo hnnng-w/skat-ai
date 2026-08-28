@@ -12,11 +12,11 @@ from typing import Any
 from jsonschema import Draft202012Validator
 from referencing import Registry, Resource
 
-import skat_ai.api.v1.session as session_api
-import skat_ai.api.v1.session.files as session_files
-from skat_ai.cli.session import run_session_cli
-from skat_ai.field_provenance import parse_json_pointer, resolve_json_pointer
-from skat_ai.field_provenance_coverage import enumerate_json_leaf_paths
+import skatmind.api.v1.session as session_api
+import skatmind.api.v1.session.files as session_files
+from skatmind.cli.session import run_session_cli
+from skatmind.field_provenance import parse_json_pointer, resolve_json_pointer
+from skatmind.field_provenance_coverage import enumerate_json_leaf_paths
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 SCHEMA_PATH = PROJECT_ROOT / "schemas" / "output.schema.json"

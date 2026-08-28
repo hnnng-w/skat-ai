@@ -1,6 +1,6 @@
 import pytest
 
-from skat_ai.turn_phase import (
+from skatmind.turn_phase import (
     TurnPhase,
     derive_next_player,
     derive_trick_leader,

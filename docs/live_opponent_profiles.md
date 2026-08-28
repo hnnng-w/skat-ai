@@ -1,6 +1,6 @@
 # Live opponent profiles
 
-`skat-ai` can attach one reusable external opponent-statistics file to a live
+`skatmind` can attach one reusable external opponent-statistics file to a live
 position analysis. Explicit CLI bindings identify which validated statistics
 record represents the current left or right opponent.
 

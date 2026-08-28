@@ -304,7 +304,7 @@ It reuses:
 
 Every Search/Coaching family requires an explicit Search seed. The Immediate
 sample count and seed remain the independent diagnostic baseline settings. The
-installed `skat-ai`, `python -m skat_ai`, and Legacy `python main.py` forms have
+installed `skatmind`, `python -m skatmind`, and Legacy `python main.py` forms have
 the same validation and output.
 
 Concise presentation reports source Game, Decision and assessable counts,

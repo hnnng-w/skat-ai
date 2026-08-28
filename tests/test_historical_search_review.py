@@ -6,7 +6,7 @@ from pathlib import Path
 import pytest
 from test_historical_game import build_historical_input, rebuild_historical_suffix
 
-from skat_ai.bounded_search_result import (
+from skatmind.bounded_search_result import (
     BOUNDED_SEARCH_ANALYSIS_METHOD,
     BOUNDED_SEARCH_SCHEMA_VERSION,
     AggregateSearchCandidateResult,
@@ -14,13 +14,13 @@ from skat_ai.bounded_search_result import (
     ConsumedSearchBudget,
     rank_search_candidate_results,
 )
-from skat_ai.deck import get_full_deck
-from skat_ai.historical_decision_snapshot import build_historical_decision_snapshots
-from skat_ai.historical_game import (
+from skatmind.deck import get_full_deck
+from skatmind.historical_decision_snapshot import build_historical_decision_snapshots
+from skatmind.historical_game import (
     build_historical_game_record,
     build_historical_game_summary,
 )
-from skat_ai.historical_search_review import (
+from skatmind.historical_search_review import (
     HISTORICAL_SEARCH_DECISION_SEED_DOMAIN,
     HistoricalSearchReviewSettings,
     build_historical_search_decision_review,
@@ -29,8 +29,8 @@ from skat_ai.historical_search_review import (
     build_historical_search_review_summary,
     derive_historical_search_decision_seed,
 )
-from skat_ai.rules import get_legal_cards
-from skat_ai.terminal_utility import TERMINAL_UTILITY_VERSION
+from skatmind.rules import get_legal_cards
+from skatmind.terminal_utility import TERMINAL_UTILITY_VERSION
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -162,11 +162,11 @@ def test_decision_seed_uses_only_stable_identity_material() -> None:
 def test_actual_top_n_metrics_ignore_canonical_tie_order(monkeypatch) -> None:
     record, snapshots = _load_historical("historical_grand_normal_completion.json")
     monkeypatch.setattr(
-        "skat_ai.historical_search_review.solve_compatible_world_minimax",
+        "skatmind.historical_search_review.solve_compatible_world_minimax",
         _fake_search,
     )
     monkeypatch.setattr(
-        "skat_ai.historical_search_review.recommend_card_by_expected_value",
+        "skatmind.historical_search_review.recommend_card_by_expected_value",
         _fake_immediate,
     )
     decision = build_historical_search_decision_review(
@@ -226,11 +226,11 @@ def test_sampled_decision_seed_is_stable_domain_separated_and_not_serialized(
         )
 
     monkeypatch.setattr(
-        "skat_ai.historical_search_review.solve_compatible_world_minimax",
+        "skatmind.historical_search_review.solve_compatible_world_minimax",
         sampled_search,
     )
     monkeypatch.setattr(
-        "skat_ai.historical_search_review.recommend_card_by_expected_value",
+        "skatmind.historical_search_review.recommend_card_by_expected_value",
         _fake_immediate,
     )
 
@@ -292,7 +292,7 @@ def test_single_decision_runs_both_analyses_before_observed_comparisons(
 
     def coaching_evidence(**kwargs):
         events.append("coaching_evidence")
-        from skat_ai.replay_coaching_evidence import (
+        from skatmind.replay_coaching_evidence import (
             build_decision_time_replay_coaching_evidence,
         )
 
@@ -300,7 +300,7 @@ def test_single_decision_runs_both_analyses_before_observed_comparisons(
 
     def actual_comparison(result, actual_card):
         events.append(("actual", actual_card))
-        from skat_ai.retrospective_search_comparison import (
+        from skatmind.retrospective_search_comparison import (
             build_search_actual_card_comparison,
         )
 
@@ -308,27 +308,27 @@ def test_single_decision_runs_both_analyses_before_observed_comparisons(
 
     def coaching_assessment(**kwargs):
         events.append(("coaching_assessment", kwargs["actual_card"]))
-        from skat_ai.replay_coaching_assessment import (
+        from skatmind.replay_coaching_assessment import (
             build_replay_coaching_decision_assessment,
         )
 
         return build_replay_coaching_decision_assessment(**kwargs)
 
-    monkeypatch.setattr("skat_ai.historical_search_review.solve_compatible_world_minimax", search)
+    monkeypatch.setattr("skatmind.historical_search_review.solve_compatible_world_minimax", search)
     monkeypatch.setattr(
-        "skat_ai.historical_search_review.recommend_card_by_expected_value",
+        "skatmind.historical_search_review.recommend_card_by_expected_value",
         immediate,
     )
     monkeypatch.setattr(
-        "skat_ai.historical_search_review.build_decision_time_replay_coaching_evidence",
+        "skatmind.historical_search_review.build_decision_time_replay_coaching_evidence",
         coaching_evidence,
     )
     monkeypatch.setattr(
-        "skat_ai.historical_search_review.build_search_actual_card_comparison",
+        "skatmind.historical_search_review.build_search_actual_card_comparison",
         actual_comparison,
     )
     monkeypatch.setattr(
-        "skat_ai.historical_search_review.build_replay_coaching_decision_assessment",
+        "skatmind.historical_search_review.build_replay_coaching_decision_assessment",
         coaching_assessment,
     )
     decision = build_historical_search_decision_review(
@@ -355,10 +355,10 @@ def test_shared_prefix_search_output_ignores_changed_future_private_cards(
     monkeypatch,
 ) -> None:
     monkeypatch.setattr(
-        "skat_ai.historical_search_review.solve_compatible_world_minimax", _fake_search
+        "skatmind.historical_search_review.solve_compatible_world_minimax", _fake_search
     )
     monkeypatch.setattr(
-        "skat_ai.historical_search_review.recommend_card_by_expected_value",
+        "skatmind.historical_search_review.recommend_card_by_expected_value",
         _fake_immediate,
     )
     original_data = build_historical_input()
@@ -430,10 +430,10 @@ def test_summary_supports_every_historical_end_type(
     monkeypatch, example_name: str
 ) -> None:
     monkeypatch.setattr(
-        "skat_ai.historical_search_review.solve_compatible_world_minimax", _fake_search
+        "skatmind.historical_search_review.solve_compatible_world_minimax", _fake_search
     )
     monkeypatch.setattr(
-        "skat_ai.historical_search_review.recommend_card_by_expected_value",
+        "skatmind.historical_search_review.recommend_card_by_expected_value",
         _fake_immediate,
     )
     record, snapshots = _load_historical(example_name)
@@ -496,10 +496,10 @@ def test_internal_review_retains_assessments_without_changing_public_summary(
     monkeypatch,
 ) -> None:
     monkeypatch.setattr(
-        "skat_ai.historical_search_review.solve_compatible_world_minimax", _fake_search
+        "skatmind.historical_search_review.solve_compatible_world_minimax", _fake_search
     )
     monkeypatch.setattr(
-        "skat_ai.historical_search_review.recommend_card_by_expected_value",
+        "skatmind.historical_search_review.recommend_card_by_expected_value",
         _fake_immediate,
     )
     record, snapshots = _load_historical("historical_grand_normal_completion.json")
@@ -542,10 +542,10 @@ def test_internal_review_runs_search_and_immediate_once_per_decision(monkeypatch
         return _fake_immediate(**kwargs)
 
     monkeypatch.setattr(
-        "skat_ai.historical_search_review.solve_compatible_world_minimax", search
+        "skatmind.historical_search_review.solve_compatible_world_minimax", search
     )
     monkeypatch.setattr(
-        "skat_ai.historical_search_review.recommend_card_by_expected_value",
+        "skatmind.historical_search_review.recommend_card_by_expected_value",
         immediate,
     )
 
@@ -565,7 +565,7 @@ def test_internal_review_runs_search_and_immediate_once_per_decision(monkeypatch
 
 def test_real_search_reports_early_unavailable_and_late_eligible(monkeypatch) -> None:
     monkeypatch.setattr(
-        "skat_ai.historical_search_review.recommend_card_by_expected_value",
+        "skatmind.historical_search_review.recommend_card_by_expected_value",
         _fake_immediate,
     )
     record, snapshots = _load_historical("historical_grand_normal_completion.json")

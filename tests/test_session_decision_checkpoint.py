@@ -8,26 +8,26 @@ from test_historical_game import build_historical_input
 from test_session_position_export import _options, _state_for_decision
 from test_session_transitions import _apply, _live_declaration_state
 
-import skat_ai.session_decision_checkpoint as checkpoint_module
-import skat_ai.session_position_export as position_export_module
-from skat_ai.api.v1.contracts import RequestDocumentV1, WorkflowV1
-from skat_ai.errors import SkatAIInvariantError
-from skat_ai.game_declaration import GameDeclaration
-from skat_ai.session_commands import (
+import skatmind.session_decision_checkpoint as checkpoint_module
+import skatmind.session_position_export as position_export_module
+from skatmind.api.v1.contracts import RequestDocumentV1, WorkflowV1
+from skatmind.errors import SkatMindInvariantError
+from skatmind.game_declaration import GameDeclaration
+from skatmind.session_commands import (
     PromoteSessionToRetrospectiveCommandV1,
     RecordSessionPlayCommandV1,
     SetSessionDeclarationCommandV1,
     SetSessionDeclarerCommandV1,
     SetSessionGameEventCommandV1,
 )
-from skat_ai.session_decision_checkpoint import (
+from skatmind.session_decision_checkpoint import (
     SESSION_DECISION_CHECKPOINT_POLICY,
     SESSION_DECISION_CHECKPOINT_VERSION,
     SESSION_DECISION_INFORMATION_CUTOFF,
     SessionDecisionCheckpointV1,
     build_session_decision_checkpoint_v1,
 )
-from skat_ai.session_position_export import (
+from skatmind.session_position_export import (
     export_session_position_analysis_request_v1,
 )
 
@@ -206,12 +206,12 @@ def test_checkpoint_builder_requires_matching_available_position_export() -> Non
 
 def test_checkpoint_builder_detects_session_revision_and_forged_request() -> None:
     state, position_export, _ = _checkpoint()
-    with pytest.raises(SkatAIInvariantError, match="Session ID"):
+    with pytest.raises(SkatMindInvariantError, match="Session ID"):
         build_session_decision_checkpoint_v1(
             state=state,
             position_export=replace(position_export, session_id="other-session"),
         )
-    with pytest.raises(SkatAIInvariantError, match="revision"):
+    with pytest.raises(SkatMindInvariantError, match="revision"):
         build_session_decision_checkpoint_v1(
             state=state,
             position_export=replace(
@@ -228,7 +228,7 @@ def test_checkpoint_builder_detects_session_revision_and_forged_request() -> Non
         document=forged_root,
     )
     forged_export = replace(position_export, request=forged_request)
-    with pytest.raises(SkatAIInvariantError, match="expected Session Request"):
+    with pytest.raises(SkatMindInvariantError, match="expected Session Request"):
         build_session_decision_checkpoint_v1(
             state=state,
             position_export=forged_export,

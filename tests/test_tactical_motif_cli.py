@@ -3,9 +3,9 @@ import argparse
 import pytest
 
 import main as legacy_main
-import skat_ai.cli.execution as root_cli
-import skat_ai.cli.session as session_cli
-from skat_ai.errors import SkatAICliUsageError
+import skatmind.cli.execution as root_cli
+import skatmind.cli.session as session_cli
+from skatmind.errors import SkatMindCliUsageError
 
 
 def _option_strings(parser: argparse.ArgumentParser) -> set[str]:
@@ -34,7 +34,7 @@ def test_tactical_motif_cli_option_is_historical_only() -> None:
 
     root_cli.validate_cli_arguments(args, workflow="historical_game")
     root_cli.validate_historical_game_cli_arguments(args)
-    with pytest.raises(SkatAICliUsageError, match="requires historical-game input"):
+    with pytest.raises(SkatMindCliUsageError, match="requires historical-game input"):
         root_cli.validate_cli_arguments(args, workflow="position")
 
 

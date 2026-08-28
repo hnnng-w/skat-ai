@@ -1,13 +1,13 @@
 import pytest
 
-from skat_ai.deck import get_full_deck
-from skat_ai.exact_search_state import build_exact_search_state
-from skat_ai.exact_terminal_utility import (
+from skatmind.deck import get_full_deck
+from skatmind.exact_search_state import build_exact_search_state
+from skatmind.exact_terminal_utility import (
     build_exact_suit_or_grand_terminal_utility,
     build_exact_terminal_utility,
 )
-from skat_ai.game_declaration import GameDeclaration
-from skat_ai.rules import get_trick_points
+from skatmind.game_declaration import GameDeclaration
+from skatmind.rules import get_trick_points
 
 
 def _terminal_state(

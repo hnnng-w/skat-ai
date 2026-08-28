@@ -4,25 +4,25 @@ from pathlib import Path
 
 import pytest
 
-from skat_ai.dataset_partition_audit import audit_training_dataset_partitions
-from skat_ai.declarer_concession import (
+from skatmind.dataset_partition_audit import audit_training_dataset_partitions
+from skatmind.declarer_concession import (
     DeclarerCardCountEvidence,
     adjudicate_declarer_concession,
     build_declarer_concession,
 )
-from skat_ai.final_settlement import build_final_settlement_summary
-from skat_ai.game_result import build_game_result_summary_from_points
-from skat_ai.historical_game import (
+from skatmind.final_settlement import build_final_settlement_summary
+from skatmind.game_result import build_game_result_summary_from_points
+from skatmind.historical_game import (
     build_historical_game_record,
     build_historical_game_summary_from_input,
 )
-from skat_ai.historical_opponent_statistics import (
+from skatmind.historical_opponent_statistics import (
     aggregate_historical_opponent_statistics,
 )
-from skat_ai.rolling_opponent_policy_evaluation import (
+from skatmind.rolling_opponent_policy_evaluation import (
     evaluate_rolling_opponent_policy_predictions,
 )
-from skat_ai.training_dataset import (
+from skatmind.training_dataset import (
     TrainingDatasetInput,
     TrainingDatasetRecord,
     TrainingProvenance,

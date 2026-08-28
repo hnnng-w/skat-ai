@@ -8,20 +8,20 @@ from pathlib import Path
 import pytest
 from test_learning_corpus_human_evidence import _rich_collection, _store
 
-import skat_ai
-import skat_ai.api.v1 as api_v1
-import skat_ai.cli as cli
-import skat_ai.learning_corpus_human_evidence_builder as builder_module
-import skat_ai.learning_corpus_human_evidence_export as export_module
+import skatmind
+import skatmind.api.v1 as api_v1
+import skatmind.cli as cli
+import skatmind.learning_corpus_human_evidence_builder as builder_module
+import skatmind.learning_corpus_human_evidence_export as export_module
 from scripts.validate_generated_outputs_schema import SCENARIOS
-from skat_ai.api.v1.contracts import WorkflowV1
-from skat_ai.learning_corpus_human_evidence import (
+from skatmind.api.v1.contracts import WorkflowV1
+from skatmind.learning_corpus_human_evidence import (
     LearningCorpusHumanEvidenceCollectionV1,
 )
-from skat_ai.learning_corpus_human_evidence_builder import (
+from skatmind.learning_corpus_human_evidence_builder import (
     build_learning_corpus_human_evidence_collection_v1,
 )
-from skat_ai.learning_corpus_human_evidence_export import (
+from skatmind.learning_corpus_human_evidence_export import (
     LEARNING_CORPUS_HUMAN_EVIDENCE_DOCUMENT_KIND,
     LEARNING_CORPUS_HUMAN_EVIDENCE_EXPORT_POLICY,
     LEARNING_CORPUS_HUMAN_EVIDENCE_EXPORT_VERSION,
@@ -29,10 +29,10 @@ from skat_ai.learning_corpus_human_evidence_export import (
     build_learning_corpus_human_evidence_export_v1,
     serialize_learning_corpus_human_evidence_export_v1,
 )
-from skat_ai.learning_corpus_identity import (
+from skatmind.learning_corpus_identity import (
     build_learning_corpus_canonical_json_bytes_v1,
 )
-from skat_ai.training_dataset import (
+from skatmind.training_dataset import (
     TRAINING_DATASET_SCHEMA_VERSION,
     TRAINING_FEATURE_GENERATION_VERSION,
     TRAINING_TARGET,
@@ -48,7 +48,7 @@ def _hash(domain: bytes, value: object) -> str:
 def test_export_version_document_kind_and_fields_are_exact() -> None:
     assert LEARNING_CORPUS_HUMAN_EVIDENCE_EXPORT_VERSION == 1
     assert LEARNING_CORPUS_HUMAN_EVIDENCE_DOCUMENT_KIND == (
-        "skat_ai_learning_corpus_human_evidence"
+        "skatmind_learning_corpus_human_evidence"
     )
     assert LEARNING_CORPUS_HUMAN_EVIDENCE_EXPORT_POLICY == ("deterministic_path_free_json_document")
     assert tuple(field.name for field in fields(LearningCorpusHumanEvidenceExportV1)) == (
@@ -68,10 +68,10 @@ def test_empty_collection_export_is_valid_deterministic_and_identity_scoped() ->
     assert first.human_evidence is collection
     assert first.collection_fingerprint == (collection.human_evidence_collection_fingerprint)
     assert first.export_id == _hash(
-        b"skat-ai\0learning_corpus_human_evidence_export_v1\0",
+        b"skatmind\0learning_corpus_human_evidence_export_v1\0",
         {
             "learning_corpus_human_evidence_export_version": 1,
-            "document_kind": "skat_ai_learning_corpus_human_evidence",
+            "document_kind": "skatmind_learning_corpus_human_evidence",
             "collection_fingerprint": (collection.human_evidence_collection_fingerprint),
             "human_evidence": collection.to_dict(),
         },
@@ -229,17 +229,17 @@ def test_export_remains_private_and_compatibility_baselines_are_unchanged() -> N
     pyproject = tomllib.loads((PROJECT_ROOT / "pyproject.toml").read_text())
     assert pyproject["project"]["version"] == "0.17.0"
     assert pyproject["project"]["requires-python"] == ">=3.13"
-    assert pyproject["project"]["scripts"] == {"skat-ai": "skat_ai.cli:main"}
+    assert pyproject["project"]["scripts"] == {"skatmind": "skatmind.cli:main"}
     assert TRAINING_DATASET_SCHEMA_VERSION == 1
     assert TRAINING_FEATURE_GENERATION_VERSION == 1
     assert TRAINING_TARGET == "actual_card_played"
     assert len(WorkflowV1) == 7
     assert len(SCENARIOS) == 98
     assert len(tuple((PROJECT_ROOT / "schemas").glob("*.schema.json"))) == 71
-    assert len(tuple((PROJECT_ROOT / "src/skat_ai/schema_resources").glob("*.schema.json"))) == 71
+    assert len(tuple((PROJECT_ROOT / "src/skatmind/schema_resources").glob("*.schema.json"))) == 71
     assert len(tuple((PROJECT_ROOT / "examples").glob("session_*.json"))) == 6
     assert not tuple((PROJECT_ROOT / "schemas").glob("*human_evidence*.schema.json"))
-    for namespace in (skat_ai, api_v1, cli):
+    for namespace in (skatmind, api_v1, cli):
         assert not hasattr(namespace, "LearningCorpusHumanEvidenceCollectionV1")
         assert not hasattr(
             namespace,
@@ -263,7 +263,7 @@ def test_export_value_is_frozen_slotted_and_builder_controlled() -> None:
 
 def test_human_evidence_type_is_not_added_to_public_annotations() -> None:
     assert "LearningCorpusHumanEvidenceCollectionV1" not in getattr(
-        skat_ai,
+        skatmind,
         "__annotations__",
         {},
     )
@@ -273,5 +273,5 @@ def test_human_evidence_type_is_not_added_to_public_annotations() -> None:
         {},
     )
     assert LearningCorpusHumanEvidenceCollectionV1.__module__ == (
-        "skat_ai.learning_corpus_human_evidence"
+        "skatmind.learning_corpus_human_evidence"
     )

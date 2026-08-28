@@ -1,6 +1,6 @@
 # Historical defender open play
 
-`skat-ai` supports terminal historical defender-open-play adjudication under the
+`skatmind` supports terminal historical defender-open-play adjudication under the
 November 2022 wording of ISkO 4.4.5. The historical adapter reconstructs an
 exact late-game state from the complete deal and legal play prefix, then reuses
 the existing flat bounded adjudicator. Historical continued play is a separate

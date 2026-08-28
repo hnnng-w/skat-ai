@@ -5,39 +5,39 @@ from pathlib import Path
 import pytest
 from jsonschema import Draft202012Validator
 
-import skat_ai.compatible_world_minimax as compatible_minimax_module
-from skat_ai.bounded_search_information import (
+import skatmind.compatible_world_minimax as compatible_minimax_module
+from skatmind.bounded_search_information import (
     LIVE_LOCAL_VIEW_SOURCE,
     SearchCompletedTrick,
     SearchInformationView,
     SearchPublicPlay,
     SearchRemainingHandSize,
 )
-from skat_ai.bounded_search_result import (
+from skatmind.bounded_search_result import (
     RequestedSearchBudget,
     build_serializable_bounded_search_result,
 )
-from skat_ai.compatible_search_world import (
+from skatmind.compatible_search_world import (
     build_compatible_search_world_space,
     select_compatible_search_worlds,
 )
-from skat_ai.compatible_world_minimax import solve_compatible_world_minimax
-from skat_ai.deck import get_full_deck
-from skat_ai.exact_search_state import ExactSearchState, build_exact_search_state
-from skat_ai.game_declaration import GameDeclaration
-from skat_ai.hidden_card_inference import (
+from skatmind.compatible_world_minimax import solve_compatible_world_minimax
+from skatmind.deck import get_full_deck
+from skatmind.exact_search_state import ExactSearchState, build_exact_search_state
+from skatmind.game_declaration import GameDeclaration
+from skatmind.hidden_card_inference import (
     EFFECTIVE_CATEGORY_ORDER,
     PlayerHiddenCardConstraints,
     get_public_effective_category,
 )
-from skat_ai.perfect_information_minimax import solve_perfect_information_minimax
-from skat_ai.public_hand_constraint import (
+from skatmind.perfect_information_minimax import solve_perfect_information_minimax
+from skatmind.public_hand_constraint import (
     DEFENDER_OPEN_PLAY_CONTINUATION_SOURCE,
     PublicHandConstraint,
 )
-from skat_ai.rules import get_trick_points
-from skat_ai.side_ownership import get_player_side
-from skat_ai.turn_phase import CONCRETE_PLAYERS
+from skatmind.rules import get_trick_points
+from skatmind.side_ownership import get_player_side
+from skatmind.turn_phase import CONCRETE_PLAYERS
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 with (PROJECT_ROOT / "schemas" / "bounded_search_result.schema.json").open(

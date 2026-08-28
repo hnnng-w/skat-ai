@@ -9,9 +9,9 @@ from urllib.parse import urlencode, urlsplit
 import pytest
 from test_match_workspace_contracts import _definition
 
-import skat_ai.capture_web.operations as operations_module
-from skat_ai.capture_web.context import MatchCaptureWebContextV1
-from skat_ai.capture_web.contracts import (
+import skatmind.capture_web.operations as operations_module
+from skatmind.capture_web.context import MatchCaptureWebContextV1
+from skatmind.capture_web.contracts import (
     MATCH_CAPTURE_WEB_API_PREFIX,
     MATCH_CAPTURE_WEB_ASSET_POLICY,
     MATCH_CAPTURE_WEB_BIND_HOST,
@@ -27,35 +27,35 @@ from skat_ai.capture_web.contracts import (
     MATCH_CAPTURE_WEB_WORKSPACE_POLICY,
     MatchCaptureWebResultV1,
 )
-from skat_ai.capture_web.operations import (
+from skatmind.capture_web.operations import (
     apply_match_capture_web_operation_v1,
     create_match_capture_workspace_v1,
     reload_match_capture_workspace_v1,
 )
-from skat_ai.capture_web.rendering import render_match_capture_web_page_v1
-from skat_ai.capture_web.security import (
+from skatmind.capture_web.rendering import render_match_capture_web_page_v1
+from skatmind.capture_web.security import (
     MATCH_CAPTURE_WEB_CONTENT_SECURITY_POLICY,
     MATCH_CAPTURE_WEB_COOKIE_NAME,
     MATCH_CAPTURE_WEB_PERMISSIONS_POLICY,
 )
-from skat_ai.capture_web.server import start_match_capture_web_server_v1
-from skat_ai.capture_web.state import build_match_capture_web_state_v1
-from skat_ai.capture_web.timecodes import (
+from skatmind.capture_web.server import start_match_capture_web_server_v1
+from skatmind.capture_web.state import build_match_capture_web_state_v1
+from skatmind.capture_web.timecodes import (
     build_presentation_timecode_v1,
     format_presentation_timecode_v1,
     parse_presentation_timecode_v1,
 )
-from skat_ai.errors import SkatAIValidationError
-from skat_ai.game_declaration import GameDeclaration
-from skat_ai.match_capture_application import (
+from skatmind.errors import SkatMindValidationError
+from skatmind.game_declaration import GameDeclaration
+from skatmind.match_capture_application import (
     append_match_capture_plays_v1,
     set_match_capture_declaration_v1,
     start_match_capture_game_v1,
 )
-from skat_ai.match_capture_application_contracts import MatchCaptureCardEntryV1
-from skat_ai.match_workspace_contracts import create_match_workspace_v1
-from skat_ai.match_workspace_persistence import save_match_workspace_file_v1
-from skat_ai.match_workspace_persistence_codec import (
+from skatmind.match_capture_application_contracts import MatchCaptureCardEntryV1
+from skatmind.match_workspace_contracts import create_match_workspace_v1
+from skatmind.match_workspace_persistence import save_match_workspace_file_v1
+from skatmind.match_workspace_persistence_codec import (
     build_match_workspace_persistence_document_v1,
 )
 
@@ -277,7 +277,7 @@ def test_context_absent_resume_invalid_parent_and_safe_filename(tmp_path: Path) 
     assert resumed.content_fingerprint == document.content_fingerprint
 
     path.write_text("{}", encoding="utf-8")
-    with pytest.raises(SkatAIValidationError):
+    with pytest.raises(SkatMindValidationError):
         MatchCaptureWebContextV1.open(path)
 
 
@@ -1130,7 +1130,7 @@ def test_generic_internal_failure_exposes_no_stack_trace_or_exception(
         raise RuntimeError("private internal details")
 
     monkeypatch.setattr(
-        "skat_ai.capture_web.server.build_match_capture_web_state_v1",
+        "skatmind.capture_web.server.build_match_capture_web_state_v1",
         failure,
     )
     status, _headers, body = _request(server, "GET", "/", headers=get_headers)
@@ -1163,7 +1163,7 @@ def test_operations_execute_no_root_session_analysis_materialization_or_network(
         raise AssertionError("Forbidden workflow or external network path executed.")
 
     monkeypatch.setattr(
-        "skat_ai.application.execution.execute_application_invocation",
+        "skatmind.application.execution.execute_application_invocation",
         forbidden,
     )
     monkeypatch.setattr("socket.create_connection", forbidden)

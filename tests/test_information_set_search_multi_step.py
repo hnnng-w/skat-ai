@@ -3,33 +3,33 @@ from pathlib import Path
 
 import pytest
 
-import skat_ai.multi_step_simulation as multi_step_module
-from skat_ai.card_selection import (
+import skatmind.multi_step_simulation as multi_step_module
+from skatmind.card_selection import (
     DEFAULT_POLICY_COMPARISON_POLICIES,
     SEARCH_AWARE_MULTI_STEP_POLICIES,
     VALID_CARD_SELECTION_POLICIES,
     VALID_MULTI_STEP_POLICIES,
 )
-from skat_ai.cli.presentation.simulation import (
+from skatmind.cli.presentation.simulation import (
     print_multi_step_result,
     print_policy_comparison_result,
 )
-from skat_ai.coherent_hidden_world import (
+from skatmind.coherent_hidden_world import (
     CoherentHiddenWorld,
     derive_simulation_child_seed,
 )
-from skat_ai.deck import get_full_deck
-from skat_ai.effective_opponent_policy import (
+from skatmind.deck import get_full_deck
+from skatmind.effective_opponent_policy import (
     build_effective_opponent_policy_settings,
 )
-from skat_ai.exact_search_state import (
+from skatmind.exact_search_state import (
     apply_exact_search_card,
     build_exact_search_state,
     get_exact_search_legal_cards,
 )
-from skat_ai.game_declaration import GameDeclaration
-from skat_ai.game_state import GameState
-from skat_ai.information_set_search_multi_step import (
+from skatmind.game_declaration import GameDeclaration
+from skatmind.game_state import GameState
+from skatmind.information_set_search_multi_step import (
     INFORMATION_SET_SEARCH_AUTO_COMPATIBILITY_POLICY,
     INFORMATION_SET_SEARCH_MULTI_STEP_DECISION_VERSION,
     INFORMATION_SET_SEARCH_MULTI_STEP_EXECUTION_POLICY,
@@ -49,7 +49,7 @@ from skat_ai.information_set_search_multi_step import (
     build_serializable_information_set_search_multi_step_decision_v1,
     derive_information_set_search_multi_step_configuration_v1,
 )
-from skat_ai.input_loader import (
+from skatmind.input_loader import (
     build_local_game_state_from_input,
     get_analysis_metadata_from_input,
     get_game_declaration_from_input,
@@ -57,10 +57,10 @@ from skat_ai.input_loader import (
     get_simulation_settings_from_input,
     load_position_from_json,
 )
-from skat_ai.multi_step_simulation import simulate_multiple_steps
-from skat_ai.policy_comparison import compare_multi_step_policies
-from skat_ai.recommendation_workflow import SEARCH_RECOMMENDATION_METHODS
-from skat_ai.result_serialization import build_serializable_multi_step_result
+from skatmind.multi_step_simulation import simulate_multiple_steps
+from skatmind.policy_comparison import compare_multi_step_policies
+from skatmind.recommendation_workflow import SEARCH_RECOMMENDATION_METHODS
+from skatmind.result_serialization import build_serializable_multi_step_result
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -688,7 +688,7 @@ def test_information_set_comparison_uses_one_effective_policy_neutral_prelude(
         }
 
     monkeypatch.setattr(
-        "skat_ai.policy_comparison.simulate_multiple_steps",
+        "skatmind.policy_comparison.simulate_multiple_steps",
         fake_simulate_multiple_steps,
     )
 

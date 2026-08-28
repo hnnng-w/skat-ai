@@ -3,7 +3,7 @@
 The executable version-1 Python facade is available from:
 
 ```text
-skat_ai.api.v1
+skatmind.api.v1
 ```
 
 It accepts the same Root JSON documents as the legacy repository CLI, executes
@@ -13,9 +13,9 @@ option adds bounded public field provenance. It performs no caller transport I/O
 Issue #202 requires an internal four-stage provenance checkpoint around every
 execution before this unchanged optional public conversion.
 
-Issue #156 adds a separate additive `skat_ai.api.v1.session` facade. Issue #157
+Issue #156 adds a separate additive `skatmind.api.v1.session` facade. Issue #157
 extends it with Decision Observation and Checkpoint review export and adds the
-stable `skat_ai.api.v1.session.files` Save/Load subnamespace. Session API exports
+stable `skatmind.api.v1.session.files` Save/Load subnamespace. Session API exports
 still construct existing Root Requests without executing them. The separate
 Session CLI may explicitly pass those Requests to the existing Application once;
 that transport does not call this Root public facade as an intermediate layer or
@@ -25,7 +25,7 @@ add a workflow. See [Public Session API version 1](public_session_api_v1.md) and
 ## Public functions
 
 ```python
-from skat_ai.api.v1 import (
+from skatmind.api.v1 import (
     ExecutionOptionsV1,
     execute,
     execute_document,
@@ -53,7 +53,7 @@ Example:
 ```python
 import json
 
-from skat_ai.api.v1 import ExecutionOptionsV1, execute_document, serialize_result
+from skatmind.api.v1 import ExecutionOptionsV1, execute_document, serialize_result
 
 document = {
     "game_type": "grand",
@@ -90,7 +90,7 @@ json.dumps(serialized)
 ## Constants
 
 ```text
-DEFAULT_INPUT_REFERENCE_V1 = memory://skat-ai/request
+DEFAULT_INPUT_REFERENCE_V1 = memory://skatmind/request
 EXECUTION_ARTIFACT_NAMES_V1 = (opponent_statistics_input,)
 PUBLIC_FIELD_PROVENANCE_VERSION = 1
 PUBLIC_FIELD_PROVENANCE_ROOT_FIELD = field_provenance
@@ -253,9 +253,9 @@ Normal workflow states remain successful Results, including `complete`,
 
 ## Schema validation
 
-Schema resources are read lazily. Importing `skat_ai` or `skat_ai.api.v1` does
+Schema resources are read lazily. Importing `skatmind` or `skatmind.api.v1` does
 not read a schema. The backend uses `importlib.resources` and the private
-`skat_ai.schema_resources` Package, independent of both the current working
+`skatmind.schema_resources` Package, independent of both the current working
 directory and a repository checkout. It uses Draft 2020-12, preloads packaged
 local schemas into a registry, and rejects all unregistered resolution instead
 of performing network access.
@@ -278,16 +278,16 @@ validation. Input schema validation and Application semantic validation always
 run. The first schema failure is selected deterministically and reports an RFC
 6901 JSON Pointer, with the empty string representing the Root.
 
-Document failures use `SkatAISchemaError`, missing resources use
-`SkatAIResourceError`, and invalid packaged schemas use
-`SkatAIInvariantError`. The Package Resource mirror is checked for exact filename
+Document failures use `SkatMindSchemaError`, missing resources use
+`SkatMindResourceError`, and invalid packaged schemas use
+`SkatMindInvariantError`. The Package Resource mirror is checked for exact filename
 and byte parity with authoritative repository schemas.
 
 ## Error boundary
 
-Existing `SkatAIError` instances pass through unchanged. Raw `ValueError` at the
-facade boundary becomes `SkatAIValidationError`; raw `OSError` becomes
-`SkatAIResourceError`. The message and exception cause are preserved, and no path
+Existing `SkatMindError` instances pass through unchanged. Raw `ValueError` at the
+facade boundary becomes `SkatMindValidationError`; raw `OSError` becomes
+`SkatMindResourceError`. The message and exception cause are preserved, and no path
 is invented when no reliable public path exists. Unexpected exception classes
 are not caught.
 
@@ -301,7 +301,7 @@ validation resources, not caller transport I/O.
 
 The Package-owned CLI directly consumes the same Application layer and keeps its
 file, printing, and Exit Code behavior outside this no-I/O Root facade. Installed
-`skat-ai`, module `python -m skat_ai`, and Legacy `python main.py` preserve Root
+`skatmind`, module `python -m skatmind`, and Legacy `python main.py` preserve Root
 JSON parity; the Root CLI does not call this Public API as an intermediate layer.
 The additive Session command family uses the stable Public Session and file APIs
 for Session operations and invokes Application only for explicit `analyze`,

@@ -123,10 +123,10 @@ validation. They are repository development files, not installed Package Data.
 Representative Session CLI use is:
 
 ```powershell
-skat-ai session new --session session.json --input examples/session_create_live.json
-skat-ai session show --session session.json
-skat-ai session apply --session session.json --input examples/session_command_record_play.json
-skat-ai session assistant --session session.json
+skatmind session new --session session.json --input examples/session_create_live.json
+skatmind session show --session session.json
+skatmind session apply --session session.json --input examples/session_command_record_play.json
+skatmind session assistant --session session.json
 ```
 
 All 12 subcommands and exact options are documented in

@@ -1,6 +1,6 @@
 import json
 
-from skat_ai.output_writer import write_analysis_result_to_json
+from skatmind.output_writer import write_analysis_result_to_json
 
 
 def test_write_analysis_result_to_json_creates_file(tmp_path) -> None:

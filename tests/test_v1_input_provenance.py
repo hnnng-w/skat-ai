@@ -7,15 +7,15 @@ from pathlib import Path
 
 import pytest
 
-from skat_ai.api.v1 import ExecutionOptionsV1, WorkflowV1
-from skat_ai.application import (
+from skatmind.api.v1 import ExecutionOptionsV1, WorkflowV1
+from skatmind.application import (
     ApplicationExecutionOptions,
     PositionAnalysisApplicationOptions,
     build_application_invocation,
 )
-from skat_ai.field_provenance import FIELD_PROVENANCE_VERSION
-from skat_ai.field_provenance_coverage import enumerate_json_leaf_paths
-from skat_ai.v1_information_provenance_enforcement import (
+from skatmind.field_provenance import FIELD_PROVENANCE_VERSION
+from skatmind.field_provenance_coverage import enumerate_json_leaf_paths
+from skatmind.v1_information_provenance_enforcement import (
     V1_INFORMATION_PROVENANCE_ADVERSARIAL_POLICY,
     V1_INFORMATION_PROVENANCE_COMPATIBILITY_POLICY,
     V1_INFORMATION_PROVENANCE_ENFORCEMENT_STAGES,
@@ -27,7 +27,7 @@ from skat_ai.v1_information_provenance_enforcement import (
     V1_INFORMATION_PROVENANCE_SERIALIZATION_POLICY,
     V1_INFORMATION_PROVENANCE_USE_POLICY,
 )
-from skat_ai.v1_information_provenance_sources import (
+from skatmind.v1_information_provenance_sources import (
     V1InformationProvenanceSourceMetadata,
     build_v1_information_provenance_sources,
 )
@@ -390,7 +390,7 @@ def test_retrospective_position_private_cards_are_post_game_only() -> None:
 def test_injected_external_document_has_one_exact_private_source() -> None:
     position = _load("grand_midgame_profile_preset_live.json")
     statistics = _load("opponent_statistics.json")
-    from skat_ai.application import ApplicationExternalDocuments
+    from skatmind.application import ApplicationExternalDocuments
 
     invocation = build_application_invocation(
         position,

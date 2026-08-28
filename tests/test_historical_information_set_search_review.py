@@ -5,19 +5,19 @@ from pathlib import Path
 
 import pytest
 
-from skat_ai.historical_decision_snapshot import build_historical_decision_snapshots
-from skat_ai.historical_game import (
+from skatmind.historical_decision_snapshot import build_historical_decision_snapshots
+from skatmind.historical_game import (
     build_historical_game_record,
     build_historical_game_summary,
 )
-from skat_ai.historical_information_set_search_review import (
+from skatmind.historical_information_set_search_review import (
     HISTORICAL_INFORMATION_SET_SEARCH_REVIEW_METHOD,
     HistoricalInformationSetSearchReviewSettingsV1,
     build_historical_information_set_search_review_summary_v1,
     build_historical_information_set_search_review_v1,
     build_information_set_search_budget_from_profile_v1,
 )
-from skat_ai.information_set_search_comparison import (
+from skatmind.information_set_search_comparison import (
     build_information_set_search_comparison_pre_actual_analysis_v1,
 )
 

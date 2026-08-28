@@ -1,9 +1,9 @@
-from skat_ai.effective_opponent_policy import (
+from skatmind.effective_opponent_policy import (
     EffectiveOpponentPolicySettings,
     build_effective_opponent_policy_settings,
 )
-from skat_ai.opponent_profile_policy import choose_combined_profile_policy_preset
-from skat_ai.player_profile import PlayerProfile
+from skatmind.opponent_profile_policy import choose_combined_profile_policy_preset
+from skatmind.player_profile import PlayerProfile
 
 
 def assert_effective_settings(

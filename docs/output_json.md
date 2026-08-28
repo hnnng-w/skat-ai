@@ -1,6 +1,6 @@
 # Output JSON
 
-This document describes the JSON output produced by `skat-ai`.
+This document describes the JSON output produced by `skatmind`.
 
 ## JSON schema
 

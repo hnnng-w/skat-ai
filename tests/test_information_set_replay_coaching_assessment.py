@@ -8,7 +8,7 @@ from test_information_set_replay_coaching_evidence import (
     _partial_or_timeout_result,
 )
 
-from skat_ai.information_set_replay_coaching_assessment import (
+from skatmind.information_set_replay_coaching_assessment import (
     INFORMATION_SET_REPLAY_COACHING_ASSESSMENT_LIMITATIONS,
     INFORMATION_SET_REPLAY_COACHING_ASSESSMENT_POLICY,
     INFORMATION_SET_REPLAY_COACHING_ASSESSMENT_STATUSES,
@@ -19,14 +19,14 @@ from skat_ai.information_set_replay_coaching_assessment import (
     build_retained_information_set_replay_coaching_decision_assessment_v1,
     build_serializable_information_set_replay_coaching_decision_assessment_v1,
 )
-from skat_ai.information_set_search_comparison import (
+from skatmind.information_set_search_comparison import (
     attach_actual_card_to_information_set_search_comparison_v1,
     build_information_set_search_comparison_pre_actual_analysis_v1,
 )
-from skat_ai.information_set_search_contracts import (
+from skatmind.information_set_search_contracts import (
     build_unavailable_information_set_search_result_v1,
 )
-from skat_ai.replay_coaching_key_decisions import (
+from skatmind.replay_coaching_key_decisions import (
     build_replay_coaching_key_decisions,
 )
 

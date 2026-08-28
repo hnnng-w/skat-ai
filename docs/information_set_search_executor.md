@@ -15,7 +15,7 @@ selected_world_information_set_best_response_v1
 ```
 
 The implementation remains private in
-`src/skat_ai/information_set_search_executor.py`. Issue #189 calls it through a
+`src/skatmind/information_set_search_executor.py`. Issue #189 calls it through a
 new strict flat method and separate retrospective workflows. Issue #190 calls the
 same executor freshly at each Multi-Step local decision and in one appended
 Policy Comparison path. Neither integration changes its algorithm, contracts, or
@@ -163,7 +163,7 @@ roles, and three-Trick eligibility. Validation does not rebuild the Compatible-
 world space, rerun selection, or reconstruct selected Exact or World States.
 
 Malformed direct executor arguments are validation errors. Forged retained
-builder-controlled values raise `SkatAIInvariantError`.
+builder-controlled values raise `SkatMindInvariantError`.
 
 ## Strategy-Fusion boundary
 

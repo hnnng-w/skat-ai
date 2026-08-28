@@ -5,8 +5,8 @@ import pytest
 from test_session_decision_checkpoint import _ready_live_state
 from test_session_position_export import _live_ouvert_defender_state, _options
 
-import skat_ai.session_checkpoint_collection as collection_module
-from skat_ai.session_checkpoint_collection import (
+import skatmind.session_checkpoint_collection as collection_module
+from skatmind.session_checkpoint_collection import (
     SESSION_CHECKPOINT_COLLECTION_POLICY,
     SESSION_CHECKPOINT_COLLECTION_STATUSES,
     SESSION_CHECKPOINT_COLLECTION_VERSION,

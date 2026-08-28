@@ -4,7 +4,7 @@ from functools import lru_cache
 import pytest
 from test_information_set_search_state_and_preparation import _find_view, _request
 
-from skat_ai.bounded_search_result import (
+from skatmind.bounded_search_result import (
     BOUNDED_SEARCH_ANALYSIS_METHOD,
     BOUNDED_SEARCH_SCHEMA_VERSION,
     AggregateSearchCandidateResult,
@@ -13,10 +13,10 @@ from skat_ai.bounded_search_result import (
     RequestedSearchBudget,
     rank_search_candidate_results,
 )
-from skat_ai.historical_information_set_search_review import (
+from skatmind.historical_information_set_search_review import (
     HistoricalInformationSetSearchDecisionReviewV1,
 )
-from skat_ai.information_set_replay_coaching_evidence import (
+from skatmind.information_set_replay_coaching_evidence import (
     INFORMATION_SET_REPLAY_COACHING_EVIDENCE_VERSION,
     INFORMATION_SET_REPLAY_COACHING_INFORMATION_POLICY,
     INFORMATION_SET_REPLAY_COACHING_PRIMARY_EVIDENCE_POLICY,
@@ -26,21 +26,21 @@ from skat_ai.information_set_replay_coaching_evidence import (
     build_information_set_replay_coaching_decision_time_evidence_v1,
     build_serializable_information_set_replay_coaching_decision_time_evidence_v1,
 )
-from skat_ai.information_set_search_comparison import (
+from skatmind.information_set_search_comparison import (
     attach_actual_card_to_information_set_search_comparison_v1,
     build_information_set_search_comparison_pre_actual_analysis_v1,
 )
-from skat_ai.information_set_search_contracts import (
+from skatmind.information_set_search_contracts import (
     InformationSetSearchConsumedBudgetV1,
     InformationSetSearchResultV1,
 )
-from skat_ai.information_set_search_executor import execute_information_set_search_v1
-from skat_ai.information_set_search_preparation import prepare_information_set_search_v1
-from skat_ai.information_set_search_public import (
+from skatmind.information_set_search_executor import execute_information_set_search_v1
+from skatmind.information_set_search_preparation import prepare_information_set_search_v1
+from skatmind.information_set_search_public import (
     build_public_information_set_search_result_v1,
 )
-from skat_ai.replay_coaching_evidence import canonicalize_replay_coaching_cards
-from skat_ai.terminal_utility import TERMINAL_UTILITY_VERSION
+from skatmind.replay_coaching_evidence import canonicalize_replay_coaching_cards
+from skatmind.terminal_utility import TERMINAL_UTILITY_VERSION
 
 
 @lru_cache(maxsize=1)
@@ -401,7 +401,7 @@ def test_actual_card_attachment_requires_legal_card_and_exact_retained_compariso
 
 
 def test_historical_review_legal_cards_remain_private_in_existing_serialization() -> None:
-    from skat_ai.historical_information_set_search_review import (
+    from skatmind.historical_information_set_search_review import (
         build_serializable_historical_information_set_search_decision_v1,
     )
 

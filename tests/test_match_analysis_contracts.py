@@ -5,7 +5,7 @@ from dataclasses import FrozenInstanceError, fields, replace
 import pytest
 from test_match_workspace_contracts import _definition
 
-from skat_ai.match_analysis_contracts import (
+from skatmind.match_analysis_contracts import (
     MATCH_ANALYSIS_AUTOMATION_POLICY,
     MATCH_ANALYSIS_EXECUTION_POLICY,
     MATCH_ANALYSIS_EXECUTION_STATUSES,
@@ -34,8 +34,8 @@ from skat_ai.match_analysis_contracts import (
     build_match_analysis_report_v1,
     prepare_match_materialization_report_v1,
 )
-from skat_ai.match_workspace_contracts import create_match_workspace_v1
-from skat_ai.simulation import DEFAULT_IMMEDIATE_ANALYSIS_SAMPLE_COUNT
+from skatmind.match_workspace_contracts import create_match_workspace_v1
+from skatmind.simulation import DEFAULT_IMMEDIATE_ANALYSIS_SAMPLE_COUNT
 
 
 def test_versions_tuples_and_policies_are_exact() -> None:
@@ -267,7 +267,7 @@ def test_historical_options_reject_invalid_values(kwargs: dict[str, object]) -> 
 def test_materialization_report_is_once_defensive_and_sha256_identified(
     monkeypatch,
 ) -> None:
-    import skat_ai.match_analysis_contracts as contracts_module
+    import skatmind.match_analysis_contracts as contracts_module
 
     workspace = create_match_workspace_v1(_definition())
     original = contracts_module.build_match_workspace_materialization_v1
@@ -298,7 +298,7 @@ def test_materialization_report_is_once_defensive_and_sha256_identified(
         separators=(",", ":"),
     ).encode("utf-8")
     assert report.report_id == hashlib.sha256(
-        b"skat-ai\0match_analysis_report_v1\0" + canonical
+        b"skatmind\0match_analysis_report_v1\0" + canonical
     ).hexdigest()
     assert build_match_analysis_report_v1(value).report_id == report.report_id
     serialized = report.to_dict()

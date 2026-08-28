@@ -6,8 +6,8 @@ from pathlib import Path
 from jsonschema import Draft202012Validator, FormatChecker
 from referencing import Registry, Resource
 
-import skat_ai.api.v1.session as session_api
-from skat_ai.errors import SkatAIError
+import skatmind.api.v1.session as session_api
+from skatmind.errors import SkatMindError
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 SCHEMA_PATH = PROJECT_ROOT / "schemas" / "input.schema.json"
@@ -333,7 +333,7 @@ def validate_example_files() -> list[str]:
             continue
         try:
             resumed = session_api.resume_session_document(data).value
-        except (SkatAIError, TypeError, ValueError) as error:
+        except (SkatMindError, TypeError, ValueError) as error:
             errors.append(
                 f"{example_file}: semantic Session resume failed: {error}"
             )

@@ -1,6 +1,6 @@
 # Historical declarer card exposure
 
-`skat-ai` supports version-1 historical games that end through unanimously
+`skatmind` supports version-1 historical games that end through unanimously
 accepted declarer-card exposure under ISkO 4.4.4. This is a terminal historical
 record, not the separate flat or timed historical continuation workflow.
 

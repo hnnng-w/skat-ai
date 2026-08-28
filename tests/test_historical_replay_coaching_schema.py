@@ -16,12 +16,12 @@ from test_replay_coaching_prioritization import (
     _zero_decision_data,
 )
 
-from skat_ai.historical_decision_snapshot import build_historical_decision_snapshots
-from skat_ai.historical_game import (
+from skatmind.historical_decision_snapshot import build_historical_decision_snapshots
+from skatmind.historical_game import (
     build_historical_game_record,
     build_historical_game_summary,
 )
-from skat_ai.replay_coaching_report import (
+from skatmind.replay_coaching_report import (
     build_historical_replay_coaching_public_summaries,
 )
 
@@ -80,11 +80,11 @@ VALIDATOR = Draft202012Validator(
 
 def _serialized_report(monkeypatch, data: dict, *, search=_historical_fake_search) -> dict:
     monkeypatch.setattr(
-        "skat_ai.historical_search_review.solve_compatible_world_minimax",
+        "skatmind.historical_search_review.solve_compatible_world_minimax",
         search,
     )
     monkeypatch.setattr(
-        "skat_ai.historical_search_review.recommend_card_by_expected_value",
+        "skatmind.historical_search_review.recommend_card_by_expected_value",
         _historical_fake_immediate,
     )
     record = build_historical_game_record(data)
@@ -132,7 +132,7 @@ def test_schema_is_valid_draft_2020_12_with_stable_public_id() -> None:
 
     assert SCHEMA["$schema"] == "https://json-schema.org/draft/2020-12/schema"
     assert SCHEMA["$id"] == (
-        "https://example.local/skat-ai/historical_replay_coaching.schema.json"
+        "https://example.local/skatmind/historical_replay_coaching.schema.json"
     )
 
 

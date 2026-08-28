@@ -1,14 +1,14 @@
-from skat_ai.game_history import build_score_summary
-from skat_ai.game_state import GameState
-from skat_ai.input_loader import build_game_state_from_input, build_local_game_state_from_input
-from skat_ai.input_validation import validate_position_input
-from skat_ai.result_serialization import (
+from skatmind.game_history import build_score_summary
+from skatmind.game_state import GameState
+from skatmind.input_loader import build_game_state_from_input, build_local_game_state_from_input
+from skatmind.input_validation import validate_position_input
+from skatmind.result_serialization import (
     build_serializable_game_state,
     build_serializable_multi_step_result,
     build_serializable_multi_step_step,
     build_serializable_policy_comparison_result,
 )
-from skat_ai.simulation_step import simulate_and_advance_once
+from skatmind.simulation_step import simulate_and_advance_once
 
 
 def test_build_serializable_game_state() -> None:

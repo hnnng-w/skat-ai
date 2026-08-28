@@ -8,11 +8,11 @@ from test_learning_corpus_strategy_teacher import (
 from test_learning_dataset_v2 import _dataset
 from test_learning_dataset_v2_cross_game_summary import _summary_sources
 
-from skat_ai.corpus_web.source_store import (
+from skatmind.corpus_web.source_store import (
     LearningCorpusStrategyTeacherSourceStoreV1,
 )
-from skat_ai.errors import SkatAIInvariantError
-from skat_ai.learning_corpus_information_set_strategy_teacher import (
+from skatmind.errors import SkatMindInvariantError
+from skatmind.learning_corpus_information_set_strategy_teacher import (
     LEARNING_CORPUS_INFORMATION_SET_STRATEGY_TEACHER_EXTENSION_VERSION,
     LEARNING_CORPUS_INFORMATION_SET_TEACHER_AUTOMATION_POLICY,
     LEARNING_CORPUS_INFORMATION_SET_TEACHER_COMPARISON_POLICY,
@@ -22,10 +22,10 @@ from skat_ai.learning_corpus_information_set_strategy_teacher import (
     LEARNING_CORPUS_INFORMATION_SET_TEACHER_RESULT_POLICY,
     LearningCorpusInformationSetStrategyTeacherEvidenceV1,
 )
-from skat_ai.learning_corpus_strategy_teacher import (
+from skatmind.learning_corpus_strategy_teacher import (
     build_learning_corpus_strategy_teacher_report_source_v1,
 )
-from skat_ai.learning_corpus_strategy_teacher_builder import (
+from skatmind.learning_corpus_strategy_teacher_builder import (
     build_learning_corpus_strategy_teacher_evidence_collection_v1,
 )
 
@@ -214,7 +214,7 @@ def test_information_set_teacher_rejects_changed_effective_fixed_policy(
         report=_changed_report(result, result_document=changed_document),
     )
 
-    with pytest.raises(SkatAIInvariantError, match="effective opponent Policy"):
+    with pytest.raises(SkatMindInvariantError, match="effective opponent Policy"):
         build_learning_corpus_strategy_teacher_evidence_collection_v1(
             store,
             (changed_source,),

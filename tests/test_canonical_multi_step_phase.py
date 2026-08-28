@@ -2,7 +2,7 @@ from dataclasses import FrozenInstanceError
 
 import pytest
 
-from skat_ai.canonical_multi_step_phase import (
+from skatmind.canonical_multi_step_phase import (
     CANONICAL_MULTI_STEP_PHASE_ACTIONS,
     CANONICAL_MULTI_STEP_PHASE_CLASSIFICATION_POLICY,
     CANONICAL_MULTI_STEP_PHASE_COMPATIBILITY_POLICY,
@@ -22,7 +22,7 @@ from skat_ai.canonical_multi_step_phase import (
     CanonicalMultiStepPhasePlanV1,
     build_canonical_multi_step_phase_plan_v1,
 )
-from skat_ai.turn_phase import TurnPhase
+from skatmind.turn_phase import TurnPhase
 
 
 @pytest.mark.parametrize(

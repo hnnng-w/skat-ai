@@ -11,7 +11,7 @@
         "partition": "train",
         "provenance": {
           "source_type": "synthetic",
-          "source_name": "skat-ai partition audit example",
+          "source_name": "skatmind partition audit example",
           "source_record_id": "audit-source-train-001",
           "collected_at": "2026-07-11T00:00:00Z"
         },
@@ -48,7 +48,7 @@
         "partition": "validation",
         "provenance": {
           "source_type": "synthetic",
-          "source_name": "skat-ai partition audit example",
+          "source_name": "skatmind partition audit example",
           "source_record_id": "audit-source-validation-001",
           "collected_at": "2026-07-21T00:00:00Z"
         },
@@ -85,7 +85,7 @@
         "partition": "test",
         "provenance": {
           "source_type": "synthetic",
-          "source_name": "skat-ai partition audit example",
+          "source_name": "skatmind partition audit example",
           "source_record_id": "audit-source-test-001",
           "collected_at": "2026-07-31T00:00:00Z"
         },

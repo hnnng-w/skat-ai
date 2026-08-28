@@ -1,9 +1,9 @@
-from skat_ai.game_history import build_completed_trick_from_state_and_candidate
-from skat_ai.game_state import GameState
-from skat_ai.input_loader import build_local_game_state_from_input
-from skat_ai.recommender import recommend_card_by_expected_value
-from skat_ai.rules import get_legal_cards
-from skat_ai.simulation import (
+from skatmind.game_history import build_completed_trick_from_state_and_candidate
+from skatmind.game_state import GameState
+from skatmind.input_loader import build_local_game_state_from_input
+from skatmind.recommender import recommend_card_by_expected_value
+from skatmind.rules import get_legal_cards
+from skatmind.simulation import (
     choose_basic_opponent_card,
     choose_random_legal_card,
     complete_trick_after_candidate_card,
@@ -41,7 +41,7 @@ def test_generate_random_opponent_hands_returns_requested_sizes() -> None:
 
 
 def test_generate_random_opponent_hands_uses_only_unseen_cards() -> None:
-    from skat_ai.card_tracking import get_unseen_cards
+    from skatmind.card_tracking import get_unseen_cards
 
     state = GameState(
         game_type="grand",
@@ -86,7 +86,7 @@ def test_generate_random_opponent_hands_has_no_duplicate_cards() -> None:
 
 
 def test_generate_sampled_hidden_state_partitions_local_unseen_cards() -> None:
-    from skat_ai.card_tracking import get_unseen_cards
+    from skatmind.card_tracking import get_unseen_cards
 
     state = GameState(
         game_type="grand",
@@ -193,7 +193,7 @@ def test_defender_known_to_declarer_sampling_does_not_use_actual_skat_identities
 def test_declarer_known_to_declarer_sampling_uses_visible_skat_identities() -> None:
     import random
 
-    from skat_ai.card_tracking import get_unseen_cards
+    from skatmind.card_tracking import get_unseen_cards
 
     base_input = {
         "game_type": "grand",
@@ -861,7 +861,7 @@ def test_detailed_result_counts_left_declarer_partner_win_as_local_win(monkeypat
         return ["S8"], ["H7"]
 
     monkeypatch.setattr(
-        "skat_ai.simulation.generate_random_opponent_hands",
+        "skatmind.simulation.generate_random_opponent_hands",
         fake_generate_random_opponent_hands,
     )
     state = GameState(
@@ -893,7 +893,7 @@ def test_detailed_result_counts_right_declarer_partner_win_as_local_win(monkeypa
         return ["SA"], ["H7"]
 
     monkeypatch.setattr(
-        "skat_ai.simulation.generate_random_opponent_hands",
+        "skatmind.simulation.generate_random_opponent_hands",
         fake_generate_random_opponent_hands,
     )
     state = GameState(
@@ -950,7 +950,7 @@ def test_detailed_result_counts_right_declarer_win_as_local_loss(monkeypatch) ->
         return ["S8"], ["H7"]
 
     monkeypatch.setattr(
-        "skat_ai.simulation.generate_random_opponent_hands",
+        "skatmind.simulation.generate_random_opponent_hands",
         fake_generate_random_opponent_hands,
     )
     state = GameState(

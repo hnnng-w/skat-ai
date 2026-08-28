@@ -1,5 +1,5 @@
-from skat_ai.game_state import GameState
-from skat_ai.multi_step_summary import (
+from skatmind.game_state import GameState
+from skatmind.multi_step_summary import (
     build_multi_step_score_summary,
     build_multi_step_summary,
 )

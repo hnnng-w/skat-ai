@@ -349,7 +349,7 @@ absent.
 `create_session_state_v1()` builds the canonical revision-zero State.
 `replay_session_state_v1()` replays the full accepted Log and requires the
 derived Capture Mode, phase, revision, and Validation to equal stored State.
-Forged or semantically invalid accepted State raises `SkatAIInvariantError`.
+Forged or semantically invalid accepted State raises `SkatMindInvariantError`.
 Normal next-Command rejection is not an exception.
 
 ## History editing and Checkpoint lineage
@@ -405,7 +405,7 @@ added to `SessionStateV1`.
 ## Current boundary
 
 Approved immutable Session contracts are re-exported with identical type identity
-from `skat_ai.api.v1.session`; `SessionProjectionV1` and low-level helpers remain
+from `skatmind.api.v1.session`; `SessionProjectionV1` and low-level helpers remain
 internal. Public operations return a schema-valid `SessionApiResultV1` and may
 attach a separate optional complete provenance sidecar without changing internal
 State serialization. Issue #157 preserves the seven Root workflows while adding

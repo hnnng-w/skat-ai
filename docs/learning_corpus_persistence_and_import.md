@@ -129,15 +129,22 @@ content_fingerprint
 catalog
 ```
 
-The document kind is `skat_ai_learning_corpus_catalog`. The nested Catalog is the
+The document kind is `skatmind_learning_corpus_catalog`. The nested Catalog is the
 complete lightweight Issue #171 value: it contains entries and explicit Current
 selections, not Match Snapshot objects. The persistence document contains no
 path, directory name, timestamp, analysis Result, Dataset artifact, or report.
 
+Issue #205 accepts the exact pre-rename Catalog kind and fingerprint domains only
+as one strict input profile. Explicit Catalog Save canonicalizes the mutable
+Catalog document. Verified immutable pre-rename Match Snapshot objects retain
+their opaque IDs and filenames; mixed verified legacy/new Stores remain valid
+without rehashing or duplicate publication. See
+[SkatMind rename and migration](skatmind_rename_and_migration.md).
+
 The Catalog fingerprint uses domain:
 
 ```text
-skat-ai\0learning_corpus_catalog_v1\0
+skatmind\0learning_corpus_catalog_v1\0
 ```
 
 over the exact validated `LearningCorpusCatalogV1.to_dict()` value. Its material
@@ -154,7 +161,7 @@ current_matches
 The persistence-content fingerprint uses domain:
 
 ```text
-skat-ai\0learning_corpus_persistence_v1\0
+skatmind\0learning_corpus_persistence_v1\0
 ```
 
 over persistence version, document kind, Catalog fingerprint, and Catalog. It
@@ -183,9 +190,9 @@ Match Snapshot object Resume does not trust persisted derived references. It:
 5. requires the object filename to equal the rebuilt Match Snapshot ID at file
    Load.
 
-Externally persisted invalid content raises `SkatAIValidationError`. Impossible
+Externally persisted invalid content raises `SkatMindValidationError`. Impossible
 disagreement among already validated internal values raises
-`SkatAIInvariantError`. Native filesystem failures remain filesystem exceptions.
+`SkatMindInvariantError`. Native filesystem failures remain filesystem exceptions.
 
 ## Canonical files
 

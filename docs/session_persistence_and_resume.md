@@ -15,7 +15,7 @@ Session Schema before strict reconstruction, fingerprint verification, replay,
 and lineage recomputation. Neither in-memory operation reads or writes a file or
 retains a path or timestamp.
 
-Issue #157 adds the separate stable `skat_ai.api.v1.session.files` version-1
+Issue #157 adds the separate stable `skatmind.api.v1.session.files` version-1
 transport over the unchanged low-level Save/Load behavior. It also adds CLI
 automatic Checkpoint collection and optimistic file orchestration. Paths remain
 caller-supplied transport arguments and are not retained in public Results,
@@ -33,13 +33,20 @@ It does not import private Session-persistence helpers and does not change
 Session documents, canonical bytes, fingerprints, Resume, public files, CLI, or
 versions. Session files are not Learning Corpus source objects.
 
+Issue #205 adds a strict input-only profile for exact pre-rename version-1
+Session documents. Load/Resume verifies the original kind and both original
+fingerprint domains without writing the file. Mixed canonical/legacy identity is
+rejected. The next explicit successful Save compares against the loaded legacy
+content fingerprint and atomically writes the canonical SkatMind kind and
+fingerprints. See [SkatMind rename and migration](skatmind_rename_and_migration.md).
+
 ## Contract identity
 
 The exact constants and policies are:
 
 ```text
 SESSION_PERSISTENCE_VERSION = 1
-SESSION_PERSISTENCE_DOCUMENT_KIND = skat_ai_session
+SESSION_PERSISTENCE_DOCUMENT_KIND = skatmind_session
 SESSION_PERSISTENCE_STATE_POLICY = authoritative_accepted_log_state
 SESSION_PERSISTENCE_CHECKPOINT_POLICY = caller_supplied_frozen_checkpoints
 SESSION_PERSISTENCE_STATE_FINGERPRINT_POLICY = sha256_canonical_session_state_v1
@@ -76,7 +83,7 @@ state
 decision_checkpoints
 ```
 
-`document_kind` is exactly `skat_ai_session`. `state` is one exact
+`document_kind` is exactly `skatmind_session`. `state` is one exact
 `SessionStateV1`; its accepted Command Log remains authoritative. The document
 does not persist a separate projection, derived Game State, Undo or Correction
 Result, removed or discarded suffix, Redo stack, analysis Result, Search World,
@@ -132,7 +139,7 @@ The State identity is:
 
 ```text
 SHA-256(
-    b"skat-ai\0session_state_v1\0"
+    b"skatmind\0session_state_v1\0"
     + canonical_compact_json(state.to_dict())
 )
 ```
@@ -141,7 +148,7 @@ The content identity is:
 
 ```text
 SHA-256(
-    b"skat-ai\0session_persistence_v1\0"
+    b"skatmind\0session_persistence_v1\0"
     + canonical_compact_json(document without content_fingerprint)
 )
 ```
@@ -320,9 +327,9 @@ depth, non-finite numbers, a non-object root, unsupported fields, non-canonical
 typed values, replay conflicts, and either fingerprint mismatch.
 
 Malformed, non-canonical, replay-inconsistent, or tampered persisted content uses
-`SkatAIValidationError` with the most specific available RFC 6901 path. An
+`SkatMindValidationError` with the most specific available RFC 6901 path. An
 internally supplied typed document that fails save-time consistency verification
-is a `SkatAIInvariantError`. Invalid direct Python argument types or fingerprint
+is a `SkatMindInvariantError`. Invalid direct Python argument types or fingerprint
 shapes use `ValueError`. Loading a missing file, non-regular targets, missing
 write parents, permission failures, and write/replace failures preserve their
 filesystem exceptions. Save never overwrites an existing target that cannot
@@ -349,10 +356,10 @@ authentication mechanism against a writer who can replace the document.
 
 ## Public file and CLI boundary
 
-The low-level implementation remains under `skat_ai.session_persistence*`.
+The low-level implementation remains under `skatmind.session_persistence*`.
 `save_session_persistence_file_v1` and `load_session_persistence_file_v1` remain
 private functions. The exact `SessionPersistenceWriteResultV1` type is re-exported
-only from stable `skat_ai.api.v1.session.files`, whose `save_session_file()` and
+only from stable `skatmind.api.v1.session.files`, whose `save_session_file()` and
 `load_session_file()` delegate once and retain no path.
 
 Installed, module, and Legacy Session CLI mutations load one exact document,

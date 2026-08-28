@@ -14,22 +14,22 @@ from test_match_workspace_contracts import (
     _set_game,
 )
 
-import skat_ai.match_workspace_persistence_codec as codec_module
-from skat_ai.errors import SkatAIInvariantError, SkatAIValidationError
-from skat_ai.game_declaration import GameDeclaration
-from skat_ai.match_source_metadata import MatchSourceMetadataV1, MediaTimecodeV1
-from skat_ai.match_workspace_contracts import create_match_workspace_v1
-from skat_ai.match_workspace_operations import (
+import skatmind.match_workspace_persistence_codec as codec_module
+from skatmind.errors import SkatMindInvariantError, SkatMindValidationError
+from skatmind.game_declaration import GameDeclaration
+from skatmind.match_source_metadata import MatchSourceMetadataV1, MediaTimecodeV1
+from skatmind.match_workspace_contracts import create_match_workspace_v1
+from skatmind.match_workspace_operations import (
     mark_match_workspace_passed_deal_v1,
     replace_match_workspace_definition_v1,
     set_match_workspace_observed_game_v1,
 )
-from skat_ai.match_workspace_persistence_codec import (
+from skatmind.match_workspace_persistence_codec import (
     build_match_workspace_fingerprint_v1,
     build_match_workspace_persistence_document_v1,
     resume_match_workspace_document_v1,
 )
-from skat_ai.observed_game_trace import ObservedPlayV1
+from skatmind.observed_game_trace import ObservedPlayV1
 
 
 def _canonical_bytes(value: object) -> bytes:
@@ -58,13 +58,13 @@ def _rich_document():
 def test_workspace_and_content_fingerprints_match_independent_domain_oracles() -> None:
     document = _rich_document()
     expected_workspace = hashlib.sha256(
-        b"skat-ai\0match_workspace_v1\0"
+        b"skatmind\0match_workspace_v1\0"
         + _canonical_bytes(document.workspace.to_dict())
     ).hexdigest()
     content = document.to_dict()
     del content["content_fingerprint"]
     expected_content = hashlib.sha256(
-        b"skat-ai\0match_workspace_persistence_v1\0"
+        b"skatmind\0match_workspace_persistence_v1\0"
         + _canonical_bytes(content)
     ).hexdigest()
     assert document.workspace_fingerprint == expected_workspace
@@ -303,7 +303,7 @@ def test_resume_accepts_alternate_object_order_but_requires_canonical_array_orde
     assert resume_match_workspace_document_v1(reversed_root).document == document
     noncanonical = document.to_dict()
     noncanonical["workspace"]["slots"].reverse()
-    with pytest.raises(SkatAIValidationError, match="positions"):
+    with pytest.raises(SkatMindValidationError, match="positions"):
         resume_match_workspace_document_v1(noncanonical)
 
 
@@ -336,7 +336,7 @@ def test_resume_rejects_missing_unknown_and_nested_field_drift() -> None:
     ]["extra"] = None
     cases.append(unknown_snapshot)
     for value in cases:
-        with pytest.raises(SkatAIValidationError):
+        with pytest.raises(SkatMindValidationError):
             resume_match_workspace_document_v1(value)
 
 
@@ -389,7 +389,7 @@ def test_resume_rejects_versions_registry_linkage_rotation_and_fingerprint_tampe
         source["workspace_fingerprint"] = "0" * 64
     else:
         source["content_fingerprint"] = "f" * 64
-    with pytest.raises(SkatAIValidationError):
+    with pytest.raises(SkatMindValidationError):
         resume_match_workspace_document_v1(source)
 
 
@@ -405,20 +405,20 @@ def test_resume_rejects_validly_refingerprinted_unreachable_revision() -> None:
     source = build_match_workspace_persistence_document_v1(workspace).to_dict()
     source["workspace"]["revision"] = 1
     source["workspace_fingerprint"] = hashlib.sha256(
-        b"skat-ai\0match_workspace_v1\0" + _canonical_bytes(source["workspace"])
+        b"skatmind\0match_workspace_v1\0" + _canonical_bytes(source["workspace"])
     ).hexdigest()
     content = copy.deepcopy(source)
     del content["content_fingerprint"]
     source["content_fingerprint"] = hashlib.sha256(
-        b"skat-ai\0match_workspace_persistence_v1\0" + _canonical_bytes(content)
+        b"skatmind\0match_workspace_persistence_v1\0" + _canonical_bytes(content)
     ).hexdigest()
-    with pytest.raises(SkatAIValidationError, match="occupied"):
+    with pytest.raises(SkatMindValidationError, match="occupied"):
         resume_match_workspace_document_v1(source)
 
 
 @pytest.mark.parametrize("root", (None, [], "workspace"))
 def test_resume_requires_mapping_root(root: object) -> None:
-    with pytest.raises(SkatAIValidationError, match="JSON object"):
+    with pytest.raises(SkatMindValidationError, match="JSON object"):
         resume_match_workspace_document_v1(root)
 
 
@@ -444,9 +444,9 @@ def test_document_build_and_resume_each_use_two_domain_hashes(monkeypatch) -> No
 def test_persistence_build_rejects_forged_internal_workspace_as_invariant() -> None:
     workspace = create_match_workspace_v1(_definition())
     object.__setattr__(workspace, "revision", True)
-    with pytest.raises(SkatAIInvariantError, match="inconsistent"):
+    with pytest.raises(SkatMindInvariantError, match="inconsistent"):
         build_match_workspace_fingerprint_v1(workspace)
-    with pytest.raises(SkatAIInvariantError, match="assembly"):
+    with pytest.raises(SkatMindInvariantError, match="assembly"):
         build_match_workspace_persistence_document_v1(workspace)
 
 

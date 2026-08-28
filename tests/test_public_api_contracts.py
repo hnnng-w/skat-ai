@@ -8,11 +8,11 @@ from pathlib import Path
 
 import pytest
 
-import skat_ai
-import skat_ai.api
-import skat_ai.api.v1 as api_v1
-import skat_ai.errors
-from skat_ai.api.v1 import (
+import skatmind
+import skatmind.api
+import skatmind.api.v1 as api_v1
+import skatmind.errors
+from skatmind.api.v1 import (
     DEFAULT_INPUT_REFERENCE_V1,
     EXECUTION_ARTIFACT_NAMES_V1,
     LEGACY_MAIN_COMPATIBILITY_TARGET,
@@ -31,8 +31,8 @@ from skat_ai.api.v1 import (
     WorkflowV1,
     get_api_version_info_v1,
 )
-from skat_ai.errors import SkatAIValidationError
-from skat_ai.input_loader import get_input_workflow
+from skatmind.errors import SkatMindValidationError
+from skatmind.input_loader import get_input_workflow
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
@@ -40,16 +40,16 @@ ERROR_EXPORTS = (
     "CLI_EXIT_CODE_SUCCESS",
     "CLI_EXIT_CODE_FAILURE",
     "CLI_EXIT_CODE_USAGE",
-    "SkatAIError",
-    "SkatAIValidationError",
-    "SkatAIWorkflowError",
-    "SkatAIInformationPolicyError",
-    "SkatAISchemaError",
-    "SkatAISerializationError",
-    "SkatAIResourceError",
-    "SkatAIInvariantError",
-    "SkatAICliUsageError",
-    "SkatAIDeprecationWarning",
+    "SkatMindError",
+    "SkatMindValidationError",
+    "SkatMindWorkflowError",
+    "SkatMindInformationPolicyError",
+    "SkatMindSchemaError",
+    "SkatMindSerializationError",
+    "SkatMindResourceError",
+    "SkatMindInvariantError",
+    "SkatMindCliUsageError",
+    "SkatMindDeprecationWarning",
 )
 CONTRACT_EXPORTS = (
     "PUBLIC_API_CONTRACT_VERSION",
@@ -91,15 +91,15 @@ WORKFLOWS = (
 
 
 def test_public_namespaces_have_exact_export_surfaces() -> None:
-    assert skat_ai.__all__ == ("api", "errors", "__version__")
-    assert skat_ai.api.__all__ == ("v1",)
+    assert skatmind.__all__ == ("api", "errors", "__version__")
+    assert skatmind.api.__all__ == ("v1",)
     assert api_v1.__all__ == (*CONTRACT_EXPORTS, *ERROR_EXPORTS, "session")
-    assert skat_ai.errors.__all__ == ERROR_EXPORTS
+    assert skatmind.errors.__all__ == ERROR_EXPORTS
 
     for name in api_v1.__all__:
         assert hasattr(api_v1, name)
-    for name in skat_ai.errors.__all__:
-        assert getattr(api_v1, name) is getattr(skat_ai.errors, name)
+    for name in skatmind.errors.__all__:
+        assert getattr(api_v1, name) is getattr(skatmind.errors, name)
 
 
 def test_package_import_loads_only_public_contract_modules() -> None:
@@ -107,9 +107,9 @@ def test_package_import_loads_only_public_contract_modules() -> None:
         "import importlib.resources, json, sys\n"
         "importlib.resources.files = lambda *args, **kwargs: (_ for _ in ()).throw("
         "AssertionError('package import loaded schema resources'))\n"
-        "import skat_ai\n"
+        "import skatmind\n"
         "print(json.dumps(sorted(name for name in sys.modules "
-        "if name == 'skat_ai' or name.startswith('skat_ai.'))))\n"
+        "if name == 'skatmind' or name.startswith('skatmind.'))))\n"
     )
 
     completed = subprocess.run(
@@ -122,15 +122,15 @@ def test_package_import_loads_only_public_contract_modules() -> None:
 
     assert completed.returncode == 0, completed.stderr
     assert json.loads(completed.stdout) == [
-        "skat_ai",
-        "skat_ai._version",
-        "skat_ai.api",
-        "skat_ai.api.v1",
-        "skat_ai.api.v1.contracts",
-        "skat_ai.api.v1.execution",
-        "skat_ai.api.v1.provenance",
-        "skat_ai.api.v1.schema_validation",
-        "skat_ai.errors",
+        "skatmind",
+        "skatmind._version",
+        "skatmind.api",
+        "skatmind.api.v1",
+        "skatmind.api.v1.contracts",
+        "skatmind.api.v1.execution",
+        "skatmind.api.v1.provenance",
+        "skatmind.api.v1.schema_validation",
+        "skatmind.errors",
     ]
 
 
@@ -138,10 +138,10 @@ def test_api_constants_are_exact_and_independent_from_package_version() -> None:
     pyproject = tomllib.loads((PROJECT_ROOT / "pyproject.toml").read_text(encoding="utf-8"))
 
     assert PUBLIC_API_CONTRACT_VERSION == 1
-    assert PUBLIC_API_NAMESPACE == "skat_ai.api.v1"
+    assert PUBLIC_API_NAMESPACE == "skatmind.api.v1"
     assert PUBLIC_API_COMPATIBILITY_POLICY == "additive_until_v1_0"
     assert LEGACY_MAIN_COMPATIBILITY_TARGET == "v1.0.0"
-    assert DEFAULT_INPUT_REFERENCE_V1 == "memory://skat-ai/request"
+    assert DEFAULT_INPUT_REFERENCE_V1 == "memory://skatmind/request"
     assert EXECUTION_ARTIFACT_NAMES_V1 == ("opponent_statistics_input",)
     assert PUBLIC_FIELD_PROVENANCE_VERSION == 1
     assert PUBLIC_FIELD_PROVENANCE_ROOT_FIELD == "field_provenance"
@@ -247,7 +247,7 @@ def test_request_rejects_values_outside_the_json_boundary(
     document: object,
     match: str,
 ) -> None:
-    with pytest.raises(SkatAIValidationError, match=match):
+    with pytest.raises(SkatMindValidationError, match=match):
         RequestDocumentV1(
             workflow=WorkflowV1.POSITION_ANALYSIS,
             document=document,
@@ -256,13 +256,13 @@ def test_request_rejects_values_outside_the_json_boundary(
 
 def test_request_rejects_wrong_version_and_non_enum_workflow() -> None:
     for version in (2, 1.0, True):
-        with pytest.raises(SkatAIValidationError, match="api_contract_version"):
+        with pytest.raises(SkatMindValidationError, match="api_contract_version"):
             RequestDocumentV1(
                 api_contract_version=version,
                 workflow=WorkflowV1.POSITION_ANALYSIS,
                 document={},
             )
-    with pytest.raises(SkatAIValidationError, match="WorkflowV1"):
+    with pytest.raises(SkatMindValidationError, match="WorkflowV1"):
         RequestDocumentV1(workflow="position_analysis", document={})
     with pytest.raises(TypeError):
         RequestDocumentV1(WorkflowV1.POSITION_ANALYSIS, {})
@@ -294,7 +294,7 @@ def test_result_document_defensively_copies_document_and_warnings() -> None:
 
 @pytest.mark.parametrize("warnings", [("",), (1,), "one warning"])
 def test_result_rejects_invalid_warnings(warnings: object) -> None:
-    with pytest.raises(SkatAIValidationError, match="warnings"):
+    with pytest.raises(SkatMindValidationError, match="warnings"):
         ResultDocumentV1(
             workflow=WorkflowV1.POSITION_ANALYSIS,
             document={},
@@ -317,9 +317,9 @@ def test_execution_options_are_keyword_only_frozen_and_boolean() -> None:
     ]
     assert not hasattr(ExecutionOptionsV1(), "provenance")
 
-    with pytest.raises(SkatAIValidationError, match="boolean"):
+    with pytest.raises(SkatMindValidationError, match="boolean"):
         ExecutionOptionsV1(validate_output=1)
-    with pytest.raises(SkatAIValidationError, match="boolean"):
+    with pytest.raises(SkatMindValidationError, match="boolean"):
         ExecutionOptionsV1(include_provenance=1)
     with pytest.raises(FrozenInstanceError):
         options = ExecutionOptionsV1()
@@ -345,7 +345,7 @@ def test_compatibility_policy_has_exact_fields_and_values() -> None:
     ]
     assert policy.to_dict() == {
         "policy_id": "additive_until_v1_0",
-        "public_namespace": "skat_ai.api.v1",
+        "public_namespace": "skatmind.api.v1",
         "public_name_removal_before_v1_allowed": False,
         "public_name_renaming_before_v1_allowed": False,
         "additive_public_exports_allowed": True,
@@ -353,11 +353,11 @@ def test_compatibility_policy_has_exact_fields_and_values() -> None:
         "legacy_main_supported_through": "v1.0.0",
         "package_version_independent": True,
         "schema_versions_independent": True,
-        "deprecation_warning_name": "SkatAIDeprecationWarning",
+        "deprecation_warning_name": "SkatMindDeprecationWarning",
     }
     with pytest.raises(FrozenInstanceError):
         policy.policy_id = "changed"
-    with pytest.raises(SkatAIValidationError, match="policy_id"):
+    with pytest.raises(SkatMindValidationError, match="policy_id"):
         CompatibilityPolicyV1(policy_id="breaking")
 
 
@@ -369,14 +369,14 @@ def test_api_version_info_is_exact_immutable_and_deterministic() -> None:
     assert first == second
     assert first is not second
     assert first.api_contract_version == 1
-    assert first.namespace == "skat_ai.api.v1"
+    assert first.namespace == "skatmind.api.v1"
     assert first.supported_workflows == tuple(WorkflowV1)
     assert first.normal_result_states == NORMAL_RESULT_STATES_V1
     assert first.compatibility_policy == CompatibilityPolicyV1()
     assert not hasattr(first, "package_version")
     assert first.to_dict() == {
         "api_contract_version": 1,
-        "namespace": "skat_ai.api.v1",
+        "namespace": "skatmind.api.v1",
         "supported_workflows": list(WORKFLOWS),
         "normal_result_states": list(NORMAL_RESULT_STATES_V1),
         "compatibility_policy": CompatibilityPolicyV1().to_dict(),
@@ -415,14 +415,14 @@ def test_packaging_and_cli_add_no_public_api_exports() -> None:
 
     assert forbidden.isdisjoint(api_v1.__all__)
     assert all(not hasattr(api_v1, name) for name in forbidden)
-    assert skat_ai.__version__ == "0.17.0"
-    assert importlib.util.find_spec("skat_ai.__main__") is not None
+    assert skatmind.__version__ == "0.17.0"
+    assert importlib.util.find_spec("skatmind.__main__") is not None
     assert pyproject["build-system"]["build-backend"] == "setuptools.build_meta"
-    assert pyproject["project"]["scripts"] == {"skat-ai": "skat_ai.cli:main"}
+    assert pyproject["project"]["scripts"] == {"skatmind": "skatmind.cli:main"}
     assert "gui-scripts" not in pyproject["project"]
     assert "main" not in api_v1.__all__
     assert "run_cli" not in api_v1.__all__
-    assert (PROJECT_ROOT / "src" / "skat_ai" / "py.typed").is_file()
+    assert (PROJECT_ROOT / "src" / "skatmind" / "py.typed").is_file()
 
 
 def test_jsonschema_is_runtime_dependency_and_dev_tools_remain_optional() -> None:

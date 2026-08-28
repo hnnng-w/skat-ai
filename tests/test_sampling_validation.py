@@ -1,6 +1,6 @@
-from skat_ai.deck import get_full_deck
-from skat_ai.game_state import GameState
-from skat_ai.sampling_validation import (
+from skatmind.deck import get_full_deck
+from skatmind.game_state import GameState
+from skatmind.sampling_validation import (
     get_available_card_count_for_sampling,
     validate_enough_cards_for_opponent_sampling,
 )

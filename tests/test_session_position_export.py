@@ -21,28 +21,28 @@ from test_session_transitions import (
     _retrospective_before_play,
 )
 
-import skat_ai.session_position_export as position_export_module
-from skat_ai.api.v1.contracts import WorkflowV1
-from skat_ai.deck import get_full_deck
-from skat_ai.errors import SkatAIInvariantError
-from skat_ai.game_declaration import GameDeclaration
-from skat_ai.historical_snapshot_adapter import build_position_from_historical_snapshot
-from skat_ai.input_loader import build_position_from_document, get_input_workflow
-from skat_ai.session_commands import (
+import skatmind.session_position_export as position_export_module
+from skatmind.api.v1.contracts import WorkflowV1
+from skatmind.deck import get_full_deck
+from skatmind.errors import SkatMindInvariantError
+from skatmind.game_declaration import GameDeclaration
+from skatmind.historical_snapshot_adapter import build_position_from_historical_snapshot
+from skatmind.input_loader import build_position_from_document, get_input_workflow
+from skatmind.session_commands import (
     RecordSessionPlayCommandV1,
     SetSessionDeclarationCommandV1,
     SetSessionDeclarerCommandV1,
     SetSessionGameEventCommandV1,
     SetSessionPublicHandCommandV1,
 )
-from skat_ai.session_export_contracts import SessionRequestExportV1
-from skat_ai.session_position_export import (
+from skatmind.session_export_contracts import SessionRequestExportV1
+from skatmind.session_position_export import (
     SESSION_POSITION_EXPORT_OPTIONS_VERSION,
     SESSION_POSITION_EXPORT_POLICY,
     SessionPositionExportOptionsV1,
     export_session_position_analysis_request_v1,
 )
-from skat_ai.session_transitions import apply_session_command_v1, replay_session_state_v1
+from skatmind.session_transitions import apply_session_command_v1, replay_session_state_v1
 
 
 def _search_settings() -> dict:
@@ -712,7 +712,7 @@ def test_ready_position_builder_failure_is_an_invariant_with_original_cause(
         "build_position_from_document",
         fail_builder,
     )
-    with pytest.raises(SkatAIInvariantError) as captured:
+    with pytest.raises(SkatMindInvariantError) as captured:
         export_session_position_analysis_request_v1(state, _options())
     assert isinstance(captured.value.__cause__, ValueError)
     assert str(captured.value.__cause__) == "position builder disagreement"

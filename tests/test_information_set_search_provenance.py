@@ -4,10 +4,10 @@ from pathlib import Path
 
 import pytest
 
-import skat_ai.application.position_workflow as position_module
-import skat_ai.recommendation_workflow as recommendation_module
-from skat_ai.api.v1 import ExecutionOptionsV1, execute_document
-from skat_ai.application import (
+import skatmind.application.position_workflow as position_module
+import skatmind.recommendation_workflow as recommendation_module
+from skatmind.api.v1 import ExecutionOptionsV1, execute_document
+from skatmind.application import (
     ApplicationExecutionOptions,
     HistoricalGameApplicationOptions,
     PositionAnalysisApplicationOptions,
@@ -15,27 +15,27 @@ from skat_ai.application import (
     build_application_invocation,
     execute_application_invocation,
 )
-from skat_ai.application.execution import ApplicationWorkflowDependencies
-from skat_ai.application.historical_game_workflow import (
+from skatmind.application.execution import ApplicationWorkflowDependencies
+from skatmind.application.historical_game_workflow import (
     HistoricalGameWorkflowDependencies,
 )
-from skat_ai.application.training_dataset_workflow import (
+from skatmind.application.training_dataset_workflow import (
     TrainingDatasetWorkflowDependencies,
 )
-from skat_ai.historical_information_set_search_review import (
+from skatmind.historical_information_set_search_review import (
     build_historical_information_set_search_review_summary_v1,
 )
-from skat_ai.information_set_search_comparison import (
+from skatmind.information_set_search_comparison import (
     build_information_set_search_comparison_pre_actual_analysis_v1,
 )
-from skat_ai.information_set_search_evaluation import (
+from skatmind.information_set_search_evaluation import (
     evaluate_information_set_search_dataset_v1,
 )
-from skat_ai.public_field_provenance import (
+from skatmind.public_field_provenance import (
     attach_public_field_provenance,
     build_public_field_provenance_bundle,
 )
-from skat_ai.simulation import DEFAULT_IMMEDIATE_ANALYSIS_SAMPLE_COUNT
+from skatmind.simulation import DEFAULT_IMMEDIATE_ANALYSIS_SAMPLE_COUNT
 
 ROOT = Path(__file__).resolve().parents[1]
 EXAMPLES = ROOT / "examples"

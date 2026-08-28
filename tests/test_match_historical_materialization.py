@@ -13,13 +13,13 @@ from test_observed_game_contracts import (
     observed_plays_from_historical,
 )
 
-from skat_ai.errors import SkatAIInvariantError
-from skat_ai.historical_game import (
+from skatmind.errors import SkatMindInvariantError
+from skatmind.historical_game import (
     build_historical_game_record,
     build_historical_game_summary,
     build_serializable_historical_record,
 )
-from skat_ai.match_historical_materialization import (
+from skatmind.match_historical_materialization import (
     MATCH_HISTORICAL_GAME_MATERIALIZATION_VERSION,
     MATCH_HISTORICAL_MATERIALIZATION_POLICY,
     MATCH_HISTORICAL_MATERIALIZATION_UNAVAILABLE_REASONS,
@@ -28,13 +28,13 @@ from skat_ai.match_historical_materialization import (
     MatchHistoricalGameMaterializationV1,
     materialize_match_observed_game_historical_v1,
 )
-from skat_ai.match_training_source_materialization import (
+from skatmind.match_training_source_materialization import (
     MATCH_TRAINING_SOURCE_COLLECTION_VERSION,
     MATCH_TRAINING_SOURCE_POLICY,
     materialize_match_training_source_record_v1,
 )
-from skat_ai.match_workspace_contracts import create_match_workspace_v1
-from skat_ai.match_workspace_operations import mark_match_workspace_passed_deal_v1
+from skatmind.match_workspace_contracts import create_match_workspace_v1
+from skatmind.match_workspace_operations import mark_match_workspace_passed_deal_v1
 
 
 def test_versions_reasons_policies_and_fields_are_exact() -> None:
@@ -340,7 +340,7 @@ def test_conflicting_retained_matadors_are_not_silently_replaced() -> None:
         plays=observed_plays_from_historical(data),
     )
     workspace = _set_game(create_match_workspace_v1(definition), game)
-    with pytest.raises(SkatAIInvariantError, match="Complete exact Match evidence"):
+    with pytest.raises(SkatMindInvariantError, match="Complete exact Match evidence"):
         materialize_match_observed_game_historical_v1(
             workspace,
             match_position=3,

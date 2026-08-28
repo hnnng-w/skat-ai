@@ -22,25 +22,25 @@ from test_party_wide_claim_proof_executor import (
     _preparation_from_deck,
 )
 
-import skat_ai
-import skat_ai.api.v1 as api_v1
-import skat_ai.party_wide_claim_adjudication as adjudication_module
-import skat_ai.party_wide_claim_evidence as evidence_module
-import skat_ai.party_wide_claim_proof_contracts as proof_contracts_module
+import skatmind
+import skatmind.api.v1 as api_v1
+import skatmind.party_wide_claim_adjudication as adjudication_module
+import skatmind.party_wide_claim_evidence as evidence_module
+import skatmind.party_wide_claim_proof_contracts as proof_contracts_module
 from scripts.validate_generated_outputs_schema import SCENARIOS
-from skat_ai.api.v1 import WorkflowV1
-from skat_ai.errors import SkatAIInvariantError
-from skat_ai.final_settlement import build_final_settlement_summary
-from skat_ai.game_declaration import GameDeclaration
-from skat_ai.game_end import VALID_GAME_END_REASONS
-from skat_ai.game_result import build_game_result_summary_from_points
-from skat_ai.game_shortening import GameShortening
-from skat_ai.game_value import build_game_value_summary
-from skat_ai.historical_game import build_historical_game_record
-from skat_ai.historical_game_end import HISTORICAL_GAME_END_REASONS
-from skat_ai.historical_game_event import HistoricalGameEvent
-from skat_ai.party_wide_claim_adjudication import adjudicate_party_wide_claim_proof_v1
-from skat_ai.party_wide_claim_adjudication_contracts import (
+from skatmind.api.v1 import WorkflowV1
+from skatmind.errors import SkatMindInvariantError
+from skatmind.final_settlement import build_final_settlement_summary
+from skatmind.game_declaration import GameDeclaration
+from skatmind.game_end import VALID_GAME_END_REASONS
+from skatmind.game_result import build_game_result_summary_from_points
+from skatmind.game_shortening import GameShortening
+from skatmind.game_value import build_game_value_summary
+from skatmind.historical_game import build_historical_game_record
+from skatmind.historical_game_end import HISTORICAL_GAME_END_REASONS
+from skatmind.historical_game_event import HistoricalGameEvent
+from skatmind.party_wide_claim_adjudication import adjudicate_party_wide_claim_proof_v1
+from skatmind.party_wide_claim_adjudication_contracts import (
     PARTY_WIDE_CLAIM_ADJUDICATION_ASSIGNMENT_POLICY,
     PARTY_WIDE_CLAIM_ADJUDICATION_EXECUTION_POLICY,
     PARTY_WIDE_CLAIM_ADJUDICATION_FACTS_VERSION,
@@ -63,17 +63,17 @@ from skat_ai.party_wide_claim_adjudication_contracts import (
     build_party_wide_claim_adjudication_facts_v1,
     build_party_wide_claim_adjudication_result_v1,
 )
-from skat_ai.party_wide_claim_contracts import PARTY_WIDE_CLAIM_VERSION
-from skat_ai.party_wide_claim_evidence import build_party_wide_claim_evidence_v1
-from skat_ai.party_wide_claim_proof_contracts import (
+from skatmind.party_wide_claim_contracts import PARTY_WIDE_CLAIM_VERSION
+from skatmind.party_wide_claim_evidence import build_party_wide_claim_evidence_v1
+from skatmind.party_wide_claim_proof_contracts import (
     PARTY_WIDE_CLAIM_PROOF_RESULT_VERSION,
     build_unavailable_party_wide_claim_proof_preparation_v1,
     build_unavailable_party_wide_claim_proof_result_v1,
     prepare_party_wide_claim_proof_request_v1,
 )
-from skat_ai.party_wide_claim_proof_executor import execute_party_wide_claim_proof_v1
-from skat_ai.rules import get_card_points
-from skat_ai.settlement_normative_matrix import (
+from skatmind.party_wide_claim_proof_executor import execute_party_wide_claim_proof_v1
+from skatmind.rules import get_card_points
+from skatmind.settlement_normative_matrix import (
     SETTLEMENT_NORMATIVE_MATRIX_VERSION,
     SUPPORTED_AS_IS,
     V1_NOT_SUPPORTED_CLAIM_CASE_IDS,
@@ -82,8 +82,8 @@ from skat_ai.settlement_normative_matrix import (
 )
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-ADJUDICATION_PATH = PROJECT_ROOT / "src" / "skat_ai" / "party_wide_claim_adjudication.py"
-CONTRACTS_PATH = PROJECT_ROOT / "src" / "skat_ai" / "party_wide_claim_adjudication_contracts.py"
+ADJUDICATION_PATH = PROJECT_ROOT / "src" / "skatmind" / "party_wide_claim_adjudication.py"
+CONTRACTS_PATH = PROJECT_ROOT / "src" / "skatmind" / "party_wide_claim_adjudication_contracts.py"
 
 PREEXISTING_DECLARER_DECK = (
     "CJ",
@@ -487,8 +487,8 @@ def test_valid_proof_is_strictly_reconciled_without_proof_execution(monkeypatch)
         pytest.fail("Adjudication reran proof or exact-state traversal.")
 
     for module_name in (
-        "skat_ai.party_wide_claim_proof_executor",
-        "skat_ai.exact_search_state",
+        "skatmind.party_wide_claim_proof_executor",
+        "skatmind.exact_search_state",
     ):
         module = __import__(module_name, fromlist=["unused"])
         for name in (
@@ -521,7 +521,7 @@ def test_valid_proof_is_strictly_reconciled_without_proof_execution(monkeypatch)
     ):
         forged = copy.copy(proof)
         object.__setattr__(forged, field_name, value)
-        with pytest.raises(SkatAIInvariantError):
+        with pytest.raises(SkatMindInvariantError):
             adjudicate_party_wide_claim_proof_v1(forged)
     forged_assignment = copy.copy(proof.assignment)
     object.__setattr__(
@@ -531,7 +531,7 @@ def test_valid_proof_is_strictly_reconciled_without_proof_execution(monkeypatch)
     )
     forged = copy.copy(proof)
     object.__setattr__(forged, "assignment", forged_assignment)
-    with pytest.raises(SkatAIInvariantError):
+    with pytest.raises(SkatMindInvariantError):
         adjudicate_party_wide_claim_proof_v1(forged)
 
 
@@ -548,19 +548,19 @@ def test_forged_retained_request_and_evidence_are_rejected() -> None:
     object.__setattr__(forged_preparation, "request", forged_request)
     forged_proof = copy.copy(proof)
     object.__setattr__(forged_proof, "preparation", forged_preparation)
-    with pytest.raises(SkatAIInvariantError):
+    with pytest.raises(SkatMindInvariantError):
         adjudicate_party_wide_claim_proof_v1(forged_proof)
 
     forged_evidence = copy.copy(evidence)
     object.__setattr__(forged_evidence, "played_card_count", evidence.played_card_count + 1)
-    with pytest.raises(SkatAIInvariantError):
+    with pytest.raises(SkatMindInvariantError):
         adjudicate_party_wide_claim_proof_v1(_replace_proof_evidence(proof, forged_evidence))
 
     forged_evidence = copy.copy(evidence)
     object.__setattr__(
         forged_evidence, "remaining_hands", tuple(reversed(evidence.remaining_hands))
     )
-    with pytest.raises(SkatAIInvariantError):
+    with pytest.raises(SkatMindInvariantError):
         adjudicate_party_wide_claim_proof_v1(_replace_proof_evidence(proof, forged_evidence))
 
 
@@ -588,7 +588,7 @@ def test_forged_play_ownership_and_matadors_are_rejected() -> None:
     forged_evidence = copy.copy(evidence)
     object.__setattr__(forged_evidence, "tricks", tuple(tricks))
     object.__setattr__(forged_evidence, "completed_tricks", tuple(completed_tricks))
-    with pytest.raises(SkatAIInvariantError):
+    with pytest.raises(SkatMindInvariantError):
         adjudicate_party_wide_claim_proof_v1(_replace_proof_evidence(proof, forged_evidence))
 
     declaration = evidence.declaration
@@ -608,7 +608,7 @@ def test_forged_play_ownership_and_matadors_are_rejected() -> None:
     object.__setattr__(forged_state, "declaration", forged_declaration)
     forged_context = copy.copy(request.exact_state_context)
     object.__setattr__(forged_context, "exact_state", forged_state)
-    with pytest.raises(SkatAIInvariantError):
+    with pytest.raises(SkatMindInvariantError):
         adjudicate_party_wide_claim_proof_v1(
             _replace_proof_evidence(
                 proof,
@@ -1378,7 +1378,7 @@ def test_no_proof_search_io_logging_or_public_surface_is_added() -> None:
     ):
         assert forbidden not in source
     assert not hasattr(api_v1, "PartyWideClaimAdjudicationResultV1")
-    assert not hasattr(skat_ai, "PartyWideClaimAdjudicationResultV1")
+    assert not hasattr(skatmind, "PartyWideClaimAdjudicationResultV1")
 
 
 def test_matrix_runtime_historical_public_and_artifact_boundaries_are_current() -> None:
@@ -1390,10 +1390,10 @@ def test_matrix_runtime_historical_public_and_artifact_boundaries_are_current() 
     assert len(cases) == 61
     assert claim_case.implementation_status == SUPPORTED_AS_IS
     assert claim_case.implementation_modules == (
-        "skat_ai.historical_game_end",
-        "skat_ai.historical_party_wide_claim",
-        "skat_ai.party_wide_claim_proof_executor",
-        "skat_ai.party_wide_claim_adjudication",
+        "skatmind.historical_game_end",
+        "skatmind.historical_party_wide_claim",
+        "skatmind.party_wide_claim_proof_executor",
+        "skatmind.party_wide_claim_adjudication",
     )
     assert claim_case.stable_unavailable_reason is None
     assert len(V1_NOT_SUPPORTED_CLAIM_CASE_IDS) == 13
@@ -1413,7 +1413,7 @@ def test_matrix_runtime_historical_public_and_artifact_boundaries_are_current() 
     assert len(tuple(WorkflowV1)) == 7
     assert len(tuple((PROJECT_ROOT / "schemas").glob("*.schema.json"))) == 71
     assert (
-        len(tuple((PROJECT_ROOT / "src" / "skat_ai" / "schema_resources").glob("*.schema.json")))
+        len(tuple((PROJECT_ROOT / "src" / "skatmind" / "schema_resources").glob("*.schema.json")))
         == 71
     )
     assert {path.name for path in (PROJECT_ROOT / "examples").glob("session_*.json")} == (
@@ -1422,7 +1422,7 @@ def test_matrix_runtime_historical_public_and_artifact_boundaries_are_current() 
     assert len(SCENARIOS) == 98
     with (PROJECT_ROOT / "pyproject.toml").open("rb") as file:
         project = tomllib.load(file)["project"]
-    assert project["version"] == skat_ai.__version__ == "0.17.0"
+    assert project["version"] == skatmind.__version__ == "0.17.0"
     assert project["requires-python"] == ">=3.13"
 
 

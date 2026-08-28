@@ -18,24 +18,24 @@ from test_observed_game_contracts import (
     observed_plays_from_historical,
 )
 
-from skat_ai.application.execution import (
+from skatmind.application.execution import (
     ApplicationWorkflowDependencies,
 )
-from skat_ai.application.execution import (
+from skatmind.application.execution import (
     execute_application_invocation as real_execute_application_invocation,
 )
-from skat_ai.application.position_workflow import (
+from skatmind.application.position_workflow import (
     PositionWorkflowDependencies,
 )
-from skat_ai.match_analysis_contracts import MatchDecisionAnalysisOptionsV1
-from skat_ai.match_decision_analysis import (
+from skatmind.match_analysis_contracts import MatchDecisionAnalysisOptionsV1
+from skatmind.match_decision_analysis import (
     build_match_decision_position_request_v1,
     execute_match_decision_analysis_v1,
     select_match_prepared_decision_v1,
 )
-from skat_ai.match_workspace_contracts import create_match_workspace_v1
-from skat_ai.match_workspace_operations import mark_match_workspace_passed_deal_v1
-from skat_ai.rules import get_card_points, get_legal_cards
+from skatmind.match_workspace_contracts import create_match_workspace_v1
+from skatmind.match_workspace_operations import mark_match_workspace_passed_deal_v1
+from skatmind.rules import get_card_points, get_legal_cards
 
 
 def _complete_workspace(*, definition=None, game_type="grand"):
@@ -68,7 +68,7 @@ def test_selector_supports_partial_decision_without_historical_materialization()
 
 
 def test_decision_unavailability_is_normal_and_executes_nothing(monkeypatch) -> None:
-    import skat_ai.match_decision_analysis as analysis_module
+    import skatmind.match_decision_analysis as analysis_module
 
     calls = 0
 
@@ -233,7 +233,7 @@ def test_execution_preserves_unknown_decision_time_matadors() -> None:
 
 
 def test_immediate_execution_once_validates_result_and_actual_card(monkeypatch) -> None:
-    import skat_ai.match_decision_analysis as analysis_module
+    import skatmind.match_decision_analysis as analysis_module
 
     workspace = _complete_workspace()
     calls = 0
@@ -247,7 +247,7 @@ def test_immediate_execution_once_validates_result_and_actual_card(monkeypatch) 
     def counted_validation(document):
         nonlocal validations
         validations += 1
-        from skat_ai.api.v1.schema_validation import validate_output_document
+        from skatmind.api.v1.schema_validation import validate_output_document
 
         validate_output_document(document)
 
@@ -382,8 +382,8 @@ def test_application_post_game_profile_compatibility_is_narrow() -> None:
     )
     root = prepared.request.to_dict()["document"]
     root["game_end_reason"] = "normal_completion"
-    from skat_ai.application.execution import build_application_invocation
-    from skat_ai.errors import SkatAIWorkflowError
+    from skatmind.application.execution import build_application_invocation
+    from skatmind.errors import SkatMindWorkflowError
 
     invocation = build_application_invocation(
         root,
@@ -391,7 +391,7 @@ def test_application_post_game_profile_compatibility_is_narrow() -> None:
         options=prepared.application_options,
         external_documents=prepared.external_documents,
     )
-    with pytest.raises(SkatAIWorkflowError, match="flat nonterminal"):
+    with pytest.raises(SkatMindWorkflowError, match="flat nonterminal"):
         real_execute_application_invocation(invocation)
 
 

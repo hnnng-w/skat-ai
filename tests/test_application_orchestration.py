@@ -6,10 +6,10 @@ from pathlib import Path
 import pytest
 
 import main as main_module
-import skat_ai.application.execution as application_execution_module
-import skat_ai.application.training_dataset_workflow as training_workflow_module
-from skat_ai.api.v1 import WorkflowV1
-from skat_ai.application import (
+import skatmind.application.execution as application_execution_module
+import skatmind.application.training_dataset_workflow as training_workflow_module
+from skatmind.api.v1 import WorkflowV1
+from skatmind.application import (
     APPLICATION_INPUT_REFERENCE_POLICY,
     APPLICATION_ORCHESTRATION_VERSION,
     ApplicationExecutionOptions,
@@ -20,8 +20,8 @@ from skat_ai.application import (
     build_application_invocation,
     execute_application_invocation,
 )
-from skat_ai.application.contracts import ApplicationArtifact
-from skat_ai.errors import SkatAIValidationError, SkatAIWorkflowError
+from skatmind.application.contracts import ApplicationArtifact
+from skatmind.errors import SkatMindValidationError, SkatMindWorkflowError
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 EXAMPLES = PROJECT_ROOT / "examples"
@@ -84,11 +84,11 @@ def test_invocation_defensively_freezes_documents_options_and_sequences() -> Non
 
 
 def test_external_documents_require_document_and_reference_together() -> None:
-    with pytest.raises(SkatAIValidationError, match="supplied together"):
+    with pytest.raises(SkatMindValidationError, match="supplied together"):
         ApplicationExternalDocuments(
             opponent_statistics_document=load_example("opponent_statistics.json")
         )
-    with pytest.raises(SkatAIValidationError, match="supplied together"):
+    with pytest.raises(SkatMindValidationError, match="supplied together"):
         ApplicationExternalDocuments(opponent_statistics_reference="statistics.json")
 
 
@@ -360,7 +360,7 @@ def test_execution_performs_no_transport_io_or_printing(monkeypatch) -> None:
 
 
 def test_application_modules_have_no_transport_dependencies() -> None:
-    application_dir = PROJECT_ROOT / "src" / "skat_ai" / "application"
+    application_dir = PROJECT_ROOT / "src" / "skatmind" / "application"
     source = "\n".join(
         path.read_text(encoding="utf-8")
         for path in sorted(application_dir.glob("*.py"))
@@ -368,7 +368,7 @@ def test_application_modules_have_no_transport_dependencies() -> None:
 
     assert "import argparse" not in source
     assert "import sys" not in source
-    assert "skat_ai.output_writer" not in source
+    assert "skatmind.output_writer" not in source
     assert "write_analysis_result_to_json" not in source
     assert "Path.open" not in source
     assert "print(" not in source
@@ -412,7 +412,7 @@ def test_invalid_application_option_combinations_use_workflow_error(
         options=options,
     )
 
-    with pytest.raises(SkatAIWorkflowError):
+    with pytest.raises(SkatMindWorkflowError):
         execute_application_invocation(invocation)
 
 
@@ -425,7 +425,7 @@ def test_workflow_option_mismatch_uses_workflow_error() -> None:
         ),
     )
 
-    with pytest.raises(SkatAIWorkflowError, match="cannot be used"):
+    with pytest.raises(SkatMindWorkflowError, match="cannot be used"):
         execute_application_invocation(invocation)
 
 
@@ -597,7 +597,7 @@ def test_legacy_root_wrapper_names_remain_available() -> None:
     )
 
     assert all(callable(getattr(main_module, name)) for name in names)
-    assert main_module.CliUsageError.__name__ == "SkatAICliUsageError"
+    assert main_module.CliUsageError.__name__ == "SkatMindCliUsageError"
 
 
 def test_legacy_training_dataset_patch_point_remains_active(
@@ -638,5 +638,5 @@ def test_legacy_partition_audit_invalid_mode_remains_cli_usage_error() -> None:
 
 
 def test_artifact_rejects_unknown_names() -> None:
-    with pytest.raises(SkatAIValidationError, match="must be one of"):
+    with pytest.raises(SkatMindValidationError, match="must be one of"):
         ApplicationArtifact(name="unknown", document={})

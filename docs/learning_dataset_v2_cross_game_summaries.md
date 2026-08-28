@@ -274,7 +274,7 @@ leaving descriptive grouping Counts unchanged.
 The path-free document kind is:
 
 ```text
-skat_ai_learning_dataset_v2_cross_game_summary
+skatmind_learning_dataset_v2_cross_game_summary
 ```
 
 `build_learning_dataset_v2_cross_game_summary_export_v1()` accepts one already-

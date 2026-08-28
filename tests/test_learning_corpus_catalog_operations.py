@@ -5,14 +5,14 @@ from test_learning_corpus_match_snapshot import (
     _snapshot_for_workspace,
 )
 
-import skat_ai.learning_corpus_catalog_operations as operations_module
-from skat_ai.learning_corpus_catalog import (
+import skatmind.learning_corpus_catalog_operations as operations_module
+from skatmind.learning_corpus_catalog import (
     build_learning_corpus_catalog_v1,
     build_learning_corpus_current_match_selection_v1,
     build_learning_corpus_match_snapshot_catalog_entry_v1,
     create_empty_learning_corpus_catalog_v1,
 )
-from skat_ai.learning_corpus_catalog_operations import (
+from skatmind.learning_corpus_catalog_operations import (
     apply_learning_corpus_match_snapshot_import_v1,
     select_learning_corpus_current_match_snapshot_v1,
 )
@@ -212,7 +212,7 @@ def test_current_selection_rejects_unknown_and_foreign_targets() -> None:
         other_workspace.match_definition,
         match_id="other-match",
     )
-    from skat_ai.match_workspace_contracts import create_match_workspace_v1
+    from skatmind.match_workspace_contracts import create_match_workspace_v1
 
     _, other = _snapshot_for_workspace(create_match_workspace_v1(changed_definition))
     source = _catalog(revision_zero, other, current=(revision_zero, other))

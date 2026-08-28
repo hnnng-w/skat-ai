@@ -3,36 +3,36 @@ from dataclasses import FrozenInstanceError, fields, replace
 
 import pytest
 
-import skat_ai.information_set_search_policy as policy_module
-import skat_ai.information_set_search_preparation as preparation_module
-import skat_ai.information_set_search_state as state_module
-from skat_ai.bounded_search_information import (
+import skatmind.information_set_search_policy as policy_module
+import skatmind.information_set_search_preparation as preparation_module
+import skatmind.information_set_search_state as state_module
+from skatmind.bounded_search_information import (
     SearchPublicPlay,
     build_historical_search_information_view,
     build_live_search_information_view,
 )
-from skat_ai.bounded_search_result import (
+from skatmind.bounded_search_result import (
     AggregateSearchCandidateResult,
     RequestedSearchBudget,
 )
-from skat_ai.compatible_search_world import (
+from skatmind.compatible_search_world import (
     build_compatible_search_world_space,
     select_compatible_search_worlds,
 )
-from skat_ai.deck import get_full_deck
-from skat_ai.exact_search_state import (
+from skatmind.deck import get_full_deck
+from skatmind.exact_search_state import (
     apply_exact_search_card,
     build_exact_search_state,
     get_exact_search_legal_cards,
 )
-from skat_ai.game_declaration import GameDeclaration
-from skat_ai.game_state import GameState
-from skat_ai.hidden_card_inference import (
+from skatmind.game_declaration import GameDeclaration
+from skatmind.game_state import GameState
+from skatmind.hidden_card_inference import (
     EFFECTIVE_CATEGORY_ORDER,
     get_public_effective_category,
 )
-from skat_ai.historical_snapshot_adapter import HistoricalSnapshotPosition
-from skat_ai.information_set_search_contracts import (
+from skatmind.historical_snapshot_adapter import HistoricalSnapshotPosition
+from skatmind.information_set_search_contracts import (
     BOUNDED_INFORMATION_SET_POLICY_SEARCH_METHOD,
     INFORMATION_SET_SEARCH_ANALYSIS_METHOD,
     InformationSetControlledPolicyDecisionV1,
@@ -44,14 +44,14 @@ from skat_ai.information_set_search_contracts import (
     build_information_set_search_request_v1,
     build_unavailable_information_set_search_result_v1,
 )
-from skat_ai.information_set_search_policy import (
+from skatmind.information_set_search_policy import (
     select_information_set_fixed_policy_card_v1,
 )
-from skat_ai.information_set_search_preparation import (
+from skatmind.information_set_search_preparation import (
     InformationSetSearchPreparationV1,
     prepare_information_set_search_v1,
 )
-from skat_ai.information_set_search_state import (
+from skatmind.information_set_search_state import (
     InformationSetPublicVoidConstraintV1,
     InformationSetSearchObservationV1,
     InformationSetSearchWorldStateV1,
@@ -59,15 +59,15 @@ from skat_ai.information_set_search_state import (
     build_information_set_search_observation_v1,
     build_information_set_search_world_state_v1,
 )
-from skat_ai.opponent_policy import determine_current_trick_winner_index
-from skat_ai.public_hand_constraint import (
+from skatmind.opponent_policy import determine_current_trick_winner_index
+from skatmind.public_hand_constraint import (
     DECLARER_EXPOSURE_CONTINUATION_SOURCE,
     DEFENDER_OPEN_PLAY_CONTINUATION_SOURCE,
     PublicHandConstraint,
 )
-from skat_ai.side_ownership import get_player_side
-from skat_ai.terminal_utility import TERMINAL_UTILITY_VERSION
-from skat_ai.turn_phase import CONCRETE_PLAYERS, UNKNOWN_PLAYER
+from skatmind.side_ownership import get_player_side
+from skatmind.terminal_utility import TERMINAL_UTILITY_VERSION
+from skatmind.turn_phase import CONCRETE_PLAYERS, UNKNOWN_PLAYER
 
 
 def _declaration(*, hand_game: bool = False) -> GameDeclaration:

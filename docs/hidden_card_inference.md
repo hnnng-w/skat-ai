@@ -1,6 +1,6 @@
 # Hidden-card inference
 
-`skat-ai` applies bounded exact hidden-card inference when public play proves
+`skatmind` applies bounded exact hidden-card inference when public play proves
 that a player legally failed to follow an effective card category. The model
 narrows otherwise possible card assignments; it does not predict tactical
 choices or claim to identify the actual hidden deal.
@@ -181,7 +181,7 @@ evidence available at a later step without changing the original root.
 
 Implementation and focused coverage are in:
 
-* `src/skat_ai/hidden_card_inference.py`
+* `src/skatmind/hidden_card_inference.py`
 * `schemas/hidden_card_inference_summary.schema.json`
 * `examples/grand_hidden_card_inference.json`
 * `tests/test_hidden_card_inference.py`

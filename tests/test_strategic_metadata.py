@@ -1,4 +1,4 @@
-from skat_ai.strategic_metadata import (
+from skatmind.strategic_metadata import (
     StrategicMetadata,
     build_default_strategic_metadata,
     build_strategic_metadata_from_dict,

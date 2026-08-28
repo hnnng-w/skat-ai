@@ -2,7 +2,7 @@ from dataclasses import FrozenInstanceError, replace
 
 import pytest
 
-from skat_ai.bounded_search_information import (
+from skatmind.bounded_search_information import (
     HISTORICAL_DECISION_SNAPSHOT_SOURCE,
     LIVE_LOCAL_VIEW_SOURCE,
     SearchRemainingHandSize,
@@ -12,10 +12,10 @@ from skat_ai.bounded_search_information import (
     get_remaining_search_card_count,
     get_remaining_search_trick_count,
 )
-from skat_ai.game_declaration import GameDeclaration
-from skat_ai.game_state import GameState
-from skat_ai.historical_snapshot_adapter import HistoricalSnapshotPosition
-from skat_ai.public_hand_constraint import (
+from skatmind.game_declaration import GameDeclaration
+from skatmind.game_state import GameState
+from skatmind.historical_snapshot_adapter import HistoricalSnapshotPosition
+from skatmind.public_hand_constraint import (
     DEFENDER_OPEN_PLAY_CONTINUATION_SOURCE,
     PublicHandConstraint,
 )

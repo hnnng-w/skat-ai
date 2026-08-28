@@ -5,35 +5,35 @@ from test_compatible_world_minimax import _budget as _pimc_budget
 from test_compatible_world_minimax import _sampled_view
 from test_information_set_search_state_and_preparation import _find_view
 
-import skat_ai.compatible_world_minimax as pimc_module
-import skat_ai.information_set_search_executor as executor_module
-import skat_ai.recommendation_workflow as recommendation_module
-from skat_ai.compatible_search_world import (
+import skatmind.compatible_world_minimax as pimc_module
+import skatmind.information_set_search_executor as executor_module
+import skatmind.recommendation_workflow as recommendation_module
+from skatmind.compatible_search_world import (
     build_compatible_search_world_space,
     select_compatible_search_worlds,
 )
-from skat_ai.compatible_world_minimax import (
+from skatmind.compatible_world_minimax import (
     solve_compatible_world_minimax,
     solve_compatible_world_minimax_on_selection_v1,
 )
-from skat_ai.effective_opponent_policy import (
+from skatmind.effective_opponent_policy import (
     EffectiveOpponentPolicySettings,
     build_effective_opponent_policy_settings,
 )
-from skat_ai.game_state import GameState
-from skat_ai.information_set_search_contracts import (
+from skatmind.game_state import GameState
+from skatmind.information_set_search_contracts import (
     INFORMATION_SET_SEARCH_BUDGET_VERSION,
     InformationSetSearchBudgetV1,
 )
-from skat_ai.information_set_search_executor import (
+from skatmind.information_set_search_executor import (
     INFORMATION_SET_SEARCH_EXECUTION_ALGORITHM,
 )
-from skat_ai.information_set_search_public import (
+from skatmind.information_set_search_public import (
     INFORMATION_SET_SEARCH_PUBLIC_RESULT_POLICY,
     INFORMATION_SET_SEARCH_PUBLIC_RESULT_VERSION,
     build_public_information_set_search_result_v1,
 )
-from skat_ai.information_set_search_workflow import (
+from skatmind.information_set_search_workflow import (
     INFORMATION_SET_SEARCH_ACTUAL_CARD_POLICY,
     INFORMATION_SET_SEARCH_BASELINE_POLICY,
     INFORMATION_SET_SEARCH_COMPATIBILITY_POLICY,
@@ -47,7 +47,7 @@ from skat_ai.information_set_search_workflow import (
     convert_information_set_search_budget_to_requested_search_budget_v1,
     execute_live_information_set_search_workflow_v1,
 )
-from skat_ai.recommendation_workflow import (
+from skatmind.recommendation_workflow import (
     AUTO_METHOD,
     BOUNDED_SEARCH_METHOD,
     FLAT_RECOMMENDATION_METHODS,
@@ -59,7 +59,7 @@ from skat_ai.recommendation_workflow import (
     build_recommendation_method_summary,
     execute_recommendation_workflow,
 )
-from skat_ai.search_budget_profiles import (
+from skatmind.search_budget_profiles import (
     SEARCH_BUDGET_PROFILE_IDENTIFIERS,
     get_information_set_search_budget_profile,
     get_search_budget_profile,

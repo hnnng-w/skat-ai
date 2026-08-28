@@ -4,19 +4,19 @@ from pathlib import Path
 
 import pytest
 
-import skat_ai.application.execution as execution_module
-from skat_ai.application import build_application_invocation, execute_application_invocation
-from skat_ai.errors import SkatAIInvariantError
-from skat_ai.field_provenance import (
+import skatmind.application.execution as execution_module
+from skatmind.application import build_application_invocation, execute_application_invocation
+from skatmind.errors import SkatMindInvariantError
+from skatmind.field_provenance import (
     FieldProvenanceLedger,
     FieldProvenanceSourceReference,
 )
-from skat_ai.field_provenance_coverage import build_field_provenance_coverage_summary
-from skat_ai.field_provenance_policy import InformationUseContext
-from skat_ai.v1_information_provenance_enforcement import (
+from skatmind.field_provenance_coverage import build_field_provenance_coverage_summary
+from skatmind.field_provenance_policy import InformationUseContext
+from skatmind.v1_information_provenance_enforcement import (
     validate_v1_retained_stage_linkage,
 )
-from skat_ai.v1_information_provenance_sources import (
+from skatmind.v1_information_provenance_sources import (
     build_v1_information_provenance_sources,
 )
 
@@ -84,7 +84,7 @@ def test_pre_analysis_enforcement_rejects_changed_source_before_handler(
         "build_v1_information_provenance_sources",
         lambda _invocation: sources,
     )
-    with pytest.raises(SkatAIInvariantError, match="ledger changed"):
+    with pytest.raises(SkatMindInvariantError, match="ledger changed"):
         execute_application_invocation(invocation)
     assert called == 0
 
@@ -212,7 +212,7 @@ def test_retained_linkage_rejects_forged_reference_identity_and_path() -> None:
                 for item in execution.provenance.attachments
             ),
         )
-        with pytest.raises(SkatAIInvariantError, match="source reference"):
+        with pytest.raises(SkatMindInvariantError, match="source reference"):
             validate_v1_retained_stage_linkage(
                 invocation,
                 execution.information_provenance_enforcement.sources,

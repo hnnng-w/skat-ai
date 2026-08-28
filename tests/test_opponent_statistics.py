@@ -3,7 +3,7 @@ import math
 
 import pytest
 
-from skat_ai.opponent_statistics import (
+from skatmind.opponent_statistics import (
     PERCENTAGE_SUM_TOLERANCE_POINTS,
     build_opponent_statistics_input,
     build_opponent_statistics_summary,

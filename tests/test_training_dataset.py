@@ -3,10 +3,10 @@ import copy
 import pytest
 from test_historical_game import build_historical_input
 
-from skat_ai.historical_decision_snapshot import build_historical_decision_snapshots
-from skat_ai.historical_game import build_historical_game_summary
-from skat_ai.output_writer import write_analysis_result_to_json
-from skat_ai.training_dataset import (
+from skatmind.historical_decision_snapshot import build_historical_decision_snapshots
+from skatmind.historical_game import build_historical_game_summary
+from skatmind.output_writer import write_analysis_result_to_json
+from skatmind.training_dataset import (
     build_serializable_training_dataset_input,
     build_training_dataset_input,
     build_training_dataset_summary,

@@ -32,20 +32,20 @@ from test_session_transitions import (
     _players,
 )
 
-import skat_ai
-import skat_ai.api.v1 as api_v1
-import skat_ai.session_historical_export as historical_export_module
+import skatmind
+import skatmind.api.v1 as api_v1
+import skatmind.session_historical_export as historical_export_module
 from scripts.validate_generated_outputs_schema import SCENARIOS
-from skat_ai.api.v1.contracts import RequestDocumentV1, WorkflowV1
-from skat_ai.cli import execution as cli
-from skat_ai.errors import SkatAIInvariantError
-from skat_ai.game_declaration import GameDeclaration
-from skat_ai.historical_game import (
+from skatmind.api.v1.contracts import RequestDocumentV1, WorkflowV1
+from skatmind.cli import execution as cli
+from skatmind.errors import SkatMindInvariantError
+from skatmind.game_declaration import GameDeclaration
+from skatmind.historical_game import (
     build_historical_game_record,
     build_serializable_historical_record,
 )
-from skat_ai.input_loader import build_historical_game_from_document
-from skat_ai.session_commands import (
+from skatmind.input_loader import build_historical_game_from_document
+from skatmind.session_commands import (
     PromoteSessionToRetrospectiveCommandV1,
     RecordSessionDealtCardCommandV1,
     RecordSessionDiscardCommandV1,
@@ -53,23 +53,23 @@ from skat_ai.session_commands import (
     SetSessionDeclarerCommandV1,
     SetSessionGameEndCommandV1,
 )
-from skat_ai.session_contracts import SessionStateV1
-from skat_ai.session_export_contracts import (
+from skatmind.session_contracts import SessionStateV1
+from skatmind.session_export_contracts import (
     SESSION_EXPORT_STATUSES,
     SESSION_HISTORICAL_EXPORT_POLICY,
     SESSION_REQUEST_EXPORT_POLICY,
     SESSION_REQUEST_EXPORT_VERSION,
     SessionRequestExportV1,
 )
-from skat_ai.session_historical_export import (
+from skatmind.session_historical_export import (
     export_session_historical_game_request_v1,
 )
-from skat_ai.session_transitions import (
+from skatmind.session_transitions import (
     apply_session_command_v1,
     create_session_state_v1,
     replay_session_state_v1,
 )
-from skat_ai.session_validation import SessionValidationDiagnosticV1
+from skatmind.session_validation import SessionValidationDiagnosticV1
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
@@ -861,12 +861,12 @@ def test_export_rejects_wrong_type_and_forged_state() -> None:
 
     forged = copy.copy(state)
     object.__setattr__(forged, "phase", "play")
-    with pytest.raises(SkatAIInvariantError, match="phase"):
+    with pytest.raises(SkatMindInvariantError, match="phase"):
         export_session_historical_game_request_v1(forged)
 
     forged_revision = copy.copy(state)
     object.__setattr__(forged_revision, "revision", state.revision + 1)
-    with pytest.raises(SkatAIInvariantError, match="revision"):
+    with pytest.raises(SkatMindInvariantError, match="revision"):
         export_session_historical_game_request_v1(forged_revision)
 
 
@@ -882,7 +882,7 @@ def test_ready_builder_failure_is_an_invariant_with_original_cause(monkeypatch) 
         "build_historical_game_record",
         fail_builder,
     )
-    with pytest.raises(SkatAIInvariantError, match="canonical Request") as captured:
+    with pytest.raises(SkatMindInvariantError, match="canonical Request") as captured:
         historical_export_module.export_session_historical_game_request_v1(state)
     assert isinstance(captured.value.__cause__, ValueError)
     assert str(captured.value.__cause__) == "builder disagreement"
@@ -906,7 +906,7 @@ def test_changed_canonical_rebuild_is_an_invariant(monkeypatch) -> None:
         "build_historical_game_record",
         changed_rebuild,
     )
-    with pytest.raises(SkatAIInvariantError, match="rebuild changed"):
+    with pytest.raises(SkatMindInvariantError, match="rebuild changed"):
         historical_export_module.export_session_historical_game_request_v1(state)
     assert builder_count == 2
 
@@ -961,7 +961,7 @@ def test_available_export_execution_count_boundary(monkeypatch) -> None:
 
 
 def test_public_api_cli_schema_output_and_package_boundaries_are_unchanged() -> None:
-    assert skat_ai.__all__ == ("api", "errors", "__version__")
+    assert skatmind.__all__ == ("api", "errors", "__version__")
     assert all("Session" not in name for name in api_v1.__all__)
     assert not hasattr(api_v1, "export_session_historical_game_request_v1")
     assert tuple(workflow.value for workflow in WorkflowV1) == (
@@ -981,7 +981,7 @@ def test_public_api_cli_schema_output_and_package_boundaries_are_unchanged() -> 
     assert len(tuple((PROJECT_ROOT / "schemas").glob("*.schema.json"))) == 71
     assert len(
         tuple(
-            (PROJECT_ROOT / "src" / "skat_ai" / "schema_resources").glob(
+            (PROJECT_ROOT / "src" / "skatmind" / "schema_resources").glob(
                 "*.schema.json"
             )
         )
@@ -991,5 +991,5 @@ def test_public_api_cli_schema_output_and_package_boundaries_are_unchanged() -> 
         (PROJECT_ROOT / "pyproject.toml").read_text(encoding="utf-8")
     )
     assert pyproject["project"]["version"] == "0.17.0"
-    assert pyproject["project"]["scripts"] == {"skat-ai": "skat_ai.cli:main"}
-    assert skat_ai.__version__ == "0.17.0"
+    assert pyproject["project"]["scripts"] == {"skatmind": "skatmind.cli:main"}
+    assert skatmind.__version__ == "0.17.0"

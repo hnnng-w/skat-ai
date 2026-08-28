@@ -5,23 +5,23 @@ from dataclasses import FrozenInstanceError, fields
 import pytest
 from test_learning_corpus_strategy_teacher import _changed_report, _source_bundle
 
-from skat_ai.errors import SkatAIValidationError
-from skat_ai.match_analysis_contracts import (
+from skatmind.errors import SkatMindValidationError
+from skatmind.match_analysis_contracts import (
     MatchDecisionAnalysisOptionsV1,
     build_match_analysis_report_v1,
     prepare_match_materialization_report_v1,
 )
-from skat_ai.match_analysis_report_source_codec import (
+from skatmind.match_analysis_report_source_codec import (
     resume_match_analysis_report_source_export_v1,
 )
-from skat_ai.match_analysis_report_source_export import (
+from skatmind.match_analysis_report_source_export import (
     MATCH_ANALYSIS_REPORT_SOURCE_DOCUMENT_KIND,
     MATCH_ANALYSIS_REPORT_SOURCE_EXPORT_VERSION,
     MatchAnalysisReportSourceExportV1,
     build_match_analysis_report_source_export_v1,
     serialize_match_analysis_report_source_export_v1,
 )
-from skat_ai.match_decision_analysis import execute_match_decision_analysis_v1
+from skatmind.match_decision_analysis import execute_match_decision_analysis_v1
 
 
 @pytest.fixture(scope="module")
@@ -42,7 +42,7 @@ def test_source_export_shape_version_kind_and_defensive_serialization(report_bun
     export = build_match_analysis_report_source_export_v1(report)
 
     assert MATCH_ANALYSIS_REPORT_SOURCE_EXPORT_VERSION == 1
-    assert MATCH_ANALYSIS_REPORT_SOURCE_DOCUMENT_KIND == ("skat_ai_match_analysis_report_source")
+    assert MATCH_ANALYSIS_REPORT_SOURCE_DOCUMENT_KIND == ("skatmind_match_analysis_report_source")
     assert tuple(field.name for field in fields(MatchAnalysisReportSourceExportV1)) == (
         "match_analysis_report_source_export_version",
         "document_kind",
@@ -51,7 +51,7 @@ def test_source_export_shape_version_kind_and_defensive_serialization(report_bun
     )
     assert export.to_dict() == {
         "match_analysis_report_source_export_version": 1,
-        "document_kind": "skat_ai_match_analysis_report_source",
+        "document_kind": "skatmind_match_analysis_report_source",
         "report_id": report.report_id,
         "report": report.to_dict(),
     }
@@ -121,7 +121,7 @@ def test_source_export_and_resume_reject_non_decision_or_unavailable_reports(
 
     document = build_match_analysis_report_source_export_v1(report).to_dict()
     document["report"]["report_kind"] = "historical_analysis"
-    with pytest.raises(SkatAIValidationError):
+    with pytest.raises(SkatMindValidationError):
         resume_match_analysis_report_source_export_v1(document)
 
 
@@ -158,7 +158,7 @@ def test_resume_rejects_unknown_fields_at_every_fixed_wrapper_level(
     document = build_match_analysis_report_source_export_v1(report).to_dict()
     _target(document, path)["unknown"] = True
 
-    with pytest.raises(SkatAIValidationError, match="Unsupported fields"):
+    with pytest.raises(SkatMindValidationError, match="Unsupported fields"):
         resume_match_analysis_report_source_export_v1(document)
 
 
@@ -183,7 +183,7 @@ def test_resume_rejects_missing_fields_at_every_fixed_wrapper_level(
     document = build_match_analysis_report_source_export_v1(report).to_dict()
     del _target(document, path)[field_name]
 
-    with pytest.raises(SkatAIValidationError, match="Missing required fields"):
+    with pytest.raises(SkatMindValidationError, match="Missing required fields"):
         resume_match_analysis_report_source_export_v1(document)
 
 
@@ -215,7 +215,7 @@ def test_resume_rejects_tampered_identity_kinds_status_and_native_scalars(
     document = build_match_analysis_report_source_export_v1(report).to_dict()
     _target(document, path)[field_name] = changed
 
-    with pytest.raises(SkatAIValidationError):
+    with pytest.raises(SkatMindValidationError):
         resume_match_analysis_report_source_export_v1(document)
 
 
@@ -228,7 +228,7 @@ def test_resume_rejects_changed_nested_request_or_result(
     document = copy.deepcopy(build_match_analysis_report_source_export_v1(report).to_dict())
     document["report"]["value"][wrapper]["document"]["tampered"] = True
 
-    with pytest.raises(SkatAIValidationError, match="identity fields"):
+    with pytest.raises(SkatMindValidationError, match="identity fields"):
         resume_match_analysis_report_source_export_v1(document)
 
 
@@ -248,7 +248,7 @@ def test_information_set_source_round_trip_and_semantic_tampering() -> None:
     changed_request_report = build_match_analysis_report_source_export_v1(
         _changed_report(result, request_document=request_document)
     ).to_dict()
-    with pytest.raises(SkatAIValidationError, match="Request changed"):
+    with pytest.raises(SkatMindValidationError, match="Request changed"):
         resume_match_analysis_report_source_export_v1(changed_request_report)
 
     result_document = result.result.to_dict()["document"]
@@ -256,7 +256,7 @@ def test_information_set_source_round_trip_and_semantic_tampering() -> None:
     changed_result_report = build_match_analysis_report_source_export_v1(
         _changed_report(result, result_document=result_document)
     ).to_dict()
-    with pytest.raises(SkatAIValidationError):
+    with pytest.raises(SkatMindValidationError):
         resume_match_analysis_report_source_export_v1(changed_result_report)
 
     result_document = result.result.to_dict()["document"]
@@ -266,7 +266,7 @@ def test_information_set_source_round_trip_and_semantic_tampering() -> None:
     changed_result_report = build_match_analysis_report_source_export_v1(
         _changed_report(result, result_document=result_document)
     ).to_dict()
-    with pytest.raises(SkatAIValidationError, match="aggregate Result"):
+    with pytest.raises(SkatMindValidationError, match="aggregate Result"):
         resume_match_analysis_report_source_export_v1(changed_result_report)
 
     result_document = result.result.to_dict()["document"]
@@ -277,5 +277,5 @@ def test_information_set_source_round_trip_and_semantic_tampering() -> None:
     changed_result_report = build_match_analysis_report_source_export_v1(
         _changed_report(result, result_document=result_document)
     ).to_dict()
-    with pytest.raises(SkatAIValidationError, match="agreement facts"):
+    with pytest.raises(SkatMindValidationError, match="agreement facts"):
         resume_match_analysis_report_source_export_v1(changed_result_report)

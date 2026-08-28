@@ -8,10 +8,10 @@ from test_session_decision_checkpoint import _ready_live_state
 from test_session_decision_observation import _observed
 from test_session_transitions import _complete_retrospective_session
 
-import skat_ai.api.v1.session as session_api
-import skat_ai.api.v1.session.files as session_files
-import skat_ai.cli.execution as root_cli
-import skat_ai.cli.session as session_cli
+import skatmind.api.v1.session as session_api
+import skatmind.api.v1.session.files as session_files
+import skatmind.cli.execution as root_cli
+import skatmind.cli.session as session_cli
 
 
 def _write_json(path: Path, document: object) -> None:
@@ -136,8 +136,8 @@ def test_leading_session_token_dispatches_with_invocation_specific_help(
         root_cli.run_cli(["session", "--help"], invocation_style=style)
     output = capsys.readouterr()
     commands = {
-        "installed": "skat-ai session",
-        "module": "python -m skat_ai session",
+        "installed": "skatmind session",
+        "module": "python -m skatmind session",
         "legacy": "python main.py session",
     }
     assert raised.value.code == 0
@@ -670,7 +670,7 @@ def test_checkpoint_subcommand_collects_and_saves_once_without_analysis(
 
 
 def test_assistant_subcommand_delegates_once(monkeypatch) -> None:
-    import skat_ai.cli.session_assistant as assistant_module
+    import skatmind.cli.session_assistant as assistant_module
 
     calls = []
     monkeypatch.setattr(

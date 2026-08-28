@@ -1,6 +1,6 @@
 # Historical games
 
-`skat-ai` supports a separate versioned workflow for three-player games that
+`skatmind` supports a separate versioned workflow for three-player games that
 ended through normal play, a bounded declarer or defender concession,
 unanimously accepted declarer-card exposure, bounded exact defender open play,
 or an open-card throw. Normal completion may additionally contain one timed non-terminal defender-

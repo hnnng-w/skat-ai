@@ -8,22 +8,22 @@ from jsonschema import Draft202012Validator, ValidationError
 from referencing import Registry, Resource
 
 from main import build_analysis_result
-from skat_ai.defender_open_play_continuation import (
+from skatmind.defender_open_play_continuation import (
     build_defender_open_play_continuation,
     build_defender_open_play_continuation_summary,
     resolve_defender_open_play_continuation,
 )
-from skat_ai.game_continuation import (
+from skatmind.game_continuation import (
     build_game_continuation,
     get_game_continuation_from_input,
     resolve_game_continuation,
 )
-from skat_ai.input_loader import build_local_game_state_from_input
-from skat_ai.input_validation import validate_actual_card_played, validate_position_input
-from skat_ai.multi_step_simulation import simulate_multiple_steps
-from skat_ai.policy_comparison import compare_multi_step_policies
-from skat_ai.public_hand_constraint import PublicHandConstraint
-from skat_ai.simulation import (
+from skatmind.input_loader import build_local_game_state_from_input
+from skatmind.input_validation import validate_actual_card_played, validate_position_input
+from skatmind.multi_step_simulation import simulate_multiple_steps
+from skatmind.policy_comparison import compare_multi_step_policies
+from skatmind.public_hand_constraint import PublicHandConstraint
+from skatmind.simulation import (
     generate_sampled_hidden_state,
     simulate_immediate_trick_once_detailed,
 )
@@ -432,7 +432,7 @@ def test_exact_rest_trick_solver_is_not_called(monkeypatch: pytest.MonkeyPatch) 
         raise AssertionError("exact rest-trick solver was called")
 
     monkeypatch.setattr(
-        "skat_ai.defender_open_play.prove_defender_rest_tricks",
+        "skatmind.defender_open_play.prove_defender_rest_tricks",
         fail_if_called,
     )
     result = build_analysis_result(str(EXAMPLE_PATH), sample_count_override=5)

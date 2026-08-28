@@ -15,22 +15,22 @@ from test_input_schema import INPUT_VALIDATOR
 from test_output_schema import OUTPUT_VALIDATOR
 from test_training_dataset import build_training_input
 
-from skat_ai.historical_decision_snapshot import build_historical_decision_snapshots
-from skat_ai.historical_game import (
+from skatmind.historical_decision_snapshot import build_historical_decision_snapshots
+from skatmind.historical_game import (
     build_historical_game_record,
     build_historical_game_summary,
     build_historical_game_summary_from_input,
 )
-from skat_ai.historical_game_event import build_historical_game_event_chain_context
-from skat_ai.historical_game_review import build_historical_game_review_summary
-from skat_ai.historical_opponent_statistics import aggregate_historical_opponent_statistics
-from skat_ai.historical_play_prefix import replay_historical_state_at_play_boundary
-from skat_ai.historical_search_review import build_historical_search_review_summary
-from skat_ai.rolling_opponent_policy_evaluation import (
+from skatmind.historical_game_event import build_historical_game_event_chain_context
+from skatmind.historical_game_review import build_historical_game_review_summary
+from skatmind.historical_opponent_statistics import aggregate_historical_opponent_statistics
+from skatmind.historical_play_prefix import replay_historical_state_at_play_boundary
+from skatmind.historical_search_review import build_historical_search_review_summary
+from skatmind.rolling_opponent_policy_evaluation import (
     build_serializable_rolling_opponent_policy_evaluation,
     evaluate_rolling_opponent_policy_predictions,
 )
-from skat_ai.training_dataset import (
+from skatmind.training_dataset import (
     build_training_dataset_input,
     build_training_dataset_summary,
 )
@@ -272,7 +272,7 @@ def test_later_terminal_evidence_does_not_change_shared_prefix_snapshots(
     continuation_kind: str,
 ) -> None:
     monkeypatch.setattr(
-        "skat_ai.historical_game_review.recommend_card_by_expected_value",
+        "skatmind.historical_game_review.recommend_card_by_expected_value",
         build_stub_expected_value_recommendation,
     )
     first_terminal = TERMINAL_BUILDERS["declarer_concession"]()
@@ -315,15 +315,15 @@ def test_later_terminal_evidence_does_not_change_shared_prefix_snapshots(
 
 def test_review_search_training_and_statistics_use_only_actual_plays(monkeypatch) -> None:
     monkeypatch.setattr(
-        "skat_ai.historical_game_review.recommend_card_by_expected_value",
+        "skatmind.historical_game_review.recommend_card_by_expected_value",
         build_stub_expected_value_recommendation,
     )
     monkeypatch.setattr(
-        "skat_ai.historical_search_review.recommend_card_by_expected_value",
+        "skatmind.historical_search_review.recommend_card_by_expected_value",
         _fake_immediate,
     )
     monkeypatch.setattr(
-        "skat_ai.historical_search_review.solve_compatible_world_minimax",
+        "skatmind.historical_search_review.solve_compatible_world_minimax",
         _fake_search,
     )
     data = add_continuation(

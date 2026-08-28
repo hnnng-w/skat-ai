@@ -10,16 +10,16 @@ from test_match_workspace_contracts import (
     _definition,
 )
 
-import skat_ai
-import skat_ai.api.v1 as api_v1
-import skat_ai.api.v1.session as session_api
+import skatmind
+import skatmind.api.v1 as api_v1
+import skatmind.api.v1.session as session_api
 from scripts.validate_generated_outputs_schema import SCENARIOS
-from skat_ai.api.v1.contracts import WorkflowV1
-from skat_ai.match_training_source_materialization import (
+from skatmind.api.v1.contracts import WorkflowV1
+from skatmind.match_training_source_materialization import (
     MatchTrainingSourceCollectionV1,
 )
-from skat_ai.match_workspace_contracts import create_match_workspace_v1
-from skat_ai.match_workspace_materialization import (
+from skatmind.match_workspace_contracts import create_match_workspace_v1
+from skatmind.match_workspace_materialization import (
     MATCH_COMMENTARY_MATERIALIZATION_POLICY,
     MATCH_LIST_MATERIALIZATION_POLICY,
     MATCH_LIST_MATERIALIZATION_UNAVAILABLE_REASONS,
@@ -28,12 +28,12 @@ from skat_ai.match_workspace_materialization import (
     MatchWorkspaceMaterializationV1,
     build_match_workspace_materialization_v1,
 )
-from skat_ai.match_workspace_operations import (
+from skatmind.match_workspace_operations import (
     mark_match_workspace_passed_deal_v1,
     set_match_workspace_observed_game_v1,
 )
-from skat_ai.match_workspace_persistence import _build_match_workspace_file_bytes_v1
-from skat_ai.match_workspace_persistence_codec import (
+from skatmind.match_workspace_persistence import _build_match_workspace_file_bytes_v1
+from skatmind.match_workspace_persistence_codec import (
     build_match_workspace_persistence_document_v1,
 )
 
@@ -214,7 +214,7 @@ def test_commentary_and_response_links_remain_counted_workspace_sidecars() -> No
 
 
 def test_workspace_prepares_statistics_once(monkeypatch) -> None:
-    import skat_ai.match_player_statistics_preparation as preparation_module
+    import skatmind.match_player_statistics_preparation as preparation_module
 
     original = preparation_module.build_match_player_statistics_context_v1
     calls = []
@@ -235,8 +235,8 @@ def test_workspace_prepares_statistics_once(monkeypatch) -> None:
 def test_workspace_validates_each_trace_and_derives_list_facts_once(
     monkeypatch,
 ) -> None:
-    import skat_ai.fixed_three_player_historical_list as list_module
-    import skat_ai.observed_game_contracts as observed_module
+    import skatmind.fixed_three_player_historical_list as list_module
+    import skatmind.observed_game_contracts as observed_module
 
     original_trace = observed_module.validate_observed_game_trace_v1
     original_facts = list_module.build_fixed_three_player_historical_list_entry_facts
@@ -272,10 +272,10 @@ def test_materialization_executes_no_workflow_policy_io_or_background_work(
     import socket
     import threading
 
-    import skat_ai.application.execution as application_execution
-    import skat_ai.effective_opponent_policy as effective_policy
-    import skat_ai.match_workspace_persistence as persistence
-    import skat_ai.training_dataset as training_dataset
+    import skatmind.application.execution as application_execution
+    import skatmind.effective_opponent_policy as effective_policy
+    import skatmind.match_workspace_persistence as persistence
+    import skatmind.training_dataset as training_dataset
 
     def forbidden(*_args, **_kwargs):
         raise AssertionError("Forbidden execution boundary was crossed.")
@@ -303,7 +303,7 @@ def test_structurally_complete_workspace_with_incomplete_game_blocks_list() -> N
     workspace = _all_passed_workspace()
     incomplete = _definition()
     game = _complete_observed_game(incomplete, match_position=3)
-    from skat_ai.observed_game_contracts import build_observed_game_record_v1
+    from skatmind.observed_game_contracts import build_observed_game_record_v1
 
     partial = build_observed_game_record_v1(
         workspace.match_definition,
@@ -337,10 +337,10 @@ def test_public_package_schema_and_scenario_boundaries_remain_unchanged() -> Non
     pyproject = tomllib.loads((PROJECT_ROOT / "pyproject.toml").read_text(encoding="utf-8"))
     authoritative_schemas = tuple((PROJECT_ROOT / "schemas").glob("*.schema.json"))
     packaged_schemas = tuple(
-        (PROJECT_ROOT / "src" / "skat_ai" / "schema_resources").glob("*.schema.json")
+        (PROJECT_ROOT / "src" / "skatmind" / "schema_resources").glob("*.schema.json")
     )
     assert pyproject["project"]["version"] == "0.17.0"
-    assert skat_ai.__version__ == "0.17.0"
+    assert skatmind.__version__ == "0.17.0"
     assert len(authoritative_schemas) == 71
     assert len(packaged_schemas) == 71
     assert len(SCENARIOS) == 98

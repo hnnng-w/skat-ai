@@ -13,8 +13,8 @@ JSON-schema versions, field-provenance version, and other Domain contract
 versions.
 
 The Application layer executes existing workflows from already loaded in-memory
-Root documents. It remains an internal boundary under `skat_ai.application`.
-Issue #140 adds the stable `skat_ai.api.v1` facade over this boundary without
+Root documents. It remains an internal boundary under `skatmind.application`.
+Issue #140 adds the stable `skatmind.api.v1` facade over this boundary without
 making Application contracts public.
 Issue #141 packages that facade and its private Schema resources without moving
 build, resource, metadata, or installation concerns into Application.
@@ -51,7 +51,7 @@ classify Checkpoint lineage, and strictly persist and resume the authoritative
 accepted-Log State plus caller-supplied frozen Checkpoints.
 
 Issue #156 exposes those transport-free operations through the separate
-`skat_ai.api.v1.session` namespace. Issue #157 adds stable Session file
+`skatmind.api.v1.session` namespace. Issue #157 adds stable Session file
 transport, accepted-Log Decision Observation, frozen-Request Checkpoint review
 export, automatic exact Checkpoint collection, and installed/module/Legacy
 Session CLI orchestration. The Session `analyze` and `review` commands invoke the
@@ -205,7 +205,7 @@ Coaching, so Match execution does not claim a Profile effect there.
 ## No-I/O boundary
 
 Application execution is generic and transport-free. Modules under
-`src/skat_ai/application/` do not parse command-line arguments, open input or
+`src/skatmind/application/` do not parse command-line arguments, open input or
 output paths, print human-readable output, or select output destinations.
 Callers must provide loaded Root and external documents and consume the returned
 result and artifacts.
@@ -216,7 +216,7 @@ means transport I/O is outside this layer; it does not mean validation-free or
 computation-free execution.
 
 Session persistence file I/O remains under the separate persistence boundary.
-Issue #157's stable `skat_ai.api.v1.session.files` facade delegates Save and Load
+Issue #157's stable `skatmind.api.v1.session.files` facade delegates Save and Load
 there, and the Session CLI owns caller-selected paths. File transport does not
 pass through Application, execute a workflow, or weaken this no-I/O contract.
 
@@ -224,7 +224,7 @@ pass through Application, execute a workflow, or weaken this no-I/O contract.
 
 The Package-owned CLI owns argument parsing, file loading, output writing, human-
 readable presentation, Exit Codes, and expected CLI-error handling. Installed
-`skat-ai` and module `python -m skat_ai` use it directly. Repository-root
+`skatmind` and module `python -m skatmind` use it directly. Repository-root
 `main.py` remains a thin Legacy facade with its existing wrapper names.
 
 Those wrappers now translate CLI selections into immutable Application options,
@@ -238,7 +238,7 @@ The installed CLI remains a transport interface and does not make `main.py` or
 CLI functions part of the Public Python API.
 
 Issue #157 delegates a leading `session` token to one separate Session parser for
-installed `skat-ai`, module `python -m skat_ai`, and Legacy `python main.py`.
+installed `skatmind`, module `python -m skatmind`, and Legacy `python main.py`.
 Automatic Checkpoint collection and mutation commands do not execute analysis.
 Only explicit `analyze`, available `review`, and available `finalize` operations
 export an existing Request and call the matching Application handler once. The
@@ -276,8 +276,8 @@ Invocation, and executes this dispatcher exactly once. It converts the existing
 Result and artifacts into public contracts. Default execution preserves the Root
 document; Issue #147 can add the bounded public sidecar after Application
 execution.
-Direct imports from `skat_ai.application` remain internal and have no public API
-compatibility guarantee. The public boundary preserves `SkatAIError`, translates
+Direct imports from `skatmind.application` remain internal and have no public API
+compatibility guarantee. The public boundary preserves `SkatMindError`, translates
 raw `ValueError` and `OSError`, and does not broadly migrate Domain exceptions.
 No workflow-specific public helper is added.
 

@@ -1,6 +1,6 @@
 # Overbid handling
 
-This document explains bid value handling and overbid settlement in `skat-ai`.
+This document explains bid value handling and overbid settlement in `skatmind`.
 
 ## Purpose
 
@@ -183,7 +183,7 @@ Null games use fixed game values rather than base-value multipliers.
 Under ISkO 3.6.2 and the International Skat Court decision collection section
 3.6.2, inquiries 1-3, an impossible Null declaration immediately loses an
 eligible Suit or Grand game. The declarer may select a favorable replacement.
-`skat-ai` records an externally supplied selection; it does not claim the
+`skatmind` records an externally supplied selection; it does not claim the
 selection is cheapest or optimize across alternatives with unknown matadors.
 
 The original Null declaration and fixed value remain unchanged. The replacement

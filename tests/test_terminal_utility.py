@@ -1,6 +1,6 @@
 import pytest
 
-from skat_ai.terminal_utility import (
+from skatmind.terminal_utility import (
     TERMINAL_UTILITY_VERSION,
     build_terminal_utility,
     compare_terminal_utilities,

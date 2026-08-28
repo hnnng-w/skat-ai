@@ -17,12 +17,12 @@ from test_observed_game_contracts import (
     observed_plays_from_historical,
 )
 
-from skat_ai.historical_decision_snapshot import (
+from skatmind.historical_decision_snapshot import (
     build_historical_decision_snapshots,
     build_serializable_historical_decision_snapshot,
 )
-from skat_ai.historical_game import build_historical_game_summary
-from skat_ai.match_decision_review_preparation import (
+from skatmind.historical_game import build_historical_game_summary
+from skatmind.match_decision_review_preparation import (
     MATCH_DECISION_REVIEW_INFORMATION_POLICY,
     MATCH_DECISION_REVIEW_PREPARATION_STATUSES,
     MATCH_DECISION_REVIEW_PREPARATION_VERSION,
@@ -33,12 +33,12 @@ from skat_ai.match_decision_review_preparation import (
     MatchSkippedDecisionV1,
     build_match_decision_review_preparation_v1,
 )
-from skat_ai.match_historical_materialization import (
+from skatmind.match_historical_materialization import (
     materialize_match_observed_game_historical_v1,
 )
-from skat_ai.match_workspace_contracts import create_match_workspace_v1
-from skat_ai.match_workspace_operations import set_match_workspace_observed_game_v1
-from skat_ai.rules import get_legal_cards
+from skatmind.match_workspace_contracts import create_match_workspace_v1
+from skatmind.match_workspace_operations import set_match_workspace_observed_game_v1
+from skatmind.rules import get_legal_cards
 
 
 def _workspace_with_partial_game(*, perspective_player_id="player-a"):

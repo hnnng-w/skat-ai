@@ -201,8 +201,8 @@ Provenance lifecycle.
 The existing CLI fields and flags are sufficient:
 
 ```powershell
-skat-ai --input position.json --multi-step 1
-skat-ai --input position.json --multi-step 1 --compare-policies
+skatmind --input position.json --multi-step 1
+skatmind --input position.json --multi-step 1 --compare-policies
 ```
 
 The input selects `recommendation_method: "information_set_search"` and provides

@@ -5,14 +5,14 @@ from pathlib import Path
 import pytest
 from test_information_set_search_state_and_preparation import _find_view, _request
 
-import skat_ai.information_set_search_executor as executor_module
-import skat_ai.information_set_search_preparation as preparation_module
-from skat_ai.errors import SkatAIInvariantError
-from skat_ai.exact_search_state import build_exact_search_state
-from skat_ai.information_set_search_contracts import (
+import skatmind.information_set_search_executor as executor_module
+import skatmind.information_set_search_preparation as preparation_module
+from skatmind.errors import SkatMindInvariantError
+from skatmind.exact_search_state import build_exact_search_state
+from skatmind.information_set_search_contracts import (
     INFORMATION_SET_SEARCH_UNAVAILABLE_REASONS,
 )
-from skat_ai.information_set_search_executor import (
+from skatmind.information_set_search_executor import (
     INFORMATION_SET_SEARCH_AGGREGATE_POLICY,
     INFORMATION_SET_SEARCH_BUDGET_POLICY,
     INFORMATION_SET_SEARCH_CONTINGENT_POLICY,
@@ -30,12 +30,12 @@ from skat_ai.information_set_search_executor import (
     INFORMATION_SET_SEARCH_WEIGHT_POLICY,
     execute_information_set_search_v1,
 )
-from skat_ai.information_set_search_preparation import (
+from skatmind.information_set_search_preparation import (
     InformationSetSearchPreparationV1,
     prepare_information_set_search_v1,
     validate_information_set_search_preparation_v1,
 )
-from skat_ai.information_set_search_state import (
+from skatmind.information_set_search_state import (
     InformationSetSearchObservationV1,
     InformationSetSearchWorldStateV1,
     build_information_set_search_observation_v1,
@@ -325,7 +325,7 @@ def test_preparation_validation_rejects_forgery_without_rebuilding_worlds(
             ),
         ),
     ):
-        with pytest.raises(SkatAIInvariantError):
+        with pytest.raises(SkatMindInvariantError):
             validate_information_set_search_preparation_v1(forged)
     with pytest.raises(ValueError, match="preparation"):
         execute_information_set_search_v1(object())  # type: ignore[arg-type]
@@ -367,7 +367,7 @@ def test_preparation_validation_rejects_exact_public_ownership_forgery() -> None
         world_selection=forged_selection,
         world_states=(forged_world,),
     )
-    with pytest.raises(SkatAIInvariantError):
+    with pytest.raises(SkatMindInvariantError):
         validate_information_set_search_preparation_v1(forged)
 
 
@@ -448,7 +448,7 @@ def test_equal_execution_is_deterministic_except_operational_elapsed_time(
 
 
 def test_executor_has_no_public_routing_or_existing_minimax_dependency() -> None:
-    path = PROJECT_ROOT / "src" / "skat_ai" / "information_set_search_executor.py"
+    path = PROJECT_ROOT / "src" / "skatmind" / "information_set_search_executor.py"
     tree = ast.parse(path.read_text(encoding="utf-8"))
     imports = tuple(
         imported

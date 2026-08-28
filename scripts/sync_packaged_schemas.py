@@ -6,7 +6,7 @@ from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 AUTHORITATIVE_SCHEMA_DIRECTORY = PROJECT_ROOT / "schemas"
-PACKAGED_SCHEMA_DIRECTORY = PROJECT_ROOT / "src" / "skat_ai" / "schema_resources"
+PACKAGED_SCHEMA_DIRECTORY = PROJECT_ROOT / "src" / "skatmind" / "schema_resources"
 
 
 def _schema_files(directory: Path) -> dict[str, Path]:

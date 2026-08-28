@@ -1,12 +1,12 @@
-from skat_ai.analysis_metadata import (
+from skatmind.analysis_metadata import (
     AnalysisMetadata,
     build_analysis_metadata_from_input,
     build_default_analysis_metadata,
     build_recommended_opponent_policy_presets_from_metadata,
     build_serializable_analysis_metadata,
 )
-from skat_ai.player_profile import PlayerProfile
-from skat_ai.strategic_metadata import StrategicMetadata
+from skatmind.player_profile import PlayerProfile
+from skatmind.strategic_metadata import StrategicMetadata
 
 
 def test_build_default_analysis_metadata() -> None:

@@ -6,21 +6,21 @@ from test_learning_corpus_match_snapshot import (
     _same_revision_changed_workspaces,
 )
 
-import skat_ai.learning_corpus_import as import_module
-from skat_ai.learning_corpus_catalog import build_learning_corpus_catalog_v1
-from skat_ai.learning_corpus_import import (
+import skatmind.learning_corpus_import as import_module
+from skatmind.learning_corpus_catalog import build_learning_corpus_catalog_v1
+from skatmind.learning_corpus_import import (
     import_match_workspace_file_into_learning_corpus_v1,
     set_learning_corpus_current_match_snapshot_file_v1,
 )
-from skat_ai.learning_corpus_persistence import (
+from skatmind.learning_corpus_persistence import (
     initialize_learning_corpus_directory_v1,
     save_learning_corpus_catalog_v1,
 )
-from skat_ai.learning_corpus_persistence_codec import (
+from skatmind.learning_corpus_persistence_codec import (
     build_learning_corpus_catalog_persistence_document_v1,
 )
-from skat_ai.match_workspace_persistence import save_match_workspace_file_v1
-from skat_ai.match_workspace_persistence_codec import (
+from skatmind.match_workspace_persistence import save_match_workspace_file_v1
+from skatmind.match_workspace_persistence_codec import (
     build_match_workspace_persistence_document_v1,
 )
 
@@ -502,7 +502,7 @@ def test_workspace_path_and_catalog_root_are_transport_only(tmp_path) -> None:
     root, store = _initialize(tmp_path)
     snapshot = _revision_snapshots()[0]
     changed_definition = replace(snapshot.workspace.match_definition, title="Private title")
-    from skat_ai.match_workspace_contracts import create_match_workspace_v1
+    from skatmind.match_workspace_contracts import create_match_workspace_v1
 
     workspace_path, _ = _write_workspace(
         tmp_path,
@@ -524,7 +524,7 @@ def test_import_modules_have_no_analysis_dataset_cli_or_browser_dependency() -> 
     }
     for module in (
         import_module,
-        __import__("skat_ai.learning_corpus_persistence", fromlist=["*"]),
+        __import__("skatmind.learning_corpus_persistence", fromlist=["*"]),
     ):
         assert forbidden.isdisjoint(module.__dict__)
 
@@ -533,8 +533,8 @@ def test_existing_workspace_and_session_persistence_bytes_remain_unchanged(tmp_p
     from test_match_workspace_persistence_codec import _rich_document
     from test_session_persistence import _documents as _session_documents
 
-    from skat_ai.match_workspace_persistence import _build_match_workspace_file_bytes_v1
-    from skat_ai.session_persistence import _build_session_persistence_file_bytes_v1
+    from skatmind.match_workspace_persistence import _build_match_workspace_file_bytes_v1
+    from skatmind.session_persistence import _build_session_persistence_file_bytes_v1
 
     workspace_document = _rich_document()
     session_document = _session_documents()[0]

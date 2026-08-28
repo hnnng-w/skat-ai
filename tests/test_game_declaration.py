@@ -1,6 +1,6 @@
 import pytest
 
-from skat_ai.game_declaration import (
+from skatmind.game_declaration import (
     GameDeclaration,
     build_game_declaration_from_input,
     build_serializable_game_declaration,
@@ -9,8 +9,8 @@ from skat_ai.game_declaration import (
     validate_game_declaration,
     validate_matadors,
 )
-from skat_ai.game_value import build_game_value_summary
-from skat_ai.information_view import build_local_analysis_input
+from skatmind.game_value import build_game_value_summary
+from skatmind.information_view import build_local_analysis_input
 
 BOOLEAN_DECLARATION_FIELDS = [
     "hand_game",

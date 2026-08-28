@@ -6,7 +6,7 @@ built distributions by Issue #141. The API contract version is `1`, and its
 stable versioned namespace is:
 
 ```text
-skat_ai.api.v1
+skatmind.api.v1
 ```
 
 The public facade parses and executes all seven Root workflows through the Issue
@@ -27,29 +27,29 @@ without adding a public export or changing this API contract.
 The supported public namespaces are:
 
 ```text
-skat_ai
-skat_ai.api
-skat_ai.api.v1
-skat_ai.api.v1.session
-skat_ai.api.v1.session.files
-skat_ai.errors
+skatmind
+skatmind.api
+skatmind.api.v1
+skatmind.api.v1.session
+skatmind.api.v1.session.files
+skatmind.errors
 ```
 
 Only names listed by each namespace's exact `__all__` are stable. The Package
-Root exports only `api`, `errors`, and `__version__`, and `skat_ai.api` exports
+Root exports only `api`, `errors`, and `__version__`, and `skatmind.api` exports
 only `v1`.
-Technical importability does not make any other `skat_ai.*` module public.
+Technical importability does not make any other `skatmind.*` module public.
 Direct imports from workflow, Domain, builder, serializer, schema-loader, or
 other internal modules have no compatibility guarantee.
 
-Issue #156 appends only `session` to `skat_ai.api.v1.__all__`; every previous
-export retains exact order and identity, and the Package Root, `skat_ai.api`, and
-error exports remain unchanged. `skat_ai.api.v1.session` re-exports approved
+Issue #156 appends only `session` to `skatmind.api.v1.__all__`; every previous
+export retains exact order and identity, and the Package Root, `skatmind.api`, and
+error exports remain unchanged. `skatmind.api.v1.session` re-exports approved
 immutable Session types with exact identity. Issue #157 preserves its first 52
 exports and appends actual-card Decision Observation, Checkpoint review export,
 and the `files` subnamespace. The in-memory API now provides 12 operations,
 strict Command parsing, typed Results, optional complete Session Provenance, and
-standalone Schema validation. `skat_ai.api.v1.session.files` provides stable
+standalone Schema validation. `skatmind.api.v1.session.files` provides stable
 path-free Save/Load Results while preserving strict resume, optimistic compare-
 and-swap conflicts, and atomic same-directory replacement; it has no Provenance
 option or default path. Existing public errors cover boundary failures, while
@@ -80,7 +80,7 @@ documented in
 The internal Application orchestration contract is documented in
 [Application orchestration](application_orchestration.md). It consumes
 `RequestDocumentV1` and produces `ResultDocumentV1`; the public facade is the
-stable adapter over that boundary. Direct `skat_ai.application` imports have no
+stable adapter over that boundary. Direct `skatmind.application` imports have no
 public compatibility guarantee. Its generic dispatcher, workflow options,
 injected documents, and artifacts remain internal.
 
@@ -90,10 +90,10 @@ The version-1 constants are:
 
 ```text
 PUBLIC_API_CONTRACT_VERSION = 1
-PUBLIC_API_NAMESPACE = skat_ai.api.v1
+PUBLIC_API_NAMESPACE = skatmind.api.v1
 PUBLIC_API_COMPATIBILITY_POLICY = additive_until_v1_0
 LEGACY_MAIN_COMPATIBILITY_TARGET = v1.0.0
-DEFAULT_INPUT_REFERENCE_V1 = memory://skat-ai/request
+DEFAULT_INPUT_REFERENCE_V1 = memory://skatmind/request
 EXECUTION_ARTIFACT_NAMES_V1 = (opponent_statistics_input,)
 PUBLIC_FIELD_PROVENANCE_VERSION = 1
 PUBLIC_FIELD_PROVENANCE_ROOT_FIELD = field_provenance
@@ -217,7 +217,7 @@ identity, translates public options, and executes the Application exactly once.
 `execute_document` avoids duplicate Root validation and detection while matching
 explicit parse-then-execute results. `serialize_result` returns a fresh mutable
 flattened envelope and rejects wrong input types with
-`SkatAISerializationError`.
+`SkatMindSerializationError`.
 
 The facade validates Root input through packaged `input.schema.json`, Root output
 through packaged `output.schema.json`, and reusable artifacts through the Root
@@ -226,16 +226,16 @@ input schema. Provenance-enabled output additionally follows strict packaged
 and repository-root
 independent, local-only, deterministic, and reports RFC 6901 paths. Document
 failures use
-`SkatAISchemaError`, missing resources use `SkatAIResourceError`, and invalid
-packaged schemas use `SkatAIInvariantError`. The backend uses
-`importlib.resources` and the private `skat_ai.schema_resources` Package, with no
+`SkatMindSchemaError`, missing resources use `SkatMindResourceError`, and invalid
+packaged schemas use `SkatMindInvariantError`. The backend uses
+`importlib.resources` and the private `skatmind.schema_resources` Package, with no
 network retrieval or concrete filesystem-path requirement. The authoritative
 repository `schemas/` files and packaged resources have exact filename and byte
 parity.
 
-Existing `SkatAIError` instances pass through unchanged. Raw boundary
-`ValueError` becomes `SkatAIValidationError`, and raw boundary `OSError` becomes
-`SkatAIResourceError`, preserving message and cause without inventing a path.
+Existing `SkatMindError` instances pass through unchanged. Raw boundary
+`ValueError` becomes `SkatMindValidationError`, and raw boundary `OSError` becomes
+`SkatMindResourceError`, preserving message and cause without inventing a path.
 Unexpected exceptions are not caught.
 
 ## Compatibility Metadata
@@ -245,7 +245,7 @@ Unexpected exceptions are not caught.
 | Field | Value |
 | --- | --- |
 | `policy_id` | `additive_until_v1_0` |
-| `public_namespace` | `skat_ai.api.v1` |
+| `public_namespace` | `skatmind.api.v1` |
 | `public_name_removal_before_v1_allowed` | `false` |
 | `public_name_renaming_before_v1_allowed` | `false` |
 | `additive_public_exports_allowed` | `true` |
@@ -253,7 +253,7 @@ Unexpected exceptions are not caught.
 | `legacy_main_supported_through` | `v1.0.0` |
 | `package_version_independent` | `true` |
 | `schema_versions_independent` | `true` |
-| `deprecation_warning_name` | `SkatAIDeprecationWarning` |
+| `deprecation_warning_name` | `SkatMindDeprecationWarning` |
 
 `ApiVersionInfoV1` contains the API contract version, namespace, canonical
 supported workflows, canonical normal Result states, and compatibility policy.
@@ -286,41 +286,41 @@ remain validation failures under their existing contracts.
 The stable hierarchy is:
 
 ```text
-SkatAIError
-    SkatAIValidationError (ValueError)
-        SkatAIWorkflowError
-            SkatAICliUsageError
-        SkatAIInformationPolicyError
-        SkatAISchemaError
-    SkatAISerializationError (ValueError)
-    SkatAIResourceError (OSError)
-    SkatAIInvariantError (RuntimeError)
+SkatMindError
+    SkatMindValidationError (ValueError)
+        SkatMindWorkflowError
+            SkatMindCliUsageError
+        SkatMindInformationPolicyError
+        SkatMindSchemaError
+    SkatMindSerializationError (ValueError)
+    SkatMindResourceError (OSError)
+    SkatMindInvariantError (RuntimeError)
 
-SkatAIDeprecationWarning (DeprecationWarning)
+SkatMindDeprecationWarning (DeprecationWarning)
 ```
 
-Every `SkatAIError` has a non-empty human-readable `message`, a class-defined
+Every `SkatMindError` has a non-empty human-readable `message`, a class-defined
 stable `code`, and nullable `path`. Its deterministic `to_dict()` has exactly
 `code`, `message`, and `path`. Codes are:
 
 | Error | Code |
 | --- | --- |
-| `SkatAIError` | `skat_ai_error` |
-| `SkatAIValidationError` | `validation_error` |
-| `SkatAIWorkflowError` | `workflow_error` |
-| `SkatAIInformationPolicyError` | `information_policy_error` |
-| `SkatAISchemaError` | `schema_error` |
-| `SkatAISerializationError` | `serialization_error` |
-| `SkatAIResourceError` | `resource_error` |
-| `SkatAIInvariantError` | `invariant_error` |
-| `SkatAICliUsageError` | `cli_usage_error` |
+| `SkatMindError` | `skatmind_error` |
+| `SkatMindValidationError` | `validation_error` |
+| `SkatMindWorkflowError` | `workflow_error` |
+| `SkatMindInformationPolicyError` | `information_policy_error` |
+| `SkatMindSchemaError` | `schema_error` |
+| `SkatMindSerializationError` | `serialization_error` |
+| `SkatMindResourceError` | `resource_error` |
+| `SkatMindInvariantError` | `invariant_error` |
+| `SkatMindCliUsageError` | `cli_usage_error` |
 
 Unrelated Domain code is not broadly migrated. The executable facade translates
 only raw `ValueError` and `OSError` that cross its public boundary.
 
 ## CLI compatibility
 
-Installed `skat-ai`, module `python -m skat_ai`, and Legacy `python main.py`
+Installed `skatmind`, module `python -m skatmind`, and Legacy `python main.py`
 share one Package-owned CLI implementation. Issue #200 freezes Root
 `python main.py` support throughout Package 1.x; removal can occur no earlier
 than `2.0.0` under the deprecation policy. Issue #157 adds the same 12-subcommand
@@ -336,7 +336,7 @@ Root invocations and applicable Session subcommands accept
 includes the corresponding public sidecar; `--quiet` suppresses successful
 human-readable summaries without removing the JSON field.
 `main.CliUsageError` is an exact compatibility alias for
-`SkatAICliUsageError`. Existing catches, messages, prefixes, patch points, and
+`SkatMindCliUsageError`. Existing catches, messages, prefixes, patch points, and
 argument validation remain unchanged.
 
 The public Exit Code constants are:
@@ -356,19 +356,19 @@ retain `1`.
 No version-1 public name may be removed or renamed during Package 1.x. Additive
 public names and optional fields with defaults are allowed. A future removal
 requires a documented replacement, a migration note, and at least one prior
-published 1.x release that emits `SkatAIDeprecationWarning`; removal can occur no
+published 1.x release that emits `SkatMindDeprecationWarning`; removal can occur no
 earlier than Package `2.0.0`. Internal imports receive no such guarantee. No
 deprecation warning is emitted now.
 
 ## Package Version
 
-`skat_ai.__version__` reports installed distribution metadata from
-`importlib.metadata.version("skat-ai")`. Installed and Editable distributions
+`skatmind.__version__` reports installed distribution metadata from
+`importlib.metadata.version("skatmind")`. Installed and Editable distributions
 report `0.17.0`; a source-only environment without distribution metadata may
 report `0+unknown`. The fallback reads no repository file.
 
-This additive Package-Root export does not change `skat_ai.api.__all__`,
-`skat_ai.api.v1.__all__`, or `skat_ai.errors.__all__`. Package version remains
+This additive Package-Root export does not change `skatmind.api.__all__`,
+`skatmind.api.v1.__all__`, or `skatmind.errors.__all__`. Package version remains
 absent from `ApiVersionInfoV1`, API Results, and Root JSON output. Issue #158
 completed Release preparation for the functional `v0.14.0` milestone before the
 maintainer's manual publication at commit `d5589f8`.
@@ -391,8 +391,11 @@ automatic exact Checkpoint collection, installed/module/Legacy CLI parity,
 explicit Session-triggered execution through the existing Application, and the
 Assistant. The published `v0.14.0` baseline has 63 authoritative and packaged
 Schemas and 85 generated-output scenarios; the current Package version is
-`0.17.0`, while the historical published `v0.13.0` baseline remains unchanged. Existing non-
-Session Root API users require no migration.
+`0.17.0`, while the historical published `v0.13.0` baseline remains unchanged.
+Issue #205 is the one approved pre-v1 namespace break: callers migrate imports
+to `skatmind`, commands to `skatmind`, and module execution to
+`python -m skatmind`. There is no import shim, second CLI alias, or duplicated
+public object.
 
 Public Session GUI and browser UI, online-platform adapters, browser extensions,
 website scraping, automatic cloud synchronization, distributed locking,
@@ -402,8 +405,9 @@ and Coaching contracts. Issue #202 closes the internal field-level provenance
 implementation gate. Issue #203 closes canonical Multi-Step phase coverage
 without adding or changing any public contract. Issue #204 applies the exact
 `AGPL-3.0-only` Package metadata without changing public Python or CLI behavior.
-The remaining v1 gates begin with B-08/#205, the complete SkatMind public
-Package/import/module/CLI rename and migration boundary.
+Issue #205 completes the SkatMind public Package/import/module/CLI rename and
+strict persisted-input migration boundary, makes P-09 `satisfied`, and closes
+B-08. The next gate is B-05/#206 installation and supported-platform evidence.
 
 Internal Application orchestration version `1`, no-I/O execution for all seven
 Root workflows, legacy CLI transport parity, and auxiliary artifacts are

@@ -1,8 +1,8 @@
 import random
 
-import skat_ai.opponent_lead as opponent_lead_module
-from skat_ai.game_state import GameState
-from skat_ai.opponent_sequence import (
+import skatmind.opponent_lead as opponent_lead_module
+from skatmind.game_state import GameState
+from skatmind.opponent_sequence import (
     build_serializable_opponent_sequence_result,
     can_prepare_player_action,
     extract_opponent_sequence_cards,
@@ -249,7 +249,7 @@ def test_prepare_player_action_state_rejects_completion_failure_to_progress(
     )
 
     monkeypatch.setattr(
-        "skat_ai.opponent_sequence.simulate_opponents_to_complete_current_trick_once",
+        "skatmind.opponent_sequence.simulate_opponents_to_complete_current_trick_once",
         lambda **_kwargs: {
             "next_state": state,
             "_opponent_plays": (("left", "S7"), ("right", "S8")),

@@ -1,0 +1,494 @@
+{
+  "learning_corpus_match_snapshot_version": 1,
+  "object_kind": "match_workspace_snapshot",
+  "match_snapshot_id": "cd27da9012634d42d483c90e7a75c6d11412cb535fb5c45b3155fc2c0ccd7d8b",
+  "match_id": "match-160",
+  "workspace_revision": 1,
+  "source_workspace_fingerprint": "cd5d2ffdc9389cb6f819050c502f802a2e315c1b97d6ef47ef6cc695e9f6abca",
+  "source_content_fingerprint": "1eeadcb8deae1c26d471413dd60a56bcd849ce1dcee3817072356a4288041dda",
+  "workspace": {
+    "match_workspace_contract_version": 1,
+    "revision": 1,
+    "match_definition": {
+      "match_capture_contract_version": 1,
+      "match_id": "match-160",
+      "title": "Observed EuroSkat Match",
+      "game_platform": "EuroSkat",
+      "external_match_id": "external-match-42",
+      "played_at": "2026-08-09T18:00:00Z",
+      "tournament_format": {
+        "match_tournament_format_version": 1,
+        "format_id": "euroskat_36_standard_v1",
+        "provider": "EuroSkat",
+        "display_name": "36er Standard",
+        "player_count": 3,
+        "game_count": 36
+      },
+      "source": {
+        "match_source_metadata_version": 1,
+        "source_kind": "youtube_video",
+        "source_url": "https://www.youtube.com/watch?v=AbC_123-xy",
+        "source_title": "EuroSkat 36er Standard Match",
+        "source_channel_name": "Example Channel",
+        "match_timecode": {
+          "media_timecode_version": 1,
+          "start_offset_ms": 12345,
+          "end_offset_ms": 7654321
+        }
+      },
+      "participants": [
+        {
+          "player_id": "player-a",
+          "player_label": "Alice",
+          "platform_player_id": "platform-a",
+          "table_place": "place_1",
+          "statistics_snapshot": null
+        },
+        {
+          "player_id": "player-b",
+          "player_label": null,
+          "platform_player_id": "platform-b",
+          "table_place": "place_2",
+          "statistics_snapshot": null
+        },
+        {
+          "player_id": "player-c",
+          "player_label": "Carol",
+          "platform_player_id": null,
+          "table_place": "place_3",
+          "statistics_snapshot": null
+        }
+      ],
+      "perspective_player_id": "player-a"
+    },
+    "slots": [
+      {
+        "match_workspace_slot_version": 1,
+        "match_position": 1,
+        "slot_kind": "empty",
+        "observed_game": null,
+        "passed_deal": null
+      },
+      {
+        "match_workspace_slot_version": 1,
+        "match_position": 2,
+        "slot_kind": "empty",
+        "observed_game": null,
+        "passed_deal": null
+      },
+      {
+        "match_workspace_slot_version": 1,
+        "match_position": 3,
+        "slot_kind": "observed_game",
+        "observed_game": {
+          "observed_game_contract_version": 1,
+          "game_id": "annotated-game",
+          "match_id": "match-160",
+          "match_position": 3,
+          "game_timecode": {
+            "media_timecode_version": 1,
+            "start_offset_ms": 220000,
+            "end_offset_ms": 300000
+          },
+          "players": [
+            {
+              "player_id": "player-a",
+              "seat": "forehand"
+            },
+            {
+              "player_id": "player-b",
+              "seat": "middlehand"
+            },
+            {
+              "player_id": "player-c",
+              "seat": "rearhand"
+            }
+          ],
+          "perspective_player_id": "player-a",
+          "perspective_initial_hand": null,
+          "declarer_player_id": "player-a",
+          "declaration": {
+            "game_type": "grand",
+            "hand_game": false,
+            "ouvert": false,
+            "schneider_announced": false,
+            "schwarz_announced": false,
+            "matadors": null,
+            "bid_value": 24
+          },
+          "original_skat": null,
+          "discarded_cards": null,
+          "plays": [
+            {
+              "observed_play_version": 1,
+              "decision_index": 1,
+              "player_id": "player-a",
+              "card": "CA",
+              "decision_timecode": null
+            },
+            {
+              "observed_play_version": 1,
+              "decision_index": 2,
+              "player_id": "player-b",
+              "card": "S7",
+              "decision_timecode": null
+            }
+          ],
+          "commentaries": [
+            {
+              "decision_commentary_version": 1,
+              "commentary_id": "comment-1",
+              "decision_index": 1,
+              "subject_player_id": "player-a",
+              "commentator_player_id": "player-a",
+              "commentator_name": null,
+              "text": "Observed opening explanation.",
+              "commentary_timecode": null
+            }
+          ],
+          "response_links": [
+            {
+              "decision_response_link_version": 1,
+              "link_id": "response-1",
+              "commentary_id": "comment-1",
+              "response_decision_index": 2
+            }
+          ]
+        },
+        "passed_deal": null
+      },
+      {
+        "match_workspace_slot_version": 1,
+        "match_position": 4,
+        "slot_kind": "empty",
+        "observed_game": null,
+        "passed_deal": null
+      },
+      {
+        "match_workspace_slot_version": 1,
+        "match_position": 5,
+        "slot_kind": "empty",
+        "observed_game": null,
+        "passed_deal": null
+      },
+      {
+        "match_workspace_slot_version": 1,
+        "match_position": 6,
+        "slot_kind": "empty",
+        "observed_game": null,
+        "passed_deal": null
+      },
+      {
+        "match_workspace_slot_version": 1,
+        "match_position": 7,
+        "slot_kind": "empty",
+        "observed_game": null,
+        "passed_deal": null
+      },
+      {
+        "match_workspace_slot_version": 1,
+        "match_position": 8,
+        "slot_kind": "empty",
+        "observed_game": null,
+        "passed_deal": null
+      },
+      {
+        "match_workspace_slot_version": 1,
+        "match_position": 9,
+        "slot_kind": "empty",
+        "observed_game": null,
+        "passed_deal": null
+      },
+      {
+        "match_workspace_slot_version": 1,
+        "match_position": 10,
+        "slot_kind": "empty",
+        "observed_game": null,
+        "passed_deal": null
+      },
+      {
+        "match_workspace_slot_version": 1,
+        "match_position": 11,
+        "slot_kind": "empty",
+        "observed_game": null,
+        "passed_deal": null
+      },
+      {
+        "match_workspace_slot_version": 1,
+        "match_position": 12,
+        "slot_kind": "empty",
+        "observed_game": null,
+        "passed_deal": null
+      },
+      {
+        "match_workspace_slot_version": 1,
+        "match_position": 13,
+        "slot_kind": "empty",
+        "observed_game": null,
+        "passed_deal": null
+      },
+      {
+        "match_workspace_slot_version": 1,
+        "match_position": 14,
+        "slot_kind": "empty",
+        "observed_game": null,
+        "passed_deal": null
+      },
+      {
+        "match_workspace_slot_version": 1,
+        "match_position": 15,
+        "slot_kind": "empty",
+        "observed_game": null,
+        "passed_deal": null
+      },
+      {
+        "match_workspace_slot_version": 1,
+        "match_position": 16,
+        "slot_kind": "empty",
+        "observed_game": null,
+        "passed_deal": null
+      },
+      {
+        "match_workspace_slot_version": 1,
+        "match_position": 17,
+        "slot_kind": "empty",
+        "observed_game": null,
+        "passed_deal": null
+      },
+      {
+        "match_workspace_slot_version": 1,
+        "match_position": 18,
+        "slot_kind": "empty",
+        "observed_game": null,
+        "passed_deal": null
+      },
+      {
+        "match_workspace_slot_version": 1,
+        "match_position": 19,
+        "slot_kind": "empty",
+        "observed_game": null,
+        "passed_deal": null
+      },
+      {
+        "match_workspace_slot_version": 1,
+        "match_position": 20,
+        "slot_kind": "empty",
+        "observed_game": null,
+        "passed_deal": null
+      },
+      {
+        "match_workspace_slot_version": 1,
+        "match_position": 21,
+        "slot_kind": "empty",
+        "observed_game": null,
+        "passed_deal": null
+      },
+      {
+        "match_workspace_slot_version": 1,
+        "match_position": 22,
+        "slot_kind": "empty",
+        "observed_game": null,
+        "passed_deal": null
+      },
+      {
+        "match_workspace_slot_version": 1,
+        "match_position": 23,
+        "slot_kind": "empty",
+        "observed_game": null,
+        "passed_deal": null
+      },
+      {
+        "match_workspace_slot_version": 1,
+        "match_position": 24,
+        "slot_kind": "empty",
+        "observed_game": null,
+        "passed_deal": null
+      },
+      {
+        "match_workspace_slot_version": 1,
+        "match_position": 25,
+        "slot_kind": "empty",
+        "observed_game": null,
+        "passed_deal": null
+      },
+      {
+        "match_workspace_slot_version": 1,
+        "match_position": 26,
+        "slot_kind": "empty",
+        "observed_game": null,
+        "passed_deal": null
+      },
+      {
+        "match_workspace_slot_version": 1,
+        "match_position": 27,
+        "slot_kind": "empty",
+        "observed_game": null,
+        "passed_deal": null
+      },
+      {
+        "match_workspace_slot_version": 1,
+        "match_position": 28,
+        "slot_kind": "empty",
+        "observed_game": null,
+        "passed_deal": null
+      },
+      {
+        "match_workspace_slot_version": 1,
+        "match_position": 29,
+        "slot_kind": "empty",
+        "observed_game": null,
+        "passed_deal": null
+      },
+      {
+        "match_workspace_slot_version": 1,
+        "match_position": 30,
+        "slot_kind": "empty",
+        "observed_game": null,
+        "passed_deal": null
+      },
+      {
+        "match_workspace_slot_version": 1,
+        "match_position": 31,
+        "slot_kind": "empty",
+        "observed_game": null,
+        "passed_deal": null
+      },
+      {
+        "match_workspace_slot_version": 1,
+        "match_position": 32,
+        "slot_kind": "empty",
+        "observed_game": null,
+        "passed_deal": null
+      },
+      {
+        "match_workspace_slot_version": 1,
+        "match_position": 33,
+        "slot_kind": "empty",
+        "observed_game": null,
+        "passed_deal": null
+      },
+      {
+        "match_workspace_slot_version": 1,
+        "match_position": 34,
+        "slot_kind": "empty",
+        "observed_game": null,
+        "passed_deal": null
+      },
+      {
+        "match_workspace_slot_version": 1,
+        "match_position": 35,
+        "slot_kind": "empty",
+        "observed_game": null,
+        "passed_deal": null
+      },
+      {
+        "match_workspace_slot_version": 1,
+        "match_position": 36,
+        "slot_kind": "empty",
+        "observed_game": null,
+        "passed_deal": null
+      }
+    ]
+  },
+  "player_observations": [
+    {
+      "learning_corpus_reference_version": 1,
+      "player_observation_id": "604bd5de88c962de729ae10d019f73041daa720eed88d8dc552776dd3a2af558",
+      "match_snapshot_id": "cd27da9012634d42d483c90e7a75c6d11412cb535fb5c45b3155fc2c0ccd7d8b",
+      "player_id": "player-a",
+      "table_place": "place_1",
+      "player_label": "Alice",
+      "game_platform": "EuroSkat",
+      "platform_player_id": "platform-a",
+      "statistics_snapshot_id": null
+    },
+    {
+      "learning_corpus_reference_version": 1,
+      "player_observation_id": "0e86a05eb5cf3b9b339a872ff6b5863f9c393fc3821997fb631840f3008a2e41",
+      "match_snapshot_id": "cd27da9012634d42d483c90e7a75c6d11412cb535fb5c45b3155fc2c0ccd7d8b",
+      "player_id": "player-b",
+      "table_place": "place_2",
+      "player_label": null,
+      "game_platform": "EuroSkat",
+      "platform_player_id": "platform-b",
+      "statistics_snapshot_id": null
+    },
+    {
+      "learning_corpus_reference_version": 1,
+      "player_observation_id": "63e7b4018e25780d628c20cac2d3882e9e54024ac948d39427b833daa8620bff",
+      "match_snapshot_id": "cd27da9012634d42d483c90e7a75c6d11412cb535fb5c45b3155fc2c0ccd7d8b",
+      "player_id": "player-c",
+      "table_place": "place_3",
+      "player_label": "Carol",
+      "game_platform": "EuroSkat",
+      "platform_player_id": null,
+      "statistics_snapshot_id": null
+    }
+  ],
+  "game_references": [
+    {
+      "learning_corpus_reference_version": 1,
+      "game_reference_id": "d21e034484678abcad507d087bbdf667ff41891929a6d2e890c07e0633147e4e",
+      "game_content_fingerprint": "6260de4928d360697c3af5db8e2a6693a01b172a6fb4070ced762471cb027675",
+      "match_snapshot_id": "cd27da9012634d42d483c90e7a75c6d11412cb535fb5c45b3155fc2c0ccd7d8b",
+      "match_id": "match-160",
+      "match_position": 3,
+      "game_id": "annotated-game",
+      "decision_reference_ids": [
+        "cd8486851a5e740bd5c5ced02ee953fffec51dae75131b0f2f507e913c8112f8",
+        "4d7b55c782af506d9bc8fff2b8675cd6da0ee67ee2b8ed3194fd2e47cd000996"
+      ],
+      "commentary_reference_ids": [
+        "edf13bccd31707c36251807f456c580fc1d4bc6dd5f4623a9d4bcade00eaf493"
+      ],
+      "response_reference_ids": [
+        "92f30169e5670e36815cbfef5d63dd6b92bb1db16aa1d6ef7879a5c94654a3fb"
+      ]
+    }
+  ],
+  "decision_references": [
+    {
+      "learning_corpus_reference_version": 1,
+      "decision_reference_id": "cd8486851a5e740bd5c5ced02ee953fffec51dae75131b0f2f507e913c8112f8",
+      "match_snapshot_id": "cd27da9012634d42d483c90e7a75c6d11412cb535fb5c45b3155fc2c0ccd7d8b",
+      "game_reference_id": "d21e034484678abcad507d087bbdf667ff41891929a6d2e890c07e0633147e4e",
+      "match_id": "match-160",
+      "game_id": "annotated-game",
+      "match_position": 3,
+      "decision_index": 1,
+      "acting_player_id": "player-a"
+    },
+    {
+      "learning_corpus_reference_version": 1,
+      "decision_reference_id": "4d7b55c782af506d9bc8fff2b8675cd6da0ee67ee2b8ed3194fd2e47cd000996",
+      "match_snapshot_id": "cd27da9012634d42d483c90e7a75c6d11412cb535fb5c45b3155fc2c0ccd7d8b",
+      "game_reference_id": "d21e034484678abcad507d087bbdf667ff41891929a6d2e890c07e0633147e4e",
+      "match_id": "match-160",
+      "game_id": "annotated-game",
+      "match_position": 3,
+      "decision_index": 2,
+      "acting_player_id": "player-b"
+    }
+  ],
+  "commentary_references": [
+    {
+      "learning_corpus_reference_version": 1,
+      "commentary_reference_id": "edf13bccd31707c36251807f456c580fc1d4bc6dd5f4623a9d4bcade00eaf493",
+      "match_snapshot_id": "cd27da9012634d42d483c90e7a75c6d11412cb535fb5c45b3155fc2c0ccd7d8b",
+      "game_reference_id": "d21e034484678abcad507d087bbdf667ff41891929a6d2e890c07e0633147e4e",
+      "commentary_id": "comment-1",
+      "subject_decision_reference_id": "cd8486851a5e740bd5c5ced02ee953fffec51dae75131b0f2f507e913c8112f8"
+    }
+  ],
+  "response_references": [
+    {
+      "learning_corpus_reference_version": 1,
+      "response_reference_id": "92f30169e5670e36815cbfef5d63dd6b92bb1db16aa1d6ef7879a5c94654a3fb",
+      "match_snapshot_id": "cd27da9012634d42d483c90e7a75c6d11412cb535fb5c45b3155fc2c0ccd7d8b",
+      "game_reference_id": "d21e034484678abcad507d087bbdf667ff41891929a6d2e890c07e0633147e4e",
+      "link_id": "response-1",
+      "commentary_reference_id": "edf13bccd31707c36251807f456c580fc1d4bc6dd5f4623a9d4bcade00eaf493",
+      "response_decision_reference_id": "4d7b55c782af506d9bc8fff2b8675cd6da0ee67ee2b8ed3194fd2e47cd000996"
+    }
+  ]
+}

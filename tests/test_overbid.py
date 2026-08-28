@@ -1,4 +1,4 @@
-from skat_ai.overbid import (
+from skatmind.overbid import (
     build_overbid_summary,
     calculate_required_overbid_game_value,
 )

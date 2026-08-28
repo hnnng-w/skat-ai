@@ -10,28 +10,28 @@ from test_match_workspace_contracts import (
     _set_game,
 )
 
-from skat_ai.application.execution import (
+from skatmind.application.execution import (
     ApplicationWorkflowDependencies,
 )
-from skat_ai.application.execution import (
+from skatmind.application.execution import (
     execute_application_invocation as real_execute_application_invocation,
 )
-from skat_ai.application.historical_game_workflow import (
+from skatmind.application.historical_game_workflow import (
     HistoricalGameWorkflowDependencies,
 )
-from skat_ai.match_analysis_contracts import MatchHistoricalAnalysisOptionsV1
-from skat_ai.match_historical_analysis import execute_match_historical_analysis_v1
-from skat_ai.match_historical_information_set_analysis import (
+from skatmind.match_analysis_contracts import MatchHistoricalAnalysisOptionsV1
+from skatmind.match_historical_analysis import execute_match_historical_analysis_v1
+from skatmind.match_historical_information_set_analysis import (
     MATCH_HISTORICAL_INFORMATION_SET_COACHING_INTEGRATION_VERSION,
     MATCH_HISTORICAL_INFORMATION_SET_COACHING_POLICY,
     MATCH_HISTORICAL_INFORMATION_SET_MODE_POLICY,
 )
-from skat_ai.match_historical_tactical_motif_analysis import (
+from skatmind.match_historical_tactical_motif_analysis import (
     MATCH_HISTORICAL_TACTICAL_MOTIF_INTEGRATION_VERSION,
     build_match_historical_tactical_motif_report_view_v1,
 )
-from skat_ai.match_workspace_contracts import create_match_workspace_v1
-from skat_ai.match_workspace_operations import mark_match_workspace_passed_deal_v1
+from skatmind.match_workspace_contracts import create_match_workspace_v1
+from skatmind.match_workspace_operations import mark_match_workspace_passed_deal_v1
 
 
 def _strict_workspace(*, definition=None):
@@ -56,7 +56,7 @@ def test_match_historical_information_set_version_and_policies_are_exact() -> No
 def test_tactical_match_historical_executes_application_once_without_profiles(
     monkeypatch,
 ) -> None:
-    import skat_ai.match_historical_analysis as analysis_module
+    import skatmind.match_historical_analysis as analysis_module
 
     workspace = _strict_workspace()
     calls = 0
@@ -199,7 +199,7 @@ def test_empty_passed_and_incomplete_historical_analysis_are_normal_unavailable(
 
 
 def test_historical_immediate_review_executes_application_once(monkeypatch) -> None:
-    import skat_ai.match_historical_analysis as analysis_module
+    import skatmind.match_historical_analysis as analysis_module
 
     workspace = _strict_workspace()
     calls = 0
@@ -213,7 +213,7 @@ def test_historical_immediate_review_executes_application_once(monkeypatch) -> N
     def counted_validation(document):
         nonlocal validations
         validations += 1
-        from skat_ai.api.v1.schema_validation import validate_output_document
+        from skatmind.api.v1.schema_validation import validate_output_document
 
         validate_output_document(document)
 
@@ -328,7 +328,7 @@ def test_historical_search_and_coaching_modes_route_through_existing_application
             build_replay_coaching=stub_coaching,
         )
     )
-    import skat_ai.match_historical_analysis as analysis_module
+    import skatmind.match_historical_analysis as analysis_module
 
     monkeypatch.setattr(
         analysis_module,
@@ -367,7 +367,7 @@ def test_historical_search_and_coaching_modes_route_through_existing_application
 def test_historical_information_set_review_and_coaching_share_one_application(
     monkeypatch,
 ) -> None:
-    import skat_ai.match_historical_analysis as analysis_module
+    import skatmind.match_historical_analysis as analysis_module
 
     application_calls = 0
     review_calls = 0
@@ -444,7 +444,7 @@ def test_historical_information_set_review_and_coaching_share_one_application(
 def test_historical_information_set_profiles_do_not_change_classic_family(
     monkeypatch,
 ) -> None:
-    import skat_ai.match_historical_analysis as analysis_module
+    import skatmind.match_historical_analysis as analysis_module
 
     definition = _capture_with_snapshots(
         snapshots=(
@@ -510,7 +510,7 @@ def test_historical_information_set_profiles_do_not_change_classic_family(
 
 
 def test_historical_unavailable_performs_no_application_call(monkeypatch) -> None:
-    import skat_ai.match_historical_analysis as analysis_module
+    import skatmind.match_historical_analysis as analysis_module
 
     def forbidden(*_args, **_kwargs):
         raise AssertionError("Application must not execute for unavailable evidence.")

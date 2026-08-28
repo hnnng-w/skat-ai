@@ -42,7 +42,7 @@ def focused_license_artifacts(tmp_path_factory: pytest.TempPathFactory) -> tuple
     temporary_root = tmp_path_factory.mktemp("v1-package-license")
     metadata = (
         "Metadata-Version: 2.4\n"
-        "Name: skat-ai\n"
+        "Name: skatmind\n"
         "Version: 0.17.0\n"
         f"License-Expression: {LICENSE_EXPRESSION}\n"
         f"License-File: {LICENSE_FILES[0]}\n"
@@ -51,8 +51,8 @@ def focused_license_artifacts(tmp_path_factory: pytest.TempPathFactory) -> tuple
     ).encode()
     legal_files = {name: (PROJECT_ROOT / name).read_bytes() for name in LICENSE_FILES}
 
-    wheel = temporary_root / "skat_ai-0.17.0-py3-none-any.whl"
-    dist_info = "skat_ai-0.17.0.dist-info"
+    wheel = temporary_root / "skatmind-0.17.0-py3-none-any.whl"
+    dist_info = "skatmind-0.17.0.dist-info"
     wheel_members = {
         f"{dist_info}/METADATA": metadata,
         f"{dist_info}/WHEEL": (
@@ -73,8 +73,8 @@ def focused_license_artifacts(tmp_path_factory: pytest.TempPathFactory) -> tuple
         for name, content in wheel_members.items():
             archive.writestr(name, content)
 
-    sdist = temporary_root / "skat_ai-0.17.0.tar.gz"
-    sdist_root = "skat_ai-0.17.0"
+    sdist = temporary_root / "skatmind-0.17.0.tar.gz"
+    sdist_root = "skatmind-0.17.0"
     sdist_members = {
         f"{sdist_root}/PKG-INFO": metadata,
         **{f"{sdist_root}/{name}": content for name, content in legal_files.items()},
@@ -124,12 +124,12 @@ def test_pep_639_source_metadata_preserves_the_package_baseline() -> None:
         "ruff>=0.14.0",
     ]
     assert pyproject["tool"]["setuptools"]["package-data"] == {
-        "skat_ai": ["py.typed"],
-        "skat_ai.schema_resources": ["*.schema.json"],
-        "skat_ai.capture_web": ["templates/*.html", "assets/*.css", "assets/*.js"],
-        "skat_ai.corpus_web": ["templates/*.html", "assets/*.css", "assets/*.js"],
+        "skatmind": ["py.typed"],
+        "skatmind.schema_resources": ["*.schema.json"],
+        "skatmind.capture_web": ["templates/*.html", "assets/*.css", "assets/*.js"],
+        "skatmind.corpus_web": ["templates/*.html", "assets/*.css", "assets/*.js"],
     }
-    assert project["scripts"] == {"skat-ai": "skat_ai.cli:main"}
+    assert project["scripts"] == {"skatmind": "skatmind.cli:main"}
 
 
 def test_wheel_has_exact_pep_639_metadata_files_and_record(
@@ -216,7 +216,7 @@ def test_target_install_has_exact_metadata_and_legal_files(
     distributions = [
         distribution
         for distribution in importlib.metadata.distributions(path=[str(target)])
-        if distribution.metadata["Name"] == "skat-ai"
+        if distribution.metadata["Name"] == "skatmind"
     ]
     assert len(distributions) == 1
     distribution = distributions[0]

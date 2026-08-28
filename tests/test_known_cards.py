@@ -1,6 +1,6 @@
-from skat_ai.game_state import GameState
-from skat_ai.input_loader import build_local_game_state_from_input
-from skat_ai.known_cards import (
+from skatmind.game_state import GameState
+from skatmind.input_loader import build_local_game_state_from_input
+from skatmind.known_cards import (
     get_cards_from_completed_tricks,
     get_duplicate_cards,
     get_known_cards_from_state,

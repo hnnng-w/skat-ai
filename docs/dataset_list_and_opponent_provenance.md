@@ -23,8 +23,8 @@ OPPONENT_WORKFLOW_PROVENANCE_VERSION = 1
 HISTORICAL_LIST_PROVENANCE_VERSION = 1
 ```
 
-They are internal and are not exported from `skat_ai`, `skat_ai.api`,
-`skat_ai.api.v1`, or `skat_ai.errors`. They do not change any existing Domain,
+They are internal and are not exported from `skatmind`, `skatmind.api`,
+`skatmind.api.v1`, or `skatmind.errors`. They do not change any existing Domain,
 Application, public API, Package, or Schema version.
 
 The focused implementation modules are:

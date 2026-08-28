@@ -4,19 +4,19 @@ from pathlib import Path
 
 import pytest
 
-from skat_ai.declarer_concession import (
+from skatmind.declarer_concession import (
     DeclarerCardCountEvidence,
     adjudicate_declarer_concession,
     build_declarer_concession,
     validate_declarer_concession_context,
 )
-from skat_ai.final_settlement import build_final_settlement_summary
-from skat_ai.game_declaration import GameDeclaration
-from skat_ai.game_result import build_game_result_summary_from_points
-from skat_ai.game_value import build_game_value_summary
-from skat_ai.input_loader import get_input_workflow
-from skat_ai.input_validation import validate_position_input
-from skat_ai.overbid import build_overbid_summary
+from skatmind.final_settlement import build_final_settlement_summary
+from skatmind.game_declaration import GameDeclaration
+from skatmind.game_result import build_game_result_summary_from_points
+from skatmind.game_value import build_game_value_summary
+from skatmind.input_loader import get_input_workflow
+from skatmind.input_validation import validate_position_input
+from skatmind.overbid import build_overbid_summary
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 

@@ -116,12 +116,12 @@ separators = (",", ":")
 The six SHA-256 domains are:
 
 ```text
-skat-ai\0learning_corpus_player_catalog_v1\0
-skat-ai\0learning_corpus_player_match_observation_v1\0
-skat-ai\0learning_corpus_platform_alias_observation_v1\0
-skat-ai\0learning_corpus_platform_alias_conflict_v1\0
-skat-ai\0learning_corpus_player_statistics_record_v1\0
-skat-ai\0learning_corpus_player_statistics_observation_v1\0
+skatmind\0learning_corpus_player_catalog_v1\0
+skatmind\0learning_corpus_player_match_observation_v1\0
+skatmind\0learning_corpus_platform_alias_observation_v1\0
+skatmind\0learning_corpus_platform_alias_conflict_v1\0
+skatmind\0learning_corpus_player_statistics_record_v1\0
+skatmind\0learning_corpus_player_statistics_observation_v1\0
 ```
 
 Paths, current time, filesystem metadata, environment values, and import order do

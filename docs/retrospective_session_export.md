@@ -63,7 +63,7 @@ Export is available only when all three conditions hold:
 If readiness is unavailable, the function returns before constructing a
 Historical document or invoking the Historical builder. If readiness says
 available but the replayed projection, builder, or canonical round trip
-disagrees, the function raises `SkatAIInvariantError`. Builder failures are
+disagrees, the function raises `SkatMindInvariantError`. Builder failures are
 retained as the exception cause.
 
 Optional caller-supplied `played_at` does not block export. A late-promoted Live

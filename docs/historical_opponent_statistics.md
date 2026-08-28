@@ -1,6 +1,6 @@
 # Historical opponent statistics
 
-`skat-ai` can deterministically aggregate exact reusable opponent statistics
+`skatmind` can deterministically aggregate exact reusable opponent statistics
 from normal-completion, including either timed continuation kind,
 declarer-concession, defender-concession, declarer-card-exposure,
 defender-open-play, and open-card-throw historical

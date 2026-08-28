@@ -368,7 +368,7 @@ establish Schwarz for settlement in the current implementation slice.
 ISkO 3.6.2 and the International Skat Court decision collection section 3.6.2,
 inquiries 1-3, establish an immediate lost Suit or Grand game when the announced
 Null value cannot cover the final bid. The declarer may select an eligible
-favorable Suit or Grand replacement for valuation. `skat-ai` records that
+favorable Suit or Grand replacement for valuation. `skatmind` records that
 external selection and does not optimize across unknown alternatives.
 
 The reason requires a post-game Null input, a bid above the original fixed Null

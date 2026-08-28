@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 from jsonschema import Draft202012Validator
 
-from skat_ai.api.v1 import ExecutionOptionsV1, execute_document
+from skatmind.api.v1 import ExecutionOptionsV1, execute_document
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 SCHEMA_PATH = PROJECT_ROOT / "schemas" / "field_provenance.schema.json"
@@ -37,7 +37,7 @@ def test_standalone_public_field_provenance_schema_is_meta_valid_and_strict() ->
     schema = _schema()
     Draft202012Validator.check_schema(schema)
     assert schema["$id"] == (
-        "https://example.local/skat-ai/field_provenance.schema.json"
+        "https://example.local/skatmind/field_provenance.schema.json"
     )
     bundle = _bundle()
     assert list(Draft202012Validator(schema).iter_errors(bundle)) == []

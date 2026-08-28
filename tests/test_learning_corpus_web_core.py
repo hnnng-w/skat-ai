@@ -9,10 +9,10 @@ import pytest
 from test_learning_corpus_human_evidence import _store
 from test_learning_corpus_strategy_teacher import _source_bundle
 
-import skat_ai.corpus_web.operations as operations_module
-import skat_ai.corpus_web.preparation as preparation_module
-from skat_ai.corpus_web.context import LearningCorpusWebContextV1
-from skat_ai.corpus_web.contracts import (
+import skatmind.corpus_web.operations as operations_module
+import skatmind.corpus_web.preparation as preparation_module
+from skatmind.corpus_web.context import LearningCorpusWebContextV1
+from skatmind.corpus_web.contracts import (
     LEARNING_CORPUS_PREPARED_ARTIFACTS_VERSION,
     LEARNING_CORPUS_STRATEGY_SOURCE_BINDING_STATUSES,
     LEARNING_CORPUS_STRATEGY_SOURCE_STORE_VERSION,
@@ -38,7 +38,7 @@ from skat_ai.corpus_web.contracts import (
     LEARNING_CORPUS_WEB_VERSION,
     LearningCorpusWebResultV1,
 )
-from skat_ai.corpus_web.downloads import (
+from skatmind.corpus_web.downloads import (
     LEARNING_CORPUS_ALL_PREPARED_DOWNLOAD_KINDS,
     LEARNING_CORPUS_PREPARED_DOWNLOAD_KINDS,
     LEARNING_CORPUS_TACTICAL_COACHING_PREPARED_DOWNLOAD_KINDS,
@@ -47,7 +47,7 @@ from skat_ai.corpus_web.downloads import (
     build_learning_corpus_artifact_filename_v1,
     build_learning_corpus_prepared_download_v1,
 )
-from skat_ai.corpus_web.operations import (
+from skatmind.corpus_web.operations import (
     clear_strategy_teacher_reports_from_learning_corpus_web_v1,
     import_match_workspace_into_learning_corpus_web_v1,
     import_strategy_teacher_report_into_learning_corpus_web_v1,
@@ -56,28 +56,28 @@ from skat_ai.corpus_web.operations import (
     remove_strategy_teacher_report_from_learning_corpus_web_v1,
     select_current_learning_corpus_snapshot_web_v1,
 )
-from skat_ai.corpus_web.preparation import (
+from skatmind.corpus_web.preparation import (
     prepare_learning_corpus_artifacts_web_v1,
 )
-from skat_ai.corpus_web.source_store import (
+from skatmind.corpus_web.source_store import (
     LearningCorpusStrategyTeacherSourceStoreV1,
 )
-from skat_ai.learning_corpus_catalog import create_empty_learning_corpus_catalog_v1
-from skat_ai.learning_corpus_match_snapshot import (
+from skatmind.learning_corpus_catalog import create_empty_learning_corpus_catalog_v1
+from skatmind.learning_corpus_match_snapshot import (
     build_learning_corpus_match_snapshot_v1,
 )
-from skat_ai.learning_corpus_persistence import save_learning_corpus_catalog_v1
-from skat_ai.learning_corpus_persistence_codec import (
+from skatmind.learning_corpus_persistence import save_learning_corpus_catalog_v1
+from skatmind.learning_corpus_persistence_codec import (
     build_learning_corpus_catalog_persistence_document_v1,
 )
-from skat_ai.learning_corpus_strategy_teacher_builder import (
+from skatmind.learning_corpus_strategy_teacher_builder import (
     validate_learning_corpus_strategy_teacher_report_source_v1,
 )
-from skat_ai.match_workspace_operations import (
+from skatmind.match_workspace_operations import (
     replace_match_workspace_definition_v1,
 )
-from skat_ai.match_workspace_persistence import save_match_workspace_file_v1
-from skat_ai.match_workspace_persistence_codec import (
+from skatmind.match_workspace_persistence import save_match_workspace_file_v1
+from skatmind.match_workspace_persistence_codec import (
     build_match_workspace_persistence_document_v1,
 )
 

@@ -16,17 +16,17 @@ from test_observed_game_contracts import (
     observed_plays_from_historical,
 )
 
-import skat_ai.learning_corpus_tactical_motif_builder as tactical_builder_module
-from skat_ai.learning_corpus_match_snapshot import (
+import skatmind.learning_corpus_tactical_motif_builder as tactical_builder_module
+from skatmind.learning_corpus_match_snapshot import (
     build_learning_corpus_match_snapshot_v1,
 )
-from skat_ai.learning_corpus_player_catalog import (
+from skatmind.learning_corpus_player_catalog import (
     build_learning_corpus_player_catalog_v1,
 )
-from skat_ai.learning_corpus_tactical_motif_builder import (
+from skatmind.learning_corpus_tactical_motif_builder import (
     build_learning_corpus_tactical_motif_evidence_collection_v1,
 )
-from skat_ai.learning_corpus_tactical_motif_evidence import (
+from skatmind.learning_corpus_tactical_motif_evidence import (
     LEARNING_CORPUS_TACTICAL_MOTIF_COLLECTION_FINGERPRINT_DOMAIN,
     LEARNING_CORPUS_TACTICAL_MOTIF_COLLECTION_STATUSES,
     LEARNING_CORPUS_TACTICAL_MOTIF_COLLECTION_VERSION,
@@ -50,7 +50,7 @@ from skat_ai.learning_corpus_tactical_motif_evidence import (
     LearningCorpusTacticalMotifEvidenceCollectionV1,
     LearningCorpusTacticalMotifEvidenceV1,
 )
-from skat_ai.learning_corpus_tactical_motif_export import (
+from skatmind.learning_corpus_tactical_motif_export import (
     LEARNING_CORPUS_TACTICAL_MOTIF_CROSS_GAME_SUMMARY_DOCUMENT_KIND,
     LEARNING_CORPUS_TACTICAL_MOTIF_EVIDENCE_DOCUMENT_KIND,
     LEARNING_CORPUS_TACTICAL_MOTIF_EVIDENCE_EXPORT_ID_DOMAIN,
@@ -62,7 +62,7 @@ from skat_ai.learning_corpus_tactical_motif_export import (
     serialize_learning_corpus_tactical_motif_cross_game_summary_export_v1,
     serialize_learning_corpus_tactical_motif_evidence_export_v1,
 )
-from skat_ai.learning_corpus_tactical_motif_summary import (
+from skatmind.learning_corpus_tactical_motif_summary import (
     LEARNING_CORPUS_TACTICAL_MOTIF_CROSS_GAME_LIMITATIONS,
     LEARNING_CORPUS_TACTICAL_MOTIF_CROSS_GAME_SUMMARY_FINGERPRINT_DOMAIN,
     LEARNING_CORPUS_TACTICAL_MOTIF_CROSS_GAME_SUMMARY_VERSION,
@@ -79,11 +79,11 @@ from skat_ai.learning_corpus_tactical_motif_summary import (
     LearningCorpusTacticalMotifScopeSummaryV1,
     build_learning_corpus_tactical_motif_cross_game_summary_v1,
 )
-from skat_ai.match_workspace_contracts import create_match_workspace_v1
-from skat_ai.match_workspace_persistence_codec import (
+from skatmind.match_workspace_contracts import create_match_workspace_v1
+from skatmind.match_workspace_persistence_codec import (
     build_match_workspace_persistence_document_v1,
 )
-from skat_ai.tactical_motif_contracts import (
+from skatmind.tactical_motif_contracts import (
     TACTICAL_MOTIF_FAMILIES,
     TACTICAL_MOTIF_TYPES,
 )
@@ -158,15 +158,15 @@ def test_versions_statuses_policies_domains_and_contract_fields_are_exact() -> N
         LEARNING_CORPUS_TACTICAL_MOTIF_EVIDENCE_EXPORT_ID_DOMAIN,
         LEARNING_CORPUS_TACTICAL_MOTIF_SUMMARY_EXPORT_ID_DOMAIN,
     ) == (
-        b"skat-ai\0learning_corpus_tactical_motif_evidence_v1\0",
-        b"skat-ai\0learning_corpus_tactical_motif_skipped_decision_v1\0",
-        b"skat-ai\0learning_corpus_tactical_motif_collection_v1\0",
-        b"skat-ai\0learning_corpus_tactical_motif_scope_summary_v1\0",
-        b"skat-ai\0learning_corpus_tactical_motif_player_summary_v1\0",
-        b"skat-ai\0learning_corpus_tactical_motif_recurrence_v1\0",
-        b"skat-ai\0learning_corpus_tactical_motif_cross_game_summary_v1\0",
-        b"skat-ai\0learning_corpus_tactical_motif_evidence_export_v1\0",
-        b"skat-ai\0learning_corpus_tactical_motif_summary_export_v1\0",
+        b"skatmind\0learning_corpus_tactical_motif_evidence_v1\0",
+        b"skatmind\0learning_corpus_tactical_motif_skipped_decision_v1\0",
+        b"skatmind\0learning_corpus_tactical_motif_collection_v1\0",
+        b"skatmind\0learning_corpus_tactical_motif_scope_summary_v1\0",
+        b"skatmind\0learning_corpus_tactical_motif_player_summary_v1\0",
+        b"skatmind\0learning_corpus_tactical_motif_recurrence_v1\0",
+        b"skatmind\0learning_corpus_tactical_motif_cross_game_summary_v1\0",
+        b"skatmind\0learning_corpus_tactical_motif_evidence_export_v1\0",
+        b"skatmind\0learning_corpus_tactical_motif_summary_export_v1\0",
     )
     with pytest.raises(TypeError, match="focused builder"):
         LearningCorpusTacticalMotifEvidenceV1()

@@ -8,8 +8,8 @@ from test_observed_game_contracts import (
     observed_plays_from_historical,
 )
 
-from skat_ai.match_source_metadata import MediaTimecodeV1
-from skat_ai.observed_game_commentary import (
+from skatmind.match_source_metadata import MediaTimecodeV1
+from skatmind.observed_game_commentary import (
     ObservedDecisionCommentaryV1,
     ObservedDecisionResponseLinkV1,
 )

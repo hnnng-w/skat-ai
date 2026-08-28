@@ -9,7 +9,7 @@ from test_training_dataset_preparation import (
     build_unseen_request,
 )
 
-from skat_ai.dataset_partition_plan import (
+from skatmind.dataset_partition_plan import (
     COMPONENT_BALANCED_UNSEEN_PLAYER_ALGORITHM,
     DATASET_PARTITION_BALANCE_BASIS,
     DATASET_PARTITION_PLAN_STATUSES,
@@ -23,7 +23,7 @@ from skat_ai.dataset_partition_plan import (
     build_unavailable_dataset_partition_plan,
     validate_dataset_partition_plan,
 )
-from skat_ai.training_dataset_preparation import (
+from skatmind.training_dataset_preparation import (
     build_serializable_training_dataset_preparation_request,
     build_training_dataset_preparation_request,
     materialize_prepared_training_dataset,

@@ -1,4 +1,4 @@
-from skat_ai.rules import (
+from skatmind.rules import (
     get_legal_cards,
     get_trick_points,
     get_trick_winner,

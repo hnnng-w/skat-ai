@@ -14,7 +14,7 @@ from test_output_schema import OUTPUT_VALIDATOR
 
 import main as main_module
 from scripts.validate_generated_outputs_schema import SCENARIOS
-from skat_ai.fixed_three_player_historical_list_request import (
+from skatmind.fixed_three_player_historical_list_request import (
     build_fixed_three_player_historical_list_analysis_request,
     build_fixed_three_player_historical_list_comparison_request,
 )
@@ -157,7 +157,7 @@ def test_all_five_public_list_schemas_are_strict_draft_2020_12() -> None:
         schema = SCHEMAS[name]
         Draft202012Validator.check_schema(schema)
         assert schema["$schema"] == "https://json-schema.org/draft/2020-12/schema"
-        assert schema["$id"] == f"https://example.local/skat-ai/{name}"
+        assert schema["$id"] == f"https://example.local/skatmind/{name}"
         assert schema["additionalProperties"] is False
 
 

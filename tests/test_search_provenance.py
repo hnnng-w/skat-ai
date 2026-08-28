@@ -2,7 +2,7 @@ from dataclasses import replace
 
 import pytest
 
-from skat_ai.bounded_search_result import (
+from skatmind.bounded_search_result import (
     BOUNDED_SEARCH_ANALYSIS_METHOD,
     BOUNDED_SEARCH_SCHEMA_VERSION,
     AggregateSearchCandidateResult,
@@ -11,9 +11,9 @@ from skat_ai.bounded_search_result import (
     RequestedSearchBudget,
     rank_search_candidate_results,
 )
-from skat_ai.field_provenance_coverage import validate_field_provenance_coverage
-from skat_ai.search_provenance import build_bounded_search_provenance_ledger
-from skat_ai.terminal_utility import TERMINAL_UTILITY_VERSION
+from skatmind.field_provenance_coverage import validate_field_provenance_coverage
+from skatmind.search_provenance import build_bounded_search_provenance_ledger
+from skatmind.terminal_utility import TERMINAL_UTILITY_VERSION
 
 
 def _budget(*, timeout: int | None = 100) -> RequestedSearchBudget:
@@ -133,7 +133,7 @@ def _unavailable() -> BoundedSearchResult:
 )
 def test_search_provenance_is_complete_for_every_status(result: BoundedSearchResult) -> None:
     ledger = build_bounded_search_provenance_ledger(result)
-    from skat_ai.bounded_search_result import build_serializable_bounded_search_result
+    from skatmind.bounded_search_result import build_serializable_bounded_search_result
 
     coverage = validate_field_provenance_coverage(
         build_serializable_bounded_search_result(result),
@@ -237,7 +237,7 @@ def test_search_provenance_contains_no_private_world_or_seed_identity() -> None:
 
 
 def test_search_provenance_retains_actual_simulated_decision_index() -> None:
-    from skat_ai.search_provenance import build_bounded_search_provenance_entries
+    from skatmind.search_provenance import build_bounded_search_provenance_entries
 
     entries = build_bounded_search_provenance_entries(
         _result(),

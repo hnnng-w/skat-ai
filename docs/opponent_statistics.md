@@ -1,6 +1,6 @@
 # Opponent statistics
 
-`skat-ai` supports a separate version-1 workflow for externally supplied
+`skatmind` supports a separate version-1 workflow for externally supplied
 opponent statistics. It validates stable player identity, required source
 provenance, rounded percentages, and deterministic conversion to existing
 `PlayerProfile` rate semantics.

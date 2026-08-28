@@ -5,8 +5,8 @@ from types import MappingProxyType
 import pytest
 from test_match_capture_contracts import _capture, _participants, _snapshot
 
-from skat_ai.match_player_snapshot import MatchPlayerStatisticsSnapshotV1
-from skat_ai.match_player_statistics_context import (
+from skatmind.match_player_snapshot import MatchPlayerStatisticsSnapshotV1
+from skatmind.match_player_statistics_context import (
     MATCH_PLAYER_STATISTICS_CONTEXT_VERSION,
     MATCH_PLAYER_STATISTICS_HISTORY_POLICY,
     MATCH_PLAYER_STATISTICS_PROFILE_POLICY,
@@ -16,15 +16,15 @@ from skat_ai.match_player_statistics_context import (
     MatchPlayerStatisticsContextV1,
     build_match_player_statistics_context_v1,
 )
-from skat_ai.match_player_statistics_preparation import (
+from skatmind.match_player_statistics_preparation import (
     MATCH_PLAYER_STATISTICS_INPUT_POLICY,
     MATCH_PLAYER_STATISTICS_PREPARATION_STATUSES,
     MATCH_PLAYER_STATISTICS_PREPARATION_VERSION,
     MatchPlayerStatisticsPreparationV1,
     build_match_player_statistics_preparation_v1,
 )
-from skat_ai.opponent_profile_derivation import derive_opponent_profile
-from skat_ai.opponent_statistics import (
+from skatmind.opponent_profile_derivation import derive_opponent_profile
+from skatmind.opponent_statistics import (
     build_player_profile_from_opponent_statistics,
     build_serializable_opponent_statistics_input,
 )

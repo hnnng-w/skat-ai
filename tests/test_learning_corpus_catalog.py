@@ -10,20 +10,20 @@ from test_learning_corpus_match_snapshot import (
 )
 from test_match_workspace_contracts import _definition
 
-import skat_ai
-import skat_ai.api.v1 as api_v1
+import skatmind
+import skatmind.api.v1 as api_v1
 from scripts.validate_generated_outputs_schema import SCENARIOS
-from skat_ai.api.v1.contracts import WorkflowV1
-from skat_ai.learning_corpus_catalog import (
+from skatmind.api.v1.contracts import WorkflowV1
+from skatmind.learning_corpus_catalog import (
     build_learning_corpus_catalog_v1,
     build_learning_corpus_current_match_selection_v1,
     build_learning_corpus_match_snapshot_catalog_entry_v1,
     classify_learning_corpus_match_snapshot_v1,
     create_empty_learning_corpus_catalog_v1,
 )
-from skat_ai.match_workspace_contracts import create_match_workspace_v1
-from skat_ai.match_workspace_operations import mark_match_workspace_passed_deal_v1
-from skat_ai.training_dataset import (
+from skatmind.match_workspace_contracts import create_match_workspace_v1
+from skatmind.match_workspace_operations import mark_match_workspace_passed_deal_v1
+from skatmind.training_dataset import (
     TRAINING_DATASET_SCHEMA_VERSION,
     TRAINING_FEATURE_GENERATION_VERSION,
     TRAINING_TARGET,
@@ -310,7 +310,7 @@ def test_same_revision_conflict_precedes_newer_or_older_comparison() -> None:
 
 
 def test_catalog_and_snapshot_are_private_internal_compatibility_additions_only() -> None:
-    assert not hasattr(skat_ai, "LearningCorpusCatalogV1")
+    assert not hasattr(skatmind, "LearningCorpusCatalogV1")
     assert not hasattr(api_v1, "LearningCorpusCatalogV1")
     assert len(WorkflowV1) == 7
     assert TRAINING_DATASET_SCHEMA_VERSION == 1
@@ -320,9 +320,9 @@ def test_catalog_and_snapshot_are_private_internal_compatibility_additions_only(
 
     pyproject = tomllib.loads((PROJECT_ROOT / "pyproject.toml").read_text(encoding="utf-8"))
     assert pyproject["project"]["version"] == "0.17.0"
-    assert pyproject["project"]["scripts"] == {"skat-ai": "skat_ai.cli:main"}
+    assert pyproject["project"]["scripts"] == {"skatmind": "skatmind.cli:main"}
     assert len(tuple((PROJECT_ROOT / "schemas").glob("*.schema.json"))) == 71
-    assert len(tuple((PROJECT_ROOT / "src/skat_ai/schema_resources").glob("*.schema.json"))) == 71
+    assert len(tuple((PROJECT_ROOT / "src/skatmind/schema_resources").glob("*.schema.json"))) == 71
     session_examples = {
         path.name
         for path in (PROJECT_ROOT / "examples").glob("session_*.json")

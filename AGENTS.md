@@ -1,10 +1,10 @@
 # AGENTS.md
 
-This file contains project-specific instructions for AI coding agents working on `skat-ai`.
+This file contains project-specific instructions for AI coding agents working on `skatmind`.
 
 ## Project overview
 
-`skat-ai` is a local Python-based Skat analysis and simulation tool.
+SkatMind is a local Python-based Skat analysis and simulation tool.
 
 The project focuses on:
 
@@ -191,6 +191,7 @@ Before larger changes, read the relevant documentation:
 * `docs/project_handoff.md`
 * `docs/roadmap.md`
 * `docs/architecture.md`
+* `docs/skatmind_rename_and_migration.md`
 * `docs/input_json.md`
 * `docs/output_json.md`
 * `docs/application_orchestration.md`
@@ -562,12 +563,13 @@ makes P-10 and P-13 `satisfied`, and closes B-02 without widening public
 Provenance. Issue #203 completes all nine concrete canonical Multi-Step phases,
 makes P-19 `satisfied`, and closes B-03 without widening Search or public
 contracts. Issue #204 applies the `AGPL-3.0-only` Package boundary and closes
-B-04. P-09 is
-`implementation_required` under the separate SkatMind rename blocker B-08/#205,
-and B-09 adds maintainer UAT outside the 53-row ledger. `v1.0.0` is not ready;
-the next action is Issue #205, **Rename the complete project and public Package
-surface to SkatMind**. No v1 Release title,
-theme, date, tag, publication commit, or production model is frozen.
+B-04. Issue #205 completes the hard-cut SkatMind Package/import/CLI/resource/
+Schema/identifier migration, strict legacy persisted-input support, and reviewed
+historical-evidence boundary, makes P-09 `satisfied`, and closes B-08. B-09 adds
+maintainer UAT outside the 53-row ledger. `v1.0.0` is not ready; the next action
+is Issue #206, **Complete the v1 installation and supported-platform matrix**.
+No v1 Release title, theme, date, tag, publication commit, or production model is
+frozen.
 
 Major completed areas include:
 
@@ -855,9 +857,9 @@ attribution, and player ratings are not required for v1; complete internal
 field-level information provenance is complete under Issue #202 without widening
 the public contract. Issue #203 completes canonical Multi-Step phase coverage;
 Issue #204 closes the Package-license decision with exact `AGPL-3.0-only` legal
-files and PEP 639 metadata. The next gate is the B-08/#205 complete SkatMind
-rename, followed by #206 platform evidence, #207 technical readiness audit, and
-#208 maintainer UAT before B-07 Release preparation.
+files and PEP 639 metadata. Issue #205 completes the SkatMind rename and closes
+B-08. The next gate is #206 platform evidence, followed by #207 technical
+readiness audit and #208 maintainer UAT before B-07 Release preparation.
 End-to-end local Live and Retrospective Session
 capture is implemented through public file Save/Load, automatic Checkpoints,
 accepted-Log actual-card observation, isolated review, explicit analysis, the

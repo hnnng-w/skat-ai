@@ -6,22 +6,22 @@ from test_historical_declarer_concession import build_concession_prefix
 from test_historical_game import build_historical_input
 from test_training_dataset import build_training_input
 
-from skat_ai.historical_game import build_historical_game_record
-from skat_ai.historical_opponent_profile_binding import (
+from skatmind.historical_game import build_historical_game_record
+from skatmind.historical_opponent_profile_binding import (
     resolve_historical_opponent_profile_bindings,
 )
-from skat_ai.historical_opponent_statistics import (
+from skatmind.historical_opponent_statistics import (
     aggregate_historical_opponent_statistics,
     build_exportable_opponent_statistics_input,
     build_historical_opponent_statistics_aggregation_summary,
 )
-from skat_ai.live_opponent_profile_binding import resolve_live_opponent_profile_bindings
-from skat_ai.opponent_statistics import (
+from skatmind.live_opponent_profile_binding import resolve_live_opponent_profile_bindings
+from skatmind.opponent_statistics import (
     build_opponent_statistics_input,
     build_opponent_statistics_summary,
     build_serializable_opponent_statistics_input,
 )
-from skat_ai.training_dataset import build_training_dataset_input
+from skatmind.training_dataset import build_training_dataset_input
 
 
 def build_dataset(

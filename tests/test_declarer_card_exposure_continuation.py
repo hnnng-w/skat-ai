@@ -7,17 +7,17 @@ import pytest
 from jsonschema import Draft202012Validator, ValidationError
 from referencing import Registry, Resource
 
-from skat_ai.declarer_card_exposure_continuation import (
+from skatmind.declarer_card_exposure_continuation import (
     build_declarer_card_exposure_continuation,
     build_game_continuation_summary,
     resolve_declarer_card_exposure_continuation,
 )
-from skat_ai.input_loader import build_local_game_state_from_input
-from skat_ai.input_validation import validate_actual_card_played, validate_position_input
-from skat_ai.multi_step_simulation import simulate_multiple_steps
-from skat_ai.policy_comparison import compare_multi_step_policies
-from skat_ai.public_hand_constraint import PublicHandConstraint
-from skat_ai.simulation import (
+from skatmind.input_loader import build_local_game_state_from_input
+from skatmind.input_validation import validate_actual_card_played, validate_position_input
+from skatmind.multi_step_simulation import simulate_multiple_steps
+from skatmind.policy_comparison import compare_multi_step_policies
+from skatmind.public_hand_constraint import PublicHandConstraint
+from skatmind.simulation import (
     generate_sampled_hidden_state,
     simulate_immediate_trick_once_detailed,
 )

@@ -1,21 +1,21 @@
 
-import skat_ai.opponent_lead as opponent_lead_module
-import skat_ai.simulation as simulation_module
-from skat_ai.card_selection import choose_first_legal_card
-from skat_ai.card_tracking import get_unseen_cards
-from skat_ai.coherent_hidden_world import CoherentHiddenWorld
-from skat_ai.game_history import build_score_summary
-from skat_ai.game_state import GameState
-from skat_ai.input_loader import build_local_game_state_from_input
-from skat_ai.multi_step_simulation import (
+import skatmind.opponent_lead as opponent_lead_module
+import skatmind.simulation as simulation_module
+from skatmind.card_selection import choose_first_legal_card
+from skatmind.card_tracking import get_unseen_cards
+from skatmind.coherent_hidden_world import CoherentHiddenWorld
+from skatmind.game_history import build_score_summary
+from skatmind.game_state import GameState
+from skatmind.input_loader import build_local_game_state_from_input
+from skatmind.multi_step_simulation import (
     extract_opponent_cards_from_step,
     get_multi_step_stop_reason,
     prepare_state_for_player_action,
     should_continue_multi_step_simulation,
     simulate_multiple_steps,
 )
-from skat_ai.objective_utility import calculate_null_horizon_utility_from_states
-from skat_ai.strategic_metadata import StrategicMetadata
+from skatmind.objective_utility import calculate_null_horizon_utility_from_states
+from skatmind.strategic_metadata import StrategicMetadata
 
 
 def build_test_hidden_world(
@@ -1718,7 +1718,7 @@ def test_simulate_multiple_steps_terminal_completion_does_not_run_candidate_simu
         raise AssertionError("candidate simulation should not run")
 
     monkeypatch.setattr(
-        "skat_ai.multi_step_simulation.choose_card_by_policy",
+        "skatmind.multi_step_simulation.choose_card_by_policy",
         fail_choose_card_by_policy,
     )
     state = GameState(

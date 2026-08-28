@@ -12,22 +12,22 @@ from test_historical_game import build_historical_input
 from test_historical_opponent_profiles import stub_expected_value_recommendation
 from test_training_dataset import build_training_input
 
-from skat_ai.dataset_partition_audit import audit_training_dataset_partitions
-from skat_ai.historical_decision_snapshot import build_historical_decision_snapshots
-from skat_ai.historical_game import (
+from skatmind.dataset_partition_audit import audit_training_dataset_partitions
+from skatmind.historical_decision_snapshot import build_historical_decision_snapshots
+from skatmind.historical_game import (
     build_historical_game_record,
     build_historical_game_summary_from_input,
 )
-from skat_ai.historical_game_review import build_historical_game_review_summary
-from skat_ai.historical_opponent_statistics import (
+from skatmind.historical_game_review import build_historical_game_review_summary
+from skatmind.historical_opponent_statistics import (
     aggregate_historical_opponent_statistics,
     build_exportable_opponent_statistics_input,
 )
-from skat_ai.rolling_opponent_policy_evaluation import (
+from skatmind.rolling_opponent_policy_evaluation import (
     build_serializable_rolling_opponent_policy_evaluation,
     evaluate_rolling_opponent_policy_predictions,
 )
-from skat_ai.training_dataset import (
+from skatmind.training_dataset import (
     build_training_dataset_input,
     build_training_dataset_summary,
 )
@@ -377,7 +377,7 @@ def test_shared_prefix_matches_every_prior_terminal_kind_and_longer_normal_game(
 
 def test_snapshots_training_and_review_include_only_actual_card_decisions(monkeypatch) -> None:
     monkeypatch.setattr(
-        "skat_ai.historical_game_review.recommend_card_by_expected_value",
+        "skatmind.historical_game_review.recommend_card_by_expected_value",
         stub_expected_value_recommendation,
     )
     data = build_throw_prefix(completed_trick_count=5, current_trick_card_count=2)

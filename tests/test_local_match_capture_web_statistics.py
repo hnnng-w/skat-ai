@@ -9,19 +9,19 @@ from test_local_match_capture_web import (
 )
 from test_match_capture_contracts import _statistics_record
 
-import skat_ai.capture_web.operations as operations_module
-from skat_ai.capture_web.context import MatchCaptureWebContextV1
-from skat_ai.capture_web.operations import (
+import skatmind.capture_web.operations as operations_module
+from skatmind.capture_web.context import MatchCaptureWebContextV1
+from skatmind.capture_web.operations import (
     apply_match_capture_web_operation_v1,
     create_match_capture_workspace_v1,
 )
-from skat_ai.capture_web.rendering import render_match_capture_web_page_v1
-from skat_ai.capture_web.state import build_match_capture_web_state_v1
-from skat_ai.match_player_statistics_updates import (
+from skatmind.capture_web.rendering import render_match_capture_web_page_v1
+from skatmind.capture_web.state import build_match_capture_web_state_v1
+from skatmind.match_player_statistics_updates import (
     set_match_player_statistics_snapshot_v1,
 )
-from skat_ai.match_workspace_persistence import save_match_workspace_file_v1
-from skat_ai.match_workspace_persistence_codec import (
+from skatmind.match_workspace_persistence import save_match_workspace_file_v1
+from skatmind.match_workspace_persistence_codec import (
     build_match_workspace_persistence_document_v1,
 )
 
@@ -427,7 +427,7 @@ def test_web_snapshot_result_reuses_preparation_without_second_derivation(
     tmp_path: Path,
     monkeypatch,
 ) -> None:
-    import skat_ai.match_player_statistics_context as context_module
+    import skatmind.match_player_statistics_context as context_module
 
     context = _create_context(tmp_path)
     calls = 0
@@ -488,7 +488,7 @@ def test_snapshot_operation_executes_no_analysis_materialization_network_or_hist
         raise AssertionError("Forbidden analysis, history, or network path executed.")
 
     monkeypatch.setattr(
-        "skat_ai.application.execution.execute_application_invocation",
+        "skatmind.application.execution.execute_application_invocation",
         forbidden,
     )
     monkeypatch.setattr("socket.create_connection", forbidden)

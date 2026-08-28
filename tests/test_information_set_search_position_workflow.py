@@ -3,21 +3,21 @@ from pathlib import Path
 
 import pytest
 
-import skat_ai.application.position_workflow as position_module
-from skat_ai.application.contracts import PositionAnalysisApplicationOptions
-from skat_ai.application.position_workflow import (
+import skatmind.application.position_workflow as position_module
+from skatmind.application.contracts import PositionAnalysisApplicationOptions
+from skatmind.application.position_workflow import (
     PositionWorkflowDependencies,
     build_position_analysis_result,
     execute_position_analysis_workflow,
 )
-from skat_ai.effective_opponent_policy import (
+from skatmind.effective_opponent_policy import (
     build_effective_opponent_policy_settings,
 )
-from skat_ai.information_set_search_workflow import (
+from skatmind.information_set_search_workflow import (
     INFORMATION_SET_SEARCH_RECOMMENDATION_METHOD,
     convert_information_set_search_budget_to_requested_search_budget_v1,
 )
-from skat_ai.recommendation_workflow import (
+from skatmind.recommendation_workflow import (
     IMMEDIATE_EXPECTED_VALUE_METHOD,
     SEARCH_RECOMMENDATION_METHODS,
 )

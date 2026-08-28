@@ -6,23 +6,23 @@ import pytest
 from test_historical_game import build_historical_input, rebuild_historical_suffix
 from test_replay_coaching_prioritization import _zero_decision_data
 
-from skat_ai.application import (
+from skatmind.application import (
     ApplicationExecutionOptions,
     ApplicationExternalDocuments,
     HistoricalGameApplicationOptions,
     build_application_invocation,
     execute_application_invocation,
 )
-from skat_ai.field_provenance import build_serializable_field_provenance_ledger
-from skat_ai.field_provenance_policy import (
+from skatmind.field_provenance import build_serializable_field_provenance_ledger
+from skatmind.field_provenance_policy import (
     redact_field_provenance_ledger_for_public_output,
 )
-from skat_ai.historical_decision_snapshot import build_historical_decision_snapshots
-from skat_ai.historical_game import (
+from skatmind.historical_decision_snapshot import build_historical_decision_snapshots
+from skatmind.historical_game import (
     build_historical_game_record,
     build_historical_game_summary,
 )
-from skat_ai.historical_review_provenance import (
+from skatmind.historical_review_provenance import (
     HistoricalReviewProvenanceCollector,
 )
 

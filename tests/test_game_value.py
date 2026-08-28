@@ -1,7 +1,7 @@
 import pytest
 
-from skat_ai.game_declaration import GameDeclaration
-from skat_ai.game_value import (
+from skatmind.game_declaration import GameDeclaration
+from skatmind.game_value import (
     build_game_value_summary,
     calculate_game_value,
     calculate_suit_or_grand_game_level,

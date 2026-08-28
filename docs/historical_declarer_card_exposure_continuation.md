@@ -139,7 +139,7 @@ one game. Dataset partitions and audits remain record-, participant-, and stable
 ID-based.
 
 See the implementation in
-[`src/skat_ai/historical_declarer_card_exposure_continuation.py`](../src/skat_ai/historical_declarer_card_exposure_continuation.py),
+[`src/skatmind/historical_declarer_card_exposure_continuation.py`](../src/skatmind/historical_declarer_card_exposure_continuation.py),
 the deterministic
 [`examples/historical_grand_declarer_card_exposure_continuation.json`](../examples/historical_grand_declarer_card_exposure_continuation.json),
 and [Historical declarer card exposure](historical_declarer_card_exposure.md) for

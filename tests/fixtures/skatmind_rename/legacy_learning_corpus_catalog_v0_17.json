@@ -1,0 +1,45 @@
+{
+  "learning_corpus_persistence_version": 1,
+  "document_kind": "skat_ai_learning_corpus_catalog",
+  "catalog_fingerprint": "ce882f0457cdf7b58075f89976e9bc4c500c68c37209be371837bed38d07b7fd",
+  "content_fingerprint": "5a7919071e1e2d129b9261475e38401622aaaa4e4d42c3f1a2c1c70679f2c4be",
+  "catalog": {
+    "learning_corpus_catalog_version": 1,
+    "corpus_id": "legacy-v0-17-corpus",
+    "revision": 1,
+    "match_snapshots": [
+      {
+        "learning_corpus_catalog_version": 1,
+        "object_kind": "match_workspace_snapshot",
+        "match_snapshot_id": "cd27da9012634d42d483c90e7a75c6d11412cb535fb5c45b3155fc2c0ccd7d8b",
+        "match_id": "match-160",
+        "workspace_revision": 1,
+        "source_workspace_fingerprint": "cd5d2ffdc9389cb6f819050c502f802a2e315c1b97d6ef47ef6cc695e9f6abca",
+        "source_content_fingerprint": "1eeadcb8deae1c26d471413dd60a56bcd849ce1dcee3817072356a4288041dda",
+        "played_at": "2026-08-09T18:00:00Z",
+        "source_kind": "youtube_video",
+        "source_title": "EuroSkat 36er Standard Match",
+        "game_platform": "EuroSkat",
+        "perspective_player_id": "player-a",
+        "player_ids": [
+          "player-a",
+          "player-b",
+          "player-c"
+        ],
+        "observed_game_count": 1,
+        "passed_deal_count": 0,
+        "empty_slot_count": 35,
+        "decision_count": 2,
+        "commentary_count": 1,
+        "response_link_count": 1
+      }
+    ],
+    "current_matches": [
+      {
+        "learning_corpus_catalog_version": 1,
+        "match_id": "match-160",
+        "match_snapshot_id": "cd27da9012634d42d483c90e7a75c6d11412cb535fb5c45b3155fc2c0ccd7d8b"
+      }
+    ]
+  }
+}

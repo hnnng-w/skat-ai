@@ -1,11 +1,11 @@
-from skat_ai.final_settlement import build_final_settlement_summary
-from skat_ai.game_declaration import GameDeclaration
-from skat_ai.game_value import (
+from skatmind.final_settlement import build_final_settlement_summary
+from skatmind.game_declaration import GameDeclaration
+from skatmind.game_value import (
     build_game_value_summary,
     calculate_game_value,
     calculate_suit_or_grand_game_level,
 )
-from skat_ai.rules import (
+from skatmind.rules import (
     get_card_points,
     get_card_strength,
     get_effective_suit,

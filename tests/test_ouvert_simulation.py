@@ -6,19 +6,19 @@ from pathlib import Path
 import pytest
 
 from main import build_analysis_result, print_analysis_result
-from skat_ai.deck import get_full_deck
-from skat_ai.game_declaration import build_game_declaration_from_input
-from skat_ai.input_loader import build_local_game_state_from_input
-from skat_ai.input_validation import validate_position_input
-from skat_ai.multi_step_simulation import simulate_multiple_steps
-from skat_ai.ouvert_simulation import (
+from skatmind.deck import get_full_deck
+from skatmind.game_declaration import build_game_declaration_from_input
+from skatmind.input_loader import build_local_game_state_from_input
+from skatmind.input_validation import validate_position_input
+from skatmind.multi_step_simulation import simulate_multiple_steps
+from skatmind.ouvert_simulation import (
     build_declared_ouvert_public_hand_constraint,
     resolve_effective_public_hand_constraints,
     validate_declared_ouvert_public_cards,
 )
-from skat_ai.policy_comparison import compare_multi_step_policies
-from skat_ai.public_hand_constraint import PublicHandConstraint
-from skat_ai.simulation import (
+from skatmind.policy_comparison import compare_multi_step_policies
+from skatmind.public_hand_constraint import PublicHandConstraint
+from skatmind.simulation import (
     estimate_immediate_trick_values_for_legal_cards,
     generate_sampled_hidden_state,
 )
@@ -341,7 +341,7 @@ def test_immediate_ouvert_candidates_use_the_same_seeded_world_sequence(
             "average_points_lost": 0.0,
         }
 
-    monkeypatch.setattr("skat_ai.simulation.estimate_immediate_trick_value", capture_value)
+    monkeypatch.setattr("skatmind.simulation.estimate_immediate_trick_value", capture_value)
     values = estimate_immediate_trick_values_for_legal_cards(
         state,
         left_hand_size=10,

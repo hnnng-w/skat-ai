@@ -6,20 +6,20 @@ from pathlib import Path
 import pytest
 from test_learning_corpus_match_snapshot import _annotated_workspace, _snapshot_for_workspace
 
-import skat_ai
-import skat_ai.api.v1 as api_v1
+import skatmind
+import skatmind.api.v1 as api_v1
 from scripts.validate_generated_outputs_schema import SCENARIOS
-from skat_ai.api.v1.contracts import WorkflowV1
-from skat_ai.learning_corpus_catalog import (
+from skatmind.api.v1.contracts import WorkflowV1
+from skatmind.learning_corpus_catalog import (
     build_learning_corpus_catalog_v1,
     build_learning_corpus_current_match_selection_v1,
     build_learning_corpus_match_snapshot_catalog_entry_v1,
     create_empty_learning_corpus_catalog_v1,
 )
-from skat_ai.learning_corpus_persistence_codec import (
+from skatmind.learning_corpus_persistence_codec import (
     build_learning_corpus_catalog_persistence_document_v1,
 )
-from skat_ai.learning_corpus_persistence_contracts import (
+from skatmind.learning_corpus_persistence_contracts import (
     LEARNING_CORPUS_CATALOG_CHANGE_OPERATIONS,
     LEARNING_CORPUS_CATALOG_CHANGE_STATUSES,
     LEARNING_CORPUS_CATALOG_CHANGE_VERSION,
@@ -52,7 +52,7 @@ from skat_ai.learning_corpus_persistence_contracts import (
     LearningCorpusStoreResumeResultV1,
     LearningCorpusWorkspaceImportResultV1,
 )
-from skat_ai.training_dataset import TRAINING_DATASET_SCHEMA_VERSION, TRAINING_TARGET
+from skatmind.training_dataset import TRAINING_DATASET_SCHEMA_VERSION, TRAINING_TARGET
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
@@ -108,7 +108,7 @@ def test_versions_tuples_layout_policies_and_contract_fields_are_exact() -> None
         "keep_current",
     )
     assert LEARNING_CORPUS_SAME_REVISION_RESOLUTIONS == ("reject", "retain")
-    assert LEARNING_CORPUS_CATALOG_DOCUMENT_KIND == "skat_ai_learning_corpus_catalog"
+    assert LEARNING_CORPUS_CATALOG_DOCUMENT_KIND == "skatmind_learning_corpus_catalog"
     assert LEARNING_CORPUS_CATALOG_FILENAME == "catalog.json"
     assert LEARNING_CORPUS_OBJECTS_DIRECTORY == "objects"
     assert LEARNING_CORPUS_MATCH_SNAPSHOT_OBJECT_DIRECTORY == (
@@ -272,7 +272,7 @@ def test_store_rejects_nonreconciling_snapshot_and_unsorted_orphans() -> None:
 
 
 def test_persistence_and_import_remain_private_compatibility_additions_only() -> None:
-    assert not hasattr(skat_ai, "LearningCorpusStoreResumeResultV1")
+    assert not hasattr(skatmind, "LearningCorpusStoreResumeResultV1")
     assert not hasattr(api_v1, "LearningCorpusStoreResumeResultV1")
     assert len(WorkflowV1) == 7
     assert TRAINING_DATASET_SCHEMA_VERSION == 1
@@ -281,10 +281,10 @@ def test_persistence_and_import_remain_private_compatibility_additions_only() ->
     pyproject = tomllib.loads((PROJECT_ROOT / "pyproject.toml").read_text())
     assert pyproject["project"]["version"] == "0.17.0"
     assert pyproject["project"]["requires-python"] == ">=3.13"
-    assert pyproject["project"]["scripts"] == {"skat-ai": "skat_ai.cli:main"}
+    assert pyproject["project"]["scripts"] == {"skatmind": "skatmind.cli:main"}
     assert len(tuple((PROJECT_ROOT / "schemas").glob("*.schema.json"))) == 71
     assert len(
-        tuple((PROJECT_ROOT / "src/skat_ai/schema_resources").glob("*.schema.json"))
+        tuple((PROJECT_ROOT / "src/skatmind/schema_resources").glob("*.schema.json"))
     ) == 71
     assert len(tuple((PROJECT_ROOT / "examples").glob("session_*.json"))) == 6
     assert not tuple((PROJECT_ROOT / "schemas").glob("*learning_corpus*.schema.json"))

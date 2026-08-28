@@ -21,7 +21,7 @@ from email.parser import BytesParser
 from pathlib import Path, PurePosixPath
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-SOURCE_PACKAGE_DIRECTORY = PROJECT_ROOT / "src" / "skat_ai"
+SOURCE_PACKAGE_DIRECTORY = PROJECT_ROOT / "src" / "skatmind"
 SCHEMA_DIRECTORY = PROJECT_ROOT / "schemas"
 SMOKE_EXAMPLE = PROJECT_ROOT / "examples" / "opponent_statistics.json"
 UNAVAILABLE_SMOKE_EXAMPLE = (
@@ -70,28 +70,28 @@ BOUNDED_MULTI_STEP_SMOKE_EXAMPLE = (
 DEFAULT_POLICY_COMPARISON_SMOKE_EXAMPLE = (
     PROJECT_ROOT / "examples" / "grand_second_position.json"
 )
-PACKAGE_NAME = "skat-ai"
+PACKAGE_NAME = "skatmind"
 PACKAGE_VERSION = "0.17.0"
 PACKAGE_LICENSE_EXPRESSION = "AGPL-3.0-only"
 EXPECTED_LICENSE_FILES = ("LICENSE", "COPYRIGHT")
 EXPECTED_LICENSE_SHA256 = "d8a6cc31abc16b6748c7a21f21611f5a1ec33f67d22ca23d7da1c19b95496bee"
 EXPECTED_COPYRIGHT_BYTES = b"Copyright (C) 2026 Henning Wiese\n"
 EXPECTED_SCHEMA_RESOURCE_COUNT = 71
-SCHEMA_RESOURCE_PREFIX = "skat_ai/schema_resources/"
-CAPTURE_RESOURCE_PREFIX = "skat_ai/capture_web/"
+SCHEMA_RESOURCE_PREFIX = "skatmind/schema_resources/"
+CAPTURE_RESOURCE_PREFIX = "skatmind/capture_web/"
 CAPTURE_RESOURCE_NAMES = (
     "templates/page.html",
     "assets/capture.css",
     "assets/capture.js",
 )
-CORPUS_RESOURCE_PREFIX = "skat_ai/corpus_web/"
+CORPUS_RESOURCE_PREFIX = "skatmind/corpus_web/"
 CORPUS_RESOURCE_NAMES = (
     "templates/page.html",
     "assets/corpus.css",
     "assets/corpus.js",
 )
-CONSOLE_SCRIPT_NAME = "skat-ai"
-CONSOLE_SCRIPT_TARGET = "skat_ai.cli:main"
+CONSOLE_SCRIPT_NAME = "skatmind"
+CONSOLE_SCRIPT_TARGET = "skatmind.cli:main"
 
 
 class DistributionValidationError(RuntimeError):
@@ -143,8 +143,8 @@ def _repository_artifact_snapshot() -> dict[str, tuple[int, int]]:
     roots = (
         PROJECT_ROOT / "build",
         PROJECT_ROOT / "dist",
-        PROJECT_ROOT / "skat_ai.egg-info",
-        PROJECT_ROOT / "src" / "skat_ai.egg-info",
+        PROJECT_ROOT / "skatmind.egg-info",
+        PROJECT_ROOT / "src" / "skatmind.egg-info",
     )
     snapshot: dict[str, tuple[int, int]] = {}
     for root in roots:
@@ -397,7 +397,7 @@ def _validate_entry_points(content: str, *, artifact_name: str) -> None:
     _require(
         _parse_entry_points(content, artifact_name=artifact_name)
         == {"console_scripts": {CONSOLE_SCRIPT_NAME: CONSOLE_SCRIPT_TARGET}},
-        f"{artifact_name} must declare exactly one skat-ai Console Script and no GUI Script.",
+        f"{artifact_name} must declare exactly one skatmind Console Script and no GUI Script.",
     )
 
 
@@ -458,13 +458,14 @@ def _inspect_wheel(
         _validate_wheel_record(archive, names, record_name)
 
         wheel_modules = {
-            name for name in names if name.startswith("skat_ai/") and name.endswith(".py")
+            name for name in names if name.startswith("skatmind/") and name.endswith(".py")
         }
         _require(
-            wheel_modules == expected_modules, "Wheel does not contain exactly all skat_ai modules."
+            wheel_modules == expected_modules,
+            "Wheel does not contain exactly all skatmind modules.",
         )
-        _require("skat_ai/py.typed" in names, "Wheel is missing skat_ai/py.typed.")
-        _require(archive.read("skat_ai/py.typed") == b"", "Wheel py.typed marker changed.")
+        _require("skatmind/py.typed" in names, "Wheel is missing skatmind/py.typed.")
+        _require(archive.read("skatmind/py.typed") == b"", "Wheel py.typed marker changed.")
         schema_payload = {
             name.removeprefix(SCHEMA_RESOURCE_PREFIX): archive.read(name)
             for name in names
@@ -496,7 +497,7 @@ def _inspect_wheel(
             "Wheel contains repository-only test, example, or generated-output files.",
         )
         _require("main.py" not in names, "Wheel contains the repository Root main.py.")
-        _require("skat_ai/__main__.py" in names, "Wheel is missing skat_ai/__main__.py.")
+        _require("skatmind/__main__.py" in names, "Wheel is missing skatmind/__main__.py.")
         _require(
             not any(".data/scripts/" in name for name in names),
             "Wheel contains an installed script payload.",
@@ -596,7 +597,7 @@ def _inspect_sdist(
         _require(
             archived_pyproject["project"].get("scripts")
             == {CONSOLE_SCRIPT_NAME: CONSOLE_SCRIPT_TARGET},
-            "sdist does not declare the exact skat-ai Console Script.",
+            "sdist does not declare the exact skatmind Console Script.",
         )
         _require("gui-scripts" not in archived_pyproject["project"], "sdist declares a GUI Script.")
         _require(
@@ -617,14 +618,14 @@ def _inspect_sdist(
         sdist_modules = {
             name
             for name in names
-            if name.startswith(f"{root}/src/skat_ai/") and name.endswith(".py")
+            if name.startswith(f"{root}/src/skatmind/") and name.endswith(".py")
         }
         _require(
             sdist_modules == expected_sdist_modules,
-            "sdist does not contain exactly all skat_ai source modules.",
+            "sdist does not contain exactly all skatmind source modules.",
         )
-        marker_name = f"{root}/src/skat_ai/py.typed"
-        _require(marker_name in names, "sdist is missing src/skat_ai/py.typed.")
+        marker_name = f"{root}/src/skatmind/py.typed"
+        _require(marker_name in names, "sdist is missing src/skatmind/py.typed.")
         _require(_tar_bytes(archive, members[marker_name]) == b"", "sdist py.typed marker changed.")
         schema_prefix = f"{root}/src/{SCHEMA_RESOURCE_PREFIX}"
         schema_payload = {
@@ -660,8 +661,8 @@ def _inspect_sdist(
         _require(f"{root}/setup.py" not in names, "sdist contains setup.py.")
         _require(f"{root}/main.py" not in names, "sdist contains the repository Root main.py.")
         _require(
-            f"{root}/src/skat_ai/__main__.py" in names,
-            "sdist is missing src/skat_ai/__main__.py.",
+            f"{root}/src/skatmind/__main__.py" in names,
+            "sdist is missing src/skatmind/__main__.py.",
         )
         return metadata
 
@@ -670,8 +671,8 @@ SESSION_FIXTURE_PROGRAM = r"""
 import json
 from pathlib import Path
 
-from skat_ai.api.v1 import session
-import skat_ai.api.v1.session.files as session_files
+from skatmind.api.v1 import session
+import skatmind.api.v1.session.files as session_files
 
 cwd = Path.cwd()
 fast_options = session.SessionApiOptionsV1(validate_output=False)
@@ -874,6 +875,7 @@ assert session_files.load_session_file(
 SMOKE_PROGRAM = r"""
 import hashlib
 import http.client
+import importlib
 import importlib.metadata
 import importlib.resources
 import importlib.util
@@ -885,71 +887,71 @@ import threading
 from pathlib import Path, PurePosixPath
 from urllib.parse import urlencode
 
-import skat_ai
-from skat_ai.api.v1 import (
+import skatmind
+from skatmind.api.v1 import (
     ExecutionOptionsV1,
     WorkflowV1,
     execute_document,
     parse_request,
     serialize_result,
 )
-from skat_ai.api.v1 import session
-import skat_ai.api.v1.session.files as session_files
-from skat_ai.api.v1.session.files.contracts import (
+from skatmind.api.v1 import session
+import skatmind.api.v1.session.files as session_files
+from skatmind.api.v1.session.files.contracts import (
     SessionFileApiOptionsV1 as ContractSessionFileApiOptionsV1,
     SessionFileApiResultV1 as ContractSessionFileApiResultV1,
     SessionFileApiVersionInfoV1 as ContractSessionFileApiVersionInfoV1,
 )
-from skat_ai.api.v1.session.files.execution import (
+from skatmind.api.v1.session.files.execution import (
     load_session_file as execution_load_session_file,
     save_session_file as execution_save_session_file,
     serialize_session_file_result as execution_serialize_session_file_result,
 )
-from skat_ai.cli.session_assistant import run_session_assistant
-from skat_ai.capture_web.analysis import execute_match_capture_web_analysis_v1
-from skat_ai.capture_web.context import MatchCaptureWebContextV1
-from skat_ai.capture_web.server import start_match_capture_web_server_v1
-from skat_ai.corpus_web.context import LearningCorpusWebContextV1
-from skat_ai.corpus_web.server import start_learning_corpus_web_server_v1
-from skat_ai.game_declaration import GameDeclaration
-from skat_ai.match_analysis_contracts import (
+from skatmind.cli.session_assistant import run_session_assistant
+from skatmind.capture_web.analysis import execute_match_capture_web_analysis_v1
+from skatmind.capture_web.context import MatchCaptureWebContextV1
+from skatmind.capture_web.server import start_match_capture_web_server_v1
+from skatmind.corpus_web.context import LearningCorpusWebContextV1
+from skatmind.corpus_web.server import start_learning_corpus_web_server_v1
+from skatmind.game_declaration import GameDeclaration
+from skatmind.match_analysis_contracts import (
     MatchDecisionAnalysisOptionsV1,
     MatchHistoricalAnalysisOptionsV1,
     build_match_analysis_report_v1,
 )
-from skat_ai.match_analysis_exports import (
+from skatmind.match_analysis_exports import (
     build_match_historical_game_collection_export_v1,
     build_match_materialization_summary_export_v1,
     build_match_report_result_export_v1,
 )
-from skat_ai.match_analysis_report_source_codec import (
+from skatmind.match_analysis_report_source_codec import (
     resume_match_analysis_report_source_export_v1,
 )
-from skat_ai.match_capture_contracts import MatchCaptureDefinitionV1
-from skat_ai.match_decision_analysis import execute_match_decision_analysis_v1
-from skat_ai.match_decision_review_preparation import (
+from skatmind.match_capture_contracts import MatchCaptureDefinitionV1
+from skatmind.match_decision_analysis import execute_match_decision_analysis_v1
+from skatmind.match_decision_review_preparation import (
     build_match_decision_review_preparation_v1,
 )
-from skat_ai.match_historical_analysis import execute_match_historical_analysis_v1
-from skat_ai.match_player_snapshot import (
+from skatmind.match_historical_analysis import execute_match_historical_analysis_v1
+from skatmind.match_player_snapshot import (
     MatchParticipantV1,
     MatchPlayerStatisticsSnapshotV1,
 )
-from skat_ai.match_source_metadata import MatchSourceMetadataV1
-from skat_ai.match_tournament_format import get_match_tournament_format_v1
-from skat_ai.match_workspace_persistence import load_match_workspace_file_v1
-from skat_ai.match_workspace_contracts import create_match_workspace_v1
-from skat_ai.match_workspace_operations import set_match_workspace_observed_game_v1
-from skat_ai.observed_game_contracts import build_observed_game_record_v1
-from skat_ai.observed_game_trace import ObservedPlayV1
-from skat_ai.opponent_statistics import build_opponent_statistics_input
-from skat_ai.session_persistence_contracts import (
+from skatmind.match_source_metadata import MatchSourceMetadataV1
+from skatmind.match_tournament_format import get_match_tournament_format_v1
+from skatmind.match_workspace_persistence import load_match_workspace_file_v1
+from skatmind.match_workspace_contracts import create_match_workspace_v1
+from skatmind.match_workspace_operations import set_match_workspace_observed_game_v1
+from skatmind.observed_game_contracts import build_observed_game_record_v1
+from skatmind.observed_game_trace import ObservedPlayV1
+from skatmind.opponent_statistics import build_opponent_statistics_input
+from skatmind.session_persistence_contracts import (
     SessionPersistenceWriteResultV1 as InternalSessionPersistenceWriteResultV1,
     SessionResumeResultV1 as InternalSessionResumeResultV1,
 )
 
 cwd = Path.cwd().resolve()
-repository_root = Path(os.environ["SKAT_AI_REPOSITORY_ROOT"]).resolve()
+repository_root = Path(os.environ["SKATMIND_REPOSITORY_ROOT"]).resolve()
 document = json.loads((cwd / "opponent_statistics.json").read_text(encoding="utf-8"))
 information_set_search_document = json.loads(
     (cwd / "information-set-search.json").read_text(encoding="utf-8")
@@ -966,7 +968,7 @@ tactical_motif_document = json.loads(
     (cwd / "historical-tactical-motif-review.json").read_text(encoding="utf-8")
 )
 expected_schema_root = cwd / "expected_schemas"
-resource_root = importlib.resources.files("skat_ai.schema_resources")
+resource_root = importlib.resources.files("skatmind.schema_resources")
 resource_names = sorted(
     resource.name
     for resource in resource_root.iterdir()
@@ -991,7 +993,7 @@ for name in resource_names:
     schema_digest.update(content)
 assert len(schema_ids) == len(set(schema_ids))
 
-capture_resource_root = importlib.resources.files("skat_ai.capture_web")
+capture_resource_root = importlib.resources.files("skatmind.capture_web")
 capture_resource_names = (
     "templates/page.html",
     "assets/capture.css",
@@ -1006,7 +1008,7 @@ for name in capture_resource_names:
     capture_digest.update(b"\0")
     capture_digest.update(content)
 
-corpus_resource_root = importlib.resources.files("skat_ai.corpus_web")
+corpus_resource_root = importlib.resources.files("skatmind.corpus_web")
 corpus_resource_names = (
     "templates/page.html",
     "assets/corpus.css",
@@ -2231,9 +2233,9 @@ assert unavailable_document["field_provenance"]["result"]["ledger"]["status"] ==
     "complete"
 )
 
-distribution = importlib.metadata.distribution("skat-ai")
+distribution = importlib.metadata.distribution("skatmind")
 assert distribution.version == "0.17.0"
-assert skat_ai.__version__ == "0.17.0"
+assert skatmind.__version__ == "0.17.0"
 metadata_version = tuple(
     int(part) for part in distribution.metadata["Metadata-Version"].split(".")
 )
@@ -2262,12 +2264,26 @@ entry_points = [
     for entry in distribution.entry_points
     if entry.group in {"console_scripts", "gui_scripts"}
 ]
-assert entry_points == [("console_scripts", "skat-ai", "skat_ai.cli:main")]
-marker = importlib.resources.files(skat_ai).joinpath("py.typed")
+assert entry_points == [("console_scripts", "skatmind", "skatmind.cli:main")]
+marker = importlib.resources.files(skatmind).joinpath("py.typed")
 assert marker.is_file() and marker.read_bytes() == b""
-assert Path(distribution.locate_file("skat_ai/py.typed")).is_file()
-assert importlib.util.find_spec("skat_ai.__main__") is not None
+assert Path(distribution.locate_file("skatmind/py.typed")).is_file()
+assert importlib.util.find_spec("skatmind.__main__") is not None
 assert importlib.util.find_spec("main") is None
+legacy_namespace = "skat" + "_ai"
+assert importlib.util.find_spec(legacy_namespace) is None
+try:
+    importlib.import_module(legacy_namespace)
+except ModuleNotFoundError:
+    pass
+else:
+    raise AssertionError("legacy import namespace remains installed")
+try:
+    importlib.metadata.distribution("skat" + "-ai")
+except importlib.metadata.PackageNotFoundError:
+    pass
+else:
+    raise AssertionError("legacy distribution metadata remains installed")
 
 site_roots = {
     Path(path).resolve()
@@ -2276,7 +2292,7 @@ site_roots = {
 }
 loaded_paths = []
 for module_name, module in sorted(sys.modules.items()):
-    if module_name != "skat_ai" and not module_name.startswith("skat_ai."):
+    if module_name != "skatmind" and not module_name.startswith("skatmind."):
         continue
     module_file = getattr(module, "__file__", None)
     if module_file is None:
@@ -2358,7 +2374,7 @@ print(json.dumps({
     "capture_resource_digest": capture_digest.hexdigest(),
     "corpus_resource_names": corpus_resource_names,
     "corpus_resource_digest": corpus_digest.hexdigest(),
-    "version": skat_ai.__version__,
+    "version": skatmind.__version__,
     "license_expression": distribution.metadata["License-Expression"],
     "license_files": distribution.metadata.get_all("License-File", []),
     "legal_file_digests": legal_file_digests,
@@ -2375,8 +2391,8 @@ def _venv_python(environment_directory: Path) -> Path:
 
 def _venv_console_script(environment_directory: Path) -> Path:
     if os.name == "nt":
-        return environment_directory / "Scripts" / "skat-ai.exe"
-    return environment_directory / "bin" / "skat-ai"
+        return environment_directory / "Scripts" / "skatmind.exe"
+    return environment_directory / "bin" / "skatmind"
 
 
 def _run_cli_check(
@@ -2549,10 +2565,16 @@ def _install_and_smoke(
         cwd=consumer_directory,
         environment=environment,
     )
-    _require(console_script.is_file(), f"{label} did not install the skat-ai command.")
+    _require(console_script.is_file(), f"{label} did not install the skatmind command.")
+    legacy_script_name = "skat" + "-ai" + (".exe" if os.name == "nt" else "")
+    legacy_console_script = console_script.parent / legacy_script_name
+    _require(
+        not legacy_console_script.exists(),
+        f"{label} installed the legacy Console Script.",
+    )
 
     installed_prefix = [str(console_script)]
-    module_prefix = [str(python), "-m", "skat_ai"]
+    module_prefix = [str(python), "-m", "skatmind"]
 
     _run(
         [str(python), "-I", "-c", SESSION_FIXTURE_PROGRAM],
@@ -2561,8 +2583,8 @@ def _install_and_smoke(
     )
 
     for prefix, command_name in (
-        (installed_prefix, "skat-ai"),
-        (module_prefix, "python -m skat_ai"),
+        (installed_prefix, "skatmind"),
+        (module_prefix, "python -m skatmind"),
     ):
         help_result = _run_cli_check(
             [*prefix, "--help"],
@@ -2661,7 +2683,7 @@ def _install_and_smoke(
             expected_returncode=0,
         )
         _require(
-            version_result.stdout == "skat-ai 0.17.0\n" and not version_result.stderr,
+            version_result.stdout == "SkatMind 0.17.0\n" and not version_result.stderr,
             f"{label} {command_name} --version output changed.",
         )
 
@@ -3195,7 +3217,7 @@ def _install_and_smoke(
     )
     _require(
         not unknown_result.stdout
-        and "usage: skat-ai" in unknown_result.stderr
+        and "usage: skatmind" in unknown_result.stderr
         and "unrecognized arguments" in unknown_result.stderr,
         f"{label} unknown-option usage behavior changed.",
     )
@@ -3211,7 +3233,7 @@ def _install_and_smoke(
     )
 
     smoke_environment = environment.copy()
-    smoke_environment["SKAT_AI_REPOSITORY_ROOT"] = str(PROJECT_ROOT)
+    smoke_environment["SKATMIND_REPOSITORY_ROOT"] = str(PROJECT_ROOT)
     smoke_program_path = consumer_directory / "installed-smoke.py"
     smoke_program_path.write_text(SMOKE_PROGRAM, encoding="utf-8")
     completed = _run(
@@ -3243,7 +3265,7 @@ def validate_distribution_artifacts() -> None:
         f"found {len(expected_schemas)}.",
     )
 
-    with tempfile.TemporaryDirectory(prefix="skat-ai-distribution-") as temporary_name:
+    with tempfile.TemporaryDirectory(prefix="skatmind-distribution-") as temporary_name:
         temporary_root = Path(temporary_name).resolve()
         _require(
             not temporary_root.is_relative_to(PROJECT_ROOT),

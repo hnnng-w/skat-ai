@@ -1,4 +1,4 @@
-from skat_ai.information_policy import (
+from skatmind.information_policy import (
     build_information_policy_summary,
     is_live_information_enforced,
     validate_information_policy_from_input,

@@ -1,8 +1,8 @@
 import random
 
-from skat_ai.game_history import build_score_summary
-from skat_ai.game_state import GameState
-from skat_ai.simulation_step import simulate_and_advance_once
+from skatmind.game_history import build_score_summary
+from skatmind.game_state import GameState
+from skatmind.simulation_step import simulate_and_advance_once
 
 
 def test_simulate_and_advance_once_returns_expected_keys() -> None:

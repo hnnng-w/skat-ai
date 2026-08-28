@@ -4,8 +4,8 @@ from pathlib import Path
 
 import pytest
 
-import skat_ai.recommendation_workflow as workflow_module
-from skat_ai.bounded_search_result import (
+import skatmind.recommendation_workflow as workflow_module
+from skatmind.bounded_search_result import (
     AggregateSearchCandidateResult,
     BoundedSearchResult,
     ConsumedSearchBudget,
@@ -13,10 +13,10 @@ from skat_ai.bounded_search_result import (
     mark_bounded_search_fallback_used,
     rank_search_candidate_results,
 )
-from skat_ai.game_declaration import GameDeclaration
-from skat_ai.game_state import GameState
-from skat_ai.input_validation import validate_position_input
-from skat_ai.recommendation_workflow import (
+from skatmind.game_declaration import GameDeclaration
+from skatmind.game_state import GameState
+from skatmind.input_validation import validate_position_input
+from skatmind.recommendation_workflow import (
     AUTO_METHOD,
     BOUNDED_SEARCH_METHOD,
     IMMEDIATE_EXPECTED_VALUE_METHOD,

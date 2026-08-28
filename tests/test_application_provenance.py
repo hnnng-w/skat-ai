@@ -2,34 +2,34 @@ from dataclasses import FrozenInstanceError, fields, replace
 
 import pytest
 
-from skat_ai.api.v1 import ResultDocumentV1, WorkflowV1
-from skat_ai.application import (
+from skatmind.api.v1 import ResultDocumentV1, WorkflowV1
+from skatmind.application import (
     APPLICATION_PROVENANCE_VERSION,
     ApplicationExecutionResult,
     ApplicationProvenanceAttachment,
     ApplicationProvenanceBundle,
 )
-from skat_ai.dataset_preparation_provenance import (
+from skatmind.dataset_preparation_provenance import (
     DATASET_PREPARATION_PROVENANCE_VERSION,
 )
-from skat_ai.errors import SkatAIValidationError
-from skat_ai.field_provenance_coverage import (
+from skatmind.errors import SkatMindValidationError
+from skatmind.field_provenance_coverage import (
     build_field_provenance_coverage_summary,
 )
-from skat_ai.game_declaration import GameDeclaration
-from skat_ai.game_state import GameState
-from skat_ai.historical_list_provenance import HISTORICAL_LIST_PROVENANCE_VERSION
-from skat_ai.live_analysis_provenance import (
+from skatmind.game_declaration import GameDeclaration
+from skatmind.game_state import GameState
+from skatmind.historical_list_provenance import HISTORICAL_LIST_PROVENANCE_VERSION
+from skatmind.live_analysis_provenance import (
     LIVE_ANALYSIS_PROVENANCE_VERSION,
     build_live_decision_provenance_attachment,
 )
-from skat_ai.opponent_workflow_provenance import OPPONENT_WORKFLOW_PROVENANCE_VERSION
-from skat_ai.replay_coaching_provenance import REPLAY_COACHING_PROVENANCE_VERSION
-from skat_ai.retrospective_review_provenance import (
+from skatmind.opponent_workflow_provenance import OPPONENT_WORKFLOW_PROVENANCE_VERSION
+from skatmind.replay_coaching_provenance import REPLAY_COACHING_PROVENANCE_VERSION
+from skatmind.retrospective_review_provenance import (
     RETROSPECTIVE_REVIEW_PROVENANCE_VERSION,
 )
-from skat_ai.strategic_metadata import StrategicMetadata
-from skat_ai.training_dataset_provenance import TRAINING_DATASET_PROVENANCE_VERSION
+from skatmind.strategic_metadata import StrategicMetadata
+from skatmind.training_dataset_provenance import TRAINING_DATASET_PROVENANCE_VERSION
 
 
 def _attachment(name: str = "flat_decision") -> ApplicationProvenanceAttachment:
@@ -102,7 +102,7 @@ def test_attachment_is_frozen_defensive_and_requires_matching_coverage() -> None
         {"other": True},
         attachment.ledger,
     )
-    with pytest.raises(SkatAIValidationError, match="does not match"):
+    with pytest.raises(SkatMindValidationError, match="does not match"):
         replace(attachment, coverage_summary=mismatched)
 
 
@@ -124,7 +124,7 @@ def test_bundle_canonicalizes_names_and_rejects_duplicates() -> None:
         "multi_step_decision/10",
         "position_result",
     ]
-    with pytest.raises(SkatAIValidationError, match="unique names"):
+    with pytest.raises(SkatMindValidationError, match="unique names"):
         ApplicationProvenanceBundle(
             workflow=WorkflowV1.POSITION_ANALYSIS,
             attachments=(attachments[0], attachments[0]),
@@ -224,5 +224,5 @@ def test_application_result_defaults_to_no_provenance_and_validates_workflow() -
         workflow=WorkflowV1.HISTORICAL_GAME,
         attachments=(_attachment(),),
     )
-    with pytest.raises(SkatAIValidationError, match="workflow"):
+    with pytest.raises(SkatMindValidationError, match="workflow"):
         ApplicationExecutionResult(result=result, provenance=wrong_bundle)

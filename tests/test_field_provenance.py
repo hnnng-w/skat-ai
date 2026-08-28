@@ -2,8 +2,8 @@ from dataclasses import FrozenInstanceError, fields
 
 import pytest
 
-from skat_ai.errors import SkatAISerializationError, SkatAIValidationError
-from skat_ai.field_provenance import (
+from skatmind.errors import SkatMindSerializationError, SkatMindValidationError
+from skatmind.field_provenance import (
     FIELD_PROVENANCE_AVAILABILITY_BOUNDARIES,
     FIELD_PROVENANCE_CONFIDENCE_POLICY,
     FIELD_PROVENANCE_COVERAGE_KINDS,
@@ -188,13 +188,13 @@ def test_json_pointer_resolves_root_objects_arrays_and_escaped_keys() -> None:
 @pytest.mark.parametrize("value", ("~", "~2", "a~x", "/foo~"))
 def test_json_pointer_rejects_invalid_escapes(value: str) -> None:
     helper = parse_json_pointer if value.startswith("/") else unescape_json_pointer_token
-    with pytest.raises(SkatAIValidationError):
+    with pytest.raises(SkatMindValidationError):
         helper(value)
 
 
 @pytest.mark.parametrize("pointer", ("foo", "foo/bar"))
 def test_json_pointer_rejects_missing_leading_slash(pointer: str) -> None:
-    with pytest.raises(SkatAIValidationError, match="begin with"):
+    with pytest.raises(SkatMindValidationError, match="begin with"):
         parse_json_pointer(pointer)
 
 
@@ -211,7 +211,7 @@ def test_json_pointer_rejects_missing_leading_slash(pointer: str) -> None:
 def test_json_pointer_rejects_invalid_resolution(
     document: object, pointer: str, message: str
 ) -> None:
-    with pytest.raises(SkatAIValidationError, match=message) as exc_info:
+    with pytest.raises(SkatMindValidationError, match=message) as exc_info:
         resolve_json_pointer(document, pointer)
     assert exc_info.value.path == pointer
 
@@ -248,7 +248,7 @@ def test_source_reference_is_frozen_slotted_and_serializes_explicit_null() -> No
 
 @pytest.mark.parametrize("reference_id", ("", " source", "source ", 1, None))
 def test_source_reference_rejects_invalid_stable_id(reference_id: object) -> None:
-    with pytest.raises(SkatAIValidationError) as exc_info:
+    with pytest.raises(SkatMindValidationError) as exc_info:
         FieldProvenanceSourceReference(
             reference_type="request",
             reference_id=reference_id,  # type: ignore[arg-type]
@@ -296,11 +296,11 @@ def test_entry_rejects_duplicate_references_dependencies_and_self_dependency() -
         field_path=None,
         visibility="public",
     )
-    with pytest.raises(SkatAIValidationError, match="Duplicate source"):
+    with pytest.raises(SkatMindValidationError, match="Duplicate source"):
         _entry("/field", source_references=(reference, reference))
-    with pytest.raises(SkatAIValidationError, match="Duplicate dependency"):
+    with pytest.raises(SkatMindValidationError, match="Duplicate dependency"):
         _entry("/field", dependency_paths=("/a", "/a"))
-    with pytest.raises(SkatAIValidationError, match="itself"):
+    with pytest.raises(SkatMindValidationError, match="itself"):
         _entry("/field", dependency_paths=("/field",))
 
 
@@ -376,7 +376,7 @@ def test_entry_supports_every_derivation_type(derivation: str) -> None:
     ),
 )
 def test_entry_enforces_hard_origin_derivation_rules(origin: str, derivation: str) -> None:
-    with pytest.raises(SkatAIValidationError) as exc_info:
+    with pytest.raises(SkatMindValidationError) as exc_info:
         _entry(
             "/field",
             origin=origin,
@@ -419,7 +419,7 @@ def test_compatible_world_aggregate_accepts_both_aggregate_derivations(
 def test_entry_enforces_availability_index_requirements(
     available_from: str, decision_index: int | None, event_index: int | None
 ) -> None:
-    with pytest.raises(SkatAIValidationError):
+    with pytest.raises(SkatMindValidationError):
         _entry(
             "/field",
             available_from=available_from,
@@ -430,7 +430,7 @@ def test_entry_enforces_availability_index_requirements(
 
 @pytest.mark.parametrize("index", (-1, True, 1.5, "1"))
 def test_entry_rejects_invalid_availability_indexes(index: object) -> None:
-    with pytest.raises(SkatAIValidationError):
+    with pytest.raises(SkatMindValidationError):
         _entry(
             "/field",
             available_from="current_decision",
@@ -440,12 +440,12 @@ def test_entry_rejects_invalid_availability_indexes(index: object) -> None:
 
 @pytest.mark.parametrize("player_id", ("", " player", "player ", 1))
 def test_entry_rejects_invalid_optional_player_id(player_id: object) -> None:
-    with pytest.raises(SkatAIValidationError):
+    with pytest.raises(SkatMindValidationError):
         _entry("/field", subject_player_id=player_id)  # type: ignore[arg-type]
 
 
 def test_local_private_requires_a_perspective_player() -> None:
-    with pytest.raises(SkatAIValidationError, match="perspective_player_id"):
+    with pytest.raises(SkatMindValidationError, match="perspective_player_id"):
         _entry("/field", visibility="local_private")
 
 
@@ -454,7 +454,7 @@ def test_local_private_requires_a_perspective_player() -> None:
     ("request_start", "current_decision", "after_public_event"),
 )
 def test_retrospective_origin_rejects_early_availability(available_from: str) -> None:
-    with pytest.raises(SkatAIValidationError):
+    with pytest.raises(SkatMindValidationError):
         _entry(
             "/field",
             origin="retrospective_attachment",
@@ -470,7 +470,7 @@ def test_retrospective_origin_rejects_early_availability(available_from: str) ->
     ("request_start", "current_decision", "after_public_event", "after_actual_play"),
 )
 def test_post_game_visibility_rejects_early_availability(available_from: str) -> None:
-    with pytest.raises(SkatAIValidationError):
+    with pytest.raises(SkatMindValidationError):
         _entry(
             "/field",
             visibility="post_game_only",
@@ -621,7 +621,7 @@ def test_ledger_rejects_invalid_status_combinations(
     exemptions: tuple[FieldProvenanceExemption, ...],
     limitations: tuple[str, ...],
 ) -> None:
-    with pytest.raises(SkatAIValidationError):
+    with pytest.raises(SkatMindValidationError):
         FieldProvenanceLedger(
             status=status,
             entries=entries,
@@ -631,28 +631,28 @@ def test_ledger_rejects_invalid_status_combinations(
 
 
 def test_ledger_rejects_duplicate_paths_limitations_and_entry_exemption_overlap() -> None:
-    with pytest.raises(SkatAIValidationError, match="Duplicate entry"):
+    with pytest.raises(SkatMindValidationError, match="Duplicate entry"):
         FieldProvenanceLedger(
             status="complete",
             entries=(_entry("/field"), _entry("/field")),
             exemptions=(),
             limitations=(),
         )
-    with pytest.raises(SkatAIValidationError, match="Duplicate limitation"):
+    with pytest.raises(SkatMindValidationError, match="Duplicate limitation"):
         FieldProvenanceLedger(
             status="complete",
             entries=(),
             exemptions=(),
             limitations=("legacy_untracked_fields", "legacy_untracked_fields"),
         )
-    with pytest.raises(SkatAIValidationError, match="only by public redaction"):
+    with pytest.raises(SkatMindValidationError, match="only by public redaction"):
         FieldProvenanceLedger(
             status="complete",
             entries=(),
             exemptions=(),
             limitations=("private_dependencies_redacted",),
         )
-    with pytest.raises(SkatAIValidationError, match="only by public redaction"):
+    with pytest.raises(SkatMindValidationError, match="only by public redaction"):
         FieldProvenanceLedger(
             status="complete",
             entries=(),
@@ -660,7 +660,7 @@ def test_ledger_rejects_duplicate_paths_limitations_and_entry_exemption_overlap(
             limitations=("private_dependencies_redacted",),
             _public_redaction_token=True,
         )
-    with pytest.raises(SkatAIValidationError, match="overlap"):
+    with pytest.raises(SkatMindValidationError, match="overlap"):
         FieldProvenanceLedger(
             status="complete",
             entries=(_entry("/object", coverage_kind="subtree"),),
@@ -692,14 +692,14 @@ def test_ledger_validates_dependencies_cycles_and_temporal_monotonicity() -> Non
     )
     assert valid.entries[0].field_path == "/derived"
 
-    with pytest.raises(SkatAIValidationError, match="existing entry"):
+    with pytest.raises(SkatMindValidationError, match="existing entry"):
         FieldProvenanceLedger(
             status="complete",
             entries=(_entry("/derived", dependency_paths=("/missing",)),),
             exemptions=(),
             limitations=(),
         )
-    with pytest.raises(SkatAIValidationError, match="exemption"):
+    with pytest.raises(SkatMindValidationError, match="exemption"):
         FieldProvenanceLedger(
             status="complete",
             entries=(_entry("/derived", dependency_paths=("/constant",)),),
@@ -710,7 +710,7 @@ def test_ledger_validates_dependencies_cycles_and_temporal_monotonicity() -> Non
             ),
             limitations=(),
         )
-    with pytest.raises(SkatAIValidationError, match="exemption"):
+    with pytest.raises(SkatMindValidationError, match="exemption"):
         FieldProvenanceLedger(
             status="complete",
             entries=(_entry("/derived", dependency_paths=("/legacy/value",)),),
@@ -723,7 +723,7 @@ def test_ledger_validates_dependencies_cycles_and_temporal_monotonicity() -> Non
             ),
             limitations=(),
         )
-    with pytest.raises(SkatAIValidationError, match="cycle"):
+    with pytest.raises(SkatMindValidationError, match="cycle"):
         FieldProvenanceLedger(
             status="complete",
             entries=(
@@ -733,7 +733,7 @@ def test_ledger_validates_dependencies_cycles_and_temporal_monotonicity() -> Non
             exemptions=(),
             limitations=(),
         )
-    with pytest.raises(SkatAIValidationError, match="cycle"):
+    with pytest.raises(SkatMindValidationError, match="cycle"):
         FieldProvenanceLedger(
             status="complete",
             entries=(
@@ -793,7 +793,7 @@ def test_ledger_validates_dependencies_cycles_and_temporal_monotonicity() -> Non
 def test_ledger_rejects_backward_temporal_dependencies(
     derived: FieldProvenanceEntry, dependency: FieldProvenanceEntry
 ) -> None:
-    with pytest.raises(SkatAIValidationError, match="availability") as exc_info:
+    with pytest.raises(SkatMindValidationError, match="availability") as exc_info:
         FieldProvenanceLedger(
             status="complete",
             entries=(derived, dependency),
@@ -906,7 +906,7 @@ def test_public_ledger_serialization_rejects_unredacted_private_details_generica
         exemptions=(),
         limitations=(),
     )
-    with pytest.raises(SkatAISerializationError) as exc_info:
+    with pytest.raises(SkatMindSerializationError) as exc_info:
         build_public_serializable_field_provenance_ledger(private_reference_ledger)
     serialized_error = repr(exc_info.value.to_dict())
     assert "secret-reference-id" not in serialized_error
@@ -918,6 +918,6 @@ def test_public_ledger_serialization_rejects_unredacted_private_details_generica
         exemptions=(),
         limitations=(),
     )
-    with pytest.raises(SkatAISerializationError) as private_entry_error:
+    with pytest.raises(SkatMindSerializationError) as private_entry_error:
         build_public_serializable_field_provenance_ledger(private_entry_ledger)
     assert "/secret/entry" not in repr(private_entry_error.value.to_dict())

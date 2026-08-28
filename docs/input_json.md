@@ -1,6 +1,6 @@
 # Input JSON
 
-This document describes the supported input JSON format for `skat-ai`.
+This document describes the supported input JSON format for `skatmind`.
 
 ## JSON schema
 
@@ -895,7 +895,7 @@ This object is separate from `game_declaration`. The original declaration stays
 Null and does not receive matadors. The replacement inherits `hand_game` from
 the original Null skat-pickup status, but Null `ouvert`, Schneider announced,
 and Schwarz announced are not transferred. The selection is supplied by an
-online result, historical import, manual record, or adjudication; `skat-ai` does
+online result, historical import, manual record, or adjudication; `skatmind` does
 not optimize across alternatives whose contract-specific matador counts are
 unknown.
 

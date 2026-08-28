@@ -17,13 +17,13 @@ from test_historical_game import build_historical_input
 from test_historical_game_event_chain import add_continuation
 from test_historical_open_card_throw import build_throw_prefix
 
-import skat_ai.session_transitions as transitions
-from skat_ai.deck import get_full_deck
-from skat_ai.errors import SkatAIInvariantError
-from skat_ai.game_declaration import GameDeclaration
-from skat_ai.matador_inference import infer_matadors_from_known_ownership
-from skat_ai.rules import get_legal_cards, get_trick_points, get_trick_winner
-from skat_ai.session_commands import (
+import skatmind.session_transitions as transitions
+from skatmind.deck import get_full_deck
+from skatmind.errors import SkatMindInvariantError
+from skatmind.game_declaration import GameDeclaration
+from skatmind.matador_inference import infer_matadors_from_known_ownership
+from skatmind.rules import get_legal_cards, get_trick_points, get_trick_winner
+from skatmind.session_commands import (
     PromoteSessionToRetrospectiveCommandV1,
     RecordSessionDealtCardCommandV1,
     RecordSessionDiscardCommandV1,
@@ -34,16 +34,16 @@ from skat_ai.session_commands import (
     SetSessionGameEventCommandV1,
     SetSessionGameMetadataCommandV1,
 )
-from skat_ai.session_contracts import SessionCommandRecordV1, SessionPlayerV1, SessionStateV1
-from skat_ai.session_projection import SESSION_PROJECTION_VERSION
-from skat_ai.session_transitions import (
+from skatmind.session_contracts import SessionCommandRecordV1, SessionPlayerV1, SessionStateV1
+from skatmind.session_projection import SESSION_PROJECTION_VERSION
+from skatmind.session_transitions import (
     SESSION_REPLAY_POLICY,
     SESSION_TRANSITION_ENGINE_VERSION,
     apply_session_command_v1,
     create_session_state_v1,
     replay_session_state_v1,
 )
-from skat_ai.session_validation import SessionValidationResultV1
+from skatmind.session_validation import SessionValidationResultV1
 
 
 def _players() -> tuple[SessionPlayerV1, ...]:
@@ -1246,7 +1246,7 @@ def test_replay_rejects_forged_phase_mode_validation_and_duplicate_card_log() ->
     )
     forged_revision = copy.copy(state)
     object.__setattr__(forged_revision, "revision", 1)
-    with pytest.raises(SkatAIInvariantError, match="revision"):
+    with pytest.raises(SkatMindInvariantError, match="revision"):
         replay_session_state_v1(forged_revision)
 
     forged_phase_validation = replace(state.validation, phase="deal")
@@ -1255,12 +1255,12 @@ def test_replay_rejects_forged_phase_mode_validation_and_duplicate_card_log() ->
         phase="deal",
         validation=forged_phase_validation,
     )
-    with pytest.raises(SkatAIInvariantError, match="phase"):
+    with pytest.raises(SkatMindInvariantError, match="phase"):
         replay_session_state_v1(forged_phase)
 
     forged_mode = copy.copy(state)
     object.__setattr__(forged_mode, "capture_mode", "retrospective")
-    with pytest.raises(SkatAIInvariantError, match="Mode"):
+    with pytest.raises(SkatMindInvariantError, match="Mode"):
         replay_session_state_v1(forged_mode)
 
     forged_validation = copy.copy(state)
@@ -1271,7 +1271,7 @@ def test_replay_rejects_forged_phase_mode_validation_and_duplicate_card_log() ->
         "validation",
         invalid_validation,
     )
-    with pytest.raises(SkatAIInvariantError, match="Validation"):
+    with pytest.raises(SkatMindInvariantError, match="Validation"):
         replay_session_state_v1(forged_validation)
 
     first = RecordSessionDealtCardCommandV1(
@@ -1301,7 +1301,7 @@ def test_replay_rejects_forged_phase_mode_validation_and_duplicate_card_log() ->
         ),
         validation=replace(valid_first.validation, revision=2),
     )
-    with pytest.raises(SkatAIInvariantError, match="semantically invalid"):
+    with pytest.raises(SkatMindInvariantError, match="semantically invalid"):
         replay_session_state_v1(forged_log)
 
 
@@ -1328,7 +1328,7 @@ def test_replay_rejects_an_accepted_illegal_play_and_invalid_end_sequence() -> N
         ),
         validation=replace(state.validation, revision=state.revision + 1),
     )
-    with pytest.raises(SkatAIInvariantError, match="semantically invalid"):
+    with pytest.raises(SkatMindInvariantError, match="semantically invalid"):
         replay_session_state_v1(forged)
 
     early_end = SetSessionGameEndCommandV1(
@@ -1346,7 +1346,7 @@ def test_replay_rejects_an_accepted_illegal_play_and_invalid_end_sequence() -> N
             ),
         ),
     )
-    with pytest.raises(SkatAIInvariantError, match="semantically invalid"):
+    with pytest.raises(SkatMindInvariantError, match="semantically invalid"):
         replay_session_state_v1(forged_end)
 
 
@@ -1443,8 +1443,8 @@ def test_validation_type_and_public_boundaries_remain_internal() -> None:
     )
     assert isinstance(state.validation, SessionValidationResultV1)
 
-    import skat_ai
-    import skat_ai.api.v1 as api_v1
+    import skatmind
+    import skatmind.api.v1 as api_v1
 
-    assert skat_ai.__all__ == ("api", "errors", "__version__")
+    assert skatmind.__all__ == ("api", "errors", "__version__")
     assert all("Session" not in name for name in api_v1.__all__)

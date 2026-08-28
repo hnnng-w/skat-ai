@@ -4,24 +4,24 @@ import os
 import pytest
 from test_learning_corpus_match_snapshot import _annotated_workspace, _snapshot_for_workspace
 
-import skat_ai.learning_corpus_persistence as persistence_module
-from skat_ai.errors import SkatAIValidationError
-from skat_ai.learning_corpus_catalog import (
+import skatmind.learning_corpus_persistence as persistence_module
+from skatmind.errors import SkatMindValidationError
+from skatmind.learning_corpus_catalog import (
     LearningCorpusMatchSnapshotCatalogEntryV1,
     build_learning_corpus_catalog_v1,
     build_learning_corpus_current_match_selection_v1,
 )
-from skat_ai.learning_corpus_catalog_operations import (
+from skatmind.learning_corpus_catalog_operations import (
     apply_learning_corpus_match_snapshot_import_v1,
 )
-from skat_ai.learning_corpus_persistence import (
+from skatmind.learning_corpus_persistence import (
     initialize_learning_corpus_directory_v1,
     load_learning_corpus_directory_v1,
     load_learning_corpus_match_snapshot_object_file_v1,
     publish_learning_corpus_match_snapshot_object_v1,
     save_learning_corpus_catalog_v1,
 )
-from skat_ai.learning_corpus_persistence_codec import (
+from skatmind.learning_corpus_persistence_codec import (
     _build_learning_corpus_match_snapshot_object_file_bytes_v1,
     build_learning_corpus_catalog_persistence_document_v1,
 )
@@ -161,7 +161,7 @@ def test_store_resume_rejects_valid_catalog_entry_that_disagrees_with_object(
         document,
         expected_content_fingerprint=source.document.content_fingerprint,
     )
-    with pytest.raises(SkatAIValidationError, match="reconcile"):
+    with pytest.raises(SkatMindValidationError, match="reconcile"):
         load_learning_corpus_directory_v1(root)
 
 
@@ -183,7 +183,7 @@ def test_store_resume_rejects_missing_and_malformed_referenced_object(tmp_path) 
         / f"{snapshot.match_snapshot_id}.json"
     )
     object_path.write_bytes(b"{}\n")
-    with pytest.raises(SkatAIValidationError):
+    with pytest.raises(SkatMindValidationError):
         load_learning_corpus_directory_v1(root)
 
 
@@ -220,7 +220,7 @@ def test_hidden_temporary_and_unrelated_files_are_ignored_but_invalid_object_is_
     (object_directory / "notes.txt").write_bytes(b"invalid")
     assert load_learning_corpus_directory_v1(root).orphan_match_snapshot_ids == ()
     (object_directory / f"{'0' * 64}.json").write_bytes(b"{}")
-    with pytest.raises(SkatAIValidationError):
+    with pytest.raises(SkatMindValidationError):
         load_learning_corpus_directory_v1(root)
 
 
@@ -236,7 +236,7 @@ def test_snapshot_filename_id_mismatch_is_rejected(tmp_path) -> None:
     object_path.write_bytes(
         _build_learning_corpus_match_snapshot_object_file_bytes_v1(snapshot)
     )
-    with pytest.raises(SkatAIValidationError, match="filename"):
+    with pytest.raises(SkatMindValidationError, match="filename"):
         load_learning_corpus_directory_v1(root)
 
 
@@ -258,7 +258,7 @@ def test_match_snapshot_object_load_rejects_strict_json_failures(tmp_path, raw) 
         root / "objects" / "match_workspace_snapshot" / f"{'0' * 64}.json"
     )
     object_path.write_bytes(raw)
-    with pytest.raises(SkatAIValidationError):
+    with pytest.raises(SkatMindValidationError):
         load_learning_corpus_match_snapshot_object_file_v1(root, "0" * 64)
 
 
@@ -314,7 +314,7 @@ def test_no_clobber_conflicting_race_is_not_overwritten(tmp_path, monkeypatch) -
         raise FileExistsError()
 
     monkeypatch.setattr(persistence_module.os, "link", publish_invalid)
-    with pytest.raises(SkatAIValidationError):
+    with pytest.raises(SkatMindValidationError):
         publish_learning_corpus_match_snapshot_object_v1(root, snapshot)
     target = (
         root
@@ -469,7 +469,7 @@ def test_invalid_existing_catalog_is_never_overwritten(tmp_path) -> None:
     catalog_path = root / "catalog.json"
     catalog_path.write_bytes(b'{"invalid": true}\n')
     before = catalog_path.read_bytes()
-    with pytest.raises(SkatAIValidationError):
+    with pytest.raises(SkatMindValidationError):
         save_learning_corpus_catalog_v1(
             root,
             source.document,
@@ -493,7 +493,7 @@ def test_invalid_existing_catalog_is_never_overwritten(tmp_path) -> None:
 def test_catalog_load_rejects_strict_json_failures(tmp_path, raw) -> None:
     root, _ = _initialize(tmp_path)
     (root / "catalog.json").write_bytes(raw)
-    with pytest.raises(SkatAIValidationError):
+    with pytest.raises(SkatMindValidationError):
         load_learning_corpus_directory_v1(root)
 
 

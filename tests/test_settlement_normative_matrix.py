@@ -4,11 +4,11 @@ from typing import get_args
 
 import pytest
 
-from skat_ai import settlement_normative_matrix as matrix
-from skat_ai.game_end import VALID_GAME_END_REASONS
-from skat_ai.game_shortening import GameShortening
-from skat_ai.historical_game_end import HISTORICAL_GAME_END_REASONS
-from skat_ai.historical_game_event import HistoricalGameEvent
+from skatmind import settlement_normative_matrix as matrix
+from skatmind.game_end import VALID_GAME_END_REASONS
+from skatmind.game_shortening import GameShortening
+from skatmind.historical_game_end import HISTORICAL_GAME_END_REASONS
+from skatmind.historical_game_event import HistoricalGameEvent
 
 EXPECTED_CASE_IDS = (
     "claim_boundary.decision.generalized_non_jack_open_throw_exclusion",
@@ -205,7 +205,7 @@ def test_matrix_self_validation_passes() -> None:
         ),
         (
             "claim_boundary.decision.party_wide_all_remaining_tricks_claim",
-            lambda case: replace(case, implementation_modules=("skat_ai.future_claim",)),
+            lambda case: replace(case, implementation_modules=("skatmind.future_claim",)),
         ),
         (
             "completion.normal.suit_grand",
@@ -252,7 +252,9 @@ def test_invalid_status_policy_combinations_are_rejected() -> None:
         "claim_boundary.decision.specific_future_trick_count_claim": {
             "winner_policy": matrix.FORCE_DECLARER
         },
-        "claim_boundary.excluded.free_text_claims": {"implementation_modules": ("skat_ai.future",)},
+        "claim_boundary.excluded.free_text_claims": {
+            "implementation_modules": ("skatmind.future",)
+        },
         "completion.normal.null.plain": {"level_policy": matrix.NORMAL_ACHIEVED_LEVELS},
         "ongoing.not_ended": {"settlement_policy": matrix.NORMAL_SETTLEMENT},
         "structured_shortening.defender_open_play_continuation": {
@@ -502,8 +504,8 @@ def test_bounded_historical_sequence_is_supported_by_terminal_delegation() -> No
     assert case.implementation_status == matrix.SUPPORTED_AS_IS
     assert case.interpretation_scope == matrix.PRODUCT_BOUNDARY
     assert case.implementation_modules == (
-        "skat_ai.historical_game",
-        "skat_ai.historical_game_event",
+        "skatmind.historical_game",
+        "skatmind.historical_game_event",
     )
     assert case.stable_unavailable_reason is None
     assert case.winner_policy == matrix.WINNER_UNRESOLVED
@@ -590,10 +592,10 @@ def test_approved_party_wide_claim_boundary_is_exact_and_executable() -> None:
     assert case.proof_maximum_unresolved_tricks == 5
     assert case.terminal_effect == matrix.TERMINAL
     assert case.implementation_modules == (
-        "skat_ai.historical_game_end",
-        "skat_ai.historical_party_wide_claim",
-        "skat_ai.party_wide_claim_proof_executor",
-        "skat_ai.party_wide_claim_adjudication",
+        "skatmind.historical_game_end",
+        "skatmind.historical_party_wide_claim",
+        "skatmind.party_wide_claim_proof_executor",
+        "skatmind.party_wide_claim_adjudication",
     )
     assert case.stable_unavailable_reason is None
     notes = " ".join(case.notes)

@@ -3,7 +3,7 @@
 ## Audit purpose
 
 This document is the authoritative Issue #200 audit of the bounded product scope,
-traceability, and release gates for `skat-ai` `v1.0.0`. It classifies every row
+traceability, and release gates for `skatmind` `v1.0.0`. It classifies every row
 marked required before v1.0 in
 [Requirements traceability](requirements_traceability.md), resolves the open v1
 scope boundaries that can be resolved from approved repository decisions, and
@@ -27,6 +27,11 @@ P-13 `satisfied`, and preserves the bounded public Provenance contract.
 Issue #203 completes all nine concrete canonical Multi-Step phases, closes B-03,
 makes P-19 `satisfied`, and preserves coherent-World, Search, Provenance, public-
 contract, Schema, and generated-scenario-count boundaries.
+Issue #204 applies the exact `AGPL-3.0-only` Package boundary and closes B-04.
+Issue #205 completes the hard-cut SkatMind product, distribution, import, CLI,
+resource, Schema, identifier, and strict legacy-input migration boundary, makes
+P-09 `satisfied`, and closes B-08. The GitHub repository rename and local remote
+update remain explicit maintainer verification steps before Issue #205 is closed.
 
 ## Source hierarchy
 
@@ -36,7 +41,7 @@ Conflicts are resolved through this seven-level hierarchy:
    rules; International Skat Court material governs the accepted impossible-Null
    interpretation where the audit cites it.
 2. Approved repository product decisions, including the Settlement Normative
-   Matrix and this audit's bounded v1 decisions, govern skat-ai-specific scope.
+   Matrix and this audit's bounded v1 decisions, govern skatmind-specific scope.
 3. Current Package metadata, executable source constants, contracts, validators,
    and canonical persisted or serialized definitions govern implemented
    behavior.
@@ -108,10 +113,10 @@ There are exactly 53 traceability rows whose `Required before v1.0` cell contain
 
 | Audit status | Count |
 | --- | ---: |
-| `satisfied` | 17 |
+| `satisfied` | 18 |
 | `satisfied_with_approved_bounded_scope` | 34 |
 | `evidence_required` | 1 |
-| `implementation_required` | 1 |
+| `implementation_required` | 0 |
 | `product_decision_required` | 0 |
 | `post_v1` | 0 |
 | `not_required` | 0 |
@@ -188,8 +193,8 @@ Every required row cites at least one direct automated evidence anchor:
 | P-05 | Match review and materialization preparation | `supported` | `satisfied_with_approved_bounded_scope` | Existing information-safe Decision, strict Historical, Training-source, and fixed-list preparation is complete for v1. | None |
 | P-06 | Match analysis and private exports | `supported` | `satisfied_with_approved_bounded_scope` | Explicit bounded analysis, ephemeral reports, and private canonical downloads are the v1 surface. | None |
 | P-07 | Local Match Capture browser and CLI transport | `supported` | `satisfied_with_approved_bounded_scope` | Loopback-only `capture` through one Console Script is complete for v1. | None |
-| P-08 | Public Session APIs | `supported` | `satisfied_with_approved_bounded_scope` | Existing `skat_ai.api.v1.session` and `.files` surfaces are frozen for v1. | None |
-| P-09 | Stable public Python and installed CLI contract | `supported` | `implementation_required` | Issue #204 applies the exact `AGPL-3.0-only` Package boundary. The complete pre-v1 SkatMind distribution/import/CLI/resource/identifier migration remains required. | B-08 / #205 |
+| P-08 | Public Session APIs | `supported` | `satisfied_with_approved_bounded_scope` | Existing `skatmind.api.v1.session` and `.files` surfaces are frozen for v1. | None |
+| P-09 | Stable public Python and installed CLI contract | `supported` | `satisfied` | Issue #205 completes the hard-cut `skatmind` distribution, import, module, CLI, Package Resource, Schema, active identifier, and strict legacy persisted-input migration boundary while preserving API contract version `1`, seven Root workflows, and one Console Script. | None |
 | P-10 | Field-level information provenance | `partially_supported` | `satisfied` | Exact Request/effective-option/external sources, pre-analysis context enforcement, retained-stage authorization, exact final Result/artifact reconciliation, and adversarial evidence are complete without widening public Provenance. | None |
 | P-11 | Interactive Session capture | `supported` | `satisfied_with_approved_bounded_scope` | Existing local API/file/CLI/Assistant workflow is complete; GUI, cloud, and platform adapters are not required. | None |
 | P-12 | Private Session persistence and resume | `supported` | `satisfied_with_approved_bounded_scope` | Strict version-1 persistence, replay, fingerprints, CAS, and atomic replacement are complete for v1. | None |
@@ -258,7 +263,7 @@ B-09 is likewise a separate maintainer-acceptance Gate outside that ledger.
 | P-06 | E-Match, E-Information-set | None within private analysis/export scope | None |
 | P-07 | E-Match, E-API | None within loopback transport scope | None |
 | P-08 | E-Session, E-API | None within stable Session API scope | None |
-| P-09 | E-API, E-Distribution | Complete the approved SkatMind Package/import/CLI/resource/identifier rename and migration boundary | B-08 / #205 |
+| P-09 | E-API, E-Distribution | None; Issue #205 completes the approved SkatMind Package/import/CLI/resource/identifier and migration boundary | None |
 | P-10 | E-Provenance | None | None |
 | P-11 | E-Session | None within local API/file/CLI scope | None |
 | P-12 | E-Session | None within strict version-1 persistence scope | None |
@@ -391,9 +396,9 @@ relabeled as field-level Provenance.
 
 The intended v1 public boundary is frozen as follows:
 
-* Stable namespaces are `skat_ai`, `skat_ai.api`, `skat_ai.api.v1`,
-  `skat_ai.api.v1.session`, `skat_ai.api.v1.session.files`, and
-  `skat_ai.errors`.
+* Stable namespaces are `skatmind`, `skatmind.api`, `skatmind.api.v1`,
+  `skatmind.api.v1.session`, `skatmind.api.v1.session.files`, and
+  `skatmind.errors`.
 * Only each namespace's exact ordered `__all__` is stable. Direct internal
   imports remain unsupported.
 * Public API contract version remains `1`.
@@ -412,7 +417,7 @@ The intended v1 public boundary is frozen as follows:
   redacted Root Result plus artifacts actually returned.
 * The Session API remains twelve operations with its current 59 exports. The
   Session file API remains Save/Load with its current 12 exports.
-* Installed `skat-ai`, module `python -m skat_ai`, and repository Legacy
+* Installed `skatmind`, module `python -m skatmind`, and repository Legacy
   `python main.py` remain the three supported CLI forms through Package 1.x.
 * Private `capture` and `corpus` command families remain dispatch families under
   the one Console Script, not Root workflows or public Python namespaces.
@@ -422,7 +427,7 @@ The intended v1 public boundary is frozen as follows:
 The Schema freeze is the current exact set of 71 authoritative
 `schemas/*.schema.json` filenames, `$id` values, bytes, and their 71 packaged
 mirrors. The current `$id` convention remains
-`https://example.local/skat-ai/<filename>`. Existing document and focused Schema
+`https://example.local/skatmind/<filename>`. Existing document and focused Schema
 versions remain unchanged. Session, Historical, Search, Coaching, Tactical,
 Dataset, list, Provenance, and persistence version-1 contracts are not renumbered
 for Package `1.0.0`.
@@ -431,19 +436,19 @@ No Public Match, Corpus, or Learning Dataset-v2 Schema is added to the v1 freeze
 
 ## Deprecation and migrations
 
-`SkatAIDeprecationWarning` remains the only public deprecation warning category.
+`SkatMindDeprecationWarning` remains the only public deprecation warning category.
 No warning is emitted at the Issue #200 baseline.
 
 The v1 policy is:
 
-* existing `skat_ai.api.v1`, Session, Session file, error, and Package-Root names
+* existing `skatmind.api.v1`, Session, Session file, error, and Package-Root names
   remain source-compatible throughout Package 1.x;
 * existing required fields and meanings are not removed or changed in Package
   1.x;
 * compatible additive optional fields require defaults and omission-compatible
   behavior;
 * removal requires a documented replacement, migration note, and at least one
-  prior published 1.x release that emits `SkatAIDeprecationWarning`;
+  prior published 1.x release that emits `SkatMindDeprecationWarning`;
 * removal is permitted no earlier than Package `2.0.0`;
 * Legacy `python main.py` remains supported throughout Package 1.x and can be
   removed no earlier than `2.0.0` under the same warning and migration policy;
@@ -456,12 +461,14 @@ They do not prohibit the stronger Package-1.x source-compatibility policy frozen
 here, and Issue #200 does not rename them or add replacement metadata. A future
 machine-readable policy revision would be additive and is not required for v1.
 
-Current valid persisted Session, Match Workspace, and Corpus version-1 documents
-require no pre-v1 migration. Package `1.0.0` must continue to load them under
-their existing strict contracts. Unsupported future document versions are
-rejected explicitly; the reader must not guess, downgrade, or partially recover
-them. A future incompatible persisted format requires a new document version and
-a separately approved migration policy.
+Current SkatMind persisted Session, Match Workspace, Corpus Catalog, immutable
+Corpus object, and Match Analysis Report-source values use canonical SkatMind
+kinds and identity domains. Exact released pre-rename version-1 values remain
+strict input-only compatibility profiles: readers verify their original kinds
+and domains, reject mixed profiles, and never mutate files on Load. Explicit
+successful Save or rewritten serialization emits canonical SkatMind identities;
+verified immutable legacy Corpus object IDs remain opaque and are not rekeyed or
+duplicated. Unsupported future document versions remain rejected explicitly.
 
 ## Persistence
 
@@ -471,7 +478,7 @@ a separately approved migration policy.
 | Match Workspaces | `satisfied_with_approved_bounded_scope` | Support all valid current private version-1 Workspaces; preserve one explicit file and optimistic local persistence. |
 | Corpus Catalog and Snapshot objects | `satisfied_with_approved_bounded_scope` | Support current private version-1 root/catalog/object contracts, explicit Current selection, no-clobber objects, and orphan reporting. |
 | Unsupported future versions | `satisfied` | Reject explicitly with no implicit conversion. |
-| Pre-v1 document migration | `not_required` | Existing released persisted formats already use their retained version-1 contracts. |
+| Pre-v1 document migration | `satisfied` | Issue #205 provides strict legacy input-only verification, no mutation on Load, canonical explicit rewrites, and opaque immutable Corpus ID retention without a compatibility Package or CLI alias. |
 | Recovery, merge, distributed lock, encryption, cloud sync, backup | `not_required` | Not v1 persistence gates. |
 
 Fingerprints continue to prove deterministic identity and conflict state, not
@@ -608,7 +615,7 @@ one runtime dependency, one `dev` extra, and exactly one Console Script.
 | Python metadata | `requires-python = ">=3.13"`; metadata permits later compatible Python versions, while the frozen v1 evidence matrix certifies CPython 3.13 only |
 | Runtime dependency | Issue #204 preserves `jsonschema>=4.0.0`; #206 must reconcile the direct `referencing` import with supported declarations and lower bounds before final acceptance |
 | Development extra | `build>=1.2.2`, `pytest>=9.0.0`, and `ruff>=0.14.0` |
-| Console Script | Exactly `skat-ai = skat_ai.cli:main` |
+| Console Script | Exactly `skatmind = skatmind.cli:main` |
 | Artifact forms | One pure-Python Wheel and one sdist, plus source and Editable-install validation |
 | Package data | `py.typed`, 71 Schema Resources, and packaged Capture/Corpus templates, CSS, and JavaScript |
 | Package license | `AGPL-3.0-only` with exact root `LICENSE` and `COPYRIGHT`, PEP 639 Core Metadata, Wheel/sdist/installed bytes, and focused dependency/asset audit |
@@ -636,9 +643,9 @@ version 3 only under exact SPDX expression `AGPL-3.0-only`. Root `LICENSE` and
 `COPYRIGHT`, PEP 639 metadata, exact Wheel/sdist/installed legal-file bytes,
 Wheel `RECORD`, focused tests, and the direct-dependency/bundled-asset audit close
 B-04 without changing product behavior. See
-[v1 Package license](v1_package_license.md). P-09 remains
-`implementation_required` only because the separate complete SkatMind rename is
-owned by B-08/#205.
+[v1 Package license](v1_package_license.md). Issue #205 subsequently completes
+the SkatMind Package and migration boundary, makes P-09 `satisfied`, and closes
+B-08 without changing the license, dependency set, or Package version.
 
 ## Examples and generated outputs
 
@@ -708,8 +715,8 @@ The following are accepted limitations, not blockers:
 * process-local derived Player, Dataset-v2, Tactical, and Coaching artifacts;
 * one-game public Coaching plus bounded private cross-game Coaching;
 * structural performance acceptance without latency guarantees;
-* strict version-1 local persistence without migration, remote access,
-  encryption, merge, or backup; and
+* strict version-1 local persistence with bounded legacy input-only rename
+  migration, but without remote access, encryption, merge, or backup; and
 * Package-index/PyPI publication is not required.
 
 ## Post-v1 work
@@ -749,7 +756,8 @@ in the ordered plan:
 * Session GUI/browser UI;
 * distributed locking, merge/retry, encryption/key management, or automatic
   backup;
-* pre-v1 persisted-document migration tooling;
+* additional general pre-v1 persisted-document migration tooling beyond the
+  strict Issue #205 rename adapters;
 * dedicated production Budget profiles;
 * cross-machine latency, SLO, P95, or P99 guarantees;
 * a macOS or named-browser certification matrix;
@@ -774,15 +782,16 @@ B-02 with the internal lifecycle documented in
 Issue #203 closes B-03 with the contract and direct evidence documented in
 [Canonical Multi-Step phase coverage](canonical_multi_step_phase_coverage.md).
 Issue #204 closes B-04 with the decision and direct evidence documented in
-[v1 Package license](v1_package_license.md). `v1.0.0` is not ready. Exactly
-these five blockers remain; B-09 is outside the 53-row ledger:
+[v1 Package license](v1_package_license.md). Issue #205 closes B-08 with the
+rename and migration boundary documented in
+[SkatMind rename and migration](skatmind_rename_and_migration.md). `v1.0.0` is
+not ready. Exactly these four blockers remain; B-09 is outside the 53-row ledger:
 
 | Blocker | Status | Required closure |
 | --- | --- | --- |
 | B-05 | `evidence_required` | After the rename, reconcile the direct `referencing` import with supported dependency declarations/lower bounds, then complete the final all-seven-workflow source/Editable/Wheel/sdist matrix and fresh CPython 3.13 Windows/Ubuntu evidence under #206. |
-| B-06 | `evidence_required` | After B-05 and B-08, record the final technical v1 scope/readiness audit, full local check, CI result, and clean worktree evidence under #207. |
+| B-06 | `evidence_required` | After B-05, record the final technical v1 scope/readiness audit, full local check, CI result, and clean worktree evidence under #207. |
 | B-07 | `implementation_required` | After B-09 and resolution of accepted UAT findings, prepare Package `1.0.0`, matching version expectations, Changelog, and Release-candidate documentation without product behavior changes. Its Issue number is not frozen. |
-| B-08 | `implementation_required` | Complete the pre-v1 SkatMind product, repository, distribution, import-namespace, CLI, resource, identifier, compatibility, and migration boundary under #205. |
 | B-09 | `evidence_required` | After the final technical audit, complete hands-on maintainer v1.0.0 user acceptance testing under #208 and resolve every accepted finding before Release preparation. |
 
 No blocker requires a new Claim interpretation, broader Search algorithm,
@@ -799,13 +808,13 @@ The smallest coherent follow-up sequence is frozen as:
 | 2 | **#202 - Complete internal v1 information-Provenance enforcement**; implementation and evidence | Provenance/privacy; P-10, P-13, B-02 | Implement and test loading, retained-stage linkage, final serialization, and adversarial closure. | #200 and completed #201; completed | Yes, internal enforcement | No new public field, version, or default behavior | None | Closed internal information-safety implementation before candidate validation. |
 | 3 | **#203 - Complete canonical Multi-Step phase coverage**; implementation and evidence | Simulation; P-19, B-03 | Analyze, prepare, or terminate every valid canonical phase under documented semantics; preserve coherent-world and Search boundaries. | Completed #202; completed | Yes, bounded phase handling | Existing fields only; one existing generated scenario changes from unsupported to executable without changing its identity, public shape, or the count | None | Closed the final functional behavior gate. |
 | 4 | **#204 - Decide and apply the v1 Package license boundary**; product decision and metadata | Packaging/license; B-04 and P-09's license portion | Apply exact `AGPL-3.0-only` legal files, PEP 639 metadata, artifact evidence, audit, and documentation. | #200; ordered after #203; completed | No product behavior; metadata/files only | Package license metadata only, not Python API or CLI behavior | None | Closes B-04 before the rename and distribution evidence. |
-| 5 | **#205 - Rename the complete project and public Package surface to SkatMind**; implementation and migration | Public Package identity; P-09, B-08 | Coordinate repository `hnnng-w/skatmind`, distribution/import/CLI/resource/current-documentation migration, compatibility, and persisted/hashed identifier boundaries. | Completed #204 | Yes, focused rename and migration work | Public Package/import/module/CLI identity changes under a separately approved migration contract | None expected unless exact resource contracts require it | Completes the required pre-v1 public identity. |
+| 5 | **#205 - Rename the complete project and public Package surface to SkatMind**; implementation and migration | Public Package identity; P-09, B-08 | Coordinate repository `hnnng-w/skatmind`, distribution/import/CLI/resource/current-documentation migration, compatibility, and persisted/hashed identifier boundaries. | Completed #204; completed, with manual GitHub rename verification retained before Issue closure | Yes, focused rename and migration work | Public Package/import/module/CLI identity changes under the approved migration contract | No count or structure change; all 71 Schema identities migrate | Completes the required pre-v1 public identity. |
 | 6 | **#206 - Complete the v1 installation and supported-platform matrix**; evidence | Packaging/platforms; P-34, B-05 | Reconcile the direct `referencing` import with supported dependency declarations/lower bounds, add all-seven-Root-workflow source/Editable/Wheel/sdist evidence, and verify CPython 3.13 on Windows and Ubuntu with the renamed CLI/browser/download boundaries. | Completed #205 | No product behavior expected; Package dependency metadata and validation scripts/tests may change | Package dependency metadata may be corrected; no Python API or CLI behavior change | None | Produces final candidate installation/platform evidence. |
 | 7 | **#207 - Perform the final technical v1.0.0 Release-readiness audit**; documentation audit | All technical Gate clusters; B-06 | Reconcile #201 through #206, the 53-row ledger, exact counts, final full check, CI, diff, and technical Release blockers. | #206 and successful CI | No | None | None | Decides whether maintainer UAT may begin. |
 | 8 | **#208 - Perform maintainer v1.0.0 user acceptance testing**; evidence | Release process; B-09 | Execute hands-on maintainer UAT after #207 and record and resolve every accepted finding before Release preparation. | #207 technical-readiness approval | No product behavior expected; accepted findings may require separate remediation Issues | None expected | None expected | Provides the required human acceptance Gate outside the 53-row ledger. |
 
-B-01 is closed by #201, B-02 by #202, B-03 by #203, and B-04 by #204. The exact
-next action is B-08/#205, followed by B-05/#206, B-06/#207, and B-09/#208.
+B-01 is closed by #201, B-02 by #202, B-03 by #203, B-04 by #204, and B-08 by
+#205. The exact next action is B-05/#206, followed by B-06/#207 and B-09/#208.
 Release preparation remains B-07 and occurs only after #208 and remediation of
 all accepted findings. Its Issue number is not frozen; it is expected to be #209
 only when #208 produces no remediation Issues. Publication, tagging, GitHub
@@ -821,13 +830,14 @@ workflows, stable Public API/Session/CLI surfaces, 71 Schemas, six Session
 examples, 98 generated outputs, and ten Corpus downloads are accepted as the v1
 baseline under their documented limitations.
 
-The 53 required traceability rows are completely classified as 17 `satisfied`,
-34 `satisfied_with_approved_bounded_scope`, 1 `evidence_required`, 1
+The 53 required traceability rows are completely classified as 18 `satisfied`,
+34 `satisfied_with_approved_bounded_scope`, 1 `evidence_required`, 0
 `implementation_required`, and 0 `product_decision_required`. Issue #201 closes
 B-01 without product-code change, Issue #202 closes B-02, and Issue #203 closes
 B-03. Issue #204 applies `AGPL-3.0-only` and closes B-04 without product-code
-change. Five blockers B-05 through B-09 remain, with B-09 outside the 53-row
-ledger. Therefore:
+change. Issue #205 completes the SkatMind migration and closes B-08. Four blockers
+B-05, B-06, B-07, and B-09 remain, with B-09 outside the 53-row ledger.
+Therefore:
 
 ```text
 v1.0.0 scope:
@@ -837,7 +847,7 @@ v1.0.0 implementation and evidence:
     incomplete
 
 v1.0.0 Release readiness:
-    blocked by B-05 through B-09
+    blocked by B-05, B-06, B-07, and B-09
 
 v1.0.0 Release title, theme, date, tag, and publication commit:
     not frozen
@@ -845,19 +855,20 @@ v1.0.0 Release title, theme, date, tag, and publication commit:
 
 The traceability audit is fully classified, every remaining blocker is mapped to
 the exact ordered plan, and Release preparation is not ready. The exact next
-action is Issue #205, **Rename the complete project and public Package surface to
-SkatMind**.
+action is Issue #206, **Complete the v1 installation and supported-platform
+matrix**.
 
 ## Exact next action
 
 | Conclusion field | Current result |
 | --- | --- |
 | Traceability | Fully classified: all 53 required rows have one audit status, direct evidence, missing-work state, and blocker owner. |
-| Blocker mapping | B-01 closed by #201, B-02 by #202, B-03 by #203, and B-04 by #204; B-08/#205, B-05/#206, B-06/#207, and B-09/#208 remain, followed by unnumbered B-07 Release preparation. |
-| Issue #200 implementation | Not started; this audit changes documentation only. |
+| Blocker mapping | B-01 closed by #201, B-02 by #202, B-03 by #203, B-04 by #204, and B-08 by #205; B-05/#206, B-06/#207, and B-09/#208 remain, followed by unnumbered B-07 Release preparation. |
+| Issue #200 implementation | Complete; this audit changes documentation only. |
 | Issue #201 evidence closure | Complete; R-01 and R-06 are `satisfied`, and B-01 is closed without product-code change. |
 | Issue #202 Provenance closure | Complete; P-10 and P-13 are `satisfied`, and B-02 is closed without widening public Provenance. |
 | Issue #203 canonical phase closure | Complete; P-19 is `satisfied`, and B-03 is closed without widening Search or public contracts. |
 | Issue #204 Package license closure | Complete after successful validation; exact `AGPL-3.0-only` legal files and PEP 639 evidence close B-04 without product behavior or active-name changes. |
-| Release preparation | Not ready while B-05 through B-09 remain open; B-09 is outside the required-row ledger. |
-| Next action | Issue #205, **Rename the complete project and public Package surface to SkatMind**. |
+| Issue #205 SkatMind rename closure | Complete after successful validation; P-09 is `satisfied`, B-08 is closed, and the maintainer must verify the manual GitHub repository rename before closing the Issue. |
+| Release preparation | Not ready while B-05, B-06, B-07, and B-09 remain open; B-09 is outside the required-row ledger. |
+| Next action | Issue #206, **Complete the v1 installation and supported-platform matrix**. |

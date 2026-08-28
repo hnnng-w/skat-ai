@@ -38,8 +38,8 @@ The implementation is separated into:
 | `session_incremental_validation.py` | Allowed-phase checks, one-Command candidate validation, rule derivation, and readiness calculation. |
 | `session_transitions.py` | Revision-zero State creation, full accepted-Log replay, forged-State verification, conflicts, atomic append, and Transition Result construction. |
 
-These modules are internal. They are not exported from `skat_ai`,
-`skat_ai.api`, `skat_ai.api.v1`, or `skat_ai.errors`.
+These modules are internal. They are not exported from `skatmind`,
+`skatmind.api`, `skatmind.api.v1`, or `skatmind.errors`.
 
 ## Initial State
 
@@ -87,7 +87,7 @@ event, and ending checks used for a new candidate.
 Replay recomputes projection, Capture Mode, phase, and Validation. The recomputed
 State must equal the supplied stored State. A forged revision, Mode, phase,
 Validation value, duplicate Card, illegal Play, or invalid accepted event/end
-sequence raises `SkatAIInvariantError`. A normal next-Command rejection remains
+sequence raises `SkatMindInvariantError`. A normal next-Command rejection remains
 a Transition Result rather than an exception.
 
 ## Atomic application
@@ -247,7 +247,7 @@ Issue #153 uses Position readiness as an information-safe exact gate.
 ## Performance and boundaries
 
 Public `create_session()` and `apply_session_command()` expose revision-zero
-creation and atomic application through `skat_ai.api.v1.session`. Application
+creation and atomic application through `skatmind.api.v1.session`. Application
 accepts an exact typed Command or one strictly Schema-parsed Command mapping;
 applied, rejected, and revision-conflict outcomes remain normal typed Results.
 Each wrapper calls the existing internal function once. Optional complete

@@ -4,9 +4,9 @@ import inspect
 import pytest
 
 import main as legacy_main
-import skat_ai.cli.execution as root_cli
-import skat_ai.cli.session as session_cli
-from skat_ai.errors import SkatAICliUsageError
+import skatmind.cli.execution as root_cli
+import skatmind.cli.session as session_cli
+from skatmind.errors import SkatMindCliUsageError
 
 
 def _option_strings(parser: argparse.ArgumentParser) -> set[str]:
@@ -216,7 +216,7 @@ def test_historical_information_set_validation_rejects_missing_seed_and_conflict
         argv.extend(("--search-seed", "37"))
     args = root_cli.parse_arguments(argv)
 
-    with pytest.raises(SkatAICliUsageError, match=message):
+    with pytest.raises(SkatMindCliUsageError, match=message):
         root_cli.validate_cli_arguments(args, workflow="historical_game")
 
 
@@ -236,7 +236,7 @@ def test_information_set_coaching_rejects_existing_family(
         ]
     )
 
-    with pytest.raises(SkatAICliUsageError, match="families cannot be combined"):
+    with pytest.raises(SkatMindCliUsageError, match="families cannot be combined"):
         root_cli.validate_cli_arguments(args, workflow="historical_game")
 
 
@@ -251,11 +251,11 @@ def test_information_set_modes_require_their_workflows() -> None:
         ["--historical-information-set-replay-coaching", "--search-seed", "41"]
     )
 
-    with pytest.raises(SkatAICliUsageError, match="requires historical-game input"):
+    with pytest.raises(SkatMindCliUsageError, match="requires historical-game input"):
         root_cli.validate_cli_arguments(historical, workflow="position_analysis")
-    with pytest.raises(SkatAICliUsageError, match="only for training_dataset_input"):
+    with pytest.raises(SkatMindCliUsageError, match="only for training_dataset_input"):
         root_cli.validate_cli_arguments(evaluation, workflow="position_analysis")
-    with pytest.raises(SkatAICliUsageError, match="requires historical-game input"):
+    with pytest.raises(SkatMindCliUsageError, match="requires historical-game input"):
         root_cli.validate_cli_arguments(coaching, workflow="position_analysis")
 
 
@@ -282,7 +282,7 @@ def test_information_set_evaluation_is_exclusive_and_reuses_bounded_options() ->
             "47",
         ]
     )
-    with pytest.raises(SkatAICliUsageError, match="mutually exclusive"):
+    with pytest.raises(SkatMindCliUsageError, match="mutually exclusive"):
         root_cli.validate_cli_arguments(both, workflow="training_dataset")
 
     audit = root_cli.parse_arguments(
@@ -294,7 +294,7 @@ def test_information_set_evaluation_is_exclusive_and_reuses_bounded_options() ->
         ]
     )
     root_cli.validate_cli_arguments(audit, workflow="training_dataset")
-    with pytest.raises(SkatAICliUsageError, match="--audit-dataset-partitions"):
+    with pytest.raises(SkatMindCliUsageError, match="--audit-dataset-partitions"):
         root_cli.validate_training_dataset_cli_arguments(audit)
 
 

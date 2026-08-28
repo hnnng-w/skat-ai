@@ -16,27 +16,27 @@ from test_observed_game_contracts import (
     observed_plays_from_historical,
 )
 
-import skat_ai.learning_dataset_v2_builder as dataset_builder_module
-from skat_ai.learning_corpus_human_evidence_builder import (
+import skatmind.learning_dataset_v2_builder as dataset_builder_module
+from skatmind.learning_corpus_human_evidence_builder import (
     build_learning_corpus_human_evidence_collection_v1,
 )
-from skat_ai.learning_corpus_identity import (
+from skatmind.learning_corpus_identity import (
     build_learning_corpus_canonical_json_bytes_v1,
 )
-from skat_ai.learning_corpus_match_snapshot import (
+from skatmind.learning_corpus_match_snapshot import (
     build_learning_corpus_match_snapshot_v1,
 )
-from skat_ai.learning_corpus_persistence_contracts import (
+from skatmind.learning_corpus_persistence_contracts import (
     LearningCorpusStoreResumeResultV1,
 )
-from skat_ai.learning_corpus_player_catalog import (
+from skatmind.learning_corpus_player_catalog import (
     build_learning_corpus_player_catalog_v1,
 )
-from skat_ai.learning_corpus_strategy_teacher_builder import (
+from skatmind.learning_corpus_strategy_teacher_builder import (
     build_learning_corpus_strategy_teacher_evidence_collection_v1,
 )
-from skat_ai.learning_dataset_v2_builder import build_learning_dataset_v2
-from skat_ai.learning_dataset_v2_contracts import (
+from skatmind.learning_dataset_v2_builder import build_learning_dataset_v2
+from skatmind.learning_dataset_v2_contracts import (
     LEARNING_DATASET_DECISION_STATE_POLICY,
     LEARNING_DATASET_DECISION_STATE_VERSION,
     LEARNING_DATASET_DERIVED_TAG_POLICY,
@@ -68,9 +68,9 @@ from skat_ai.learning_dataset_v2_contracts import (
     LearningDatasetSourceContextV1,
     LearningDatasetV2,
 )
-from skat_ai.match_workspace_contracts import create_match_workspace_v1
-from skat_ai.match_workspace_operations import mark_match_workspace_passed_deal_v1
-from skat_ai.match_workspace_persistence_codec import (
+from skatmind.match_workspace_contracts import create_match_workspace_v1
+from skatmind.match_workspace_operations import mark_match_workspace_passed_deal_v1
+from skatmind.match_workspace_persistence_codec import (
     build_match_workspace_persistence_document_v1,
 )
 
@@ -1123,19 +1123,19 @@ def test_record_and_dataset_identities_use_exact_domains(rich_dataset_bundle) ->
     source_material = first.source_context.to_dict()
     del source_material["source_context_fingerprint"]
     assert first.source_context.source_context_fingerprint == _hash(
-        b"skat-ai\0learning_dataset_v2_source_context_v1\0",
+        b"skatmind\0learning_dataset_v2_source_context_v1\0",
         source_material,
     )
     state_material = first.decision_state.to_dict()
     del state_material["decision_state_fingerprint"]
     assert first.decision_state.decision_state_fingerprint == _hash(
-        b"skat-ai\0learning_dataset_v2_decision_state_v1\0",
+        b"skatmind\0learning_dataset_v2_decision_state_v1\0",
         state_material,
     )
     behavior_material = first.observed_behavior.to_dict()
     del behavior_material["observed_behavior_fingerprint"]
     assert first.observed_behavior.observed_behavior_fingerprint == _hash(
-        b"skat-ai\0learning_dataset_v2_observed_behavior_v1\0",
+        b"skatmind\0learning_dataset_v2_observed_behavior_v1\0",
         behavior_material,
     )
     record_material = {
@@ -1144,26 +1144,26 @@ def test_record_and_dataset_identities_use_exact_domains(rich_dataset_bundle) ->
         "decision_reference_id": first.decision_state.decision_reference_id,
     }
     assert first.record_id == _hash(
-        b"skat-ai\0learning_dataset_v2_record_v1\0",
+        b"skatmind\0learning_dataset_v2_record_v1\0",
         record_material,
     )
     record_content = first.to_dict()
     del record_content["record_content_fingerprint"]
     assert first.record_content_fingerprint == _hash(
-        b"skat-ai\0learning_dataset_v2_record_content_v1\0",
+        b"skatmind\0learning_dataset_v2_record_content_v1\0",
         record_content,
     )
     skipped = dataset.skipped_decisions[0]
     skipped_material = skipped.to_dict()
     del skipped_material["skipped_decision_id"]
     assert skipped.skipped_decision_id == _hash(
-        b"skat-ai\0learning_dataset_v2_skipped_decision_v1\0",
+        b"skatmind\0learning_dataset_v2_skipped_decision_v1\0",
         skipped_material,
     )
     dataset_content = dataset.to_dict()
     del dataset_content["dataset_fingerprint"]
     assert dataset.dataset_fingerprint == _hash(
-        b"skat-ai\0learning_dataset_v2_collection_v2\0",
+        b"skatmind\0learning_dataset_v2_collection_v2\0",
         dataset_content,
     )
     changed_id = build_learning_dataset_v2(

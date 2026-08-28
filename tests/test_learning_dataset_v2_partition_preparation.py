@@ -11,30 +11,30 @@ from test_learning_corpus_strategy_teacher import _source_bundle
 from test_learning_dataset_v2 import _dataset, _rich_snapshot_for_definition
 from test_match_workspace_contracts import _definition, _observed_game, _set_game
 
-import skat_ai
-import skat_ai.api.v1 as api_v1
-import skat_ai.cli as cli
-import skat_ai.learning_dataset_v2_partition_preparation as preparation_module
+import skatmind
+import skatmind.api.v1 as api_v1
+import skatmind.cli as cli
+import skatmind.learning_dataset_v2_partition_preparation as preparation_module
 from scripts.validate_generated_outputs_schema import SCENARIOS
-from skat_ai.api.v1 import WorkflowV1
-from skat_ai.dataset_partition_policy import CANONICAL_DATASET_PARTITIONS
-from skat_ai.learning_corpus_match_snapshot import (
+from skatmind.api.v1 import WorkflowV1
+from skatmind.dataset_partition_policy import CANONICAL_DATASET_PARTITIONS
+from skatmind.learning_corpus_match_snapshot import (
     build_learning_corpus_match_snapshot_v1,
 )
-from skat_ai.learning_corpus_player_catalog import (
+from skatmind.learning_corpus_player_catalog import (
     build_learning_corpus_player_catalog_v1,
 )
-from skat_ai.learning_dataset_v2_contracts import LEARNING_DATASET_VERSION
-from skat_ai.learning_dataset_v2_partition_algorithms import (
+from skatmind.learning_dataset_v2_contracts import LEARNING_DATASET_VERSION
+from skatmind.learning_dataset_v2_partition_algorithms import (
     build_learning_dataset_partition_balance_objective_v1,
     build_learning_dataset_player_components_v1,
     generate_component_balanced_unseen_player_match_group_assignments_v1,
     generate_temporal_known_player_match_group_assignments_v1,
 )
-from skat_ai.learning_dataset_v2_partition_audit import (
+from skatmind.learning_dataset_v2_partition_audit import (
     audit_learning_dataset_v2_partitions_v1,
 )
-from skat_ai.learning_dataset_v2_partition_contracts import (
+from skatmind.learning_dataset_v2_partition_contracts import (
     COMPONENT_BALANCED_UNSEEN_PLAYER_MATCH_GROUP_ALGORITHM,
     LEARNING_DATASET_EQUAL_TIME_POLICY,
     LEARNING_DATASET_EVIDENCE_COHORT_POLICY,
@@ -69,12 +69,12 @@ from skat_ai.learning_dataset_v2_partition_contracts import (
     LearningDatasetMatchPartitionAssignmentV1,
     LearningDatasetPartitionWeightsV1,
 )
-from skat_ai.learning_dataset_v2_partition_export import (
+from skatmind.learning_dataset_v2_partition_export import (
     LEARNING_DATASET_PARTITION_DOCUMENT_KIND,
     build_learning_dataset_partition_preparation_export_v1,
     serialize_learning_dataset_partition_preparation_export_v1,
 )
-from skat_ai.learning_dataset_v2_partition_identity import (
+from skatmind.learning_dataset_v2_partition_identity import (
     LEARNING_DATASET_KNOWN_PLAYER_SEED_DOMAIN,
     LEARNING_DATASET_UNSEEN_PLAYER_SEED_DOMAIN,
     build_learning_dataset_match_group_id_v1,
@@ -85,17 +85,17 @@ from skat_ai.learning_dataset_v2_partition_identity import (
     derive_learning_dataset_partition_seed_v1,
     derive_learning_dataset_partition_tie_break_key_v1,
 )
-from skat_ai.learning_dataset_v2_partition_preparation import (
+from skatmind.learning_dataset_v2_partition_preparation import (
     build_learning_dataset_partition_preparation_request_v1,
     derive_learning_dataset_match_groups_v1,
     generate_learning_dataset_partition_plan_v1,
     prepare_learning_dataset_v2_partitions_v1,
 )
-from skat_ai.match_workspace_contracts import create_match_workspace_v1
-from skat_ai.match_workspace_persistence_codec import (
+from skatmind.match_workspace_contracts import create_match_workspace_v1
+from skatmind.match_workspace_persistence_codec import (
     build_match_workspace_persistence_document_v1,
 )
-from skat_ai.training_dataset import (
+from skatmind.training_dataset import (
     TRAINING_DATASET_SCHEMA_VERSION,
     TRAINING_FEATURE_GENERATION_VERSION,
     TRAINING_TARGET,
@@ -345,7 +345,7 @@ def test_versions_modes_algorithms_reasons_policies_and_domains_are_exact() -> N
         "learning_dataset_v2_unseen_player_split_v1"
     )
     assert LEARNING_DATASET_PARTITION_DOCUMENT_KIND == (
-        "skat_ai_learning_dataset_v2_partition_preparation"
+        "skatmind_learning_dataset_v2_partition_preparation"
     )
 
 
@@ -1106,7 +1106,7 @@ def test_private_architecture_and_compatibility_baselines_remain_unchanged() -> 
     pyproject = tomllib.loads((PROJECT_ROOT / "pyproject.toml").read_text())
     assert pyproject["project"]["version"] == "0.17.0"
     assert pyproject["project"]["requires-python"] == ">=3.13"
-    assert pyproject["project"]["scripts"] == {"skat-ai": "skat_ai.cli:main"}
+    assert pyproject["project"]["scripts"] == {"skatmind": "skatmind.cli:main"}
     assert LEARNING_DATASET_VERSION == 2
     assert TRAINING_DATASET_SCHEMA_VERSION == 1
     assert TRAINING_FEATURE_GENERATION_VERSION == 1
@@ -1114,16 +1114,16 @@ def test_private_architecture_and_compatibility_baselines_remain_unchanged() -> 
     assert len(WorkflowV1) == 7
     assert len(SCENARIOS) == 98
     assert len(tuple((PROJECT_ROOT / "schemas").glob("*.schema.json"))) == 71
-    assert len(tuple((PROJECT_ROOT / "src/skat_ai/schema_resources").glob("*.schema.json"))) == 71
+    assert len(tuple((PROJECT_ROOT / "src/skatmind/schema_resources").glob("*.schema.json"))) == 71
     assert len(tuple((PROJECT_ROOT / "examples").glob("session_*.json"))) == 6
-    for namespace in (skat_ai, api_v1, cli):
+    for namespace in (skatmind, api_v1, cli):
         assert not hasattr(namespace, "LearningDatasetPartitionPlanV1")
         assert not hasattr(namespace, "prepare_learning_dataset_v2_partitions_v1")
     assert all(
         COMPONENT_BALANCED_UNSEEN_PLAYER_MATCH_GROUP_ALGORITHM
         not in path.read_text(encoding="utf-8")
         for path in (
-            PROJECT_ROOT / "src/skat_ai/training_dataset_preparation.py",
-            PROJECT_ROOT / "src/skat_ai/dataset_partition_plan.py",
+            PROJECT_ROOT / "src/skatmind/training_dataset_preparation.py",
+            PROJECT_ROOT / "src/skatmind/dataset_partition_plan.py",
         )
     )

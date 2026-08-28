@@ -247,7 +247,7 @@ def _require_boolean(value: Any, context: str) -> bool:
 
 
 def _require_cards(value: Any, context: str, *, count: int | None = None) -> tuple[str, ...]:
-    from skat_ai.deck import get_full_deck
+    from skatmind.deck import get_full_deck
 
     if not isinstance(value, list):
         raise ValueError(f"{context} must be an array.")
@@ -262,7 +262,7 @@ def _require_cards(value: Any, context: str, *, count: int | None = None) -> tup
 
 
 def _validate_candidate_rows(value: Any, game_type: str, context: str) -> tuple[Any, ...]:
-    from skat_ai.bounded_search_result import (
+    from skatmind.bounded_search_result import (
         AggregateSearchCandidateResult,
         rank_search_candidate_results,
     )
@@ -297,8 +297,8 @@ def _validate_candidate_rows(value: Any, game_type: str, context: str) -> tuple[
 
 
 def _validate_information_set_signature(value: Any, game_type: str, context: str) -> None:
-    from skat_ai.deck import get_full_deck
-    from skat_ai.information_set_search_contracts import (
+    from skatmind.deck import get_full_deck
+    from skatmind.information_set_search_contracts import (
         InformationSetSearchConsumedBudgetV1,
     )
 
@@ -369,7 +369,7 @@ def _validate_information_set_signature(value: Any, game_type: str, context: str
 
 
 def _validate_pimc_signature(value: Any, game_type: str, context: str) -> None:
-    from skat_ai.deck import get_full_deck
+    from skatmind.deck import get_full_deck
 
     signature = _require_exact_fields(value, _PIMC_SIGNATURE_FIELDS, context)
     if signature["status"] != "complete" or signature["stop_reason"] != "completed":
@@ -420,7 +420,7 @@ def _validate_pimc_signature(value: Any, game_type: str, context: str) -> None:
 
 
 def _validate_strategy_fusion_diagnostic(value: Any, context: str) -> None:
-    from skat_ai.deck import get_full_deck
+    from skatmind.deck import get_full_deck
 
     diagnostic = _require_exact_fields(value, _STRATEGY_FUSION_FIELDS, context)
     equal_observation = _require_boolean(
@@ -468,7 +468,7 @@ def _validate_strategy_fusion_diagnostic(value: Any, context: str) -> None:
 
 
 def _validate_duplicate_diagnostic(value: Any, context: str) -> None:
-    from skat_ai.deck import get_full_deck
+    from skatmind.deck import get_full_deck
 
     diagnostic = _require_exact_fields(value, _DUPLICATE_FIELDS, context)
     for field in (
@@ -565,19 +565,19 @@ def _validate_duplicate_diagnostic(value: Any, context: str) -> None:
 
 
 def _validate_case(case: Any, index: int) -> None:
-    from skat_ai.deck import get_full_deck
-    from skat_ai.game_declaration import GameDeclaration
-    from skat_ai.information_set_search_contracts import (
+    from skatmind.deck import get_full_deck
+    from skatmind.game_declaration import GameDeclaration
+    from skatmind.information_set_search_contracts import (
         INFORMATION_SET_SEARCH_CONTROL_SCOPES,
         INFORMATION_SET_SEARCH_POLICY_SETTINGS_VERSION,
         InformationSetFixedPlayerPolicyV1,
         InformationSetSearchPolicySettingsV1,
     )
-    from skat_ai.information_set_search_policy import (
+    from skatmind.information_set_search_policy import (
         is_information_set_fixed_policy_supported_for_actor_v1,
     )
-    from skat_ai.matador_inference import infer_matadors_from_known_ownership
-    from skat_ai.search_budget_profiles import SEARCH_BUDGET_PROFILE_IDENTIFIERS
+    from skatmind.matador_inference import infer_matadors_from_known_ownership
+    from skatmind.search_budget_profiles import SEARCH_BUDGET_PROFILE_IDENTIFIERS
 
     row = _require_exact_fields(case, _CASE_FIELDS, f"cases[{index}]")
     name = _require_string(row["name"], f"cases[{index}].name")
@@ -886,11 +886,11 @@ class _CaseContext:
 
 
 def _build_case_context(case: dict[str, Any]) -> _CaseContext:
-    from skat_ai.bounded_search_information import build_live_search_information_view
-    from skat_ai.exact_search_state import apply_exact_search_card, build_exact_search_state
-    from skat_ai.game_declaration import GameDeclaration
-    from skat_ai.game_state import GameState
-    from skat_ai.public_hand_constraint import DECLARED_OUVERT_SOURCE, PublicHandConstraint
+    from skatmind.bounded_search_information import build_live_search_information_view
+    from skatmind.exact_search_state import apply_exact_search_card, build_exact_search_state
+    from skatmind.game_declaration import GameDeclaration
+    from skatmind.game_state import GameState
+    from skatmind.public_hand_constraint import DECLARED_OUVERT_SOURCE, PublicHandConstraint
 
     declaration = GameDeclaration(**case["declaration"])
     fixture = case["fixture"]
@@ -988,7 +988,7 @@ def _build_case_context(case: dict[str, Any]) -> _CaseContext:
 
 
 def _build_policy_settings(case: dict[str, Any]) -> Any:
-    from skat_ai.information_set_search_contracts import (
+    from skatmind.information_set_search_contracts import (
         INFORMATION_SET_SEARCH_CONTROL_SCOPES,
         INFORMATION_SET_SEARCH_POLICY_SETTINGS_VERSION,
         InformationSetFixedPlayerPolicyV1,
@@ -1095,10 +1095,10 @@ def _strategy_fusion_diagnostic(
     information_set_result: Any,
     requested_pimc_budget: Any,
 ) -> dict[str, Any] | None:
-    from skat_ai.information_set_search_state import (
+    from skatmind.information_set_search_state import (
         build_information_set_search_observation_v1,
     )
-    from skat_ai.perfect_information_minimax import solve_perfect_information_minimax
+    from skatmind.perfect_information_minimax import solve_perfect_information_minimax
 
     if case["name"] != "clubs_strategy_fusion_sampled_two_tricks":
         return None
@@ -1202,9 +1202,9 @@ def _frozen_monotonic() -> float:
 
 @contextmanager
 def _frozen_search_operational_clocks() -> Iterator[None]:
-    import skat_ai.compatible_world_minimax as compatible_world_minimax
-    import skat_ai.information_set_search_executor as information_set_search_executor
-    import skat_ai.perfect_information_minimax as perfect_information_minimax
+    import skatmind.compatible_world_minimax as compatible_world_minimax
+    import skatmind.information_set_search_executor as information_set_search_executor
+    import skatmind.perfect_information_minimax as perfect_information_minimax
 
     # Retain exact profile budgets while preventing machine speed from changing
     # the frozen complete functional signatures. External stage timing stays real.
@@ -1242,19 +1242,19 @@ def _execute_case(
     case: dict[str, Any],
     context: _CaseContext,
 ) -> tuple[dict[str, Any], dict[str, float]]:
-    from skat_ai.compatible_world_minimax import (
+    from skatmind.compatible_world_minimax import (
         solve_compatible_world_minimax_on_selection_v1,
     )
-    from skat_ai.information_set_search_contracts import (
+    from skatmind.information_set_search_contracts import (
         build_information_set_search_request_v1,
     )
-    from skat_ai.information_set_search_executor import execute_information_set_search_v1
-    from skat_ai.information_set_search_preparation import prepare_information_set_search_v1
-    from skat_ai.information_set_search_workflow import (
+    from skatmind.information_set_search_executor import execute_information_set_search_v1
+    from skatmind.information_set_search_preparation import prepare_information_set_search_v1
+    from skatmind.information_set_search_workflow import (
         convert_information_set_search_budget_to_requested_search_budget_v1,
     )
-    from skat_ai.recommender import recommend_card_by_expected_value
-    from skat_ai.search_budget_profiles import get_information_set_search_budget_profile
+    from skatmind.recommender import recommend_card_by_expected_value
+    from skatmind.search_budget_profiles import get_information_set_search_budget_profile
 
     budget = get_information_set_search_budget_profile(case["profile_name"])
     request = build_information_set_search_request_v1(

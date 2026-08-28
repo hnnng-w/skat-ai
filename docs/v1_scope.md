@@ -1,7 +1,7 @@
 # v1.0 scope
 
 This document defines the product requirements and observable completion gates
-for `skat-ai` `v1.0.0`. Current implementation status remains in
+for `skatmind` `v1.0.0`. Current implementation status remains in
 [Requirements traceability](requirements_traceability.md).
 
 The current published stable and latest stable GitHub Release is `v0.17.0`, with
@@ -340,9 +340,12 @@ point. Issue #203 completes all nine concrete canonical Multi-Step phases, makes
 P-19 `satisfied`, and closes B-03. Issue #204 applies exact `AGPL-3.0-only`
 legal files and PEP 639 metadata and closes B-04 without changing product
 behavior or active Package identity. Five blockers B-05 through B-09 remain,
-with B-09 outside the 53-row ledger. The milestone remains not ready, and Issue
-#205, **Rename the complete project and public Package surface to SkatMind**, is
-next.
+with B-09 outside the 53-row ledger. Issue #205 subsequently completes the
+SkatMind Package, import, CLI, resource, Schema, identifier, and strict legacy
+persisted-input migration boundary, makes P-09 `satisfied`, and closes B-08.
+Four blockers B-05, B-06, B-07, and B-09 remain. The milestone remains not ready,
+and Issue #206, **Complete the v1 installation and supported-platform matrix**,
+is next.
 
 The November 2022 ISkO and SkWO publication is the normative source for official
 rules and competition behavior. Product capabilities such as simulation,
@@ -351,7 +354,7 @@ must not be presented as official-rule requirements.
 
 ## Product concepts
 
-| Concept | Definition for skat-ai | Explicit boundary |
+| Concept | Definition for skatmind | Explicit boundary |
 | --- | --- | --- |
 | Live position | A position analyzed using only facts legitimately available to the selected player at that decision time. | Post-game skat, future plays, later outcomes, and retrospective labels must be rejected or redacted. |
 | Retrospective single-decision review | One historical decision reconstructed with the actual card and facts available at that point, then compared with the engine recommendation. | It is not a complete-game replay. Retrospective facts may explain the result but must not leak into the reconstructed decision analysis. |
@@ -365,7 +368,7 @@ must not be presented as official-rule requirements.
 | Dataset partition policy | Optional declared `known_opponent` or `unseen_player` intent plus exact stable-player membership and overlap auditing. Public version-1 preparation derives one fixed mode-specific algorithm, validates complete temporal or player-disjoint plans, generates deterministic assignments, and losslessly materializes complete plans. | Known-opponent evaluation intentionally permits player overlap; declared unseen-player datasets require player-disjoint partitions. Preparation has no algorithm override, fallback, partial Plan, default weights, global optimization, ratio guarantee, Sample- or Player-count balancing, or component splitting. |
 | Evidence-constrained hidden-card inference | Exact compatible left/right/hypothetical-skat assignments narrowed only by local and authorized public ownership plus confirmed legal failure to follow an effective category. | It is structural decision-time inference, not behavioral, Bayesian, calibrated, learned, tactically weighted, or proof of the actual hidden deal. |
 | Public field provenance | Opt-in version-1 provenance for one complete redacted Root Result and artifacts actually returned, with exact declared document scopes and recomputed coverage. | It does not expose consumed inputs, decisions, intermediate stages, unredacted internals, Confidence, or the complete internal Issue #202 lifecycle checkpoint. |
-| Public Session API | Stable `skat_ai.api.v1.session` version `1` with exact immutable type identity, twelve one-call operations, strict parsing, typed Results, Decision Observation/review export, in-memory persistence build/resume, and appended stable `files` Save/Load transport. | It adds no Session Root workflow, automatic analysis after every Command, persisted analysis Result, default path, GUI, platform adapter, cloud synchronization, distributed lock, encryption, or automatic backup. |
+| Public Session API | Stable `skatmind.api.v1.session` version `1` with exact immutable type identity, twelve one-call operations, strict parsing, typed Results, Decision Observation/review export, in-memory persistence build/resume, and appended stable `files` Save/Load transport. | It adds no Session Root workflow, automatic analysis after every Command, persisted analysis Result, default path, GUI, platform adapter, cloud synchronization, distributed lock, encryption, or automatic backup. |
 | Session Provenance | Default-omitted version-1 complete provenance over exactly one returned Session operation value, with engine-private redaction and recomputed coverage. | It is independent of Root Result provenance and Confidence, does not cover consumed inputs or itself, and does not widen access to private Session values. |
 | Interactive Session capture | Immutable fixed-three-player Live/Retrospective authoring State, accepted typed Log, deterministic replay/transitions, readiness, no-execution Position/Historical export, frozen Checkpoints, accepted-Log observations, isolated review, automatic collection, explicit existing-Application execution, and a phase-aware local Assistant. | Issues #150 through #157 complete the bounded local end-to-end workflow. GUI/browser UI and platform/cloud/encryption concerns remain separate open layers. |
 | Match Capture metadata | Internal immutable Match identity, descriptive media/manual source, reusable millisecond bounds, exact named format, three fixed-place participants, optional historical Opponent Statistics snapshots, and one perspective Match Player. | Issues #160 through #167 define, edit, persist, and prepare the value. Issue #168 consumes it for private analysis without changing persistence. Public Match API/Schema/data workflow, public or persisted Player Catalog, YouTube/EuroSkat integration, ranking, qualification, and commercial rules remain absent. |
@@ -929,8 +932,8 @@ See [Learning Corpus Tactical Cross-game Coaching](learning_corpus_tactical_cros
 ## Release decision rule
 
 The authoritative current status ledger, accepted limitations, closed B-01
-through B-04, remaining B-05 through B-09 blockers, and revised #205 through
-#208 plan are in the
+through B-04 and B-08, remaining B-05, B-06, B-07, and B-09 blockers, and the
+ordered #206 through #208 plan are in the
 [v1.0 scope and traceability audit](v1_0_scope_and_traceability_audit.md).
 
 `v1.0.0` is not ready while any required gate lacks evidence, any validation or

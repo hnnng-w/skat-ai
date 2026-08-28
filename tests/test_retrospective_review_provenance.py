@@ -4,14 +4,14 @@ from pathlib import Path
 
 import pytest
 
-from skat_ai.application import (
+from skatmind.application import (
     ApplicationExecutionOptions,
     PositionAnalysisApplicationOptions,
     build_application_invocation,
     execute_application_invocation,
 )
-from skat_ai.errors import SkatAIInformationPolicyError
-from skat_ai.retrospective_review_provenance import (
+from skatmind.errors import SkatMindInformationPolicyError
+from skatmind.retrospective_review_provenance import (
     RETROSPECTIVE_REVIEW_PROVENANCE_VERSION,
     validate_retrospective_provenance_dependency,
 )
@@ -176,7 +176,7 @@ def test_retrospective_temporal_dependencies_reject_backward_use(
     consumer: str,
     dependency: str,
 ) -> None:
-    with pytest.raises(SkatAIInformationPolicyError):
+    with pytest.raises(SkatMindInformationPolicyError):
         validate_retrospective_provenance_dependency(
             consumer_stage=consumer,
             dependency_stage=dependency,

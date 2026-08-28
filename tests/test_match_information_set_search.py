@@ -1,15 +1,15 @@
 import pytest
 from test_match_decision_analysis import _complete_workspace
 
-from skat_ai.application.execution import (
+from skatmind.application.execution import (
     execute_application_invocation as real_execute_application_invocation,
 )
-from skat_ai.match_analysis_contracts import MatchDecisionAnalysisOptionsV1
-from skat_ai.match_decision_analysis import (
+from skatmind.match_analysis_contracts import MatchDecisionAnalysisOptionsV1
+from skatmind.match_decision_analysis import (
     build_match_decision_position_request_v1,
     execute_match_decision_analysis_v1,
 )
-from skat_ai.match_information_set_search import (
+from skatmind.match_information_set_search import (
     MATCH_INFORMATION_SET_SEARCH_BROWSER_POLICY,
     MATCH_INFORMATION_SET_SEARCH_COMPARISON_POLICY,
     MATCH_INFORMATION_SET_SEARCH_EXECUTION_POLICY,
@@ -110,7 +110,7 @@ def test_match_request_maps_existing_profiles_to_information_set_settings(
 
 
 def test_match_information_set_search_executes_application_once(monkeypatch) -> None:
-    import skat_ai.match_decision_analysis as analysis_module
+    import skatmind.match_decision_analysis as analysis_module
 
     calls = 0
     validations = 0
@@ -123,7 +123,7 @@ def test_match_information_set_search_executes_application_once(monkeypatch) -> 
     def counted_validation(document):
         nonlocal validations
         validations += 1
-        from skat_ai.api.v1.schema_validation import validate_output_document
+        from skatmind.api.v1.schema_validation import validate_output_document
 
         validate_output_document(document)
 

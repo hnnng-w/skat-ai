@@ -1,6 +1,6 @@
 # Schema validation
 
-This document explains how JSON Schema validation is used in `skat-ai`.
+This document explains how JSON Schema validation is used in `skatmind`.
 
 ## Validation layers
 
@@ -57,7 +57,7 @@ The repository `schemas/` directory remains authoritative. Every one of its 71
 namespace:
 
 ```text
-src/skat_ai/schema_resources/
+src/skatmind/schema_resources/
 ```
 
 Synchronize or check that mirror with:

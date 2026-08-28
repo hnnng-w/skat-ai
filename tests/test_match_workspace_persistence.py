@@ -4,15 +4,15 @@ import os
 import pytest
 from test_match_workspace_contracts import _definition
 
-import skat_ai.match_workspace_persistence as persistence_module
-from skat_ai.errors import SkatAIValidationError
-from skat_ai.match_workspace_contracts import create_match_workspace_v1
-from skat_ai.match_workspace_operations import mark_match_workspace_passed_deal_v1
-from skat_ai.match_workspace_persistence import (
+import skatmind.match_workspace_persistence as persistence_module
+from skatmind.errors import SkatMindValidationError
+from skatmind.match_workspace_contracts import create_match_workspace_v1
+from skatmind.match_workspace_operations import mark_match_workspace_passed_deal_v1
+from skatmind.match_workspace_persistence import (
     load_match_workspace_file_v1,
     save_match_workspace_file_v1,
 )
-from skat_ai.match_workspace_persistence_codec import (
+from skatmind.match_workspace_persistence_codec import (
     build_match_workspace_persistence_document_v1,
 )
 
@@ -182,7 +182,7 @@ def test_file_load_rejects_utf8_bom_json_duplicates_nonfinite_and_root(
 ) -> None:
     file_path = tmp_path / "invalid.json"
     file_path.write_bytes(raw)
-    with pytest.raises(SkatAIValidationError):
+    with pytest.raises(SkatMindValidationError):
         load_match_workspace_file_v1(file_path)
 
 
@@ -196,7 +196,7 @@ def test_file_load_rejects_duplicate_nested_keys(tmp_path) -> None:
     )
     file_path = tmp_path / "duplicate-nested.json"
     file_path.write_bytes(raw)
-    with pytest.raises(SkatAIValidationError, match="Duplicate"):
+    with pytest.raises(SkatMindValidationError, match="Duplicate"):
         load_match_workspace_file_v1(file_path)
 
 
@@ -212,7 +212,7 @@ def test_invalid_existing_target_is_never_overwritten(tmp_path) -> None:
     file_path = tmp_path / "workspace.json"
     invalid = b'{"not": "a Workspace"}\n'
     file_path.write_bytes(invalid)
-    with pytest.raises(SkatAIValidationError):
+    with pytest.raises(SkatMindValidationError):
         save_match_workspace_file_v1(
             file_path,
             document,

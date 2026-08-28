@@ -1,10 +1,10 @@
 # Project handoff
 
-This document summarizes the current state of `skat-ai` for continuing development in a new thread or with a new contributor.
+This document summarizes the current state of `skatmind` for continuing development in a new thread or with a new contributor.
 
 ## Project overview
 
-`skat-ai` is a local Python-based Skat analysis and simulation tool.
+SkatMind is a local Python-based Skat analysis and simulation tool.
 
 The project focuses on:
 
@@ -103,8 +103,8 @@ The project focuses on:
 * installation-ready Setuptools packaging with private byte-identical Schema
   resources, `py.typed`, Package `__version__`, one Wheel and one sdist,
   artifact inspection, and separate clean-install public-API smoke tests
-* installed CLI contract version `1` with the exact `skat-ai` Console Script,
-  `python -m skat_ai`, a Package-owned canonical parser and transport, Legacy
+* installed CLI contract version `1` with the exact `skatmind` Console Script,
+  `python -m skatmind`, a Package-owned canonical parser and transport, Legacy
   Root compatibility, and clean-install CLI/API parity
 * internal Session and Command contract version `1` with fixed stable Players,
   Live and Retrospective Capture Modes, phases, typed Commands, an authoritative
@@ -371,7 +371,7 @@ Implemented by Issue #151:
   legal-card, trick, continuation, terminal-shape, and promotion validation
 * Position and Historical readiness recomputation without Request export
 * forged revision, Mode, phase, Validation, duplicate Card, illegal Play, and
-  invalid accepted event/end rejection through `SkatAIInvariantError`
+  invalid accepted event/end rejection through `SkatMindInvariantError`
 
 Implemented by Issue #152:
 
@@ -1021,7 +1021,7 @@ Implemented:
 * complete historical-game validation and summary output
 * optional historical decision snapshot and complete-review flags
 * separate versioned training-dataset conversion workflow
-* installed `skat-ai`, module `python -m skat_ai`, and Legacy `python main.py`
+* installed `skatmind`, module `python -m skatmind`, and Legacy `python main.py`
   invocation forms over one canonical Package parser and transport
 * exact `--version` output, invocation-specific help, unchanged Exit Codes, and
   clean-install CLI/API parity
@@ -1136,9 +1136,9 @@ Implemented:
 * `cli/root_transport.py` and `cli/presentation/`
   * file/output transport and pure already-produced-Result presentation
 * `cli/__init__.py`
-  * exact `skat_ai.cli:main` Console Script target
+  * exact `skatmind.cli:main` Console Script target
 * `__main__.py`
-  * `python -m skat_ai` delegation
+  * `python -m skatmind` delegation
 * repository-root `main.py`
   * Legacy compatibility facade and Root monkeypatch adapter through `v1.0.0`
 
@@ -1738,10 +1738,11 @@ blockers B-02 through B-07 remained at that point. Issue #202 makes P-10 and P-1
 point. Issue #203 completes all nine concrete canonical Multi-Step phases, makes
 P-19 `satisfied`, and closes B-03 without widening Search or public contracts.
 Four blockers B-04 through B-07 remained at that point. Issue #204 applies exact
-`AGPL-3.0-only` legal files and PEP 639 metadata and closes B-04. P-09 is now
-`implementation_required` under B-08/#205, while B-09 adds maintainer UAT
-outside the 53-row ledger. Five blockers B-05 through B-09 remain. The milestone
-is not ready, and Issue #205 is next.
+`AGPL-3.0-only` legal files and PEP 639 metadata and closes B-04. Issue #205
+completes the hard-cut SkatMind identity and migration boundary, makes P-09
+`satisfied`, and closes B-08, while B-09 adds maintainer UAT outside the 53-row
+ledger. Four blockers B-05, B-06, B-07, and B-09 remain. The milestone is not
+ready, and Issue #206 is next.
 
 Historical published Package milestone: `v0.15.0`, providing usable manual post-
 game capture of one EuroSkat 36er Standard Match from descriptive video evidence.
@@ -2329,11 +2330,11 @@ Completed implementation scope:
 
 ## Next recommended action
 
-Begin Issue #205, **Rename the complete project and public Package surface to
-SkatMind**. Issues #201 through #203 close B-01 through B-03. Issue #204 applies
-the exact `AGPL-3.0-only` Package boundary and closes B-04 without changing
-product behavior or active Package identity. P-09 remains
-`implementation_required` under B-08/#205. #206 owns installation/platform
+Begin Issue #206, **Complete the v1 installation and supported-platform matrix**.
+Issues #201 through #203 close B-01 through B-03. Issue #204 applies the exact
+`AGPL-3.0-only` Package boundary and closes B-04 without changing product
+behavior. Issue #205 completes the SkatMind identity and migration boundary,
+makes P-09 `satisfied`, and closes B-08. #206 owns installation/platform
 evidence, #207 owns the final technical audit, and #208 owns the separate B-09
 maintainer-UAT Gate outside the 53-row ledger. B-07 Release preparation occurs
 only after #208 and remediation of accepted findings; its Issue number is not

@@ -5,27 +5,27 @@ from pathlib import Path
 import pytest
 from jsonschema import Draft202012Validator
 
-import skat_ai.perfect_information_minimax as minimax_module
-from skat_ai.bounded_search_result import (
+import skatmind.perfect_information_minimax as minimax_module
+from skatmind.bounded_search_result import (
     BoundedSearchResult,
     RequestedSearchBudget,
     build_serializable_bounded_search_result,
 )
-from skat_ai.deck import get_full_deck
-from skat_ai.exact_search_state import (
+from skatmind.deck import get_full_deck
+from skatmind.exact_search_state import (
     ExactSearchState,
     apply_exact_search_card,
     build_exact_search_state,
     get_exact_search_legal_cards,
 )
-from skat_ai.exact_terminal_utility import (
+from skatmind.exact_terminal_utility import (
     build_exact_terminal_utility,
 )
-from skat_ai.game_declaration import GameDeclaration
-from skat_ai.perfect_information_minimax import solve_perfect_information_minimax
-from skat_ai.rules import get_trick_points
-from skat_ai.side_ownership import get_player_side
-from skat_ai.terminal_utility import TerminalUtility, compare_terminal_utilities
+from skatmind.game_declaration import GameDeclaration
+from skatmind.perfect_information_minimax import solve_perfect_information_minimax
+from skatmind.rules import get_trick_points
+from skatmind.side_ownership import get_player_side
+from skatmind.terminal_utility import TerminalUtility, compare_terminal_utilities
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 with (PROJECT_ROOT / "schemas" / "bounded_search_result.schema.json").open(

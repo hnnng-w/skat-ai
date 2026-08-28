@@ -9,34 +9,34 @@ from test_historical_game_event_chain import (
     add_continuation,
 )
 
-import skat_ai.application.historical_game_workflow as historical_workflow_module
-import skat_ai.application.position_workflow as position_workflow_module
-from skat_ai.application import (
+import skatmind.application.historical_game_workflow as historical_workflow_module
+import skatmind.application.position_workflow as position_workflow_module
+from skatmind.application import (
     ApplicationExecutionOptions,
     HistoricalGameApplicationOptions,
     PositionAnalysisApplicationOptions,
     build_application_invocation,
     execute_application_invocation,
 )
-from skat_ai.errors import SkatAIInformationPolicyError
-from skat_ai.field_provenance import build_serializable_field_provenance_ledger
-from skat_ai.field_provenance_policy import (
+from skatmind.errors import SkatMindInformationPolicyError
+from skatmind.field_provenance import build_serializable_field_provenance_ledger
+from skatmind.field_provenance_policy import (
     redact_field_provenance_ledger_for_public_output,
 )
-from skat_ai.historical_result_provenance import (
+from skatmind.historical_result_provenance import (
     COMPLETE_RESULT_PROVENANCE_VERSION as HISTORICAL_COMPLETE_VERSION,
 )
-from skat_ai.historical_result_provenance import (
+from skatmind.historical_result_provenance import (
     build_historical_game_result_attachment,
     validate_historical_result_provenance_dependencies,
 )
-from skat_ai.position_result_provenance import (
+from skatmind.position_result_provenance import (
     COMPLETE_RESULT_PROVENANCE_VERSION as POSITION_COMPLETE_VERSION,
 )
-from skat_ai.position_result_provenance import (
+from skatmind.position_result_provenance import (
     validate_position_result_provenance_dependencies,
 )
-from skat_ai.settlement_result_provenance import COMPLETE_RESULT_PROVENANCE_VERSION
+from skatmind.settlement_result_provenance import COMPLETE_RESULT_PROVENANCE_VERSION
 
 ROOT = Path(__file__).resolve().parents[1]
 EXAMPLES = ROOT / "examples"
@@ -269,7 +269,7 @@ def test_position_dependency_validator_rejects_reverse_settlement_input() -> Non
         dependency_paths=("/final_settlement_summary/settlement_score",),
     )
 
-    with pytest.raises(SkatAIInformationPolicyError, match="cross-domain"):
+    with pytest.raises(SkatMindInformationPolicyError, match="cross-domain"):
         validate_position_result_provenance_dependencies(tuple(entries))
 
 
@@ -460,7 +460,7 @@ def test_historical_dependency_validator_rejects_later_trick_and_review_inputs()
             "/historical_game_summary/record/tricks/1/plays/0/card",
         ),
     )
-    with pytest.raises(SkatAIInformationPolicyError, match="later play"):
+    with pytest.raises(SkatMindInformationPolicyError, match="later play"):
         validate_historical_result_provenance_dependencies(tuple(entries))
     entries[first_index] = first_entry
 
@@ -476,7 +476,7 @@ def test_historical_dependency_validator_rejects_later_trick_and_review_inputs()
             "/historical_game_summary/decision_snapshot_summary/snapshot_count",
         ),
     )
-    with pytest.raises(SkatAIInformationPolicyError, match="cross-domain"):
+    with pytest.raises(SkatMindInformationPolicyError, match="cross-domain"):
         validate_historical_result_provenance_dependencies(tuple(entries))
 
 

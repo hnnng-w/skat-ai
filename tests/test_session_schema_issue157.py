@@ -7,26 +7,26 @@ from jsonschema import Draft202012Validator
 from test_public_session_files import _document
 from test_session_decision_observation import _observed
 
-from skat_ai.api.v1.session.contracts import SessionApiResultV1
-from skat_ai.api.v1.session.files.contracts import (
+from skatmind.api.v1.session.contracts import SessionApiResultV1
+from skatmind.api.v1.session.files.contracts import (
     SessionFileApiOptionsV1,
     SessionFileApiResultV1,
 )
-from skat_ai.api.v1.session.schema_validation import (
+from skatmind.api.v1.session.schema_validation import (
     _validate_session_definition,
     validate_session_correction_document,
     validate_session_create_document,
     validate_session_result_document,
 )
-from skat_ai.errors import SkatAISchemaError
-from skat_ai.session_checkpoint_review import (
+from skatmind.errors import SkatMindSchemaError
+from skatmind.session_checkpoint_review import (
     export_session_checkpoint_review_request_v1,
 )
-from skat_ai.session_decision_observation import (
+from skatmind.session_decision_observation import (
     observe_session_decision_checkpoint_v1,
 )
-from skat_ai.session_persistence_codec import resume_session_document_v1
-from skat_ai.session_persistence_contracts import SessionPersistenceWriteResultV1
+from skatmind.session_persistence_codec import resume_session_document_v1
+from skatmind.session_persistence_contracts import SessionPersistenceWriteResultV1
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
@@ -73,7 +73,7 @@ def _correction_document() -> dict[str, object]:
 
 def test_issue157_definitions_are_strict_valid_and_byte_identical() -> None:
     authoritative = PROJECT_ROOT / "schemas" / "session.schema.json"
-    packaged = PROJECT_ROOT / "src" / "skat_ai" / "schema_resources" / "session.schema.json"
+    packaged = PROJECT_ROOT / "src" / "skatmind" / "schema_resources" / "session.schema.json"
     assert authoritative.read_bytes() == packaged.read_bytes()
     schema = json.loads(authoritative.read_text(encoding="utf-8"))
     Draft202012Validator.check_schema(schema)
@@ -104,28 +104,28 @@ def test_create_and_correction_input_validators_are_recursive_and_strict() -> No
 
     invalid_create = _create_document()
     invalid_create["unknown"] = True
-    with pytest.raises(SkatAISchemaError):
+    with pytest.raises(SkatMindSchemaError):
         validate_session_create_document(invalid_create)
 
     invalid_nested_create = _create_document()
     invalid_nested_create["players"][0]["unknown"] = True
-    with pytest.raises(SkatAISchemaError):
+    with pytest.raises(SkatMindSchemaError):
         validate_session_create_document(invalid_nested_create)
 
     live_without_local_player = _create_document()
     live_without_local_player["capture_mode"] = "live"
     live_without_local_player["local_player_id"] = None
-    with pytest.raises(SkatAISchemaError):
+    with pytest.raises(SkatMindSchemaError):
         validate_session_create_document(live_without_local_player)
 
     duplicate_seat = _create_document()
     duplicate_seat["players"][2]["seat"] = "middlehand"
-    with pytest.raises(SkatAISchemaError):
+    with pytest.raises(SkatMindSchemaError):
         validate_session_create_document(duplicate_seat)
 
     invalid_correction = _correction_document()
     invalid_correction["replacement_command"]["unknown"] = True
-    with pytest.raises(SkatAISchemaError):
+    with pytest.raises(SkatMindSchemaError):
         validate_session_correction_document(invalid_correction)
 
 
@@ -154,17 +154,17 @@ def test_persistence_write_and_file_api_discrimination_are_strict() -> None:
 
     wrong_operation = copy.deepcopy(save_result)
     wrong_operation["operation"] = "load"
-    with pytest.raises(SkatAISchemaError):
+    with pytest.raises(SkatMindSchemaError):
         _validate_session_definition(wrong_operation, "session_file_api_result")
 
     unknown_nested_field = copy.deepcopy(save_result)
     unknown_nested_field["value"]["path"] = "private.json"
-    with pytest.raises(SkatAISchemaError):
+    with pytest.raises(SkatMindSchemaError):
         _validate_session_definition(unknown_nested_field, "session_file_api_result")
 
     unchanged_with_null_fingerprints = write_result.to_dict()
     unchanged_with_null_fingerprints["status"] = "unchanged"
-    with pytest.raises(SkatAISchemaError):
+    with pytest.raises(SkatMindSchemaError):
         _validate_session_definition(
             unchanged_with_null_fingerprints,
             "session_persistence_write_result",
@@ -172,7 +172,7 @@ def test_persistence_write_and_file_api_discrimination_are_strict() -> None:
 
     conflict_with_two_null_fingerprints = write_result.to_dict()
     conflict_with_two_null_fingerprints["status"] = "conflict"
-    with pytest.raises(SkatAISchemaError):
+    with pytest.raises(SkatMindSchemaError):
         _validate_session_definition(
             conflict_with_two_null_fingerprints,
             "session_persistence_write_result",
@@ -193,22 +193,22 @@ def test_observation_result_schema_enforces_operation_status_and_nested_shape() 
 
     missing_observed_card = copy.deepcopy(result)
     missing_observed_card["value"]["actual_card"] = None
-    with pytest.raises(SkatAISchemaError):
+    with pytest.raises(SkatMindSchemaError):
         validate_session_result_document(missing_observed_card)
 
     wrong_reason = copy.deepcopy(result)
     wrong_reason["value"]["reason_codes"] = ["local_play_not_recorded"]
-    with pytest.raises(SkatAISchemaError):
+    with pytest.raises(SkatMindSchemaError):
         validate_session_result_document(wrong_reason)
 
     unknown_lineage_field = copy.deepcopy(result)
     unknown_lineage_field["value"]["lineage"]["unknown"] = True
-    with pytest.raises(SkatAISchemaError):
+    with pytest.raises(SkatMindSchemaError):
         validate_session_result_document(unknown_lineage_field)
 
     wrong_operation = copy.deepcopy(result)
     wrong_operation["operation"] = "export_checkpoint_review"
-    with pytest.raises(SkatAISchemaError):
+    with pytest.raises(SkatMindSchemaError):
         validate_session_result_document(wrong_operation)
 
 
@@ -238,15 +238,15 @@ def test_review_export_schema_accepts_review_card_and_enforces_status_relationsh
 
     wrong_status = copy.deepcopy(available_result)
     wrong_status["value"]["status"] = "unavailable"
-    with pytest.raises(SkatAISchemaError):
+    with pytest.raises(SkatMindSchemaError):
         validate_session_result_document(wrong_status)
 
     live_review_request = copy.deepcopy(available_result)
     live_review_request["value"]["request"]["document"]["analysis_mode"] = "live_decision"
-    with pytest.raises(SkatAISchemaError):
+    with pytest.raises(SkatMindSchemaError):
         validate_session_result_document(live_review_request)
 
     unknown_position_field = copy.deepcopy(available_result)
     unknown_position_field["value"]["request"]["document"]["unknown"] = True
-    with pytest.raises(SkatAISchemaError):
+    with pytest.raises(SkatMindSchemaError):
         validate_session_result_document(unknown_position_field)

@@ -22,8 +22,8 @@ from main import (
     run_json_position_analysis,
     validate_cli_arguments,
 )
-from skat_ai.effective_opponent_policy import build_effective_opponent_policy_settings
-from skat_ai.player_profile import PlayerProfile
+from skatmind.effective_opponent_policy import build_effective_opponent_policy_settings
+from skatmind.player_profile import PlayerProfile
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 MAIN_PATH = PROJECT_ROOT / "main.py"
@@ -1191,9 +1191,9 @@ def test_historical_replay_coaching_combines_public_workflows_in_one_pass(
         calls["immediate"] += 1
         return _historical_fake_immediate(**kwargs)
 
-    monkeypatch.setattr("skat_ai.historical_search_review.solve_compatible_world_minimax", search)
+    monkeypatch.setattr("skatmind.historical_search_review.solve_compatible_world_minimax", search)
     monkeypatch.setattr(
-        "skat_ai.historical_search_review.recommend_card_by_expected_value",
+        "skatmind.historical_search_review.recommend_card_by_expected_value",
         immediate,
     )
     run_json_historical_game_analysis(
@@ -3158,7 +3158,7 @@ def test_run_json_position_analysis_supports_highest_expected_value_multi_step()
 
 
 def test_print_multi_step_result_outputs_summary(capsys) -> None:
-    from skat_ai.game_state import GameState
+    from skatmind.game_state import GameState
 
     result = {
         "card_selection_policy": "first_legal",
@@ -3244,7 +3244,7 @@ def test_print_multi_step_result_outputs_summary(capsys) -> None:
 
 
 def test_print_multi_step_result_outputs_opponent_lead(capsys) -> None:
-    from skat_ai.game_state import GameState
+    from skatmind.game_state import GameState
 
     result = {
         "card_selection_policy": "first_legal",
@@ -3323,7 +3323,7 @@ def test_print_multi_step_result_outputs_opponent_lead(capsys) -> None:
 
 
 def test_print_multi_step_result_outputs_opponent_response(capsys) -> None:
-    from skat_ai.game_state import GameState
+    from skatmind.game_state import GameState
 
     result = {
         "card_selection_policy": "first_legal",
@@ -3406,7 +3406,7 @@ def test_print_multi_step_result_outputs_opponent_response(capsys) -> None:
 
 
 def test_print_multi_step_result_outputs_duplicate_context_warning(capsys) -> None:
-    from skat_ai.game_state import GameState
+    from skatmind.game_state import GameState
 
     result = {
         "card_selection_policy": "first_legal",
@@ -4032,7 +4032,7 @@ def build_immediate_response_policy_result(
         return ["S8", "S10"], ["S9", "SA"]
 
     monkeypatch.setattr(
-        "skat_ai.simulation.generate_random_opponent_hands",
+        "skatmind.simulation.generate_random_opponent_hands",
         fake_generate_random_opponent_hands,
     )
     input_path = tmp_path / "immediate_response_policy.json"
@@ -4515,7 +4515,7 @@ def test_build_analysis_result_side_cli_policy_uses_correct_immediate_responder(
     tmp_path,
     monkeypatch,
 ) -> None:
-    from skat_ai.opponent_policy import choose_opponent_response_card_by_policy
+    from skatmind.opponent_policy import choose_opponent_response_card_by_policy
 
     calls = []
 
@@ -4556,11 +4556,11 @@ def test_build_analysis_result_side_cli_policy_uses_correct_immediate_responder(
         return selected_card
 
     monkeypatch.setattr(
-        "skat_ai.simulation.generate_random_opponent_hands",
+        "skatmind.simulation.generate_random_opponent_hands",
         fake_generate_random_opponent_hands,
     )
     monkeypatch.setattr(
-        "skat_ai.simulation.choose_opponent_response_card_by_policy",
+        "skatmind.simulation.choose_opponent_response_card_by_policy",
         recording_choose_opponent_response_card_by_policy,
     )
 

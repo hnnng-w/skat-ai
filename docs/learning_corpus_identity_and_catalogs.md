@@ -163,13 +163,13 @@ canonical JSON. Canonical JSON uses UTF-8, `ensure_ascii=true`,
 The exact domains are:
 
 ```text
-skat-ai\0learning_corpus_match_snapshot_v1\0
-skat-ai\0learning_corpus_player_observation_v1\0
-skat-ai\0learning_corpus_game_content_v1\0
-skat-ai\0learning_corpus_game_reference_v1\0
-skat-ai\0learning_corpus_decision_reference_v1\0
-skat-ai\0learning_corpus_commentary_reference_v1\0
-skat-ai\0learning_corpus_response_reference_v1\0
+skatmind\0learning_corpus_match_snapshot_v1\0
+skatmind\0learning_corpus_player_observation_v1\0
+skatmind\0learning_corpus_game_content_v1\0
+skatmind\0learning_corpus_game_reference_v1\0
+skatmind\0learning_corpus_decision_reference_v1\0
+skatmind\0learning_corpus_commentary_reference_v1\0
+skatmind\0learning_corpus_response_reference_v1\0
 ```
 
 The Match Snapshot identity material contains exactly:
@@ -208,7 +208,7 @@ authenticated authorship, source provenance, quality, or Confidence.
 7. validates complete reference reconciliation.
 
 An inconsistent internally supplied exact document raises
-`SkatAIInvariantError`. A mapping, subclass, Workspace, file path, or another
+`SkatMindInvariantError`. A mapping, subclass, Workspace, file path, or another
 source type is not accepted as a Match Snapshot source.
 
 ## Match Snapshot contract

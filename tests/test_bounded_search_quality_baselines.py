@@ -5,31 +5,31 @@ from itertools import combinations, permutations
 
 import pytest
 
-from skat_ai.bounded_search_information import (
+from skatmind.bounded_search_information import (
     SearchCompletedTrick,
     SearchInformationView,
     SearchPublicPlay,
     build_live_search_information_view,
 )
-from skat_ai.bounded_search_result import RequestedSearchBudget
-from skat_ai.compatible_world_minimax import solve_compatible_world_minimax
-from skat_ai.deck import get_full_deck
-from skat_ai.exact_search_state import (
+from skatmind.bounded_search_result import RequestedSearchBudget
+from skatmind.compatible_world_minimax import solve_compatible_world_minimax
+from skatmind.deck import get_full_deck
+from skatmind.exact_search_state import (
     ExactSearchState,
     apply_exact_search_card,
     build_exact_search_state,
     get_exact_search_legal_cards,
 )
-from skat_ai.exact_terminal_utility import build_exact_terminal_utility
-from skat_ai.game_declaration import GameDeclaration
-from skat_ai.game_state import GameState
-from skat_ai.hidden_card_inference import (
+from skatmind.exact_terminal_utility import build_exact_terminal_utility
+from skatmind.game_declaration import GameDeclaration
+from skatmind.game_state import GameState
+from skatmind.hidden_card_inference import (
     EFFECTIVE_CATEGORY_ORDER,
     get_public_effective_category,
 )
-from skat_ai.recommender import recommend_card_by_expected_value
-from skat_ai.rules import get_effective_suit, get_trick_points, get_trick_winner
-from skat_ai.terminal_utility import TerminalUtility, compare_terminal_utilities
+from skatmind.recommender import recommend_card_by_expected_value
+from skatmind.rules import get_effective_suit, get_trick_points, get_trick_winner
+from skatmind.terminal_utility import TerminalUtility, compare_terminal_utilities
 
 
 @dataclass(frozen=True)

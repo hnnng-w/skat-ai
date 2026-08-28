@@ -1,6 +1,6 @@
 # Opponent profile derivation
 
-`skat-ai` provides a deterministic, rule-based opponent-profile derivation for
+`skatmind` provides a deterministic, rule-based opponent-profile derivation for
 `PlayerProfile` values. Derivation version `1` identifies the evidence bands,
 signal thresholds, classification precedence, and output semantics. It is
 independent of the package release version.

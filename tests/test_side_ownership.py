@@ -1,4 +1,4 @@
-from skat_ai.side_ownership import (
+from skatmind.side_ownership import (
     did_local_side_win,
     did_local_side_win_for_winner_role,
     get_defender_partner,

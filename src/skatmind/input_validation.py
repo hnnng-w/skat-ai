@@ -1,0 +1,916 @@
+from typing import Any
+
+from skatmind.deck import get_full_deck
+from skatmind.declarer_card_exposure import (
+    DeclarerCardExposure,
+    validate_declarer_card_exposure_context,
+)
+from skatmind.declarer_concession import validate_declarer_concession_context
+from skatmind.defender_concession import (
+    DefenderConcession,
+    validate_defender_concession_context,
+)
+from skatmind.defender_open_play import (
+    DefenderOpenPlay,
+    validate_defender_open_play_context,
+)
+from skatmind.game_continuation import (
+    get_game_continuation_from_input,
+    resolve_game_continuation,
+)
+from skatmind.game_declaration import build_game_declaration_from_input
+from skatmind.game_history import validate_completed_trick_sequence
+from skatmind.game_shortening import get_game_shortening_from_input
+from skatmind.game_value import get_null_game_value
+from skatmind.impossible_null_settlement import (
+    build_impossible_null_settlement_selection_from_input,
+)
+from skatmind.information_policy import validate_information_policy_from_input
+from skatmind.open_card_throw import OpenCardThrow, validate_open_card_throw
+from skatmind.opponent_policy import validate_opponent_card_policy
+from skatmind.opponent_policy_preset import validate_opponent_policy_preset
+from skatmind.opponent_profile_derivation import validate_player_profile_evidence
+from skatmind.ouvert_simulation import (
+    build_declared_ouvert_public_hand_constraint,
+    resolve_effective_public_hand_constraints,
+)
+from skatmind.performance_rating import (
+    LIST_ENTRY_METADATA_FIELDS,
+    build_list_game_contribution_from_analysis_result,
+    validate_list_entry_metadata,
+    validate_list_standings_input,
+    validate_performance_rating_system,
+)
+from skatmind.player_profile import build_player_profile_from_dict
+from skatmind.recommendation_workflow import (
+    build_recommendation_method_configuration,
+    validate_recommendation_method_workflow,
+)
+from skatmind.rules import GAME_TYPES, get_card_points, get_legal_cards
+from skatmind.side_ownership import normalize_declarer_player
+from skatmind.strategic_metadata import (
+    validate_analysis_mode,
+    validate_analysis_mode_skat_visibility_combination,
+    validate_game_end_reason,
+    validate_skat_visibility,
+)
+from skatmind.turn_phase import normalize_turn_phase_for_position
+
+VALID_PLAYER_ROLES = ["declarer", "defender", "unknown"]
+VALID_PLAYER_POSITIONS = ["forehand", "middlehand", "rearhand", "unknown"]
+VALID_TRICK_LEADERS = ["me", "left", "right", "unknown"]
+VALID_NEXT_PLAYERS = ["me", "left", "right", "unknown"]
+VALID_DECLARER_PLAYERS = ["me", "left", "right", "unknown"]
+VALID_COMPLETED_TRICK_WINNER_ROLES = ["declarer", "defenders"]
+VALID_TRICK_PLAYERS = ["me", "left", "right"]
+MAX_HAND_CARDS = 10
+MAX_OPPONENT_HAND_SIZE = 10
+MAX_SAMPLE_COUNT = 100_000
+MAX_SKAT_CARDS = 2
+COMPLETED_TRICK_ALLOWED_KEYS = {
+    "cards",
+    "players",
+    "winner_player",
+    "winner_role",
+}
+LIST_PERFORMANCE_REQUIRED_FIELDS = [
+    "player_game_points",
+    "own_games_won",
+    "own_games_lost",
+    "other_players_lost_games",
+]
+
+LIST_PERFORMANCE_COUNTER_FIELDS = [
+    "own_games_won",
+    "own_games_lost",
+    "other_players_lost_games",
+]
+LIST_GAME_CONTRIBUTION_REQUIRED_FIELDS = [
+    "player_role",
+    "game_outcome",
+    "settlement_score",
+]
+VALID_LIST_GAME_CONTRIBUTION_PLAYER_ROLES = ["declarer", "defender"]
+VALID_LIST_GAME_CONTRIBUTION_OUTCOMES = ["declarer_win", "declarer_loss"]
+
+
+def validate_array(value: Any, field_name: str) -> None:
+    """Validates that an explicitly supplied JSON array is a list."""
+    if not isinstance(value, list):
+        raise ValueError(f"{field_name} must be an array.")
+
+
+def validate_max_length(value: list[Any], field_name: str, max_length: int) -> None:
+    """Validates a schema-level maximum array length."""
+    if len(value) > max_length:
+        raise ValueError(f"{field_name} must contain at most {max_length} items.")
+
+
+def validate_positive_integer_maximum(
+    value: Any,
+    field_name: str,
+    maximum: int,
+) -> None:
+    """Validates a positive integer with a schema-level maximum."""
+    validate_positive_integer(value, field_name)
+
+    if value > maximum:
+        raise ValueError(f"{field_name} must be at most {maximum}.")
+
+
+def validate_non_negative_integer_maximum(
+    value: Any,
+    field_name: str,
+    maximum: int,
+) -> None:
+    """Validates a non-negative integer with a schema-level maximum."""
+    validate_non_negative_integer(value, field_name)
+
+    if value > maximum:
+        raise ValueError(f"{field_name} must be at most {maximum}.")
+
+
+def validate_required_keys(data: dict[str, Any]) -> None:
+    """
+    Validates that all required input keys exist.
+    """
+    required_keys = [
+        "game_type",
+        "player_role",
+        "hand",
+        "current_trick",
+        "left_hand_size",
+        "right_hand_size",
+        "sample_count",
+    ]
+
+    missing_keys = [key for key in required_keys if key not in data]
+
+    if missing_keys:
+        raise ValueError(f"Missing required input keys: {missing_keys}")
+
+
+def validate_game_type(game_type: str) -> None:
+    """
+    Validates the game type.
+    """
+    if game_type not in GAME_TYPES:
+        raise ValueError(f"Invalid game type: {game_type}")
+
+
+def validate_player_role(player_role: str) -> None:
+    """
+    Validates the player role.
+    """
+    if player_role not in VALID_PLAYER_ROLES:
+        raise ValueError(f"Invalid player role: {player_role}")
+
+
+def normalize_declarer_identity(data: dict[str, Any]) -> None:
+    """Normalizes and validates the concrete declarer identity in-place."""
+    data["declarer_player"] = normalize_declarer_player(
+        player_role=data["player_role"],
+        declarer_player=data.get("declarer_player"),
+    )
+
+
+def validate_player_position(player_position: str) -> None:
+    """
+    Validates the player's table position.
+    """
+    if player_position not in VALID_PLAYER_POSITIONS:
+        raise ValueError(f"Invalid player position: {player_position}")
+
+
+def validate_trick_leader(trick_leader: str) -> None:
+    """
+    Validates who led the current trick.
+    """
+    if trick_leader not in VALID_TRICK_LEADERS:
+        raise ValueError(f"Invalid trick leader: {trick_leader}")
+
+
+def validate_cards(cards: list[str], field_name: str) -> None:
+    """
+    Validates that all cards in a list exist in the Skat deck.
+    """
+    full_deck = set(get_full_deck())
+
+    invalid_cards = [card for card in cards if card not in full_deck]
+
+    if invalid_cards:
+        raise ValueError(f"Invalid cards in {field_name}: {invalid_cards}")
+
+
+def validate_no_duplicate_cards(data: dict[str, Any]) -> None:
+    """
+    Validates that the same card is not listed in multiple known-card fields.
+    """
+    known_card_fields = [
+        "hand",
+        "current_trick",
+        "played_cards",
+        "skat",
+    ]
+
+    all_cards = []
+
+    for field in known_card_fields:
+        all_cards.extend(data.get(field, []))
+
+    all_cards.extend(
+        get_cards_from_completed_tricks_input(
+            data.get("completed_tricks", []),
+        )
+    )
+
+    duplicates = sorted({card for card in all_cards if all_cards.count(card) > 1})
+
+    if duplicates:
+        raise ValueError(f"Duplicate known cards found: {duplicates}")
+
+
+def validate_current_trick(current_trick: list[str]) -> None:
+    """
+    Validates the current trick length.
+
+    If the user is about to play, the current trick can contain:
+    - 0 cards if the player leads
+    - 1 card if the player plays second
+    - 2 cards if the player plays third
+    """
+    if len(current_trick) > 2:
+        raise ValueError("Current trick must contain at most 2 cards.")
+
+
+def validate_trick_leader_matches_current_trick(
+    trick_leader: str,
+    current_trick: list[str],
+    next_player: str = "unknown",
+) -> None:
+    """
+    Validates canonical turn-phase consistency.
+
+    Kept as a compatibility wrapper for older tests and direct callers.
+    """
+    normalize_turn_phase_for_position(
+        trick_leader=trick_leader,
+        next_player=next_player,
+        current_trick=current_trick,
+    )
+
+
+def validate_actual_card_played(data: dict[str, Any]) -> None:
+    """Validates the optional actual card played in post-game review mode."""
+    actual_card_played = data.get("actual_card_played")
+
+    if actual_card_played is None:
+        return
+
+    validate_cards([actual_card_played], "actual_card_played")
+
+    analysis_mode = data.get("analysis_mode", "live_decision")
+    if analysis_mode != "post_game_review":
+        raise ValueError("actual_card_played requires analysis_mode to be post_game_review.")
+
+    hand = data["hand"]
+    if actual_card_played not in hand:
+        raise ValueError("actual_card_played must be contained in hand.")
+
+    legal_cards = get_legal_cards(
+        hand=hand,
+        current_trick=data["current_trick"],
+        game_type=data["game_type"],
+    )
+
+    if actual_card_played not in legal_cards:
+        raise ValueError("actual_card_played must be legal in the current position.")
+
+
+def validate_positive_integer(value: Any, field_name: str) -> None:
+    """
+    Validates that a value is a positive integer.
+    """
+    if not is_strict_integer(value) or value <= 0:
+        raise ValueError(f"{field_name} must be a positive integer.")
+
+
+def validate_optional_random_seed(value: Any) -> None:
+    """
+    Validates the optional random seed.
+    """
+    if value is not None and not is_strict_integer(value):
+        raise ValueError("random_seed must be an integer or null.")
+
+
+def validate_boolean(value: Any, field_name: str) -> None:
+    """
+    Validates that a value is boolean.
+    """
+    if not isinstance(value, bool):
+        raise ValueError(f"{field_name} must be a boolean.")
+
+
+def validate_position_input(data: dict[str, Any]) -> None:
+    """
+    Validates the complete JSON input for a position analysis.
+    """
+    validate_required_keys(data)
+
+    validate_game_type(data["game_type"])
+    validate_player_role(data["player_role"])
+    normalize_declarer_identity(data)
+    validate_player_position(data.get("player_position", "unknown"))
+    validate_trick_leader(data.get("trick_leader", "unknown"))
+    validate_next_player(data.get("next_player", "unknown"))
+
+    hand = data["hand"]
+    current_trick = data["current_trick"]
+    # Legacy field:
+    # Keep for backward compatibility. Prefer completed_tricks for completed tricks.
+    played_cards = data.get("played_cards", [])
+    skat = data.get("skat", [])
+    completed_tricks = data.get("completed_tricks", [])
+
+    validate_array(hand, "hand")
+    validate_array(current_trick, "current_trick")
+    validate_array(played_cards, "played_cards")
+    validate_array(skat, "skat")
+    validate_array(completed_tricks, "completed_tricks")
+
+    validate_max_length(hand, "hand", MAX_HAND_CARDS)
+    validate_max_length(skat, "skat", MAX_SKAT_CARDS)
+
+    validate_cards(hand, "hand")
+    validate_cards(current_trick, "current_trick")
+    validate_cards(played_cards, "played_cards")
+    validate_cards(skat, "skat")
+    validate_completed_tricks(completed_tricks)
+
+    validate_no_duplicate_cards(data)
+    validate_current_trick(current_trick)
+    normalized_phase = normalize_turn_phase_for_position(
+        trick_leader=data.get("trick_leader", "unknown"),
+        next_player=data.get("next_player", "unknown"),
+        current_trick=current_trick,
+        completed_tricks=completed_tricks,
+    )
+    validate_actual_card_played(data)
+
+    validate_non_negative_integer_maximum(
+        data["left_hand_size"],
+        "left_hand_size",
+        MAX_OPPONENT_HAND_SIZE,
+    )
+    validate_non_negative_integer_maximum(
+        data["right_hand_size"],
+        "right_hand_size",
+        MAX_OPPONENT_HAND_SIZE,
+    )
+    validate_positive_integer_maximum(
+        data["sample_count"],
+        "sample_count",
+        MAX_SAMPLE_COUNT,
+    )
+
+    validate_non_negative_integer(data.get("declarer_points", 0), "declarer_points")
+    validate_non_negative_integer(data.get("defender_points", 0), "defender_points")
+
+    validate_optional_random_seed(data.get("random_seed"))
+    validate_boolean(
+        data.get("use_basic_opponent_strategy", True),
+        "use_basic_opponent_strategy",
+    )
+    validate_optional_analysis_metadata(data)
+    validate_optional_opponent_policies(data)
+    validate_optional_profile_preset_settings(data)
+    validate_optional_game_declaration(data)
+    validate_optional_game_shortening(data)
+    validate_optional_game_continuation(data)
+    validate_optional_declared_ouvert_public_hand(data)
+    recommendation_configuration = build_recommendation_method_configuration(data)
+    validate_recommendation_method_workflow(data, recommendation_configuration)
+    validate_impossible_null_settlement(data)
+    validate_performance_rating_system(data.get("performance_rating_system"))
+    validate_list_performance_input_modes(data)
+    validate_optional_list_performance_input(data)
+    validate_optional_list_game_contributions(data)
+    validate_optional_list_analysis_results(data)
+    validate_optional_list_standings_input(data)
+    validate_completed_trick_sequence(
+        completed_tricks=data.get("completed_tricks", []),
+        current_trick=data.get("current_trick", []),
+        trick_leader=normalized_phase.trick_leader,
+        player_role=data.get("player_role", "unknown"),
+        declarer_player=data.get("declarer_player", "unknown"),
+        game_type=data.get("game_type", "grand"),
+        require_verifiable_winner_role=(
+            data.get("analysis_mode", "live_decision") == "live_decision"
+        ),
+    )
+    validate_analysis_mode_skat_visibility_combination(
+        analysis_mode=data.get("analysis_mode", "live_decision"),
+        skat_visibility=data.get("skat_visibility", "unknown"),
+    )
+    validate_total_known_card_points(data)
+
+    validate_information_policy_from_input(data)
+
+
+def validate_next_player(next_player: str) -> None:
+    """
+    Validates who acts next.
+    """
+    if next_player not in VALID_NEXT_PLAYERS:
+        raise ValueError(f"Invalid next player: {next_player}")
+
+
+def validate_non_negative_integer(value: Any, field_name: str) -> None:
+    """
+    Validates that a value is a non-negative integer.
+    """
+    if not is_strict_integer(value) or value < 0:
+        raise ValueError(f"{field_name} must be a non-negative integer.")
+
+
+def is_strict_integer(value: Any) -> bool:
+    """Returns whether a value is an integer but not a boolean."""
+    return isinstance(value, int) and not isinstance(value, bool)
+
+
+def validate_strict_integer(value: Any, field_name: str) -> None:
+    """
+    Validates that a value is an integer and not a boolean.
+    """
+    if not is_strict_integer(value):
+        raise ValueError(f"{field_name} must be an integer.")
+
+
+def validate_list_performance_input_modes(data: dict[str, Any]) -> None:
+    """
+    Validates that only one list/series performance input mode is supplied.
+    """
+    supplied_modes = [
+        field_name
+        for field_name in [
+            "list_performance_input",
+            "list_game_contributions",
+            "list_analysis_results",
+            "list_standings_input",
+        ]
+        if field_name in data
+    ]
+
+    if len(supplied_modes) > 1:
+        raise ValueError(
+            "list_performance_input, list_game_contributions, "
+            "list_analysis_results, and list_standings_input are alternative "
+            "input modes. Provide only one."
+        )
+
+
+def validate_optional_list_performance_input(data: dict[str, Any]) -> None:
+    """
+    Validates optional already aggregated list/series performance input.
+    """
+    if "list_performance_input" not in data:
+        return
+
+    list_performance_input = data["list_performance_input"]
+
+    if not isinstance(list_performance_input, dict):
+        raise ValueError("list_performance_input must be an object.")
+
+    additional_fields = sorted(set(list_performance_input) - set(LIST_PERFORMANCE_REQUIRED_FIELDS))
+    if additional_fields:
+        raise ValueError(f"list_performance_input has unsupported keys: {additional_fields}")
+
+    if data.get("performance_rating_system") != "isko_list":
+        raise ValueError(
+            "list_performance_input requires performance_rating_system to be isko_list."
+        )
+
+    missing_fields = [
+        field_name
+        for field_name in LIST_PERFORMANCE_REQUIRED_FIELDS
+        if field_name not in list_performance_input
+    ]
+    if missing_fields:
+        raise ValueError(f"list_performance_input is missing required keys: {missing_fields}")
+
+    for field_name in LIST_PERFORMANCE_REQUIRED_FIELDS:
+        validate_strict_integer(
+            list_performance_input[field_name],
+            f"list_performance_input.{field_name}",
+        )
+
+    for field_name in LIST_PERFORMANCE_COUNTER_FIELDS:
+        if list_performance_input[field_name] < 0:
+            raise ValueError(f"list_performance_input.{field_name} must be non-negative.")
+
+
+def validate_optional_list_game_contributions(data: dict[str, Any]) -> None:
+    """
+    Validates optional normalized list/series game contributions.
+    """
+    if "list_game_contributions" not in data:
+        return
+
+    list_game_contributions = data["list_game_contributions"]
+
+    if not isinstance(list_game_contributions, list):
+        raise ValueError("list_game_contributions must be an array.")
+
+    if data.get("performance_rating_system") != "isko_list":
+        raise ValueError(
+            "list_game_contributions requires performance_rating_system to be isko_list."
+        )
+
+    validate_list_entry_metadata(
+        entries=list_game_contributions,
+        input_mode="list_game_contributions",
+    )
+
+    for index, contribution in enumerate(list_game_contributions):
+        validate_list_game_contribution(contribution, index)
+
+
+def validate_list_game_contribution(contribution: Any, index: int) -> None:
+    """
+    Validates one normalized list/series game contribution.
+    """
+    field_prefix = f"list_game_contributions[{index}]"
+
+    if not isinstance(contribution, dict):
+        raise ValueError(f"{field_prefix} must be an object.")
+
+    missing_fields = [
+        field_name
+        for field_name in LIST_GAME_CONTRIBUTION_REQUIRED_FIELDS
+        if field_name not in contribution
+    ]
+    if missing_fields:
+        raise ValueError(f"{field_prefix} is missing required keys: {missing_fields}")
+
+    supported_fields = set(LIST_GAME_CONTRIBUTION_REQUIRED_FIELDS) | set(LIST_ENTRY_METADATA_FIELDS)
+    additional_fields = sorted(set(contribution) - supported_fields)
+    if additional_fields:
+        raise ValueError(f"{field_prefix} has unsupported keys: {additional_fields}")
+
+    player_role = contribution["player_role"]
+    if player_role not in VALID_LIST_GAME_CONTRIBUTION_PLAYER_ROLES:
+        raise ValueError(f"Unsupported {field_prefix}.player_role: {player_role}.")
+
+    game_outcome = contribution["game_outcome"]
+    if game_outcome not in VALID_LIST_GAME_CONTRIBUTION_OUTCOMES:
+        raise ValueError(f"Unsupported {field_prefix}.game_outcome: {game_outcome}.")
+
+    settlement_score = contribution["settlement_score"]
+    validate_strict_integer(settlement_score, f"{field_prefix}.settlement_score")
+
+    if game_outcome == "declarer_win" and settlement_score <= 0:
+        raise ValueError(f"{field_prefix} declarer_win requires a positive settlement_score.")
+
+    if game_outcome == "declarer_loss" and settlement_score >= 0:
+        raise ValueError(f"{field_prefix} declarer_loss requires a negative settlement_score.")
+
+
+def validate_optional_list_analysis_results(data: dict[str, Any]) -> None:
+    """
+    Validates optional local analysis results for list/series performance input.
+    """
+    if "list_analysis_results" not in data:
+        return
+
+    list_analysis_results = data["list_analysis_results"]
+
+    if not isinstance(list_analysis_results, list):
+        raise ValueError("list_analysis_results must be an array.")
+
+    if data.get("performance_rating_system") != "isko_list":
+        raise ValueError(
+            "list_analysis_results requires performance_rating_system to be isko_list."
+        )
+
+    validate_list_entry_metadata(
+        entries=list_analysis_results,
+        input_mode="list_analysis_results",
+    )
+
+    for index, analysis_result in enumerate(list_analysis_results):
+        try:
+            build_list_game_contribution_from_analysis_result(analysis_result)
+        except ValueError as error:
+            raise ValueError(f"list_analysis_results[{index}]: {error}") from error
+
+
+def validate_optional_list_standings_input(data: dict[str, Any]) -> None:
+    """Validates optional fixed three-player list standings input."""
+    if "list_standings_input" not in data:
+        return
+
+    validate_list_standings_input(
+        list_standings_input=data["list_standings_input"],
+        rating_system=data.get("performance_rating_system"),
+    )
+
+
+def get_cards_from_completed_tricks_input(completed_tricks: list[dict[str, Any]]) -> list[str]:
+    """
+    Returns all cards from completed tricks in input data.
+    """
+    cards = []
+
+    for completed_trick in completed_tricks:
+        cards.extend(completed_trick.get("cards", []))
+
+    return cards
+
+
+def validate_completed_tricks(completed_tricks: list[dict[str, Any]]) -> None:
+    """
+    Validates completed trick entries.
+    """
+    full_deck = set(get_full_deck())
+
+    for index, completed_trick in enumerate(completed_tricks):
+        field_prefix = f"completed_tricks[{index}]"
+
+        if not isinstance(completed_trick, dict):
+            raise ValueError(f"{field_prefix} must be an object.")
+
+        additional_fields = sorted(set(completed_trick) - COMPLETED_TRICK_ALLOWED_KEYS)
+        if additional_fields:
+            raise ValueError(f"{field_prefix} has unsupported keys: {additional_fields}")
+
+        if "cards" not in completed_trick:
+            raise ValueError("Completed trick is missing required key: cards")
+
+        if "winner_role" not in completed_trick:
+            raise ValueError("Completed trick is missing required key: winner_role")
+
+        cards = completed_trick["cards"]
+        winner_role = completed_trick["winner_role"]
+        players = completed_trick.get("players")
+        winner_player = completed_trick.get("winner_player")
+
+        if not isinstance(cards, list):
+            raise ValueError("Completed trick cards must be a list.")
+
+        if len(cards) != 3:
+            raise ValueError("Completed trick must contain exactly 3 cards.")
+
+        invalid_cards = [card for card in cards if card not in full_deck]
+
+        if invalid_cards:
+            raise ValueError(f"Invalid cards in completed_tricks: {invalid_cards}")
+
+        if winner_role not in VALID_COMPLETED_TRICK_WINNER_ROLES:
+            raise ValueError(f"Invalid completed trick winner role: {winner_role}")
+
+        if players is not None:
+            if not isinstance(players, list):
+                raise ValueError("Completed trick players must be a list.")
+
+            if len(players) != 3:
+                raise ValueError("Completed trick players must contain exactly 3 players.")
+
+            invalid_players = [player for player in players if player not in VALID_TRICK_PLAYERS]
+
+            if invalid_players:
+                raise ValueError(f"Invalid completed trick players: {invalid_players}")
+
+        if winner_player is not None and winner_player not in VALID_TRICK_PLAYERS:
+            raise ValueError(f"Invalid completed trick winner player: {winner_player}")
+
+
+def validate_optional_player_profile(
+    profile: dict[str, Any] | None,
+    field_name: str,
+) -> None:
+    """
+    Validates an optional player profile input.
+    """
+    if not isinstance(profile, dict):
+        raise ValueError(f"{field_name} must be an object.")
+
+    integer_fields = [
+        "games_played",
+        "solo_games_played",
+        "defender_games_played",
+    ]
+    rate_fields = [
+        "solo_rate",
+        "defender_rate",
+        "solo_win_rate",
+        "hand_game_rate",
+        "suit_game_rate",
+        "grand_rate",
+        "null_game_rate",
+        "defender_win_rate",
+    ]
+
+    for key in integer_fields:
+        if key in profile:
+            value = profile[key]
+
+            if isinstance(value, bool) or not isinstance(value, int) or value < 0:
+                raise ValueError(f"{field_name}.{key} must be a non-negative integer.")
+
+    for key in rate_fields:
+        if key in profile:
+            value = profile[key]
+
+            if (
+                isinstance(value, bool)
+                or not isinstance(value, int | float)
+                or value < 0
+                or value > 1
+            ):
+                raise ValueError(f"{field_name}.{key} must be a number between 0 and 1.")
+
+    try:
+        validate_player_profile_evidence(build_player_profile_from_dict(profile))
+    except ValueError as error:
+        raise ValueError(f"{field_name}: {error}") from error
+
+
+def validate_optional_analysis_metadata(data: dict[str, Any]) -> None:
+    """
+    Validates optional analysis metadata fields.
+    """
+    if "analysis_mode" in data:
+        validate_analysis_mode(data["analysis_mode"])
+
+    if "skat_visibility" in data:
+        validate_skat_visibility(data["skat_visibility"])
+
+    if "game_end_reason" in data:
+        validate_game_end_reason(data["game_end_reason"])
+
+    if "left_player_profile" in data:
+        validate_optional_player_profile(
+            profile=data["left_player_profile"],
+            field_name="left_player_profile",
+        )
+
+    if "right_player_profile" in data:
+        validate_optional_player_profile(
+            profile=data["right_player_profile"],
+            field_name="right_player_profile",
+        )
+
+
+def validate_optional_opponent_policies(data: dict[str, Any]) -> None:
+    """
+    Validates optional opponent policy fields.
+    """
+    if "opponent_policy_preset" in data:
+        validate_opponent_policy_preset(data["opponent_policy_preset"])
+
+    if "opponent_lead_policy" in data:
+        validate_opponent_card_policy(data["opponent_lead_policy"])
+
+    if "opponent_response_policy" in data:
+        validate_opponent_card_policy(data["opponent_response_policy"])
+
+    if "left_opponent_lead_policy" in data:
+        validate_opponent_card_policy(data["left_opponent_lead_policy"])
+
+    if "left_opponent_response_policy" in data:
+        validate_opponent_card_policy(data["left_opponent_response_policy"])
+
+    if "right_opponent_lead_policy" in data:
+        validate_opponent_card_policy(data["right_opponent_lead_policy"])
+
+    if "right_opponent_response_policy" in data:
+        validate_opponent_card_policy(data["right_opponent_response_policy"])
+
+
+def validate_optional_profile_preset_settings(data: dict[str, Any]) -> None:
+    """
+    Validates optional profile-preset settings.
+    """
+    if "use_profile_presets" in data:
+        validate_boolean(data["use_profile_presets"], "use_profile_presets")
+
+
+def validate_optional_game_declaration(data: dict[str, Any]) -> None:
+    """
+    Validates optional game declaration scoring fields.
+    """
+    build_game_declaration_from_input(data)
+
+
+def validate_optional_declarer_concession(data: dict[str, Any]) -> None:
+    """Compatibility wrapper for optional structured game shortening."""
+    validate_optional_game_shortening(data)
+
+
+def validate_optional_game_shortening(data: dict[str, Any]) -> None:
+    """Validates the optional structured game-shortening union."""
+    game_shortening = get_game_shortening_from_input(data)
+    if game_shortening is None:
+        return
+
+    if isinstance(game_shortening, DefenderConcession):
+        validate_defender_concession_context(data, game_shortening)
+    elif isinstance(game_shortening, DeclarerCardExposure):
+        validate_declarer_card_exposure_context(data, game_shortening)
+    elif isinstance(game_shortening, DefenderOpenPlay):
+        validate_defender_open_play_context(data, game_shortening)
+    elif isinstance(game_shortening, OpenCardThrow):
+        validate_open_card_throw(data, game_shortening)
+    else:
+        validate_declarer_concession_context(data, game_shortening)
+
+
+def validate_optional_game_continuation(data: dict[str, Any]) -> None:
+    """Validates the optional separate ongoing continuation contract."""
+    continuation = get_game_continuation_from_input(data)
+    if continuation is not None:
+        resolve_game_continuation(data, continuation)
+
+
+def validate_optional_declared_ouvert_public_hand(data: dict[str, Any]) -> None:
+    """Validates declared Ouvert and any coexisting continuation public hand."""
+    declared_constraint = build_declared_ouvert_public_hand_constraint(data)
+    continuation = get_game_continuation_from_input(data)
+    continuation_context = (
+        resolve_game_continuation(data, continuation)
+        if continuation is not None
+        else None
+    )
+    constraints = tuple(
+        constraint
+        for constraint in (
+            declared_constraint,
+            (
+                continuation_context.public_hand_constraint
+                if continuation_context is not None
+                else None
+            ),
+        )
+        if constraint is not None
+    )
+    resolve_effective_public_hand_constraints(constraints)
+
+
+def validate_impossible_null_settlement(data: dict[str, Any]) -> None:
+    """Validates the post-game-only impossible Null settlement input branch."""
+    reason = data.get("game_end_reason", "not_ended")
+    has_selection = "impossible_null_settlement" in data
+
+    if reason != "impossible_null_declaration":
+        if has_selection:
+            raise ValueError(
+                "impossible_null_settlement requires game_end_reason='impossible_null_declaration'."
+            )
+        return
+
+    if data.get("analysis_mode", "live_decision") != "post_game_review":
+        raise ValueError(
+            "game_end_reason='impossible_null_declaration' requires "
+            "analysis_mode='post_game_review'."
+        )
+
+    declaration = build_game_declaration_from_input(data)
+    if declaration.game_type != "null":
+        raise ValueError("game_end_reason='impossible_null_declaration' requires game_type='null'.")
+
+    if declaration.bid_value is None:
+        raise ValueError("game_end_reason='impossible_null_declaration' requires bid_value.")
+
+    null_game_value = get_null_game_value(declaration)
+    if declaration.bid_value <= null_game_value:
+        raise ValueError(
+            "bid_value must exceed the declared Null game value "
+            f"{null_game_value} for impossible_null_declaration."
+        )
+
+    for field_name in ["played_cards", "current_trick", "completed_tricks"]:
+        if data.get(field_name, []):
+            raise ValueError(f"{field_name} must be empty for impossible_null_declaration.")
+
+    if "actual_card_played" in data:
+        raise ValueError("actual_card_played is not allowed for impossible_null_declaration.")
+
+    for field_name in ["declarer_points", "defender_points"]:
+        if data.get(field_name, 0) != 0:
+            raise ValueError(f"{field_name} must be zero for impossible_null_declaration.")
+
+    build_impossible_null_settlement_selection_from_input(data)
+
+
+def validate_total_known_card_points(data: dict[str, Any]) -> None:
+    explicit_declarer_points = data.get("declarer_points", 0)
+    explicit_defender_points = data.get("defender_points", 0)
+
+    completed_trick_points = 0
+    for completed_trick in data.get("completed_tricks", []):
+        completed_trick_points += sum(get_card_points(card) for card in completed_trick["cards"])
+
+    total_points = explicit_declarer_points + explicit_defender_points + completed_trick_points
+
+    if total_points > 120:
+        raise ValueError("Known card points cannot exceed 120.")

@@ -1,6 +1,6 @@
 # Roadmap
 
-This document tracks completed areas, known limitations, and planned improvements for `skat-ai`.
+This document tracks completed areas, known limitations, and planned improvements for `skatmind`.
 
 ## Historical published milestone: v0.15.0
 
@@ -242,7 +242,7 @@ published `v0.13.0` baseline remains 62 Schemas and 77 scenarios.
 
 Implemented:
 
-* Public API contract version `1` under `skat_ai.api.v1`
+* Public API contract version `1` under `skatmind.api.v1`
 * Minimal Package-Root exports limited to `api`, `errors`, and `__version__`
 * Exact canonical seven-workflow `WorkflowV1` contract
 * Frozen, slotted, keyword-only Request, Result, execution-option,
@@ -257,7 +257,7 @@ Implemented:
   separate public artifacts, and flattened deterministic execution results
 * Lazy Package Resource Root input/output/artifact schema validation with RFC
   6901 errors and stable boundary translation
-* Explicit Setuptools build metadata, `skat_ai*` discovery, Package Data, and the
+* Explicit Setuptools build metadata, `skatmind*` discovery, Package Data, and the
   current `0.17.0` Package version
 * Byte-identical private Schema resources with deterministic synchronization and
   local/CI parity checks
@@ -316,8 +316,8 @@ Result plus artifacts actually returned. See
 Implemented:
 
 * Installed CLI contract version `1`
-* Exact `skat-ai = skat_ai.cli:main` Console Script and no GUI Script or alias
-* `python -m skat_ai` through the same Package-owned implementation
+* Exact `skatmind = skatmind.cli:main` Console Script and no GUI Script or alias
+* `python -m skatmind` through the same Package-owned implementation
 * Legacy `python main.py` compatibility facade through at least `v1.0.0`
 * One canonical parser preserving every option, with `--version` from Issue #142
   and cross-form `--include-provenance` from Issue #147
@@ -1320,7 +1320,7 @@ publication without product functionality. `v1.0.0` remains unready. See the
 ## Later planning milestone: v1.0.0
 
 The [requirements traceability matrix](requirements_traceability.md) is the
-authoritative audit of current ISkO, SkWO, and skat-ai product support. The
+authoritative audit of current ISkO, SkWO, and skatmind product support. The
 [v1.0 scope](v1_scope.md) defines required product directions, unresolved
 implementation details, and testable completion gates.
 
@@ -1535,11 +1535,12 @@ R-06 `satisfied`, and closes B-01 without product-code change. Six blockers B-02
 through B-07 remained at that point. Issue #202 makes P-10 and P-13 `satisfied`
 and closes B-02. Issue #203 makes P-19 `satisfied` and closes B-03. Four blockers
 B-04 through B-07 remained at that point. Issue #204 applies the exact
-`AGPL-3.0-only` Package boundary and closes B-04. P-09 moves to
-`implementation_required` under B-08/#205, and B-09 adds maintainer UAT outside
-the 53-row ledger. Five blockers B-05 through B-09 remain; `v1.0.0` is unready,
-and Issue #205, **Rename the complete project and public Package surface to
-SkatMind**, is next. #206 owns installation/platform evidence, #207 the final
-technical audit, and #208 maintainer UAT. Release preparation remains deferred
-until afterward. No v1 Release title, theme, date, tag, or publication commit is
-frozen.
+`AGPL-3.0-only` Package boundary and closes B-04. Issue #205 completes the
+hard-cut SkatMind Package/import/CLI/resource/Schema/identifier rename, strict
+legacy persisted-input support, and historical-evidence boundary, makes P-09
+`satisfied`, and closes B-08. B-09 adds maintainer UAT outside the 53-row ledger.
+Four blockers B-05, B-06, B-07, and B-09 remain; `v1.0.0` is unready, and Issue
+#206, **Complete the v1 installation and supported-platform matrix**, is next.
+#207 owns the final technical audit, and #208 maintainer UAT. Release preparation
+remains deferred until afterward. No v1 Release title, theme, date, tag, or
+publication commit is frozen.

@@ -1,6 +1,6 @@
-from skat_ai.game_state import GameState
-from skat_ai.input_loader import build_local_game_state_from_input
-from skat_ai.policy_comparison import (
+from skatmind.game_state import GameState
+from skatmind.input_loader import build_local_game_state_from_input
+from skatmind.policy_comparison import (
     build_policy_recommendation,
     compare_multi_step_policies,
     find_best_policy_by_final_point_swing,
@@ -8,7 +8,7 @@ from skat_ai.policy_comparison import (
     sort_policy_results_by_final_point_swing,
     sort_policy_results_by_local_point_swing,
 )
-from skat_ai.strategic_metadata import StrategicMetadata
+from skatmind.strategic_metadata import StrategicMetadata
 
 
 def test_compare_multi_step_policies_returns_expected_keys() -> None:
@@ -475,7 +475,7 @@ def test_compare_multi_step_policies_sorts_null_by_horizon_objective(monkeypatch
         }
 
     monkeypatch.setattr(
-        "skat_ai.policy_comparison.simulate_multiple_steps",
+        "skatmind.policy_comparison.simulate_multiple_steps",
         fake_simulate_multiple_steps,
     )
     state = GameState(
@@ -661,7 +661,7 @@ def test_compare_multi_step_policies_threads_response_policy_map(monkeypatch) ->
         }
 
     monkeypatch.setattr(
-        "skat_ai.policy_comparison.simulate_multiple_steps",
+        "skatmind.policy_comparison.simulate_multiple_steps",
         fake_simulate_multiple_steps,
     )
     state = GameState(

@@ -12,25 +12,25 @@ from test_match_workspace_contracts import (
 from test_match_workspace_materialization import _all_passed_workspace
 from test_match_workspace_persistence_codec import _rich_document
 
-import skat_ai.application.execution as application_execution
-import skat_ai.learning_corpus_match_snapshot as snapshot_module
-import skat_ai.training_dataset as training_dataset_module
-from skat_ai.capture_web.report_store import MatchAnalysisReportStoreV1
-from skat_ai.errors import SkatAIInvariantError
-from skat_ai.learning_corpus_match_snapshot import (
+import skatmind.application.execution as application_execution
+import skatmind.learning_corpus_match_snapshot as snapshot_module
+import skatmind.training_dataset as training_dataset_module
+from skatmind.capture_web.report_store import MatchAnalysisReportStoreV1
+from skatmind.errors import SkatMindInvariantError
+from skatmind.learning_corpus_match_snapshot import (
     build_learning_corpus_match_snapshot_v1,
     validate_learning_corpus_match_snapshot_v1,
 )
-from skat_ai.learning_corpus_references import (
+from skatmind.learning_corpus_references import (
     build_learning_corpus_game_content_fingerprint_v1,
 )
-from skat_ai.match_workspace_contracts import create_match_workspace_v1
-from skat_ai.match_workspace_operations import (
+from skatmind.match_workspace_contracts import create_match_workspace_v1
+from skatmind.match_workspace_operations import (
     mark_match_workspace_passed_deal_v1,
     set_match_workspace_observed_game_v1,
 )
-from skat_ai.match_workspace_persistence import _build_match_workspace_file_bytes_v1
-from skat_ai.match_workspace_persistence_codec import (
+from skatmind.match_workspace_persistence import _build_match_workspace_file_bytes_v1
+from skatmind.match_workspace_persistence_codec import (
     build_match_workspace_persistence_document_v1,
 )
 
@@ -98,7 +98,7 @@ def test_inconsistent_internal_source_document_raises_invariant_error() -> None:
         create_match_workspace_v1(_definition())
     )
     object.__setattr__(document, "content_fingerprint", "0" * 64)
-    with pytest.raises(SkatAIInvariantError, match="inconsistent"):
+    with pytest.raises(SkatMindInvariantError, match="inconsistent"):
         build_learning_corpus_match_snapshot_v1(document)
 
 
@@ -273,7 +273,7 @@ def test_empty_and_passed_slots_never_create_game_references() -> None:
 def test_snapshot_validation_rejects_broken_closed_reference_reconciliation() -> None:
     _, snapshot = _snapshot_for_workspace(_annotated_workspace())
     object.__setattr__(snapshot, "response_references", ())
-    with pytest.raises(SkatAIInvariantError, match="canonical derivation"):
+    with pytest.raises(SkatMindInvariantError, match="exact derivation"):
         validate_learning_corpus_match_snapshot_v1(snapshot)
 
 
@@ -338,9 +338,9 @@ def test_snapshot_build_resumes_once_and_fingerprints_each_observed_game_once(
         counts["resume"] += 1
         return original_resume(value)
 
-    def counted_game_fingerprint(value):
+    def counted_game_fingerprint(value, *, _legacy_identity=False):
         counts["game_fingerprint"] += 1
-        return original_game_fingerprint(value)
+        return original_game_fingerprint(value, _legacy_identity=_legacy_identity)
 
     monkeypatch.setattr(
         snapshot_module,

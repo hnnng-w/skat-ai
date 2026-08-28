@@ -1,5 +1,5 @@
-from skat_ai.game_state import GameState
-from skat_ai.recommender import (
+from skatmind.game_state import GameState
+from skatmind.recommender import (
     classify_higher_cards,
     is_highest_remaining_card_in_suit,
     recommend_card,
@@ -399,7 +399,7 @@ def test_recommend_card_by_expected_value_uses_response_policy_map(monkeypatch) 
         return ["S8", "S10"], ["S9", "SA"]
 
     monkeypatch.setattr(
-        "skat_ai.simulation.generate_random_opponent_hands",
+        "skatmind.simulation.generate_random_opponent_hands",
         fake_generate_random_opponent_hands,
     )
     state = GameState(

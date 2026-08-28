@@ -4,23 +4,23 @@ from unittest.mock import patch
 
 import pytest
 
-import skat_ai.api.v1.session.files as session_files
-import skat_ai.api.v1.session.files.execution as file_execution
-from skat_ai.errors import (
-    SkatAISerializationError,
-    SkatAIValidationError,
+import skatmind.api.v1.session.files as session_files
+import skatmind.api.v1.session.files.execution as file_execution
+from skatmind.errors import (
+    SkatMindSerializationError,
+    SkatMindValidationError,
 )
-from skat_ai.session_commands import SetSessionGameMetadataCommandV1
-from skat_ai.session_contracts import SessionPlayerV1
-from skat_ai.session_persistence_codec import build_session_persistence_document_v1
-from skat_ai.session_persistence_contracts import (
+from skatmind.session_commands import SetSessionGameMetadataCommandV1
+from skatmind.session_contracts import SessionPlayerV1
+from skatmind.session_persistence_codec import build_session_persistence_document_v1
+from skatmind.session_persistence_contracts import (
     SessionPersistenceDocumentV1,
     SessionResumeResultV1,
 )
-from skat_ai.session_persistence_contracts import (
+from skatmind.session_persistence_contracts import (
     SessionPersistenceWriteResultV1 as InternalWriteResult,
 )
-from skat_ai.session_transitions import apply_session_command_v1, create_session_state_v1
+from skatmind.session_transitions import apply_session_command_v1, create_session_state_v1
 
 FILE_EXPORTS = (
     "PUBLIC_SESSION_FILE_API_VERSION",
@@ -69,7 +69,7 @@ def _document(session_id: str) -> SessionPersistenceDocumentV1:
 def test_public_session_file_namespace_and_exports_are_exact() -> None:
     assert session_files.__all__ == FILE_EXPORTS
     assert session_files.PUBLIC_SESSION_FILE_API_VERSION == 1
-    assert session_files.PUBLIC_SESSION_FILE_API_NAMESPACE == "skat_ai.api.v1.session.files"
+    assert session_files.PUBLIC_SESSION_FILE_API_NAMESPACE == "skatmind.api.v1.session.files"
     assert session_files.PUBLIC_SESSION_FILE_API_COMPATIBILITY_POLICY == "additive_until_v1_0"
     assert session_files.SESSION_FILE_API_OPERATIONS == ("save", "load")
     assert session_files.SessionPersistenceWriteResultV1 is InternalWriteResult
@@ -95,7 +95,7 @@ def test_version_info_is_exact_deterministic_immutable_and_keyword_only() -> Non
         "api_contract_version": 1,
         "public_session_api_version": 1,
         "public_session_file_api_version": 1,
-        "namespace": "skat_ai.api.v1.session.files",
+        "namespace": "skatmind.api.v1.session.files",
         "compatibility_policy": "additive_until_v1_0",
         "operations": ["save", "load"],
         "persistence_version": 1,
@@ -117,7 +117,7 @@ def test_options_and_result_are_strict_slotted_and_immutable() -> None:
         options.validate_output = False
     with pytest.raises(TypeError):
         session_files.SessionFileApiOptionsV1(False)
-    with pytest.raises(SkatAIValidationError, match="validate_output"):
+    with pytest.raises(SkatMindValidationError, match="validate_output"):
         session_files.SessionFileApiOptionsV1(validate_output=1)
 
     write_result = InternalWriteResult(
@@ -135,7 +135,7 @@ def test_options_and_result_are_strict_slotted_and_immutable() -> None:
     assert not hasattr(result, "__dict__")
     with pytest.raises(FrozenInstanceError):
         result.operation = "load"
-    with pytest.raises(SkatAIValidationError, match="value"):
+    with pytest.raises(SkatMindValidationError, match="value"):
         session_files.SessionFileApiResultV1(
             operation="load",
             value=write_result,
@@ -194,7 +194,7 @@ def test_save_load_and_serialization_preserve_values_without_paths(
     assert "file_path" not in serialized
     serialized["value"]["document"]["state"]["session_id"] = "changed"
     assert loaded.value.document.state.session_id == "session-2"
-    with pytest.raises(SkatAISerializationError):
+    with pytest.raises(SkatMindSerializationError):
         session_files.serialize_session_file_result(loaded.to_dict())
 
 
@@ -251,14 +251,14 @@ def test_filesystem_and_stable_validation_errors_are_preserved(
         )
     assert raised_filesystem.value is filesystem_error
 
-    validation_error = SkatAIValidationError("invalid persistence", path="/state")
+    validation_error = SkatMindValidationError("invalid persistence", path="/state")
     with (
         patch.object(
             file_execution,
             "load_session_persistence_file_v1",
             side_effect=validation_error,
         ),
-        pytest.raises(SkatAIValidationError) as raised_validation,
+        pytest.raises(SkatMindValidationError) as raised_validation,
     ):
         session_files.load_session_file(
             tmp_path / "session.json",
@@ -278,7 +278,7 @@ def test_plain_python_validation_errors_are_translated(
             "load_session_persistence_file_v1",
             side_effect=error,
         ),
-        pytest.raises(SkatAIValidationError) as raised,
+        pytest.raises(SkatMindValidationError) as raised,
     ):
         session_files.load_session_file(
             tmp_path / "session.json",
@@ -293,7 +293,7 @@ def test_public_file_api_preserves_invalid_target_and_regular_file_checks(
     invalid_path = tmp_path / "invalid.json"
     invalid_bytes = b'{"not": "a session"}\n'
     invalid_path.write_bytes(invalid_bytes)
-    with pytest.raises(SkatAIValidationError):
+    with pytest.raises(SkatMindValidationError):
         session_files.save_session_file(
             invalid_path,
             _document("invalid-target"),

@@ -11,20 +11,20 @@ from test_historical_opponent_profiles import (
 )
 from test_training_dataset import build_training_input
 
-from skat_ai.dataset_partition_audit import audit_training_dataset_partitions
-from skat_ai.deck import get_full_deck
-from skat_ai.historical_decision_snapshot import (
+from skatmind.dataset_partition_audit import audit_training_dataset_partitions
+from skatmind.deck import get_full_deck
+from skatmind.historical_decision_snapshot import (
     build_historical_decision_snapshots,
     build_serializable_historical_decision_snapshot_summary,
 )
-from skat_ai.historical_game import (
+from skatmind.historical_game import (
     build_historical_game_record,
     build_historical_game_summary,
     build_historical_game_summary_from_input,
 )
-from skat_ai.historical_game_review import build_historical_game_review_summary
-from skat_ai.rules import get_legal_cards, get_trick_winner
-from skat_ai.training_dataset import (
+from skatmind.historical_game_review import build_historical_game_review_summary
+from skatmind.rules import get_legal_cards, get_trick_winner
+from skatmind.training_dataset import (
     build_training_dataset_input,
     build_training_dataset_summary,
 )
@@ -200,7 +200,7 @@ def test_shared_prefix_and_consent_choices_do_not_change_decision_time_informati
 
 def test_empty_and_variable_reviews_reconcile_actual_player_counts(monkeypatch) -> None:
     monkeypatch.setattr(
-        "skat_ai.historical_game_review.recommend_card_by_expected_value",
+        "skatmind.historical_game_review.recommend_card_by_expected_value",
         stub_expected_value_recommendation,
     )
     for game, expected_count in (
@@ -321,7 +321,7 @@ def test_shortened_external_profile_review_applies_only_to_actual_decisions(
     monkeypatch,
 ) -> None:
     monkeypatch.setattr(
-        "skat_ai.historical_game_review.recommend_card_by_expected_value",
+        "skatmind.historical_game_review.recommend_card_by_expected_value",
         stub_expected_value_recommendation,
     )
     historical_data = build_concession_prefix(

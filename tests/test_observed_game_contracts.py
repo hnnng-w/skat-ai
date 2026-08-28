@@ -7,15 +7,15 @@ import pytest
 from test_historical_game import build_historical_input
 from test_match_capture_contracts import _capture, _participants
 
-import skat_ai
-import skat_ai.api.v1 as api_v1
-import skat_ai.api.v1.session as session_api
+import skatmind
+import skatmind.api.v1 as api_v1
+import skatmind.api.v1.session as session_api
 from scripts.validate_generated_outputs_schema import SCENARIOS
-from skat_ai.game_declaration import GameDeclaration
-from skat_ai.historical_game import HISTORICAL_SEATS
-from skat_ai.match_capture_contracts import MATCH_CAPTURE_CONTRACT_VERSION
-from skat_ai.match_source_metadata import MediaTimecodeV1
-from skat_ai.observed_game_commentary import (
+from skatmind.game_declaration import GameDeclaration
+from skatmind.historical_game import HISTORICAL_SEATS
+from skatmind.match_capture_contracts import MATCH_CAPTURE_CONTRACT_VERSION
+from skatmind.match_source_metadata import MediaTimecodeV1
+from skatmind.observed_game_commentary import (
     DECISION_COMMENTARY_POLICY,
     DECISION_COMMENTARY_VERSION,
     DECISION_RESPONSE_LINK_POLICY,
@@ -23,23 +23,23 @@ from skat_ai.observed_game_commentary import (
     ObservedDecisionCommentaryV1,
     ObservedDecisionResponseLinkV1,
 )
-from skat_ai.observed_game_contracts import (
+from skatmind.observed_game_contracts import (
     OBSERVED_GAME_CONTRACT_VERSION,
     OBSERVED_GAME_FACT_POLICY,
     ObservedGamePlayerV1,
     ObservedGameRecordV1,
     build_observed_game_record_v1,
 )
-from skat_ai.observed_game_evidence import (
+from skatmind.observed_game_evidence import (
     OBSERVED_GAME_EVIDENCE_POLICY,
     OBSERVED_GAME_EVIDENCE_VERSION,
 )
-from skat_ai.observed_game_trace import (
+from skatmind.observed_game_trace import (
     OBSERVED_GAME_TRACE_POLICY,
     OBSERVED_PLAY_VERSION,
     ObservedPlayV1,
 )
-from skat_ai.session_contracts import SESSION_CONTRACT_VERSION
+from skatmind.session_contracts import SESSION_CONTRACT_VERSION
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 SEAT_ORDER_PLAYER_IDS = ("player-a", "player-b", "player-c")
@@ -501,7 +501,7 @@ def test_complete_fixture_helper_reuses_existing_suit_grand_and_null_deals() -> 
 
 
 def test_public_package_schema_and_generated_output_boundaries_are_unchanged() -> None:
-    assert skat_ai.__all__ == ("api", "errors", "__version__")
+    assert skatmind.__all__ == ("api", "errors", "__version__")
     for name in (
         "ObservedGameRecordV1",
         "ObservedPlayV1",
@@ -513,7 +513,7 @@ def test_public_package_schema_and_generated_output_boundaries_are_unchanged() -
     assert len(tuple((PROJECT_ROOT / "schemas").glob("*.schema.json"))) == 71
     assert len(
         tuple(
-            (PROJECT_ROOT / "src" / "skat_ai" / "schema_resources").glob(
+            (PROJECT_ROOT / "src" / "skatmind" / "schema_resources").glob(
                 "*.schema.json"
             )
         )
@@ -523,4 +523,4 @@ def test_public_package_schema_and_generated_output_boundaries_are_unchanged() -
         (PROJECT_ROOT / "pyproject.toml").read_text(encoding="utf-8")
     )
     assert pyproject["project"]["version"] == "0.17.0"
-    assert skat_ai.__version__ == "0.17.0"
+    assert skatmind.__version__ == "0.17.0"

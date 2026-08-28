@@ -7,17 +7,17 @@ from types import ModuleType, SimpleNamespace
 import pytest
 
 import main as legacy_main
-import skat_ai
-import skat_ai.cli.corpus as corpus_cli
-import skat_ai.cli.execution as root_cli
-from skat_ai.cli.corpus_parser import (
+import skatmind
+import skatmind.cli.corpus as corpus_cli
+import skatmind.cli.execution as root_cli
+from skatmind.cli.corpus_parser import (
     LEARNING_CORPUS_CLI_COMMAND,
     LEARNING_CORPUS_CLI_VERSION,
     LEARNING_CORPUS_DEFAULT_PORT,
     build_corpus_argument_parser,
     parse_corpus_arguments,
 )
-from skat_ai.errors import SkatAIError
+from skatmind.errors import SkatMindError
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
@@ -58,16 +58,16 @@ def _install_corpus_web_modules(
             raise AssertionError("Unexpected default Corpus server factory call.")
         return default_server_factory(context, port=port)
 
-    package = ModuleType("skat_ai.corpus_web")
+    package = ModuleType("skatmind.corpus_web")
     package.__path__ = []
-    context_module = ModuleType("skat_ai.corpus_web.context")
+    context_module = ModuleType("skatmind.corpus_web.context")
     context_module.LearningCorpusWebContextV1 = LearningCorpusWebContextV1
-    server_module = ModuleType("skat_ai.corpus_web.server")
+    server_module = ModuleType("skatmind.corpus_web.server")
     server_module.start_learning_corpus_web_server_v1 = start_learning_corpus_web_server_v1
-    monkeypatch.setitem(sys.modules, "skat_ai.corpus_web", package)
-    monkeypatch.setitem(sys.modules, "skat_ai.corpus_web.context", context_module)
-    monkeypatch.setitem(sys.modules, "skat_ai.corpus_web.server", server_module)
-    monkeypatch.setattr(skat_ai, "corpus_web", package, raising=False)
+    monkeypatch.setitem(sys.modules, "skatmind.corpus_web", package)
+    monkeypatch.setitem(sys.modules, "skatmind.corpus_web.context", context_module)
+    monkeypatch.setitem(sys.modules, "skatmind.corpus_web.server", server_module)
+    monkeypatch.setattr(skatmind, "corpus_web", package, raising=False)
     return state
 
 
@@ -109,9 +109,9 @@ def test_corpus_parser_defaults_boundary_ports_no_open_and_invocation_identity()
             "port": port,
             "no_open": True,
         }
-    assert build_corpus_argument_parser(invocation_style="installed").prog == ("skat-ai corpus")
+    assert build_corpus_argument_parser(invocation_style="installed").prog == ("skatmind corpus")
     assert build_corpus_argument_parser(invocation_style="module").prog == (
-        "python -m skat_ai corpus"
+        "python -m skatmind corpus"
     )
     assert build_corpus_argument_parser(invocation_style="legacy").prog == ("python main.py corpus")
 
@@ -144,7 +144,7 @@ def test_corpus_parser_rejects_missing_or_unsupported_options(argv: list[str]) -
 @pytest.mark.parametrize(
     ("command", "usage"),
     (
-        ([sys.executable, "-m", "skat_ai", "corpus", "--help"], "python -m skat_ai corpus"),
+        ([sys.executable, "-m", "skatmind", "corpus", "--help"], "python -m skatmind corpus"),
         ([sys.executable, "main.py", "corpus", "--help"], "python main.py corpus"),
     ),
 )
@@ -293,7 +293,7 @@ def test_corpus_cli_no_open_and_browser_failure_warnings(
 @pytest.mark.parametrize(
     "error",
     (
-        SkatAIError("corpus unavailable"),
+        SkatMindError("corpus unavailable"),
         TypeError("invalid corpus"),
         ValueError("invalid corpus"),
         OSError("corpus unavailable"),

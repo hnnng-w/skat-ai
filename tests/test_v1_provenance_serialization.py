@@ -5,15 +5,15 @@ from pathlib import Path
 
 import pytest
 
-from skat_ai.api.v1 import ExecutionOptionsV1, execute_document
-from skat_ai.application import (
+from skatmind.api.v1 import ExecutionOptionsV1, execute_document
+from skatmind.application import (
     ApplicationExecutionOptions,
     TrainingDatasetApplicationOptions,
     build_application_invocation,
     execute_application_invocation,
 )
-from skat_ai.errors import SkatAIInvariantError
-from skat_ai.v1_information_provenance_serialization import (
+from skatmind.errors import SkatMindInvariantError
+from skatmind.v1_information_provenance_serialization import (
     V1_RESULT_ATTACHMENT_NAMES,
     validate_v1_information_provenance_serialization_checkpoint,
 )
@@ -75,7 +75,7 @@ def test_result_reconciliation_rejects_value_and_key_order_mutation() -> None:
         forged_result = copy.copy(execution.result)
         object.__setattr__(forged_result, "document", mutation)
         object.__setattr__(forged, "result", forged_result)
-        with pytest.raises(SkatAIInvariantError, match="does not match"):
+        with pytest.raises(SkatMindInvariantError, match="does not match"):
             validate_v1_information_provenance_serialization_checkpoint(forged)
 
 
@@ -95,7 +95,7 @@ def test_result_reconciliation_rejects_envelope_warning_mutation() -> None:
     object.__setattr__(forged_result, "warnings", ("forged warning",))
     object.__setattr__(forged, "result", forged_result)
 
-    with pytest.raises(SkatAIInvariantError, match="envelope"):
+    with pytest.raises(SkatMindInvariantError, match="envelope"):
         validate_v1_information_provenance_serialization_checkpoint(forged)
 
 
@@ -117,7 +117,7 @@ def test_result_reconciliation_rejects_provenance_bundle_mutation() -> None:
         ),
     )
 
-    with pytest.raises(SkatAIInvariantError, match="provenance"):
+    with pytest.raises(SkatMindInvariantError, match="provenance"):
         validate_v1_information_provenance_serialization_checkpoint(forged)
 
 
@@ -139,14 +139,14 @@ def test_actual_artifact_reconciliation_is_exact_and_absence_is_enforced() -> No
     validate_v1_information_provenance_serialization_checkpoint(execution)
 
     missing = replace(execution, artifacts=())
-    with pytest.raises(SkatAIInvariantError, match="actual artifacts"):
+    with pytest.raises(SkatMindInvariantError, match="actual artifacts"):
         validate_v1_information_provenance_serialization_checkpoint(missing)
 
     forged = copy.copy(execution)
     artifact = copy.copy(execution.artifacts[0])
     object.__setattr__(artifact, "document", {"changed": True})
     object.__setattr__(forged, "artifacts", (artifact,))
-    with pytest.raises(SkatAIInvariantError, match="does not match"):
+    with pytest.raises(SkatMindInvariantError, match="does not match"):
         validate_v1_information_provenance_serialization_checkpoint(forged)
 
 

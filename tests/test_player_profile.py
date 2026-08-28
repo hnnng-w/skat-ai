@@ -1,4 +1,4 @@
-from skat_ai.player_profile import (
+from skatmind.player_profile import (
     PlayerProfile,
     build_default_player_profile,
     build_player_profile_from_dict,

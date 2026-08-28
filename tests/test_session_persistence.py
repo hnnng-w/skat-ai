@@ -5,15 +5,15 @@ import pytest
 from test_session_decision_checkpoint import _checkpoint
 from test_session_history import _correction, _record_revision
 
-import skat_ai.session_persistence as persistence_module
-from skat_ai.errors import SkatAIValidationError
-from skat_ai.game_declaration import GameDeclaration
-from skat_ai.session_commands import SetSessionDeclarationCommandV1
-from skat_ai.session_persistence import (
+import skatmind.session_persistence as persistence_module
+from skatmind.errors import SkatMindValidationError
+from skatmind.game_declaration import GameDeclaration
+from skatmind.session_commands import SetSessionDeclarationCommandV1
+from skatmind.session_persistence import (
     load_session_persistence_file_v1,
     save_session_persistence_file_v1,
 )
-from skat_ai.session_persistence_codec import build_session_persistence_document_v1
+from skatmind.session_persistence_codec import build_session_persistence_document_v1
 
 
 def _documents():
@@ -188,7 +188,7 @@ def test_file_load_rejects_invalid_utf8_bom_json_duplicates_nonfinite_and_root(
 ) -> None:
     file_path = tmp_path / "invalid.json"
     file_path.write_bytes(raw)
-    with pytest.raises(SkatAIValidationError):
+    with pytest.raises(SkatMindValidationError):
         load_session_persistence_file_v1(file_path)
 
 
@@ -202,7 +202,7 @@ def test_file_load_rejects_duplicate_nested_keys(tmp_path) -> None:
     )
     file_path = tmp_path / "duplicate-nested.json"
     file_path.write_bytes(raw)
-    with pytest.raises(SkatAIValidationError, match="Duplicate"):
+    with pytest.raises(SkatMindValidationError, match="Duplicate"):
         load_session_persistence_file_v1(file_path)
 
 
@@ -218,7 +218,7 @@ def test_invalid_existing_target_is_never_overwritten(tmp_path) -> None:
     file_path = tmp_path / "session.json"
     invalid = b'{"not": "a Session"}\n'
     file_path.write_bytes(invalid)
-    with pytest.raises(SkatAIValidationError):
+    with pytest.raises(SkatMindValidationError):
         save_session_persistence_file_v1(
             file_path,
             document,

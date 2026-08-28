@@ -14,37 +14,37 @@ from test_opponent_statistics import (
     build_valid_record,
 )
 
-import skat_ai
-import skat_ai.api.v1 as api_v1
-import skat_ai.cli as cli
-import skat_ai.learning_corpus_current_snapshots as current_snapshots_module
-import skat_ai.learning_corpus_player_catalog as player_catalog_module
-import skat_ai.learning_corpus_player_statistics as player_statistics_module
-import skat_ai.match_player_statistics_context as context_module
+import skatmind
+import skatmind.api.v1 as api_v1
+import skatmind.cli as cli
+import skatmind.learning_corpus_current_snapshots as current_snapshots_module
+import skatmind.learning_corpus_player_catalog as player_catalog_module
+import skatmind.learning_corpus_player_statistics as player_statistics_module
+import skatmind.match_player_statistics_context as context_module
 from scripts.validate_generated_outputs_schema import SCENARIOS
-from skat_ai.api.v1.contracts import WorkflowV1
-from skat_ai.errors import SkatAIValidationError
-from skat_ai.learning_corpus_catalog import (
+from skatmind.api.v1.contracts import WorkflowV1
+from skatmind.errors import SkatMindValidationError
+from skatmind.learning_corpus_catalog import (
     build_learning_corpus_catalog_v1,
     build_learning_corpus_current_match_selection_v1,
     build_learning_corpus_match_snapshot_catalog_entry_v1,
     create_empty_learning_corpus_catalog_v1,
 )
-from skat_ai.learning_corpus_identity import (
+from skatmind.learning_corpus_identity import (
     LEARNING_CORPUS_PLAYER_IDENTITY_POLICY,
     build_learning_corpus_canonical_json_bytes_v1,
 )
-from skat_ai.learning_corpus_match_snapshot import (
+from skatmind.learning_corpus_match_snapshot import (
     build_learning_corpus_match_snapshot_v1,
 )
-from skat_ai.learning_corpus_persistence_codec import (
+from skatmind.learning_corpus_persistence_codec import (
     build_learning_corpus_catalog_persistence_document_v1,
 )
-from skat_ai.learning_corpus_persistence_contracts import (
+from skatmind.learning_corpus_persistence_contracts import (
     LEARNING_CORPUS_PERSISTENCE_VERSION,
     LearningCorpusStoreResumeResultV1,
 )
-from skat_ai.learning_corpus_player_aliases import (
+from skatmind.learning_corpus_player_aliases import (
     LEARNING_CORPUS_PLATFORM_ALIAS_CONFLICT_POLICY,
     LEARNING_CORPUS_PLATFORM_ALIAS_HISTORY_POLICY,
     LEARNING_CORPUS_PLATFORM_ALIAS_RESOLUTION_STATUSES,
@@ -55,7 +55,7 @@ from skat_ai.learning_corpus_player_aliases import (
     LearningCorpusPlatformAliasResolutionV1,
     resolve_learning_corpus_platform_alias_v1,
 )
-from skat_ai.learning_corpus_player_catalog import (
+from skatmind.learning_corpus_player_catalog import (
     LEARNING_CORPUS_PLAYER_CATALOG_DERIVATION_POLICY,
     LEARNING_CORPUS_PLAYER_CATALOG_PRIVACY_POLICY,
     LEARNING_CORPUS_PLAYER_CATALOG_SOURCE_POLICY,
@@ -67,7 +67,7 @@ from skat_ai.learning_corpus_player_catalog import (
     LearningCorpusPlayerMatchObservationV1,
     build_learning_corpus_player_catalog_v1,
 )
-from skat_ai.learning_corpus_player_statistics import (
+from skatmind.learning_corpus_player_statistics import (
     LEARNING_CORPUS_PLAYER_STATISTICS_COMBINATION_POLICY,
     LEARNING_CORPUS_PLAYER_STATISTICS_EXPLICIT_POLICY,
     LEARNING_CORPUS_PLAYER_STATISTICS_HISTORY_POLICY,
@@ -83,26 +83,26 @@ from skat_ai.learning_corpus_player_statistics import (
     build_learning_corpus_player_statistics_record_fingerprint_v1,
     select_learning_corpus_player_statistics_as_of_v1,
 )
-from skat_ai.match_player_snapshot import (
+from skatmind.match_player_snapshot import (
     MATCH_PLAYER_STATISTICS_SNAPSHOT_VERSION,
     MatchParticipantV1,
     MatchPlayerStatisticsSnapshotV1,
 )
-from skat_ai.match_player_statistics_context import (
+from skatmind.match_player_statistics_context import (
     MATCH_PLAYER_STATISTICS_CONTEXT_VERSION,
     classify_match_player_statistics_temporal_status_v1,
 )
-from skat_ai.match_workspace_contracts import create_match_workspace_v1
-from skat_ai.match_workspace_persistence_codec import (
+from skatmind.match_workspace_contracts import create_match_workspace_v1
+from skatmind.match_workspace_persistence_codec import (
     build_match_workspace_persistence_document_v1,
 )
-from skat_ai.opponent_statistics import (
+from skatmind.opponent_statistics import (
     OPPONENT_STATISTICS_SCHEMA_VERSION,
     OpponentStatisticsInput,
     build_opponent_statistics_input,
     build_serializable_opponent_statistics_input,
 )
-from skat_ai.training_dataset import (
+from skatmind.training_dataset import (
     TRAINING_DATASET_SCHEMA_VERSION,
     TRAINING_FEATURE_GENERATION_VERSION,
     TRAINING_TARGET,
@@ -493,7 +493,7 @@ def test_empty_catalog_is_deterministic_path_free_and_fingerprinted() -> None:
     material = first.to_dict()
     del material["player_catalog_fingerprint"]
     assert first.player_catalog_fingerprint == _hash(
-        b"skat-ai\0learning_corpus_player_catalog_v1\0",
+        b"skatmind\0learning_corpus_player_catalog_v1\0",
         material,
     )
     serialized = json.dumps(first.to_dict())
@@ -558,7 +558,7 @@ def test_player_match_observation_uses_exact_identity_domain_and_metadata() -> N
         "player_id": "player-a",
     }
     assert observation.player_match_observation_id == _hash(
-        b"skat-ai\0learning_corpus_player_match_observation_v1\0",
+        b"skatmind\0learning_corpus_player_match_observation_v1\0",
         material,
     )
     assert observation.match_title == "Match match-observation"
@@ -653,7 +653,7 @@ def test_match_and_online_statistics_aliases_are_exact_and_linked() -> None:
     source_material = source_alias.to_dict()
     del source_material["platform_alias_observation_id"]
     assert source_alias.platform_alias_observation_id == _hash(
-        b"skat-ai\0learning_corpus_platform_alias_observation_v1\0",
+        b"skatmind\0learning_corpus_platform_alias_observation_v1\0",
         source_material,
     )
     assert (
@@ -748,7 +748,7 @@ def test_alias_conflict_is_canonical_and_never_merges_players() -> None:
     material = conflict.to_dict()
     del material["platform_alias_conflict_id"]
     assert conflict.platform_alias_conflict_id == _hash(
-        b"skat-ai\0learning_corpus_platform_alias_conflict_v1\0",
+        b"skatmind\0learning_corpus_platform_alias_conflict_v1\0",
         material,
     )
     resolution = resolve_learning_corpus_platform_alias_v1(
@@ -823,7 +823,7 @@ def test_statistics_record_fingerprint_is_complete_defensive_and_domain_separate
         )
     )["opponent_statistics_input"]["records"][0]
     assert repeated == _hash(
-        b"skat-ai\0learning_corpus_player_statistics_record_v1\0",
+        b"skatmind\0learning_corpus_player_statistics_record_v1\0",
         exact_record,
     )
     assert repeated == build_learning_corpus_player_statistics_record_fingerprint_v1(
@@ -922,7 +922,7 @@ def test_statistics_observation_retains_exact_record_identity_and_temporal_statu
         "statistics_record_fingerprint": observation.statistics_record_fingerprint,
     }
     assert observation.statistics_observation_id == _hash(
-        b"skat-ai\0learning_corpus_player_statistics_observation_v1\0",
+        b"skatmind\0learning_corpus_player_statistics_observation_v1\0",
         identity_material,
     )
     assert "normalized_profile" not in observation.to_dict()
@@ -1325,7 +1325,7 @@ def test_build_strictly_revalidates_source_catalog_fingerprints() -> None:
     snapshot = _match_snapshot("match-tampered-store")
     store = _store(snapshot, current=(snapshot,))
     object.__setattr__(store.document, "catalog_fingerprint", "0" * 64)
-    with pytest.raises(SkatAIValidationError, match="catalog_fingerprint"):
+    with pytest.raises(SkatMindValidationError, match="catalog_fingerprint"):
         build_learning_corpus_player_catalog_v1(store)
 
 
@@ -1425,18 +1425,18 @@ def test_build_is_in_memory_bounded_and_does_not_mutate_source(
 
 def test_new_modules_have_no_cli_browser_analysis_dataset_or_api_imports() -> None:
     forbidden = (
-        "skat_ai.api",
-        "skat_ai.application",
-        "skat_ai.capture_web",
-        "skat_ai.cli",
-        "skat_ai.match_analysis",
-        "skat_ai.training_dataset",
+        "skatmind.api",
+        "skatmind.application",
+        "skatmind.capture_web",
+        "skatmind.cli",
+        "skatmind.match_analysis",
+        "skatmind.training_dataset",
     )
     paths = (
-        PROJECT_ROOT / "src/skat_ai/learning_corpus_current_snapshots.py",
-        PROJECT_ROOT / "src/skat_ai/learning_corpus_player_catalog.py",
-        PROJECT_ROOT / "src/skat_ai/learning_corpus_player_aliases.py",
-        PROJECT_ROOT / "src/skat_ai/learning_corpus_player_statistics.py",
+        PROJECT_ROOT / "src/skatmind/learning_corpus_current_snapshots.py",
+        PROJECT_ROOT / "src/skatmind/learning_corpus_player_catalog.py",
+        PROJECT_ROOT / "src/skatmind/learning_corpus_player_aliases.py",
+        PROJECT_ROOT / "src/skatmind/learning_corpus_player_statistics.py",
     )
     violations = []
     for path in paths:
@@ -1457,7 +1457,7 @@ def test_compatibility_baselines_and_public_boundaries_remain_unchanged() -> Non
     pyproject = tomllib.loads((PROJECT_ROOT / "pyproject.toml").read_text())
     assert pyproject["project"]["version"] == "0.17.0"
     assert pyproject["project"]["requires-python"] == ">=3.13"
-    assert pyproject["project"]["scripts"] == {"skat-ai": "skat_ai.cli:main"}
+    assert pyproject["project"]["scripts"] == {"skatmind": "skatmind.cli:main"}
     assert LEARNING_CORPUS_PERSISTENCE_VERSION == 1
     assert MATCH_PLAYER_STATISTICS_SNAPSHOT_VERSION == 1
     assert MATCH_PLAYER_STATISTICS_CONTEXT_VERSION == 1
@@ -1468,10 +1468,10 @@ def test_compatibility_baselines_and_public_boundaries_remain_unchanged() -> Non
     assert len(WorkflowV1) == 7
     assert len(SCENARIOS) == 98
     assert len(tuple((PROJECT_ROOT / "schemas").glob("*.schema.json"))) == 71
-    assert len(tuple((PROJECT_ROOT / "src/skat_ai/schema_resources").glob("*.schema.json"))) == 71
+    assert len(tuple((PROJECT_ROOT / "src/skatmind/schema_resources").glob("*.schema.json"))) == 71
     assert len(tuple((PROJECT_ROOT / "examples").glob("session_*.json"))) == 6
     assert not tuple((PROJECT_ROOT / "schemas").glob("*player_catalog*.schema.json"))
-    for namespace in (skat_ai, api_v1, cli):
+    for namespace in (skatmind, api_v1, cli):
         assert not hasattr(namespace, "LearningCorpusPlayerCatalogV1")
         assert not hasattr(
             namespace,

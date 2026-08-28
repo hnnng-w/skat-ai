@@ -10,36 +10,36 @@ from test_historical_game import build_historical_input
 from test_historical_opponent_profiles import stub_expected_value_recommendation
 from test_training_dataset import build_training_input
 
-from skat_ai.dataset_partition_audit import audit_training_dataset_partitions
-from skat_ai.declarer_card_exposure import (
+from skatmind.dataset_partition_audit import audit_training_dataset_partitions
+from skatmind.declarer_card_exposure import (
     DeclarerCardExposure,
     DeclarerCardExposureDetails,
     DeclarerExposedCardEvidence,
     DefenderExposureResponse,
     adjudicate_accepted_declarer_card_exposure,
 )
-from skat_ai.declarer_concession import DeclarerCardCountEvidence
-from skat_ai.final_settlement import build_final_settlement_summary
-from skat_ai.game_result import build_game_result_summary_from_score_summary
-from skat_ai.historical_decision_snapshot import build_historical_decision_snapshots
-from skat_ai.historical_game import (
+from skatmind.declarer_concession import DeclarerCardCountEvidence
+from skatmind.final_settlement import build_final_settlement_summary
+from skatmind.game_result import build_game_result_summary_from_score_summary
+from skatmind.historical_decision_snapshot import build_historical_decision_snapshots
+from skatmind.historical_game import (
     build_historical_game_record,
     build_historical_game_summary_from_input,
 )
-from skat_ai.historical_game_review import build_historical_game_review_summary
-from skat_ai.historical_opponent_profile_binding import (
+from skatmind.historical_game_review import build_historical_game_review_summary
+from skatmind.historical_opponent_profile_binding import (
     resolve_historical_opponent_profile_bindings,
 )
-from skat_ai.historical_opponent_statistics import (
+from skatmind.historical_opponent_statistics import (
     aggregate_historical_opponent_statistics,
     build_exportable_opponent_statistics_input,
 )
-from skat_ai.input_loader import load_opponent_statistics_from_json
-from skat_ai.rolling_opponent_policy_evaluation import (
+from skatmind.input_loader import load_opponent_statistics_from_json
+from skatmind.rolling_opponent_policy_evaluation import (
     build_serializable_rolling_opponent_policy_evaluation,
     evaluate_rolling_opponent_policy_predictions,
 )
-from skat_ai.training_dataset import (
+from skatmind.training_dataset import (
     build_training_dataset_input,
     build_training_dataset_summary,
 )
@@ -644,7 +644,7 @@ def test_shared_prefix_parity_and_terminal_fact_changes_do_not_affect_decisions(
 
 def test_review_and_external_profile_review_use_only_actual_card_decisions(monkeypatch) -> None:
     monkeypatch.setattr(
-        "skat_ai.historical_game_review.recommend_card_by_expected_value",
+        "skatmind.historical_game_review.recommend_card_by_expected_value",
         stub_expected_value_recommendation,
     )
     data = load_historical_data(EXPOSURE_EXAMPLE_PATH)

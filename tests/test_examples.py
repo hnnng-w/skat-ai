@@ -4,13 +4,13 @@ from pathlib import Path
 
 import pytest
 
-import skat_ai.api.v1.session as session_api
+import skatmind.api.v1.session as session_api
 from main import build_analysis_result
 from scripts.validate_examples_schema import validate_example_files
-from skat_ai.analysis_report import build_card_analysis_report
-from skat_ai.dataset_partition_audit import audit_training_dataset_partitions
-from skat_ai.historical_game import build_historical_game_summary
-from skat_ai.input_loader import (
+from skatmind.analysis_report import build_card_analysis_report
+from skatmind.dataset_partition_audit import audit_training_dataset_partitions
+from skatmind.historical_game import build_historical_game_summary
+from skatmind.input_loader import (
     build_game_state_from_input,
     get_left_opponent_policy_settings_from_input,
     get_opponent_policy_settings_from_input,
@@ -24,16 +24,16 @@ from skat_ai.input_loader import (
     load_training_dataset_from_json,
     load_training_dataset_preparation_request_from_json,
 )
-from skat_ai.multi_step_simulation import (
+from skatmind.multi_step_simulation import (
     prepare_state_for_player_action,
     simulate_multiple_steps,
 )
-from skat_ai.opponent_statistics import build_opponent_statistics_summary
-from skat_ai.rolling_opponent_policy_evaluation import (
+from skatmind.opponent_statistics import build_opponent_statistics_summary
+from skatmind.rolling_opponent_policy_evaluation import (
     evaluate_rolling_opponent_policy_predictions,
 )
-from skat_ai.rules import get_legal_cards
-from skat_ai.training_dataset import build_training_dataset_summary
+from skatmind.rules import get_legal_cards
+from skatmind.training_dataset import build_training_dataset_summary
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_INPUT_PATH = PROJECT_ROOT / "input_position.json"

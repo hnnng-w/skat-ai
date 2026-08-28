@@ -1,4 +1,4 @@
-from skat_ai.matador_inference import (
+from skatmind.matador_inference import (
     get_trump_order_for_matadors,
     infer_matadors_from_concrete_declarer_known_ownership,
     infer_matadors_from_declarer_cards,

@@ -1,4 +1,4 @@
-from skat_ai.game_history import (
+from skatmind.game_history import (
     build_completed_trick_from_cards,
     build_completed_trick_from_state_and_candidate,
     build_score_summary,
@@ -20,7 +20,7 @@ from skat_ai.game_history import (
     validate_completed_trick_structure,
     validate_completed_trick_winner_consistency,
 )
-from skat_ai.game_state import GameState
+from skatmind.game_state import GameState
 
 
 def test_get_completed_trick_cards() -> None:

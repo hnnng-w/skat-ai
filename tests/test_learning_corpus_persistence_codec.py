@@ -7,15 +7,15 @@ import pytest
 from test_learning_corpus_match_snapshot import _annotated_workspace, _snapshot_for_workspace
 from test_match_workspace_persistence_codec import _rich_document
 
-from skat_ai.errors import SkatAIValidationError
-from skat_ai.learning_corpus_catalog import (
+from skatmind.errors import SkatMindValidationError
+from skatmind.learning_corpus_catalog import (
     build_learning_corpus_catalog_v1,
     build_learning_corpus_current_match_selection_v1,
     build_learning_corpus_match_snapshot_catalog_entry_v1,
     create_empty_learning_corpus_catalog_v1,
 )
-from skat_ai.learning_corpus_match_snapshot import build_learning_corpus_match_snapshot_v1
-from skat_ai.learning_corpus_persistence_codec import (
+from skatmind.learning_corpus_match_snapshot import build_learning_corpus_match_snapshot_v1
+from skatmind.learning_corpus_persistence_codec import (
     _build_learning_corpus_catalog_file_bytes_v1,
     _build_learning_corpus_match_snapshot_object_file_bytes_v1,
     build_learning_corpus_catalog_fingerprint_v1,
@@ -55,13 +55,13 @@ def test_catalog_and_content_fingerprints_match_independent_oracles() -> None:
     _, snapshot = _snapshot_for_workspace(_annotated_workspace())
     document = _document_for_snapshot(snapshot)
     expected_catalog = hashlib.sha256(
-        b"skat-ai\0learning_corpus_catalog_v1\0"
+        b"skatmind\0learning_corpus_catalog_v1\0"
         + _canonical(document.catalog.to_dict())
     ).hexdigest()
     content = document.to_dict()
     del content["content_fingerprint"]
     expected_content = hashlib.sha256(
-        b"skat-ai\0learning_corpus_persistence_v1\0" + _canonical(content)
+        b"skatmind\0learning_corpus_persistence_v1\0" + _canonical(content)
     ).hexdigest()
     assert document.catalog_fingerprint == expected_catalog
     assert document.content_fingerprint == expected_content
@@ -135,7 +135,7 @@ def test_strict_catalog_resume_rejects_field_version_relationship_and_hash_drift
         value["content_fingerprint"] = "f" * 64
     else:
         value["catalog"]["match_snapshots"] *= 2
-    with pytest.raises(SkatAIValidationError):
+    with pytest.raises(SkatMindValidationError):
         resume_learning_corpus_catalog_document_v1(value)
 
 
@@ -160,7 +160,7 @@ def test_strict_match_snapshot_object_rebuilds_workspace_and_all_references(sour
         if workspace is None:
             from test_match_workspace_contracts import _definition
 
-            from skat_ai.match_workspace_contracts import create_match_workspace_v1
+            from skatmind.match_workspace_contracts import create_match_workspace_v1
 
             workspace = create_match_workspace_v1(_definition())
         _, snapshot = _snapshot_for_workspace(workspace)
@@ -201,7 +201,7 @@ def test_strict_match_snapshot_object_rejects_source_and_derived_tampering(tampe
         value["decision_references"][0]["acting_player_id"] = "wrong"
     else:
         value["game_references"][0]["unknown"] = None
-    with pytest.raises(SkatAIValidationError):
+    with pytest.raises(SkatMindValidationError):
         resume_learning_corpus_match_snapshot_object_v1(value)
 
 

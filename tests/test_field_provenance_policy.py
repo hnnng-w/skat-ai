@@ -2,14 +2,14 @@ from dataclasses import FrozenInstanceError
 
 import pytest
 
-from skat_ai.errors import SkatAIInformationPolicyError, SkatAIValidationError
-from skat_ai.field_provenance import (
+from skatmind.errors import SkatMindInformationPolicyError, SkatMindValidationError
+from skatmind.field_provenance import (
     FieldProvenanceEntry,
     FieldProvenanceLedger,
     FieldProvenanceSourceReference,
     build_public_serializable_field_provenance_ledger,
 )
-from skat_ai.field_provenance_policy import (
+from skatmind.field_provenance_policy import (
     INFORMATION_USE_CONTEXT_PERSPECTIVE_SIDES,
     INFORMATION_USE_CONTEXT_STAGES,
     InformationUseContext,
@@ -88,7 +88,7 @@ def test_information_use_context_supports_every_stage_and_is_immutable(stage: st
 
 @pytest.mark.parametrize("workflow", ("", " workflow", "workflow ", 1, None))
 def test_information_use_context_rejects_invalid_workflow(workflow: object) -> None:
-    with pytest.raises(SkatAIValidationError) as exc_info:
+    with pytest.raises(SkatMindValidationError) as exc_info:
         InformationUseContext(
             workflow=workflow,  # type: ignore[arg-type]
             stage="request_start",
@@ -102,7 +102,7 @@ def test_information_use_context_rejects_invalid_workflow(workflow: object) -> N
 
 @pytest.mark.parametrize("index", (-1, True, "1", 1.5))
 def test_information_use_context_rejects_invalid_indexes(index: object) -> None:
-    with pytest.raises(SkatAIValidationError):
+    with pytest.raises(SkatMindValidationError):
         _context("decision_time", decision_index=index)  # type: ignore[arg-type]
 
 
@@ -213,7 +213,7 @@ def test_denied_use_raises_stable_non_disclosing_policy_error() -> None:
         visibility="local_private",
         perspective_player_id="secret-player",
     )
-    with pytest.raises(SkatAIInformationPolicyError) as exc_info:
+    with pytest.raises(SkatMindInformationPolicyError) as exc_info:
         validate_field_provenance_entry_use(
             entry, _context("decision_time", player_id="different-player")
         )

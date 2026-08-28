@@ -10,14 +10,14 @@ from test_match_player_statistics_context import (
 )
 from test_match_workspace_contracts import _definition
 
-from skat_ai.api.v1.contracts import RequestDocumentV1, ResultDocumentV1
-from skat_ai.learning_corpus_identity import (
+from skatmind.api.v1.contracts import RequestDocumentV1, ResultDocumentV1
+from skatmind.learning_corpus_identity import (
     build_learning_corpus_canonical_json_bytes_v1,
 )
-from skat_ai.learning_corpus_match_snapshot import (
+from skatmind.learning_corpus_match_snapshot import (
     build_learning_corpus_match_snapshot_v1,
 )
-from skat_ai.learning_corpus_strategy_teacher import (
+from skatmind.learning_corpus_strategy_teacher import (
     LEARNING_CORPUS_STRATEGY_TEACHER_ACTUAL_CARD_POLICY,
     LEARNING_CORPUS_STRATEGY_TEACHER_CLAIM_POLICY,
     LEARNING_CORPUS_STRATEGY_TEACHER_COLLECTION_VERSION,
@@ -44,18 +44,18 @@ from skat_ai.learning_corpus_strategy_teacher import (
     build_learning_corpus_strategy_teacher_request_fingerprint_v1,
     build_learning_corpus_strategy_teacher_result_fingerprint_v1,
 )
-from skat_ai.learning_corpus_strategy_teacher_builder import (
+from skatmind.learning_corpus_strategy_teacher_builder import (
     build_learning_corpus_strategy_teacher_evidence_collection_v1,
 )
-from skat_ai.match_analysis_contracts import (
+from skatmind.match_analysis_contracts import (
     MatchDecisionAnalysisOptionsV1,
     MatchHistoricalAnalysisOptionsV1,
     build_match_analysis_report_v1,
     prepare_match_materialization_report_v1,
 )
-from skat_ai.match_decision_analysis import execute_match_decision_analysis_v1
-from skat_ai.match_historical_analysis import execute_match_historical_analysis_v1
-from skat_ai.match_workspace_persistence_codec import (
+from skatmind.match_decision_analysis import execute_match_decision_analysis_v1
+from skatmind.match_historical_analysis import execute_match_historical_analysis_v1
+from skatmind.match_workspace_persistence_codec import (
     build_match_workspace_persistence_document_v1,
 )
 
@@ -200,15 +200,15 @@ def test_report_source_fields_and_fingerprints_are_exact(immediate_bundle) -> No
     )
     assert source.source_report_id == report.report_id
     assert source.source_report_fingerprint == _hash(
-        b"skat-ai\0learning_corpus_strategy_teacher_report_v1\0",
+        b"skatmind\0learning_corpus_strategy_teacher_report_v1\0",
         report.to_dict(),
     )
     assert source.source_request_fingerprint == _hash(
-        b"skat-ai\0learning_corpus_strategy_teacher_request_v1\0",
+        b"skatmind\0learning_corpus_strategy_teacher_request_v1\0",
         result.request.to_dict(),
     )
     assert source.source_result_fingerprint == _hash(
-        b"skat-ai\0learning_corpus_strategy_teacher_result_v1\0",
+        b"skatmind\0learning_corpus_strategy_teacher_result_v1\0",
         result.result.to_dict(),
     )
     binding_material = {
@@ -220,7 +220,7 @@ def test_report_source_fields_and_fingerprints_are_exact(immediate_bundle) -> No
         "source_result_fingerprint": source.source_result_fingerprint,
     }
     assert source.source_binding_id == _hash(
-        b"skat-ai\0learning_corpus_strategy_teacher_source_binding_v1\0",
+        b"skatmind\0learning_corpus_strategy_teacher_source_binding_v1\0",
         binding_material,
     )
     assert build_learning_corpus_strategy_teacher_report_fingerprint_v1(report) == (
@@ -254,7 +254,7 @@ def test_source_is_frozen_slotted_and_rejects_non_decision_reports(
             match_snapshot_id=snapshot.match_snapshot_id,
             report=materialization,
         )
-    from skat_ai.match_workspace_contracts import create_match_workspace_v1
+    from skatmind.match_workspace_contracts import create_match_workspace_v1
 
     historical = execute_match_historical_analysis_v1(
         create_match_workspace_v1(_definition(match_id="match-historical")),
@@ -274,7 +274,7 @@ def test_source_is_frozen_slotted_and_rejects_non_decision_reports(
 
 
 def test_source_rejects_unavailable_decision_report() -> None:
-    from skat_ai.match_workspace_contracts import create_match_workspace_v1
+    from skatmind.match_workspace_contracts import create_match_workspace_v1
 
     workspace = create_match_workspace_v1(_definition(match_id="match-unavailable"))
     result = execute_match_decision_analysis_v1(
@@ -477,7 +477,7 @@ def _changed_report(result, *, request_document=None, result_document=None):
 
 
 def test_changed_request_is_rejected_as_an_invariant(immediate_bundle) -> None:
-    from skat_ai.errors import SkatAIInvariantError
+    from skatmind.errors import SkatMindInvariantError
 
     _workspace, snapshot, result, _report, _source, store = immediate_bundle
     request_document = result.request.to_dict()["document"]
@@ -486,7 +486,7 @@ def test_changed_request_is_rejected_as_an_invariant(immediate_bundle) -> None:
         match_snapshot_id=snapshot.match_snapshot_id,
         report=_changed_report(result, request_document=request_document),
     )
-    with pytest.raises(SkatAIInvariantError, match="rebuilt Request differs"):
+    with pytest.raises(SkatMindInvariantError, match="rebuilt Request differs"):
         build_learning_corpus_strategy_teacher_evidence_collection_v1(
             store,
             (source,),
@@ -518,7 +518,7 @@ def test_source_contract_rejects_changed_result_identity(
 def test_builder_rejects_malformed_result_through_output_validation(
     immediate_bundle,
 ) -> None:
-    from skat_ai.errors import SkatAISchemaError
+    from skatmind.errors import SkatMindSchemaError
 
     _workspace, snapshot, result, _report, _source, store = immediate_bundle
     result_document = result.result.to_dict()["document"]
@@ -527,7 +527,7 @@ def test_builder_rejects_malformed_result_through_output_validation(
         match_snapshot_id=snapshot.match_snapshot_id,
         report=_changed_report(result, result_document=result_document),
     )
-    with pytest.raises(SkatAISchemaError) as caught:
+    with pytest.raises(SkatMindSchemaError) as caught:
         build_learning_corpus_strategy_teacher_evidence_collection_v1(
             store,
             (source,),
@@ -538,7 +538,7 @@ def test_builder_rejects_malformed_result_through_output_validation(
 def test_builder_rejects_unexpected_nested_private_evidence(
     immediate_bundle,
 ) -> None:
-    from skat_ai.errors import SkatAIInvariantError
+    from skatmind.errors import SkatMindInvariantError
 
     _workspace, snapshot, result, _report, _source, store = immediate_bundle
     result_document = result.result.to_dict()["document"]
@@ -549,7 +549,7 @@ def test_builder_rejects_unexpected_nested_private_evidence(
         match_snapshot_id=snapshot.match_snapshot_id,
         report=_changed_report(result, result_document=result_document),
     )
-    with pytest.raises(SkatAIInvariantError, match=r"analysis_report\[0\] fields"):
+    with pytest.raises(SkatMindInvariantError, match=r"analysis_report\[0\] fields"):
         build_learning_corpus_strategy_teacher_evidence_collection_v1(
             store,
             (source,),
@@ -575,7 +575,7 @@ def test_builder_rejects_private_values_under_allowed_fields(
     immediate_bundle,
     mutate,
 ) -> None:
-    from skat_ai.errors import SkatAIInvariantError
+    from skatmind.errors import SkatMindInvariantError
 
     _workspace, snapshot, result, _report, _source, store = immediate_bundle
     result_document = result.result.to_dict()["document"]
@@ -584,7 +584,7 @@ def test_builder_rejects_private_values_under_allowed_fields(
         match_snapshot_id=snapshot.match_snapshot_id,
         report=_changed_report(result, result_document=result_document),
     )
-    with pytest.raises(SkatAIInvariantError):
+    with pytest.raises(SkatMindInvariantError):
         build_learning_corpus_strategy_teacher_evidence_collection_v1(
             store,
             (source,),
@@ -751,7 +751,7 @@ def test_profile_and_policy_context_is_preserved_without_rederivation(
 
 
 def test_changed_profile_summary_is_rejected(profile_bundle) -> None:
-    from skat_ai.errors import SkatAIInvariantError
+    from skatmind.errors import SkatMindInvariantError
 
     snapshot, results, _sources, store = profile_bundle
     result = results[0]
@@ -763,7 +763,7 @@ def test_changed_profile_summary_is_rejected(profile_bundle) -> None:
         match_snapshot_id=snapshot.match_snapshot_id,
         report=_changed_report(result, result_document=result_document),
     )
-    with pytest.raises(SkatAIInvariantError, match="stable opponent identity"):
+    with pytest.raises(SkatMindInvariantError, match="stable opponent identity"):
         build_learning_corpus_strategy_teacher_evidence_collection_v1(
             store,
             (source,),
@@ -774,9 +774,9 @@ def test_collection_rebuilds_and_validates_once_without_execution(
     immediate_bundle,
     monkeypatch,
 ) -> None:
-    import skat_ai.application.execution as application_execution
-    import skat_ai.learning_corpus_strategy_teacher_builder as builder_module
-    import skat_ai.match_decision_analysis as match_decision_analysis
+    import skatmind.application.execution as application_execution
+    import skatmind.learning_corpus_strategy_teacher_builder as builder_module
+    import skatmind.match_decision_analysis as match_decision_analysis
 
     _workspace, _snapshot_value, _result, _report, source, store = immediate_bundle
     calls = {"request": 0, "result": 0}

@@ -7,23 +7,23 @@ from test_fixed_three_player_historical_list import (
 )
 from test_historical_game import build_historical_input
 
-from skat_ai.fixed_three_player_historical_list import (
+from skatmind.fixed_three_player_historical_list import (
     build_fixed_three_player_historical_list,
 )
-from skat_ai.fixed_three_player_historical_list_aggregation import (
+from skatmind.fixed_three_player_historical_list_aggregation import (
     FIXED_THREE_PLAYER_HISTORICAL_LIST_AGGREGATION_VERSION,
     FIXED_THREE_PLAYER_HISTORICAL_LIST_STANDINGS_BASIS,
     build_fixed_three_player_historical_list_aggregation,
     validate_fixed_three_player_historical_list_aggregation,
 )
-from skat_ai.fixed_three_player_historical_list_comparison import (
+from skatmind.fixed_three_player_historical_list_comparison import (
     FIXED_THREE_PLAYER_HISTORICAL_LIST_COMPARISON_BASIS,
     FIXED_THREE_PLAYER_HISTORICAL_LIST_COMPARISON_VERSION,
     FIXED_THREE_PLAYER_HISTORICAL_LIST_RANK_COMPARISON_STATUSES,
     MIN_FIXED_THREE_PLAYER_HISTORICAL_LIST_COMPARISON_COUNT,
     build_fixed_three_player_historical_list_comparison,
 )
-from skat_ai.fixed_three_player_historical_list_comparison_summary import (
+from skatmind.fixed_three_player_historical_list_comparison_summary import (
     FixedThreePlayerHistoricalListComparisonCompactStanding,
     FixedThreePlayerHistoricalListComparisonResult,
     FixedThreePlayerHistoricalListComparisonSourceSummary,
@@ -36,7 +36,7 @@ from skat_ai.fixed_three_player_historical_list_comparison_summary import (
     build_serializable_fixed_three_player_historical_list_player_comparison,
     build_serializable_fixed_three_player_historical_list_player_totals_delta,
 )
-from skat_ai.fixed_three_player_historical_list_totals import (
+from skatmind.fixed_three_player_historical_list_totals import (
     FixedThreePlayerHistoricalListPlayerTotals,
 )
 

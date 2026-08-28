@@ -19,7 +19,7 @@ def _load_corpus(path: Path) -> dict[str, Any]:
     with path.open(encoding="utf-8") as file:
         corpus = json.load(file)
 
-    from skat_ai.search_budget_profiles import SEARCH_BUDGET_PROFILE_IDENTIFIERS
+    from skatmind.search_budget_profiles import SEARCH_BUDGET_PROFILE_IDENTIFIERS
 
     if corpus.get("schema_version") != SUPPORTED_CORPUS_SCHEMA_VERSION:
         raise ValueError("Unsupported bounded-search benchmark corpus schema version.")
@@ -51,19 +51,19 @@ def _load_corpus(path: Path) -> dict[str, Any]:
 
 
 def _build_information_view(case: dict[str, Any]) -> Any:
-    from skat_ai.bounded_search_information import (
+    from skatmind.bounded_search_information import (
         SearchCompletedTrick,
         SearchPublicPlay,
         build_live_search_information_view,
     )
-    from skat_ai.deck import get_full_deck
-    from skat_ai.game_declaration import GameDeclaration
-    from skat_ai.game_state import GameState
-    from skat_ai.hidden_card_inference import (
+    from skatmind.deck import get_full_deck
+    from skatmind.game_declaration import GameDeclaration
+    from skatmind.game_state import GameState
+    from skatmind.hidden_card_inference import (
         EFFECTIVE_CATEGORY_ORDER,
         get_public_effective_category,
     )
-    from skat_ai.rules import get_trick_points, get_trick_winner
+    from skatmind.rules import get_trick_points, get_trick_winner
 
     declaration = GameDeclaration(**case["declaration"])
     position = case["position"]
@@ -192,8 +192,8 @@ def _functional_result(result: Any) -> dict[str, Any]:
 
 
 def _execute_case(case: dict[str, Any], information_view: Any) -> tuple[dict[str, Any], float]:
-    from skat_ai.compatible_world_minimax import solve_compatible_world_minimax
-    from skat_ai.search_budget_profiles import get_search_budget_profile
+    from skatmind.compatible_world_minimax import solve_compatible_world_minimax
+    from skatmind.search_budget_profiles import get_search_budget_profile
 
     started_at = time.perf_counter_ns()
     result = solve_compatible_world_minimax(

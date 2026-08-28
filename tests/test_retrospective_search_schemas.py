@@ -6,8 +6,8 @@ import pytest
 from jsonschema import Draft202012Validator, ValidationError
 from referencing import Registry, Resource
 
-from skat_ai.bounded_search_evaluation import evaluate_bounded_search_dataset
-from skat_ai.bounded_search_result import (
+from skatmind.bounded_search_evaluation import evaluate_bounded_search_dataset
+from skatmind.bounded_search_result import (
     BOUNDED_SEARCH_ANALYSIS_METHOD,
     BOUNDED_SEARCH_SCHEMA_VERSION,
     AggregateSearchCandidateResult,
@@ -15,15 +15,15 @@ from skat_ai.bounded_search_result import (
     ConsumedSearchBudget,
     rank_search_candidate_results,
 )
-from skat_ai.historical_decision_snapshot import build_historical_decision_snapshots
-from skat_ai.historical_game import (
+from skatmind.historical_decision_snapshot import build_historical_decision_snapshots
+from skatmind.historical_game import (
     build_historical_game_record,
     build_historical_game_summary,
 )
-from skat_ai.historical_search_review import build_historical_search_review_summary
-from skat_ai.rules import get_legal_cards
-from skat_ai.terminal_utility import TERMINAL_UTILITY_VERSION
-from skat_ai.training_dataset import build_training_dataset_input
+from skatmind.historical_search_review import build_historical_search_review_summary
+from skatmind.rules import get_legal_cards
+from skatmind.terminal_utility import TERMINAL_UTILITY_VERSION
+from skatmind.training_dataset import build_training_dataset_input
 
 ROOT = Path(__file__).resolve().parents[1]
 SCHEMA_NAMES = (
@@ -157,11 +157,11 @@ def representative_outputs() -> dict[str, dict]:
 
     monkeypatch = pytest.MonkeyPatch()
     monkeypatch.setattr(
-        "skat_ai.historical_search_review.solve_compatible_world_minimax",
+        "skatmind.historical_search_review.solve_compatible_world_minimax",
         _fake_search,
     )
     monkeypatch.setattr(
-        "skat_ai.historical_search_review.recommend_card_by_expected_value",
+        "skatmind.historical_search_review.recommend_card_by_expected_value",
         _fake_immediate,
     )
     try:
@@ -191,14 +191,14 @@ def representative_outputs() -> dict[str, dict]:
 def test_retrospective_search_schemas_are_draft_2020_12_with_exact_ids() -> None:
     expected_ids = {
         "bounded_search_post_game_review.schema.json": (
-            "https://example.local/skat-ai/"
+            "https://example.local/skatmind/"
             "bounded_search_post_game_review.schema.json"
         ),
         "historical_search_review.schema.json": (
-            "https://example.local/skat-ai/historical_search_review.schema.json"
+            "https://example.local/skatmind/historical_search_review.schema.json"
         ),
         "bounded_search_evaluation.schema.json": (
-            "https://example.local/skat-ai/bounded_search_evaluation.schema.json"
+            "https://example.local/skatmind/bounded_search_evaluation.schema.json"
         ),
     }
     for name, expected_id in expected_ids.items():

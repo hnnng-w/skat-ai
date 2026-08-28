@@ -3,7 +3,7 @@ requires = ["setuptools>=77.0.3"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "skat-ai"
+name = "skatmind"
 version = "0.17.0"
 description = "Local Skat analysis and simulation tool"
 readme = "README.md"
@@ -15,7 +15,7 @@ dependencies = [
 ]
 
 [project.scripts]
-skat-ai = "skat_ai.cli:main"
+skatmind = "skatmind.cli:main"
 
 [project.optional-dependencies]
 dev = [
@@ -26,13 +26,13 @@ dev = [
 
 [tool.setuptools.packages.find]
 where = ["src"]
-include = ["skat_ai*"]
+include = ["skatmind*"]
 
 [tool.setuptools.package-data]
-skat_ai = ["py.typed"]
-"skat_ai.schema_resources" = ["*.schema.json"]
-"skat_ai.capture_web" = ["templates/*.html", "assets/*.css", "assets/*.js"]
-"skat_ai.corpus_web" = ["templates/*.html", "assets/*.css", "assets/*.js"]
+skatmind = ["py.typed"]
+"skatmind.schema_resources" = ["*.schema.json"]
+"skatmind.capture_web" = ["templates/*.html", "assets/*.css", "assets/*.js"]
+"skatmind.corpus_web" = ["templates/*.html", "assets/*.css", "assets/*.js"]
 
 [tool.ruff]
 line-length = 100

@@ -1,0 +1,626 @@
+from __future__ import annotations
+
+import random
+from typing import TYPE_CHECKING, Any
+
+from skatmind.game_history import (
+    build_completed_trick_from_cards,
+    get_compatible_declarer_player,
+    get_players_for_trick_leader,
+)
+from skatmind.game_state import GameState
+from skatmind.opponent_policy import (
+    choose_opponent_lead_card_by_policy,
+    choose_opponent_response_card_by_policy,
+    determine_current_trick_winner_index,
+)
+from skatmind.public_hand_constraint import PublicHandConstraint
+from skatmind.rules import get_trick_points
+from skatmind.side_ownership import get_player_side, normalize_declarer_player
+from skatmind.simulation import generate_random_opponent_hands
+from skatmind.state_transition import advance_state_after_existing_trick_completion
+from skatmind.turn_phase import derive_next_player, normalize_turn_phase
+
+if TYPE_CHECKING:
+    from skatmind.coherent_hidden_world import CoherentHiddenWorld
+
+
+def choose_lowest_point_lead_card(hand: list[str]) -> str:
+    """
+    Chooses the lowest-point card from an opponent hand for leading a new trick.
+    """
+    if not hand:
+        raise ValueError("Opponent hand is empty.")
+
+    return choose_opponent_lead_card_by_policy(
+        hand=hand,
+        policy="lowest_point",
+        game_type="grand",
+    )
+
+def choose_lowest_point_legal_response_card(
+    hand: list[str],
+    current_trick: list[str],
+    game_type: str,
+) -> str:
+    """
+    Chooses the lowest-point legal response card from an opponent hand.
+    """
+    try:
+        return choose_opponent_response_card_by_policy(
+            hand=hand,
+            current_trick=current_trick,
+            game_type=game_type,
+            player_index=len(current_trick),
+            policy="lowest_point",
+        )
+    except ValueError as error:
+        if "Opponent has no legal cards" in str(error):
+            raise ValueError("Opponent has no legal response cards.") from error
+
+        raise
+
+
+def get_next_player_after_opponent_lead(leader: str) -> str:
+    """
+    Returns the next player after an opponent leads a trick.
+
+    Seating model:
+    me -> left -> right -> me
+    """
+    if leader == "left":
+        return "right"
+
+    if leader == "right":
+        return "me"
+
+    raise ValueError(f"Invalid opponent leader: {leader}")
+
+
+def build_state_after_opponent_lead(
+    state: GameState,
+    lead_card: str,
+    leader: str,
+) -> GameState:
+    """
+    Builds a new GameState after an opponent leads a new trick.
+
+    The old state is not mutated.
+    """
+    if leader not in ["left", "right"]:
+        raise ValueError(f"Invalid opponent leader: {leader}")
+
+    if state.current_trick:
+        raise ValueError("Opponent lead requires an empty current_trick.")
+
+    next_player = get_next_player_after_opponent_lead(leader)
+
+    return GameState(
+        game_type=state.game_type,
+        player_role=state.player_role,
+        hand=state.hand.copy(),
+        current_trick=[lead_card],
+        played_cards=state.played_cards.copy(),
+        skat=state.skat.copy(),
+        player_position=state.player_position,
+        declarer_player=state.declarer_player,
+        trick_leader=leader,
+        completed_tricks=[completed_trick.copy() for completed_trick in state.completed_tricks],
+        declarer_points=state.declarer_points,
+        defender_points=state.defender_points,
+        next_player=next_player,
+    )
+
+
+def build_state_after_opponent_second_hand_play(
+    state: GameState,
+    response_card: str,
+    responder: str,
+) -> GameState:
+    """
+    Builds a new GameState after an opponent plays second hand.
+
+    This is currently intended for:
+    left leads -> right responds -> me acts third
+    """
+    if responder not in ["left", "right"]:
+        raise ValueError(f"Invalid opponent responder: {responder}")
+
+    if len(state.current_trick) != 1:
+        raise ValueError("Opponent second-hand play requires exactly one card in current_trick.")
+
+    if state.trick_leader == "unknown":
+        raise ValueError("Opponent second-hand play requires a concrete trick_leader.")
+
+    expected_responder = derive_next_player(
+        trick_leader=state.trick_leader,
+        current_trick_length=1,
+    )
+    if responder != expected_responder:
+        raise ValueError(
+            "Opponent second-hand responder is inconsistent with turn phase: "
+            f"expected {expected_responder}, got {responder}."
+        )
+
+    third_player = derive_next_player(
+        trick_leader=state.trick_leader,
+        current_trick_length=2,
+    )
+
+    return GameState(
+        game_type=state.game_type,
+        player_role=state.player_role,
+        hand=state.hand.copy(),
+        current_trick=[*state.current_trick, response_card],
+        played_cards=state.played_cards.copy(),
+        skat=state.skat.copy(),
+        player_position=state.player_position,
+        declarer_player=state.declarer_player,
+        trick_leader=state.trick_leader,
+        completed_tricks=[completed_trick.copy() for completed_trick in state.completed_tricks],
+        declarer_points=state.declarer_points,
+        defender_points=state.defender_points,
+        next_player=third_player,
+    )
+
+
+def is_partner_currently_winning_for_response(
+    state: GameState,
+    leader: str,
+    responder: str,
+) -> bool:
+    """Returns whether the responder's defender partner is winning."""
+    normalized_declarer_player = normalize_declarer_player(
+        player_role=state.player_role,
+        declarer_player=get_compatible_declarer_player(
+            player_role=state.player_role,
+            declarer_player=state.declarer_player,
+        ),
+    )
+    leader_side = get_player_side(
+        player=leader,
+        declarer_player=normalized_declarer_player,
+    )
+    responder_side = get_player_side(
+        player=responder,
+        declarer_player=normalized_declarer_player,
+    )
+
+    return leader_side == "defenders" and responder_side == "defenders"
+
+
+def get_winning_partner_index_for_current_trick(
+    state: GameState,
+    responder: str,
+) -> int | None:
+    """Returns the current winner index when that Player is a defender partner."""
+    if not state.current_trick or len(state.current_trick) > 2:
+        raise ValueError("Partner context requires one or two current Trick Cards.")
+    players = get_players_for_trick_leader(state.trick_leader)
+    winner_index = determine_current_trick_winner_index(
+        state.current_trick,
+        state.game_type,
+    )
+    winner_player = players[winner_index]
+    normalized_declarer_player = normalize_declarer_player(
+        player_role=state.player_role,
+        declarer_player=get_compatible_declarer_player(
+            player_role=state.player_role,
+            declarer_player=state.declarer_player,
+        ),
+    )
+    winner_side = get_player_side(winner_player, normalized_declarer_player)
+    responder_side = get_player_side(responder, normalized_declarer_player)
+    if winner_side == "defenders" and responder_side == "defenders":
+        return winner_index
+    return None
+
+
+def simulate_opponents_to_complete_current_trick_once(
+    state: GameState,
+    completion_players: tuple[str, ...],
+    left_hand_size: int,
+    right_hand_size: int,
+    random_generator: random.Random,
+    opponent_response_policy_by_player: dict[str, str],
+    public_hand_constraints: tuple[PublicHandConstraint, ...] = (),
+    coherent_hidden_world: CoherentHiddenWorld | None = None,
+    coherent_step_index: int = 0,
+) -> dict[str, Any]:
+    """Completes one existing Trick with only its missing opponent plays."""
+    if len(state.current_trick) not in (1, 2):
+        raise ValueError("Opponent completion requires one or two current Trick Cards.")
+    players = get_players_for_trick_leader(state.trick_leader)
+    expected_players = tuple(players[len(state.current_trick) :])
+    if completion_players != expected_players or "me" in completion_players:
+        raise ValueError("Opponent completion players do not match the turn phase.")
+
+    if coherent_hidden_world is None:
+        from skatmind.coherent_hidden_world import build_coherent_hidden_world
+
+        coherent_hidden_world = build_coherent_hidden_world(
+            state=state,
+            left_hand_size=left_hand_size,
+            right_hand_size=right_hand_size,
+            random_generator=random_generator,
+            public_hand_constraints=public_hand_constraints,
+        )
+    from skatmind.coherent_hidden_world import validate_coherent_hidden_world
+
+    validate_coherent_hidden_world(
+        coherent_hidden_world,
+        state=state,
+        left_hand_size=left_hand_size,
+        right_hand_size=right_hand_size,
+        public_hand_constraints=public_hand_constraints,
+        step_index=coherent_step_index,
+    )
+    left_hand = list(coherent_hidden_world.left_hand)
+    right_hand = list(coherent_hidden_world.right_hand)
+
+    trick = state.current_trick.copy()
+    opponent_plays: list[tuple[str, str]] = []
+    for player in completion_players:
+        current_state = GameState(
+            game_type=state.game_type,
+            player_role=state.player_role,
+            hand=state.hand.copy(),
+            current_trick=trick.copy(),
+            played_cards=state.played_cards.copy(),
+            skat=state.skat.copy(),
+            player_position=state.player_position,
+            declarer_player=state.declarer_player,
+            trick_leader=state.trick_leader,
+            completed_tricks=[item.copy() for item in state.completed_tricks],
+            declarer_points=state.declarer_points,
+            defender_points=state.defender_points,
+            next_player=player,
+        )
+        hand = left_hand if player == "left" else right_hand
+        winning_partner_index = get_winning_partner_index_for_current_trick(
+            current_state,
+            player,
+        )
+        card = choose_opponent_response_card_by_policy(
+            hand=hand,
+            current_trick=trick,
+            game_type=state.game_type,
+            player_index=len(trick),
+            policy=opponent_response_policy_by_player[player],
+            random_generator=random_generator,
+            partner_currently_winning=winning_partner_index is not None,
+            partner_index=winning_partner_index or 0,
+        )
+        hand.remove(card)
+        trick.append(card)
+        opponent_plays.append((player, card))
+
+    local_player_index = players.index("me")
+    completed_trick = build_completed_trick_from_cards(
+        cards=trick,
+        game_type=state.game_type,
+        player_index=local_player_index,
+        player_role=state.player_role,
+        trick_players=players,
+        declarer_player=state.declarer_player,
+    )
+    next_state = advance_state_after_existing_trick_completion(
+        state,
+        completed_trick,
+    )
+    result = {
+        "next_state": next_state,
+        "completed_trick": completed_trick,
+        "trick_points": get_trick_points(trick),
+        "_opponent_plays": tuple(opponent_plays),
+    }
+    from skatmind.coherent_hidden_world import apply_hidden_world_plays
+
+    result["_coherent_hidden_world"] = apply_hidden_world_plays(
+        coherent_hidden_world,
+        tuple(opponent_plays),
+        step_index=coherent_step_index,
+    )
+    return result
+
+
+def choose_right_response_to_left_lead_card(
+    state: GameState,
+    right_hand: list[str],
+    random_generator: random.Random,
+    opponent_response_policy: str,
+) -> str:
+    """Chooses right's response after left has led the current trick."""
+    return choose_opponent_response_card_by_policy(
+        hand=right_hand,
+        current_trick=state.current_trick,
+        game_type=state.game_type,
+        player_index=1,
+        policy=opponent_response_policy,
+        random_generator=random_generator,
+        partner_currently_winning=is_partner_currently_winning_for_response(
+            state=state,
+            leader="left",
+            responder="right",
+        ),
+    )
+
+
+def simulate_opponent_lead_once(
+    state: GameState,
+    left_hand_size: int,
+    right_hand_size: int,
+    random_generator: random.Random | None = None,
+    opponent_lead_policy: str = "lowest_point",
+    public_hand_constraints: tuple[PublicHandConstraint, ...] = (),
+    coherent_hidden_world: CoherentHiddenWorld | None = None,
+    coherent_step_index: int = 0,
+) -> dict[str, Any]:
+    """
+    Simulates one opponent lead when next_player is left or right.
+
+    This starts a new trick with one opponent card.
+    """
+    if state.current_trick:
+        raise ValueError("Opponent lead requires an empty current_trick.")
+
+    phase = normalize_turn_phase(
+        trick_leader=state.trick_leader,
+        next_player=state.next_player,
+        current_trick_length=len(state.current_trick),
+    )
+
+    if phase.next_player not in ["left", "right"]:
+        raise ValueError("Opponent lead requires next_player to be left or right.")
+
+    rng = random_generator or random
+
+    if coherent_hidden_world is None:
+        sampling_kwargs: dict[str, Any] = {}
+        if public_hand_constraints:
+            sampling_kwargs["public_hand_constraints"] = public_hand_constraints
+        left_hand, right_hand = generate_random_opponent_hands(
+            state=state,
+            left_hand_size=left_hand_size,
+            right_hand_size=right_hand_size,
+            random_generator=rng,
+            **sampling_kwargs,
+        )
+    else:
+        from skatmind.coherent_hidden_world import validate_coherent_hidden_world
+
+        validate_coherent_hidden_world(
+            coherent_hidden_world,
+            state=state,
+            left_hand_size=left_hand_size,
+            right_hand_size=right_hand_size,
+            public_hand_constraints=public_hand_constraints,
+            step_index=coherent_step_index,
+        )
+        left_hand = list(coherent_hidden_world.left_hand)
+        right_hand = list(coherent_hidden_world.right_hand)
+
+    if phase.next_player == "left":
+        leader_hand = left_hand
+    else:
+        leader_hand = right_hand
+
+    lead_card = choose_opponent_lead_card_by_policy(
+        hand=leader_hand,
+        policy=opponent_lead_policy,
+        random_generator=rng,
+        game_type=state.game_type,
+    )
+
+    next_state = build_state_after_opponent_lead(
+        state=state,
+        lead_card=lead_card,
+        leader=phase.next_player,
+    )
+
+    result = {
+        "leader": phase.next_player,
+        "lead_card": lead_card,
+        "next_state": next_state,
+    }
+    if coherent_hidden_world is not None:
+        from skatmind.coherent_hidden_world import remove_card_from_hidden_world
+
+        result["_coherent_hidden_world"] = remove_card_from_hidden_world(
+            coherent_hidden_world,
+            phase.next_player,
+            lead_card,
+            step_index=coherent_step_index,
+        )
+        result["_opponent_plays"] = ((phase.next_player, lead_card),)
+    return result
+
+
+def simulate_left_lead_and_right_response_once(
+    state: GameState,
+    left_hand_size: int,
+    right_hand_size: int,
+    random_generator: random.Random | None = None,
+    opponent_lead_policy: str = "lowest_point",
+    opponent_response_policy: str = "lowest_point",
+    public_hand_constraints: tuple[PublicHandConstraint, ...] = (),
+    coherent_hidden_world: CoherentHiddenWorld | None = None,
+    coherent_step_index: int = 0,
+) -> dict[str, Any]:
+    """
+    Simulates the sequence:
+    left leads -> right responds -> me acts third.
+
+    This prepares a state where the player can act with two cards already
+    in current_trick.
+    """
+    if state.current_trick:
+        raise ValueError("Left lead sequence requires an empty current_trick.")
+
+    phase = normalize_turn_phase(
+        trick_leader=state.trick_leader,
+        next_player=state.next_player,
+        current_trick_length=len(state.current_trick),
+    )
+
+    if phase.trick_leader != "left" or phase.next_player != "left":
+        raise ValueError("Left lead sequence requires next_player to be left.")
+
+    rng = random_generator or random
+
+    if coherent_hidden_world is None:
+        sampling_kwargs: dict[str, Any] = {}
+        if public_hand_constraints:
+            sampling_kwargs["public_hand_constraints"] = public_hand_constraints
+        left_hand, right_hand = generate_random_opponent_hands(
+            state=state,
+            left_hand_size=left_hand_size,
+            right_hand_size=right_hand_size,
+            random_generator=rng,
+            **sampling_kwargs,
+        )
+    else:
+        from skatmind.coherent_hidden_world import validate_coherent_hidden_world
+
+        validate_coherent_hidden_world(
+            coherent_hidden_world,
+            state=state,
+            left_hand_size=left_hand_size,
+            right_hand_size=right_hand_size,
+            public_hand_constraints=public_hand_constraints,
+            step_index=coherent_step_index,
+        )
+        left_hand = list(coherent_hidden_world.left_hand)
+        right_hand = list(coherent_hidden_world.right_hand)
+
+    lead_card = choose_opponent_lead_card_by_policy(
+        hand=left_hand,
+        policy=opponent_lead_policy,
+        random_generator=rng,
+        game_type=state.game_type,
+    )
+
+    state_after_left_lead = build_state_after_opponent_lead(
+        state=state,
+        lead_card=lead_card,
+        leader="left",
+    )
+
+    response_card = choose_right_response_to_left_lead_card(
+        state=state_after_left_lead,
+        right_hand=right_hand,
+        random_generator=rng,
+        opponent_response_policy=opponent_response_policy,
+    )
+
+    next_state = build_state_after_opponent_second_hand_play(
+        state=state_after_left_lead,
+        response_card=response_card,
+        responder="right",
+    )
+
+    result = {
+        "leader": "left",
+        "lead_card": lead_card,
+        "responder": "right",
+        "response_card": response_card,
+        "next_state": next_state,
+    }
+    if coherent_hidden_world is not None:
+        from skatmind.coherent_hidden_world import apply_hidden_world_plays
+
+        opponent_plays = (("left", lead_card), ("right", response_card))
+        result["_coherent_hidden_world"] = apply_hidden_world_plays(
+            coherent_hidden_world,
+            opponent_plays,
+            step_index=coherent_step_index,
+        )
+        result["_opponent_plays"] = opponent_plays
+    return result
+
+
+def simulate_right_response_to_left_lead_once(
+    state: GameState,
+    left_hand_size: int,
+    right_hand_size: int,
+    random_generator: random.Random | None = None,
+    opponent_response_policy: str = "lowest_point",
+    public_hand_constraints: tuple[PublicHandConstraint, ...] = (),
+    coherent_hidden_world: CoherentHiddenWorld | None = None,
+    coherent_step_index: int = 0,
+) -> dict[str, Any]:
+    """
+    Simulates only right's response after an existing left lead.
+
+    This preserves the original lead card and prepares a state where the local
+    player can act third.
+    """
+    if len(state.current_trick) != 1:
+        raise ValueError("Right response sequence requires exactly one current_trick card.")
+
+    phase = normalize_turn_phase(
+        trick_leader=state.trick_leader,
+        next_player=state.next_player,
+        current_trick_length=len(state.current_trick),
+    )
+
+    if phase.trick_leader != "left" or phase.next_player != "right":
+        raise ValueError("Right response sequence requires left lead and right next.")
+
+    rng = random_generator or random
+
+    if coherent_hidden_world is None:
+        sampling_kwargs: dict[str, Any] = {}
+        if public_hand_constraints:
+            sampling_kwargs["public_hand_constraints"] = public_hand_constraints
+        _, right_hand = generate_random_opponent_hands(
+            state=state,
+            left_hand_size=left_hand_size,
+            right_hand_size=right_hand_size,
+            random_generator=rng,
+            **sampling_kwargs,
+        )
+    else:
+        from skatmind.coherent_hidden_world import validate_coherent_hidden_world
+
+        validate_coherent_hidden_world(
+            coherent_hidden_world,
+            state=state,
+            left_hand_size=left_hand_size,
+            right_hand_size=right_hand_size,
+            public_hand_constraints=public_hand_constraints,
+            step_index=coherent_step_index,
+        )
+        right_hand = list(coherent_hidden_world.right_hand)
+
+    response_card = choose_right_response_to_left_lead_card(
+        state=state,
+        right_hand=right_hand,
+        random_generator=rng,
+        opponent_response_policy=opponent_response_policy,
+    )
+
+    next_state = build_state_after_opponent_second_hand_play(
+        state=state,
+        response_card=response_card,
+        responder="right",
+    )
+
+    result = {
+        "leader": "left",
+        "lead_card": state.current_trick[0],
+        "responder": "right",
+        "response_card": response_card,
+        "next_state": next_state,
+    }
+    if coherent_hidden_world is not None:
+        from skatmind.coherent_hidden_world import remove_card_from_hidden_world
+
+        result["_coherent_hidden_world"] = remove_card_from_hidden_world(
+            coherent_hidden_world,
+            "right",
+            response_card,
+            step_index=coherent_step_index,
+        )
+        result["_opponent_plays"] = (("right", response_card),)
+    return result

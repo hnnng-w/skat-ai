@@ -1,10 +1,10 @@
 import pytest
 
-from skat_ai.final_settlement import build_final_settlement_summary
-from skat_ai.game_declaration import GameDeclaration
-from skat_ai.game_result import build_game_result_summary_from_score_summary
-from skat_ai.game_value import build_game_value_summary
-from skat_ai.performance_rating import (
+from skatmind.final_settlement import build_final_settlement_summary
+from skatmind.game_declaration import GameDeclaration
+from skatmind.game_result import build_game_result_summary_from_score_summary
+from skatmind.game_value import build_game_value_summary
+from skatmind.performance_rating import (
     build_list_game_contribution_from_analysis_result,
     build_list_performance_summary,
     build_list_performance_summary_from_analysis_results,

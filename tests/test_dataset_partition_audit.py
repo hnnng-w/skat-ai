@@ -4,12 +4,12 @@ import pytest
 from test_historical_game import build_historical_input
 from test_training_dataset import build_training_input
 
-from skat_ai.dataset_partition_audit import (
+from skatmind.dataset_partition_audit import (
     audit_training_dataset_partitions,
     build_serializable_dataset_partition_audit,
     resolve_dataset_partition_audit_mode,
 )
-from skat_ai.training_dataset import build_training_dataset_input
+from skatmind.training_dataset import build_training_dataset_input
 
 
 def rename_players(game: dict, mapping: dict[str, str]) -> dict:

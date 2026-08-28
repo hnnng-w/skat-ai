@@ -9,16 +9,16 @@ from test_session_decision_observation import (
     _observed,
 )
 
-import skat_ai.session_checkpoint_review as review_module
-from skat_ai.input_loader import build_position_from_document
-from skat_ai.session_checkpoint_review import (
+import skatmind.session_checkpoint_review as review_module
+from skatmind.input_loader import build_position_from_document
+from skatmind.session_checkpoint_review import (
     SESSION_CHECKPOINT_REVIEW_EXPORT_POLICY,
     SESSION_CHECKPOINT_REVIEW_EXPORT_STATUSES,
     SESSION_CHECKPOINT_REVIEW_EXPORT_VERSION,
     SessionCheckpointReviewExportV1,
     export_session_checkpoint_review_request_v1,
 )
-from skat_ai.session_history import build_session_state_from_accepted_prefix_v1
+from skatmind.session_history import build_session_state_from_accepted_prefix_v1
 
 
 def test_review_export_identity_contract_and_serialization_are_exact() -> None:

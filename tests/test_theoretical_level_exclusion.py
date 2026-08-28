@@ -1,4 +1,4 @@
-from skat_ai.theoretical_level_exclusion import (
+from skatmind.theoretical_level_exclusion import (
     JackOwnershipEvidence,
     assess_theoretical_schwarz_exclusion,
 )

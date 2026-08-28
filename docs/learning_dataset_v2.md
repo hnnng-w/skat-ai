@@ -244,14 +244,14 @@ separators = (",", ":")
 Exact SHA-256 domains are:
 
 ```text
-skat-ai\0learning_dataset_v2_source_context_v1\0
-skat-ai\0learning_dataset_v2_decision_state_v1\0
-skat-ai\0learning_dataset_v2_observed_behavior_v1\0
-skat-ai\0learning_dataset_v2_record_v1\0
-skat-ai\0learning_dataset_v2_record_content_v1\0
-skat-ai\0learning_dataset_v2_skipped_decision_v1\0
-skat-ai\0learning_dataset_v2_collection_v2\0
-skat-ai\0learning_dataset_v2_export_v1\0
+skatmind\0learning_dataset_v2_source_context_v1\0
+skatmind\0learning_dataset_v2_decision_state_v1\0
+skatmind\0learning_dataset_v2_observed_behavior_v1\0
+skatmind\0learning_dataset_v2_record_v1\0
+skatmind\0learning_dataset_v2_record_content_v1\0
+skatmind\0learning_dataset_v2_skipped_decision_v1\0
+skatmind\0learning_dataset_v2_collection_v2\0
+skatmind\0learning_dataset_v2_export_v1\0
 ```
 
 A Record ID covers only Record version, Match Snapshot ID, and Decision Reference
@@ -279,7 +279,7 @@ references reconcile exactly.
 The path-free export document kind is:
 
 ```text
-skat_ai_learning_dataset_v2
+skatmind_learning_dataset_v2
 ```
 
 `build_learning_dataset_v2_export_v1()` accepts an already-built Dataset,

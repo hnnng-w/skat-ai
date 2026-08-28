@@ -6,7 +6,7 @@
 declarer position with two remaining tricks. Together the cases exercise
 exhaustive `all_compatible_worlds` and deterministic
 `sampled_compatible_worlds` selection. Each case uses one immutable named budget
-from `src/skat_ai/search_budget_profiles.py`.
+from `src/skatmind/search_budget_profiles.py`.
 
 ## Reproduce
 

@@ -1,0 +1,1299 @@
+{
+    "inventory_version":  1,
+    "matching_policy":  "exact_case_sensitive_line_occurrences",
+    "classifications":  [
+                            "active_identity",
+                            "legacy_persisted_input",
+                            "historical_evidence",
+                            "external_or_legal_text"
+                        ],
+    "occurrences":  [
+                        {
+                            "path":  "AGENTS.md",
+                            "line":  236,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "89985f5e24fd3901b833c4effbb440b073971ded37b131e93c968d54e28bd4b6",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "AGENTS.md",
+                            "line":  236,
+                            "token":  "underscore_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "89985f5e24fd3901b833c4effbb440b073971ded37b131e93c968d54e28bd4b6",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "AGENTS.md",
+                            "line":  319,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "037e68c26df5587204f03eb8f9469f8577248b1e69d6ad3c1d8c3561a6f8972c",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "AGENTS.md",
+                            "line":  319,
+                            "token":  "underscore_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "037e68c26df5587204f03eb8f9469f8577248b1e69d6ad3c1d8c3561a6f8972c",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "AGENTS.md",
+                            "line":  365,
+                            "token":  "underscore_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "6da2c0a4ef2b433559b606bb50ab6fb8829e616c1d3539e12476d73eeed8df1e",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "AGENTS.md",
+                            "line":  366,
+                            "token":  "underscore_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "fc21794d49265bc90b087ee3484b61bc3fce616012450580b8101609810d5266",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "AGENTS.md",
+                            "line":  378,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "aa84e86f91b7bb96c4d981426ed41a1925c2223e639213805b560acad120abd2",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "AGENTS.md",
+                            "line":  378,
+                            "token":  "underscore_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "aa84e86f91b7bb96c4d981426ed41a1925c2223e639213805b560acad120abd2",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "AGENTS.md",
+                            "line":  425,
+                            "token":  "underscore_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "edd10487546b1bf12617e4fd8c44af6d48d12bf0ea30df2f52ccb4ad93849a85",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "AGENTS.md",
+                            "line":  429,
+                            "token":  "underscore_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "d2ccdab8d70b4bb7cb47fea5c9ba783502728bc77fe411258e031f6a7ba6a505",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "CHANGELOG.md",
+                            "line":  122,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "1e4d46e8067af6bdeaf2091a7a24ff47b0a7d324277f90be2da9bd078dab685d",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "CHANGELOG.md",
+                            "line":  122,
+                            "token":  "underscore_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "1e4d46e8067af6bdeaf2091a7a24ff47b0a7d324277f90be2da9bd078dab685d",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "CHANGELOG.md",
+                            "line":  254,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "1dbe9728f2e397ebff146fca2cf0035ca0b946218952bbe76af30083abc1418e",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "CHANGELOG.md",
+                            "line":  254,
+                            "token":  "underscore_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "1dbe9728f2e397ebff146fca2cf0035ca0b946218952bbe76af30083abc1418e",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "CHANGELOG.md",
+                            "line":  338,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "bdb399a311cfe6b93a5592cc5c10b071c9ed4c3f69c2b4b8e5167efbda03f9a8",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "CHANGELOG.md",
+                            "line":  338,
+                            "token":  "underscore_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "bdb399a311cfe6b93a5592cc5c10b071c9ed4c3f69c2b4b8e5167efbda03f9a8",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "CHANGELOG.md",
+                            "line":  398,
+                            "token":  "underscore_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "8adbc23f825faeb4325582aae4b45cb09eefb68e21588adeb4085efcb83eac5a",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "CHANGELOG.md",
+                            "line":  407,
+                            "token":  "underscore_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "77a3fb64084640f9e4497cf1689caaf3163be71d3609a9b42a4be6949c007175",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "CHANGELOG.md",
+                            "line":  411,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "bba8079d924f03dc7aad527e4cbdc9f821911610104e23e2a394f5c8e7f6913e",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "CHANGELOG.md",
+                            "line":  412,
+                            "token":  "underscore_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "e3d2de989b06897bd356bfe3d502da65d3eb7de5973e0088ea387369247ce44d",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "CHANGELOG.md",
+                            "line":  445,
+                            "token":  "underscore_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "3e30353c59ff34cd1c23b23d620d78b4fbc596c54aed45c936c04bae91c5df6f",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "CHANGELOG.md",
+                            "line":  469,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "68bf897a413c3821e1165be6443bba095875486b3d5e0c1ec8d9c48ee13e9b78",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "CHANGELOG.md",
+                            "line":  469,
+                            "token":  "underscore_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "68bf897a413c3821e1165be6443bba095875486b3d5e0c1ec8d9c48ee13e9b78",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "CHANGELOG.md",
+                            "line":  470,
+                            "token":  "underscore_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "fd6fb8e2ab13b474f1c1f5c0e61c4ebd44976eb6bcb8f8c19c22143cf4b57ae6",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "CHANGELOG.md",
+                            "line":  498,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "73f35fad8b524cca94cf6b189d212b19c2a415ca2919f1f459aa719552ba1658",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "docs/historical_party_wide_claim.md",
+                            "line":  321,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "2db50616bff6f030437d17f5bc0b678aafe8e8f5414969ff0581b1d4253356f5",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "docs/historical_party_wide_claim.md",
+                            "line":  321,
+                            "token":  "underscore_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "2db50616bff6f030437d17f5bc0b678aafe8e8f5414969ff0581b1d4253356f5",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "docs/information_set_search_multi_step_and_policy_comparison.md",
+                            "line":  18,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "336e4ea77020b1ac64a57d1bff9223a971a7b510179980f63ddf87972e8cfe83",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "docs/information_set_search_multi_step_and_policy_comparison.md",
+                            "line":  18,
+                            "token":  "underscore_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "336e4ea77020b1ac64a57d1bff9223a971a7b510179980f63ddf87972e8cfe83",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "docs/information_set_search_workflows.md",
+                            "line":  21,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "336e4ea77020b1ac64a57d1bff9223a971a7b510179980f63ddf87972e8cfe83",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "docs/information_set_search_workflows.md",
+                            "line":  21,
+                            "token":  "underscore_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "336e4ea77020b1ac64a57d1bff9223a971a7b510179980f63ddf87972e8cfe83",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "docs/learning_corpus_browser_workflows.md",
+                            "line":  13,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "0100f2cace742bc48fbe62efda05af2d8c111765d5c94b1ca309985fe336d075",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "docs/learning_corpus_browser_workflows.md",
+                            "line":  13,
+                            "token":  "underscore_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "0100f2cace742bc48fbe62efda05af2d8c111765d5c94b1ca309985fe336d075",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "docs/packaging_and_distribution.md",
+                            "line":  343,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "3074d4bd5e0a7111c6b928c4d0dee10afd98445378dd2129a7f9c557eb5f7ed6",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "docs/packaging_and_distribution.md",
+                            "line":  343,
+                            "token":  "underscore_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "3074d4bd5e0a7111c6b928c4d0dee10afd98445378dd2129a7f9c557eb5f7ed6",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "docs/project_handoff.md",
+                            "line":  286,
+                            "token":  "underscore_identity",
+                            "count":  2,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "3e061c164de9567f74cb7fe5b3fc7811cbfe9afe7a3d5886a3c945d206453bbb",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "docs/project_handoff.md",
+                            "line":  429,
+                            "token":  "underscore_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "67375af03f18dabdcece53d9e062ba7cdb8670761fa8b5e4b9067f772f0d1cef",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "docs/project_handoff.md",
+                            "line":  445,
+                            "token":  "underscore_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "6e02cc3bb4f42920cd53b4702806912f47a9cdc052b5f669b64e76b92ea6038c",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "docs/project_handoff.md",
+                            "line":  455,
+                            "token":  "underscore_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "f52ec21275c2966508a83cbac624dba166279a787107c0b73a33633e65bb6ae6",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "docs/project_handoff.md",
+                            "line":  1577,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "8880098c28e918dbb14dc2195bc07e29ea8a7c9d60096c45a6fe909e08752269",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "docs/project_handoff.md",
+                            "line":  1577,
+                            "token":  "underscore_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "8880098c28e918dbb14dc2195bc07e29ea8a7c9d60096c45a6fe909e08752269",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "docs/project_handoff.md",
+                            "line":  1892,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "8a09c07f8a06cec6d7fa2463197fa4e9be1a4d66e2cf9f6637ae944ae29c60e9",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "docs/project_handoff.md",
+                            "line":  1893,
+                            "token":  "underscore_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "5571e8065b896a0259dff95791775e95a463a34f67a9dab1f41b7f4f5815021e",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "docs/requirements_traceability.md",
+                            "line":  193,
+                            "token":  "underscore_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "bf4b95fb95043b3ede62859eabb7ef288d1b249fb5c54bf9d4d7e90974a494d8",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "docs/requirements_traceability.md",
+                            "line":  585,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "7256ef3903ba320b182bc34721b11132d4c33d3d7725d41eed227153fd159039",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "docs/requirements_traceability.md",
+                            "line":  585,
+                            "token":  "underscore_identity",
+                            "count":  2,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "7256ef3903ba320b182bc34721b11132d4c33d3d7725d41eed227153fd159039",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "docs/roadmap.md",
+                            "line":  231,
+                            "token":  "underscore_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "0ddb9186ddfbf552dd80adf8f46d533160770536817d163ec9256a51335e8c7d",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "docs/skatmind_rename_and_migration.md",
+                            "line":  30,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "454887a5b49d98a8f83d86e828e220a62dcc01d3141ded1f36baf82927c90fe9",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "docs/skatmind_rename_and_migration.md",
+                            "line":  30,
+                            "token":  "underscore_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "454887a5b49d98a8f83d86e828e220a62dcc01d3141ded1f36baf82927c90fe9",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "docs/skatmind_rename_and_migration.md",
+                            "line":  31,
+                            "token":  "public_symbol_prefix",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "51940e804b0c943582e09344ec69b90adc13990f9463339aafe14ca6e8826db7",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "docs/skatmind_rename_and_migration.md",
+                            "line":  38,
+                            "token":  "underscore_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "cfcf5521e5b770b907ff1437e8caf02a2d3d7dd772e34fcfaf6fa8f47c59f712",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "docs/skatmind_rename_and_migration.md",
+                            "line":  39,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "38fb74c158710d4740e98509be3a16e460ba616b25d410e667d89fe1cf0de098",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "docs/skatmind_rename_and_migration.md",
+                            "line":  40,
+                            "token":  "underscore_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "ad8a8a316453be98b42c38bd220225ac481c08c8a9c7b7fa04acaea0a7adc9dd",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "docs/skatmind_rename_and_migration.md",
+                            "line":  74,
+                            "token":  "underscore_identity",
+                            "count":  1,
+                            "classification":  "legacy_persisted_input",
+                            "line_sha256":  "5528125d2e67955fd4f7c08ff8e40cfa12e878ade39f2517d06089c215a2435c",
+                            "reason":  "Documented exact legacy persisted-input kind or fingerprint domain used only by strict migration verification."
+                        },
+                        {
+                            "path":  "docs/skatmind_rename_and_migration.md",
+                            "line":  75,
+                            "token":  "underscore_identity",
+                            "count":  1,
+                            "classification":  "legacy_persisted_input",
+                            "line_sha256":  "82f34dff5310ad5641c92e7edf315e3253d01de106b2bab0d0d81bfc9c378c67",
+                            "reason":  "Documented exact legacy persisted-input kind or fingerprint domain used only by strict migration verification."
+                        },
+                        {
+                            "path":  "docs/skatmind_rename_and_migration.md",
+                            "line":  76,
+                            "token":  "underscore_identity",
+                            "count":  1,
+                            "classification":  "legacy_persisted_input",
+                            "line_sha256":  "2cb258283971cb8c1c3d2baf846720d3b4aae1bb121e8a69e948282bee605f04",
+                            "reason":  "Documented exact legacy persisted-input kind or fingerprint domain used only by strict migration verification."
+                        },
+                        {
+                            "path":  "docs/skatmind_rename_and_migration.md",
+                            "line":  77,
+                            "token":  "underscore_identity",
+                            "count":  1,
+                            "classification":  "legacy_persisted_input",
+                            "line_sha256":  "401074932ca018f477d12ce0d661a5e02814d215ccd312c5f9613c5269afb9af",
+                            "reason":  "Documented exact legacy persisted-input kind or fingerprint domain used only by strict migration verification."
+                        },
+                        {
+                            "path":  "docs/skatmind_rename_and_migration.md",
+                            "line":  88,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "legacy_persisted_input",
+                            "line_sha256":  "1752b69fa44092faf4a6782c8a0992ba5b10c48d96c47c355a97d49219b4fefe",
+                            "reason":  "Documented exact legacy persisted-input kind or fingerprint domain used only by strict migration verification."
+                        },
+                        {
+                            "path":  "docs/skatmind_rename_and_migration.md",
+                            "line":  89,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "legacy_persisted_input",
+                            "line_sha256":  "0a004518a312621d9718524656c8bc52f9ae46798fe6826e34f69513f6874033",
+                            "reason":  "Documented exact legacy persisted-input kind or fingerprint domain used only by strict migration verification."
+                        },
+                        {
+                            "path":  "docs/skatmind_rename_and_migration.md",
+                            "line":  90,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "legacy_persisted_input",
+                            "line_sha256":  "34e89bca462b17b0ca8e4e2abf107dfb3f006ce1326981393a0cb8e51faa19a1",
+                            "reason":  "Documented exact legacy persisted-input kind or fingerprint domain used only by strict migration verification."
+                        },
+                        {
+                            "path":  "docs/skatmind_rename_and_migration.md",
+                            "line":  91,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "legacy_persisted_input",
+                            "line_sha256":  "bfa01e7c46904690b1de0ee799cffa4e9ef92942a101941f92ed0e085c5c3b31",
+                            "reason":  "Documented exact legacy persisted-input kind or fingerprint domain used only by strict migration verification."
+                        },
+                        {
+                            "path":  "docs/skatmind_rename_and_migration.md",
+                            "line":  92,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "legacy_persisted_input",
+                            "line_sha256":  "b118de1555c2124be1fa83ed3468763d294e2e8967ae00c44506eb6dd8271196",
+                            "reason":  "Documented exact legacy persisted-input kind or fingerprint domain used only by strict migration verification."
+                        },
+                        {
+                            "path":  "docs/skatmind_rename_and_migration.md",
+                            "line":  93,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "legacy_persisted_input",
+                            "line_sha256":  "573bafc0ce046571408c21fb9f689e18a1c350f108bcfb38156522d62f210fcc",
+                            "reason":  "Documented exact legacy persisted-input kind or fingerprint domain used only by strict migration verification."
+                        },
+                        {
+                            "path":  "docs/skatmind_rename_and_migration.md",
+                            "line":  94,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "legacy_persisted_input",
+                            "line_sha256":  "6783dd65057e34a8119c525c3995ff064aa47c6483785beafcfc1176a14bd366",
+                            "reason":  "Documented exact legacy persisted-input kind or fingerprint domain used only by strict migration verification."
+                        },
+                        {
+                            "path":  "docs/skatmind_rename_and_migration.md",
+                            "line":  112,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "legacy_persisted_input",
+                            "line_sha256":  "83e25935df70d7191db265545c4b9b63c3702f256cfcd6e1651c981da5dffe04",
+                            "reason":  "Documented exact legacy persisted-input kind or fingerprint domain used only by strict migration verification."
+                        },
+                        {
+                            "path":  "docs/skatmind_rename_and_migration.md",
+                            "line":  113,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "legacy_persisted_input",
+                            "line_sha256":  "e2e9a2d3c89990e565105c5cca68a0a65134ed15ea3699add5e7b6b446ff915f",
+                            "reason":  "Documented exact legacy persisted-input kind or fingerprint domain used only by strict migration verification."
+                        },
+                        {
+                            "path":  "docs/skatmind_rename_and_migration.md",
+                            "line":  114,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "legacy_persisted_input",
+                            "line_sha256":  "8258f0b48a27554b2c5683595bae72ba2e5669c62c01f9db3675f646687b0865",
+                            "reason":  "Documented exact legacy persisted-input kind or fingerprint domain used only by strict migration verification."
+                        },
+                        {
+                            "path":  "docs/skatmind_rename_and_migration.md",
+                            "line":  115,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "legacy_persisted_input",
+                            "line_sha256":  "45bec1b9aa8a73f11081a894493e06f8f607396c5f01caa2e08b17df85e39fb2",
+                            "reason":  "Documented exact legacy persisted-input kind or fingerprint domain used only by strict migration verification."
+                        },
+                        {
+                            "path":  "docs/skatmind_rename_and_migration.md",
+                            "line":  116,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "legacy_persisted_input",
+                            "line_sha256":  "749017ce7adae1e7deffe901b30217736203a411d56e6fdd78873318b303fa68",
+                            "reason":  "Documented exact legacy persisted-input kind or fingerprint domain used only by strict migration verification."
+                        },
+                        {
+                            "path":  "docs/skatmind_rename_and_migration.md",
+                            "line":  117,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "legacy_persisted_input",
+                            "line_sha256":  "95c19a3d845bf168a130b842331653f85d67de54974cb1a53d4e585ab990cde1",
+                            "reason":  "Documented exact legacy persisted-input kind or fingerprint domain used only by strict migration verification."
+                        },
+                        {
+                            "path":  "docs/skatmind_rename_and_migration.md",
+                            "line":  118,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "legacy_persisted_input",
+                            "line_sha256":  "4af5bf4170dcef3df3937a730b94bcaf6c810770d8dd48a86551615e0b2707c8",
+                            "reason":  "Documented exact legacy persisted-input kind or fingerprint domain used only by strict migration verification."
+                        },
+                        {
+                            "path":  "docs/skatmind_rename_and_migration.md",
+                            "line":  130,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "feb12251ffbbfd7268ec5f2797ab49ba6b677b1af12566b0cff8bed28a27889c",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "docs/skatmind_rename_and_migration.md",
+                            "line":  177,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "db831002fb02c158d8de843ac2ebc6b26acd3b009bc28a65f36b7a63d068a160",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "docs/skatmind_rename_and_migration.md",
+                            "line":  177,
+                            "token":  "underscore_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "db831002fb02c158d8de843ac2ebc6b26acd3b009bc28a65f36b7a63d068a160",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "docs/v0_17_release_readiness_audit.md",
+                            "line":  20,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "ec30b1fd18fce680e380f99162a7249127161a96df57e92e37e198d699906e7f",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "docs/v0_17_release_readiness_audit.md",
+                            "line":  308,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "636d678dbc3272a7cc384023d3c667a58bc25284aad6fd6c06755c1005e6a68c",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "docs/v0_17_release_readiness_audit.md",
+                            "line":  308,
+                            "token":  "underscore_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "636d678dbc3272a7cc384023d3c667a58bc25284aad6fd6c06755c1005e6a68c",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "docs/v1_package_license.md",
+                            "line":  73,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "e75b09f975ecbee99dd0642c14a644fd07230ae078baaf90d6d5b52a1f68fdc6",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "docs/v1_package_license.md",
+                            "line":  73,
+                            "token":  "underscore_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "e75b09f975ecbee99dd0642c14a644fd07230ae078baaf90d6d5b52a1f68fdc6",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "docs/v1_package_license.md",
+                            "line":  74,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "3e2f1579b634037f709783fc0665581ef7010af232b791ed5b87a91fa4b4ae81",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "docs/v1_package_license.md",
+                            "line":  74,
+                            "token":  "underscore_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "3e2f1579b634037f709783fc0665581ef7010af232b791ed5b87a91fa4b4ae81",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "docs/v1_package_license.md",
+                            "line":  113,
+                            "token":  "underscore_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "c862621406f32a32061e294d653d7ad9427b3c8c3d43ca87ac99f880d717f94d",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "docs/v1_package_license.md",
+                            "line":  154,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "be17ce3cddc2cae164670e663e6f22072e2f85665a89e99d853d1666bd198fc6",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "docs/v1_package_license.md",
+                            "line":  154,
+                            "token":  "underscore_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "be17ce3cddc2cae164670e663e6f22072e2f85665a89e99d853d1666bd198fc6",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "docs/v1_scope.md",
+                            "line":  127,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "165c9321065b9d232b84f67b6b529b70488b55fc8aac0657c2dfe5078e5a506b",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "docs/v1_scope.md",
+                            "line":  127,
+                            "token":  "underscore_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "165c9321065b9d232b84f67b6b529b70488b55fc8aac0657c2dfe5078e5a506b",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "docs/v1_scope.md",
+                            "line":  168,
+                            "token":  "underscore_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "59f42949e5434100f9e767928939c46409e6497105fcb2b9e7f2c74a0fcef86d",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "README.md",
+                            "line":  1345,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "89985f5e24fd3901b833c4effbb440b073971ded37b131e93c968d54e28bd4b6",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "README.md",
+                            "line":  1345,
+                            "token":  "underscore_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "89985f5e24fd3901b833c4effbb440b073971ded37b131e93c968d54e28bd4b6",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "README.md",
+                            "line":  1420,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "b766ef551e11b4a18b39ed8b3a9b03bd4757db720530f9ee0fd5a9ea4e158f3d",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "README.md",
+                            "line":  1420,
+                            "token":  "underscore_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "b766ef551e11b4a18b39ed8b3a9b03bd4757db720530f9ee0fd5a9ea4e158f3d",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "README.md",
+                            "line":  1707,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "8a09c07f8a06cec6d7fa2463197fa4e9be1a4d66e2cf9f6637ae944ae29c60e9",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "README.md",
+                            "line":  1708,
+                            "token":  "underscore_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "3eeee5ff851f0848458db0156300b37e5e7a560473d31572903da7ec2631fcd1",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "README.md",
+                            "line":  1743,
+                            "token":  "underscore_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "a067a900dda265baf9086afebf622b217206fb909536b113120f1ca0bbd4c727",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "src/skatmind/coherent_hidden_world.py",
+                            "line":  564,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "6586e85a09420037f2772fab16ad0ffc7b53c5e1a2752abb9cc5d7f9e1267440",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "src/skatmind/dataset_preparation_identity.py",
+                            "line":  151,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "7d460a857c4b5f4d4a2475a83b7f6b7fed2bbf59095ca4173e973a67253ea803",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "src/skatmind/dataset_preparation_identity.py",
+                            "line":  171,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "d4fe9d141aaf72b82a8873e559d63482990c0589e8fb0e7f985045cb0255b9c7",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "src/skatmind/historical_information_set_search_review.py",
+                            "line":  123,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "aa19f8653626329635262defcf0a267524cb86da090f114de6135412dc9b0378",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "src/skatmind/historical_search_review.py",
+                            "line":  108,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "ce2f7acce2fe3a3d2e30de21c4a2bb08ab9ff52bd93933d6b8226b3988426359",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "src/skatmind/learning_corpus_identity.py",
+                            "line":  35,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "legacy_persisted_input",
+                            "line_sha256":  "c86004e2f5ded66721fe42b5b250fe2f3b4e3cbe9e69444ee971c81987813b7c",
+                            "reason":  "Exact legacy persisted-input kind or fingerprint domain retained only in the strict Production migration seam."
+                        },
+                        {
+                            "path":  "src/skatmind/learning_corpus_identity.py",
+                            "line":  36,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "legacy_persisted_input",
+                            "line_sha256":  "3da84bf2bb69ad6f43e0e5ca0d708a0a8ac33cd82afeb589e4d826df36d5d1c5",
+                            "reason":  "Exact legacy persisted-input kind or fingerprint domain retained only in the strict Production migration seam."
+                        },
+                        {
+                            "path":  "src/skatmind/learning_corpus_identity.py",
+                            "line":  37,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "legacy_persisted_input",
+                            "line_sha256":  "2213e0a268e7e6422ef89a35b46c55989f398e126cb25ecfa92030ef14fce663",
+                            "reason":  "Exact legacy persisted-input kind or fingerprint domain retained only in the strict Production migration seam."
+                        },
+                        {
+                            "path":  "src/skatmind/learning_corpus_identity.py",
+                            "line":  38,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "legacy_persisted_input",
+                            "line_sha256":  "a4c5edc44ffb6e7eb21ad1f4f553e4889f95fc77d364bc1acf265f1b63168328",
+                            "reason":  "Exact legacy persisted-input kind or fingerprint domain retained only in the strict Production migration seam."
+                        },
+                        {
+                            "path":  "src/skatmind/learning_corpus_identity.py",
+                            "line":  39,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "legacy_persisted_input",
+                            "line_sha256":  "bfa110492121c18edbbadfddcb0ddef5480b80747228c1c5f4faa365e9cc9b7d",
+                            "reason":  "Exact legacy persisted-input kind or fingerprint domain retained only in the strict Production migration seam."
+                        },
+                        {
+                            "path":  "src/skatmind/learning_corpus_identity.py",
+                            "line":  40,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "legacy_persisted_input",
+                            "line_sha256":  "f1774fa45bc7cae5aa5e1891e70f33cd418c1e40a7163e892218ef76cd9f8f99",
+                            "reason":  "Exact legacy persisted-input kind or fingerprint domain retained only in the strict Production migration seam."
+                        },
+                        {
+                            "path":  "src/skatmind/learning_corpus_identity.py",
+                            "line":  41,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "legacy_persisted_input",
+                            "line_sha256":  "ff455592f39bd85c462b3f7510e7d646b5dc7a9598a54b89118a526cdc42e7df",
+                            "reason":  "Exact legacy persisted-input kind or fingerprint domain retained only in the strict Production migration seam."
+                        },
+                        {
+                            "path":  "src/skatmind/learning_corpus_persistence_codec.py",
+                            "line":  52,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "legacy_persisted_input",
+                            "line_sha256":  "8fb5b1a2dc79a54013efdb9e4a5868f0c26826ccc08a2d651ea50e2bb426bea9",
+                            "reason":  "Exact legacy persisted-input kind or fingerprint domain retained only in the strict Production migration seam."
+                        },
+                        {
+                            "path":  "src/skatmind/learning_corpus_persistence_codec.py",
+                            "line":  53,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "legacy_persisted_input",
+                            "line_sha256":  "0415a7493779069dfc280e5b41cbb998305f5dbc330c694d87e00763d6ad6173",
+                            "reason":  "Exact legacy persisted-input kind or fingerprint domain retained only in the strict Production migration seam."
+                        },
+                        {
+                            "path":  "src/skatmind/learning_corpus_persistence_contracts.py",
+                            "line":  24,
+                            "token":  "underscore_identity",
+                            "count":  1,
+                            "classification":  "legacy_persisted_input",
+                            "line_sha256":  "68b45b13769ed237d0e77284482806d4d03083fb9ac00aceb8af82587a05a9b6",
+                            "reason":  "Exact legacy persisted-input kind or fingerprint domain retained only in the strict Production migration seam."
+                        },
+                        {
+                            "path":  "src/skatmind/learning_dataset_v2_partition_identity.py",
+                            "line":  227,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "47fcac30570feab3fdb088cf643413c4f67af8d65d3a29188fc33704be2e9141",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "src/skatmind/learning_dataset_v2_partition_identity.py",
+                            "line":  242,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "6cc207224ab0fa547ebae74d95c5762e0a3f335a2ceb9eb55aad3a82937a2208",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "src/skatmind/match_analysis_contracts.py",
+                            "line":  88,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "legacy_persisted_input",
+                            "line_sha256":  "e7e94e5a3b58b22791bc1a2fbfb965d10c819acba863c9795ee34312f89084a2",
+                            "reason":  "Exact legacy persisted-input kind or fingerprint domain retained only in the strict Production migration seam."
+                        },
+                        {
+                            "path":  "src/skatmind/match_analysis_report_source_export.py",
+                            "line":  21,
+                            "token":  "underscore_identity",
+                            "count":  1,
+                            "classification":  "legacy_persisted_input",
+                            "line_sha256":  "8bb66a879d9dcdb567ce741f1e135e8304462d79938729ae6a2eabcb6c1cd8c6",
+                            "reason":  "Exact legacy persisted-input kind or fingerprint domain retained only in the strict Production migration seam."
+                        },
+                        {
+                            "path":  "src/skatmind/match_workspace_persistence_codec.py",
+                            "line":  57,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "legacy_persisted_input",
+                            "line_sha256":  "5090c24b861b211b4f32b563efeec5e3cd6c63daa14d6f3b65ea00a5d7ea7a18",
+                            "reason":  "Exact legacy persisted-input kind or fingerprint domain retained only in the strict Production migration seam."
+                        },
+                        {
+                            "path":  "src/skatmind/match_workspace_persistence_codec.py",
+                            "line":  58,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "legacy_persisted_input",
+                            "line_sha256":  "3cf2ab869ce2850a77440563909d412d187295c6a4778618ecd78643a918eedf",
+                            "reason":  "Exact legacy persisted-input kind or fingerprint domain retained only in the strict Production migration seam."
+                        },
+                        {
+                            "path":  "src/skatmind/match_workspace_persistence_contracts.py",
+                            "line":  12,
+                            "token":  "underscore_identity",
+                            "count":  1,
+                            "classification":  "legacy_persisted_input",
+                            "line_sha256":  "3108791dcfa3253e07ff748347de0e5bf457f25a9130f18a3dc872c34c5e2f63",
+                            "reason":  "Exact legacy persisted-input kind or fingerprint domain retained only in the strict Production migration seam."
+                        },
+                        {
+                            "path":  "src/skatmind/rename_contract.py",
+                            "line":  17,
+                            "token":  "underscore_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "85c129856132071ba7d62871ac823413d0eb7394c2a13088ec3b2359fda7ddcd",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "src/skatmind/rename_contract.py",
+                            "line":  46,
+                            "token":  "underscore_identity",
+                            "count":  1,
+                            "classification":  "legacy_persisted_input",
+                            "line_sha256":  "81a6bb341f909310a19c8f6da453c7ab36ba133ed6f8e8049f1b333164e435c6",
+                            "reason":  "Exact legacy persisted-input kind or fingerprint domain retained only in the strict Production migration seam."
+                        },
+                        {
+                            "path":  "src/skatmind/rename_contract.py",
+                            "line":  47,
+                            "token":  "underscore_identity",
+                            "count":  1,
+                            "classification":  "legacy_persisted_input",
+                            "line_sha256":  "f6731950dc16a61f778d3409cc61a3e0b4e5b0f945a31931899f587fed54806a",
+                            "reason":  "Exact legacy persisted-input kind or fingerprint domain retained only in the strict Production migration seam."
+                        },
+                        {
+                            "path":  "src/skatmind/rename_contract.py",
+                            "line":  48,
+                            "token":  "underscore_identity",
+                            "count":  1,
+                            "classification":  "legacy_persisted_input",
+                            "line_sha256":  "6f0b66d7d67d82d023e67c1bcd8d349b5da655552fc3590eb50a72e49524b2d2",
+                            "reason":  "Exact legacy persisted-input kind or fingerprint domain retained only in the strict Production migration seam."
+                        },
+                        {
+                            "path":  "src/skatmind/rename_contract.py",
+                            "line":  49,
+                            "token":  "underscore_identity",
+                            "count":  1,
+                            "classification":  "legacy_persisted_input",
+                            "line_sha256":  "8e7ea50cc13638f6a8b7dc47f597f292639fcdf95d1317ae0cd078834d30dc74",
+                            "reason":  "Exact legacy persisted-input kind or fingerprint domain retained only in the strict Production migration seam."
+                        },
+                        {
+                            "path":  "src/skatmind/session_persistence_codec.py",
+                            "line":  63,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "legacy_persisted_input",
+                            "line_sha256":  "2e86f3279cb34bb36b23e0b155e8c8b220d44562e14a706bff799e5eff2c8c4b",
+                            "reason":  "Exact legacy persisted-input kind or fingerprint domain retained only in the strict Production migration seam."
+                        },
+                        {
+                            "path":  "src/skatmind/session_persistence_codec.py",
+                            "line":  64,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "legacy_persisted_input",
+                            "line_sha256":  "20240a508a059f2ef701d9788e97a3d7dc6613960b76f524794ae182778b850d",
+                            "reason":  "Exact legacy persisted-input kind or fingerprint domain retained only in the strict Production migration seam."
+                        },
+                        {
+                            "path":  "src/skatmind/session_persistence_contracts.py",
+                            "line":  13,
+                            "token":  "underscore_identity",
+                            "count":  1,
+                            "classification":  "legacy_persisted_input",
+                            "line_sha256":  "8bcc9b1f55fe653ede3f7811120432f070674e415452579a8f399673389c56a8",
+                            "reason":  "Exact legacy persisted-input kind or fingerprint domain retained only in the strict Production migration seam."
+                        },
+                        {
+                            "path":  "tests/fixtures/skatmind_rename/legacy_learning_corpus_catalog_v0_17.json",
+                            "line":  3,
+                            "token":  "underscore_identity",
+                            "count":  1,
+                            "classification":  "legacy_persisted_input",
+                            "line_sha256":  "570f531fb2c3ec1ddeb90042b9ce10a7cc9c6697a47bf9a37292ffeccdb105bc",
+                            "reason":  "Retained exact v0.17 legacy fixture identity used only for migration regression coverage."
+                        },
+                        {
+                            "path":  "tests/fixtures/skatmind_rename/legacy_match_analysis_report_source_v0_17.json",
+                            "line":  3,
+                            "token":  "underscore_identity",
+                            "count":  1,
+                            "classification":  "legacy_persisted_input",
+                            "line_sha256":  "24d932c4f6e9f7b1f3f3e3c8134efa57b203f3921196fa3386340f631d57a66d",
+                            "reason":  "Retained exact v0.17 legacy fixture identity used only for migration regression coverage."
+                        },
+                        {
+                            "path":  "tests/fixtures/skatmind_rename/legacy_match_workspace_v0_17.json",
+                            "line":  3,
+                            "token":  "underscore_identity",
+                            "count":  1,
+                            "classification":  "legacy_persisted_input",
+                            "line_sha256":  "c6bf441d2fbda04f8241ce33a5e58ce173f7fdd7d307702e3892b89bcdb6961c",
+                            "reason":  "Retained exact v0.17 legacy fixture identity used only for migration regression coverage."
+                        },
+                        {
+                            "path":  "tests/fixtures/skatmind_rename/legacy_session_v0_17.json",
+                            "line":  3,
+                            "token":  "underscore_identity",
+                            "count":  1,
+                            "classification":  "legacy_persisted_input",
+                            "line_sha256":  "720ae30871da4ca9fd32fca1a3a4f244ba2ccdc78766b7900d5a05b1952bb5e3",
+                            "reason":  "Retained exact v0.17 legacy fixture identity used only for migration regression coverage."
+                        },
+                        {
+                            "path":  "tests/test_dataset_preparation_identity.py",
+                            "line":  87,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "7213ba7bb2320ffb62672a0ff41d11c37006334c478b7c216ef99abcc07c67f2",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "tests/test_dataset_preparation_identity.py",
+                            "line":  90,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "331946168aff3dd70bdd3b0960eded77366fe4f1fb0263464b87a365a196002b",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "tests/test_historical_search_review.py",
+                            "line":  147,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "5013a941b255b8f0a323a3e8cd6a585c13a87ac54776e675d91f6a1d3a2aeaf5",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "tests/test_skatmind_rename.py",
+                            "line":  112,
+                            "token":  "underscore_identity",
+                            "count":  1,
+                            "classification":  "legacy_persisted_input",
+                            "line_sha256":  "acc009d30168b84e049fa0436b36cc9003feaf827f39677095324883df67c149",
+                            "reason":  "Focused migration test material for exact legacy kind/domain verification and mixed-profile rejection."
+                        },
+                        {
+                            "path":  "tests/test_skatmind_rename.py",
+                            "line":  114,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "legacy_persisted_input",
+                            "line_sha256":  "390de8839ae20e8975e5d9992f819b659583d1aa73a348cd2d7339dc8642856c",
+                            "reason":  "Focused migration test material for exact legacy kind/domain verification and mixed-profile rejection."
+                        },
+                        {
+                            "path":  "tests/test_skatmind_rename.py",
+                            "line":  120,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "legacy_persisted_input",
+                            "line_sha256":  "88294f14ba1f9b8192338eafe10ba7fa5a840f4fa357f52b9502185cf7e04184",
+                            "reason":  "Focused migration test material for exact legacy kind/domain verification and mixed-profile rejection."
+                        },
+                        {
+                            "path":  "tests/test_skatmind_rename.py",
+                            "line":  128,
+                            "token":  "underscore_identity",
+                            "count":  1,
+                            "classification":  "legacy_persisted_input",
+                            "line_sha256":  "ad1ae013345ff297f8149b246faabd8d8035ccb6c6a8feb045542bd1f25946ce",
+                            "reason":  "Focused migration test material for exact legacy kind/domain verification and mixed-profile rejection."
+                        },
+                        {
+                            "path":  "tests/test_skatmind_rename.py",
+                            "line":  130,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "legacy_persisted_input",
+                            "line_sha256":  "f28d7bb079a1053f8928b05f2c0b669ac121d565ff7b4f2f4d8d9613dd8af179",
+                            "reason":  "Focused migration test material for exact legacy kind/domain verification and mixed-profile rejection."
+                        },
+                        {
+                            "path":  "tests/test_skatmind_rename.py",
+                            "line":  136,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "legacy_persisted_input",
+                            "line_sha256":  "2449b6aa3d76e9c29525dd21aaf57b6da59459b7ee0d999903ec16e72f6b26cd",
+                            "reason":  "Focused migration test material for exact legacy kind/domain verification and mixed-profile rejection."
+                        },
+                        {
+                            "path":  "tests/test_skatmind_rename.py",
+                            "line":  144,
+                            "token":  "underscore_identity",
+                            "count":  1,
+                            "classification":  "legacy_persisted_input",
+                            "line_sha256":  "e704ca037469b7a70d390e61636601df874deb32f91158c3a7505674c3976819",
+                            "reason":  "Focused migration test material for exact legacy kind/domain verification and mixed-profile rejection."
+                        },
+                        {
+                            "path":  "tests/test_skatmind_rename.py",
+                            "line":  146,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "legacy_persisted_input",
+                            "line_sha256":  "f5e18d9f385577c860f59fb198596142231d3ab86beff8f197f7550eaa76eafa",
+                            "reason":  "Focused migration test material for exact legacy kind/domain verification and mixed-profile rejection."
+                        },
+                        {
+                            "path":  "tests/test_skatmind_rename.py",
+                            "line":  152,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "legacy_persisted_input",
+                            "line_sha256":  "62b1ceb3027e828dd9de0f66290683e0f44dbdbe6ea45a9b2595e92900ed61c6",
+                            "reason":  "Focused migration test material for exact legacy kind/domain verification and mixed-profile rejection."
+                        },
+                        {
+                            "path":  "tests/test_skatmind_rename.py",
+                            "line":  160,
+                            "token":  "underscore_identity",
+                            "count":  1,
+                            "classification":  "legacy_persisted_input",
+                            "line_sha256":  "b4be2b43477841ff968a97b44061bee32b0267065ab44697808469dae8e16931",
+                            "reason":  "Focused migration test material for exact legacy kind/domain verification and mixed-profile rejection."
+                        },
+                        {
+                            "path":  "tests/test_skatmind_rename.py",
+                            "line":  163,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "legacy_persisted_input",
+                            "line_sha256":  "58e7276f4d2bf5b86439fa5e61015d6b691f8200ef5589342180ae2e7f5d9a38",
+                            "reason":  "Focused migration test material for exact legacy kind/domain verification and mixed-profile rejection."
+                        },
+                        {
+                            "path":  "tests/test_skatmind_rename.py",
+                            "line":  186,
+                            "token":  "underscore_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "1bfebeded642bd3c02f49092541742aefaae22bedbb547c58876d9e8ad04b421",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        }
+                    ]
+}

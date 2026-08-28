@@ -10,8 +10,8 @@ Application services.
 Start one server for one explicit Workspace file:
 
 ```powershell
-skat-ai capture --workspace MATCH.json
-python -m skat_ai capture --workspace MATCH.json
+skatmind capture --workspace MATCH.json
+python -m skatmind capture --workspace MATCH.json
 python main.py capture --workspace MATCH.json
 ```
 

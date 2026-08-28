@@ -7,13 +7,13 @@ from test_historical_search_review import _fake_immediate, _fake_search
 from test_replay_coaching_contracts import _assessment, _evidence
 from test_search_provenance import _result, _unavailable
 
-from skat_ai.application import (
+from skatmind.application import (
     ApplicationExecutionOptions,
     HistoricalGameApplicationOptions,
     build_application_invocation,
     execute_application_invocation,
 )
-from skat_ai.replay_coaching_provenance import (
+from skatmind.replay_coaching_provenance import (
     REPLAY_COACHING_PROVENANCE_VERSION,
     build_replay_coaching_assessment_attachment,
     build_replay_coaching_decision_time_attachment,
@@ -127,11 +127,11 @@ def test_application_coaching_bundle_is_complete_ordered_and_one_pass(
         return _fake_immediate(**kwargs)
 
     monkeypatch.setattr(
-        "skat_ai.historical_search_review.solve_compatible_world_minimax",
+        "skatmind.historical_search_review.solve_compatible_world_minimax",
         search,
     )
     monkeypatch.setattr(
-        "skat_ai.historical_search_review.recommend_card_by_expected_value",
+        "skatmind.historical_search_review.recommend_card_by_expected_value",
         immediate,
     )
     execution = _execute(_load("historical_grand_normal_completion.json"))
@@ -185,11 +185,11 @@ def test_final_outcome_changes_do_not_change_assessment_prioritization_or_guidan
     monkeypatch,
 ) -> None:
     monkeypatch.setattr(
-        "skat_ai.historical_search_review.solve_compatible_world_minimax",
+        "skatmind.historical_search_review.solve_compatible_world_minimax",
         _fake_search,
     )
     monkeypatch.setattr(
-        "skat_ai.historical_search_review.recommend_card_by_expected_value",
+        "skatmind.historical_search_review.recommend_card_by_expected_value",
         _fake_immediate,
     )
     first = add_continuation(
@@ -236,11 +236,11 @@ def test_coaching_ledgers_contain_no_engine_private_search_or_deal_details(
     monkeypatch,
 ) -> None:
     monkeypatch.setattr(
-        "skat_ai.historical_search_review.solve_compatible_world_minimax",
+        "skatmind.historical_search_review.solve_compatible_world_minimax",
         _fake_search,
     )
     monkeypatch.setattr(
-        "skat_ai.historical_search_review.recommend_card_by_expected_value",
+        "skatmind.historical_search_review.recommend_card_by_expected_value",
         _fake_immediate,
     )
     execution = _execute(_load("historical_grand_normal_completion.json"))

@@ -14,15 +14,15 @@ from test_observed_game_contracts import (
     observed_plays_from_historical,
 )
 
-from skat_ai.deck import get_full_deck
-from skat_ai.game_declaration import GameDeclaration
-from skat_ai.match_capture_application import (
+from skatmind.deck import get_full_deck
+from skatmind.game_declaration import GameDeclaration
+from skatmind.match_capture_application import (
     append_match_capture_plays_v1,
     mark_match_capture_passed_deal_v1,
     set_match_capture_declaration_v1,
     start_match_capture_game_v1,
 )
-from skat_ai.match_capture_application_contracts import (
+from skatmind.match_capture_application_contracts import (
     MATCH_CAPTURE_ANNOTATION_ID_POLICY,
     MATCH_CAPTURE_APPLICATION_OPERATIONS,
     MATCH_CAPTURE_APPLICATION_POLICY,
@@ -41,9 +41,9 @@ from skat_ai.match_capture_application_contracts import (
     MatchCaptureCardEntryV1,
     MatchCapturePositionViewV1,
 )
-from skat_ai.match_capture_position_view import build_match_capture_position_view_v1
-from skat_ai.match_source_metadata import MediaTimecodeV1
-from skat_ai.match_workspace_contracts import create_match_workspace_v1
+from skatmind.match_capture_position_view import build_match_capture_position_view_v1
+from skatmind.match_source_metadata import MediaTimecodeV1
+from skatmind.match_workspace_contracts import create_match_workspace_v1
 
 
 def _entry(card: str, start: int | None = None) -> MatchCaptureCardEntryV1:

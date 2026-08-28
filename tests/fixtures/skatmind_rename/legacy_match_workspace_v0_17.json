@@ -1,0 +1,319 @@
+{
+  "match_workspace_persistence_version": 1,
+  "document_kind": "skat_ai_match_workspace",
+  "workspace_fingerprint": "4b37ca2431250b41af7055c51a7db4eeb527ce546cc83a09e26bfabf5d5f33cc",
+  "content_fingerprint": "df4edc121727d064689175631c1963864f3269ca7a510fa6d3debb934ae94afa",
+  "workspace": {
+    "match_workspace_contract_version": 1,
+    "revision": 1,
+    "match_definition": {
+      "match_capture_contract_version": 1,
+      "match_id": "match-160",
+      "title": "Observed EuroSkat Match",
+      "game_platform": "EuroSkat",
+      "external_match_id": "external-match-42",
+      "played_at": "2026-08-09T18:00:00Z",
+      "tournament_format": {
+        "match_tournament_format_version": 1,
+        "format_id": "euroskat_36_standard_v1",
+        "provider": "EuroSkat",
+        "display_name": "36er Standard",
+        "player_count": 3,
+        "game_count": 36
+      },
+      "source": {
+        "match_source_metadata_version": 1,
+        "source_kind": "youtube_video",
+        "source_url": "https://www.youtube.com/watch?v=AbC_123-xy",
+        "source_title": "EuroSkat 36er Standard Match",
+        "source_channel_name": "Example Channel",
+        "match_timecode": {
+          "media_timecode_version": 1,
+          "start_offset_ms": 12345,
+          "end_offset_ms": 7654321
+        }
+      },
+      "participants": [
+        {
+          "player_id": "player-a",
+          "player_label": "Alice",
+          "platform_player_id": "platform-a",
+          "table_place": "place_1",
+          "statistics_snapshot": null
+        },
+        {
+          "player_id": "player-b",
+          "player_label": null,
+          "platform_player_id": "platform-b",
+          "table_place": "place_2",
+          "statistics_snapshot": null
+        },
+        {
+          "player_id": "player-c",
+          "player_label": "Carol",
+          "platform_player_id": null,
+          "table_place": "place_3",
+          "statistics_snapshot": null
+        }
+      ],
+      "perspective_player_id": "player-a"
+    },
+    "slots": [
+      {
+        "match_workspace_slot_version": 1,
+        "match_position": 1,
+        "slot_kind": "passed_deal",
+        "observed_game": null,
+        "passed_deal": {
+          "match_passed_deal_version": 1,
+          "game_timecode": null
+        }
+      },
+      {
+        "match_workspace_slot_version": 1,
+        "match_position": 2,
+        "slot_kind": "empty",
+        "observed_game": null,
+        "passed_deal": null
+      },
+      {
+        "match_workspace_slot_version": 1,
+        "match_position": 3,
+        "slot_kind": "empty",
+        "observed_game": null,
+        "passed_deal": null
+      },
+      {
+        "match_workspace_slot_version": 1,
+        "match_position": 4,
+        "slot_kind": "empty",
+        "observed_game": null,
+        "passed_deal": null
+      },
+      {
+        "match_workspace_slot_version": 1,
+        "match_position": 5,
+        "slot_kind": "empty",
+        "observed_game": null,
+        "passed_deal": null
+      },
+      {
+        "match_workspace_slot_version": 1,
+        "match_position": 6,
+        "slot_kind": "empty",
+        "observed_game": null,
+        "passed_deal": null
+      },
+      {
+        "match_workspace_slot_version": 1,
+        "match_position": 7,
+        "slot_kind": "empty",
+        "observed_game": null,
+        "passed_deal": null
+      },
+      {
+        "match_workspace_slot_version": 1,
+        "match_position": 8,
+        "slot_kind": "empty",
+        "observed_game": null,
+        "passed_deal": null
+      },
+      {
+        "match_workspace_slot_version": 1,
+        "match_position": 9,
+        "slot_kind": "empty",
+        "observed_game": null,
+        "passed_deal": null
+      },
+      {
+        "match_workspace_slot_version": 1,
+        "match_position": 10,
+        "slot_kind": "empty",
+        "observed_game": null,
+        "passed_deal": null
+      },
+      {
+        "match_workspace_slot_version": 1,
+        "match_position": 11,
+        "slot_kind": "empty",
+        "observed_game": null,
+        "passed_deal": null
+      },
+      {
+        "match_workspace_slot_version": 1,
+        "match_position": 12,
+        "slot_kind": "empty",
+        "observed_game": null,
+        "passed_deal": null
+      },
+      {
+        "match_workspace_slot_version": 1,
+        "match_position": 13,
+        "slot_kind": "empty",
+        "observed_game": null,
+        "passed_deal": null
+      },
+      {
+        "match_workspace_slot_version": 1,
+        "match_position": 14,
+        "slot_kind": "empty",
+        "observed_game": null,
+        "passed_deal": null
+      },
+      {
+        "match_workspace_slot_version": 1,
+        "match_position": 15,
+        "slot_kind": "empty",
+        "observed_game": null,
+        "passed_deal": null
+      },
+      {
+        "match_workspace_slot_version": 1,
+        "match_position": 16,
+        "slot_kind": "empty",
+        "observed_game": null,
+        "passed_deal": null
+      },
+      {
+        "match_workspace_slot_version": 1,
+        "match_position": 17,
+        "slot_kind": "empty",
+        "observed_game": null,
+        "passed_deal": null
+      },
+      {
+        "match_workspace_slot_version": 1,
+        "match_position": 18,
+        "slot_kind": "empty",
+        "observed_game": null,
+        "passed_deal": null
+      },
+      {
+        "match_workspace_slot_version": 1,
+        "match_position": 19,
+        "slot_kind": "empty",
+        "observed_game": null,
+        "passed_deal": null
+      },
+      {
+        "match_workspace_slot_version": 1,
+        "match_position": 20,
+        "slot_kind": "empty",
+        "observed_game": null,
+        "passed_deal": null
+      },
+      {
+        "match_workspace_slot_version": 1,
+        "match_position": 21,
+        "slot_kind": "empty",
+        "observed_game": null,
+        "passed_deal": null
+      },
+      {
+        "match_workspace_slot_version": 1,
+        "match_position": 22,
+        "slot_kind": "empty",
+        "observed_game": null,
+        "passed_deal": null
+      },
+      {
+        "match_workspace_slot_version": 1,
+        "match_position": 23,
+        "slot_kind": "empty",
+        "observed_game": null,
+        "passed_deal": null
+      },
+      {
+        "match_workspace_slot_version": 1,
+        "match_position": 24,
+        "slot_kind": "empty",
+        "observed_game": null,
+        "passed_deal": null
+      },
+      {
+        "match_workspace_slot_version": 1,
+        "match_position": 25,
+        "slot_kind": "empty",
+        "observed_game": null,
+        "passed_deal": null
+      },
+      {
+        "match_workspace_slot_version": 1,
+        "match_position": 26,
+        "slot_kind": "empty",
+        "observed_game": null,
+        "passed_deal": null
+      },
+      {
+        "match_workspace_slot_version": 1,
+        "match_position": 27,
+        "slot_kind": "empty",
+        "observed_game": null,
+        "passed_deal": null
+      },
+      {
+        "match_workspace_slot_version": 1,
+        "match_position": 28,
+        "slot_kind": "empty",
+        "observed_game": null,
+        "passed_deal": null
+      },
+      {
+        "match_workspace_slot_version": 1,
+        "match_position": 29,
+        "slot_kind": "empty",
+        "observed_game": null,
+        "passed_deal": null
+      },
+      {
+        "match_workspace_slot_version": 1,
+        "match_position": 30,
+        "slot_kind": "empty",
+        "observed_game": null,
+        "passed_deal": null
+      },
+      {
+        "match_workspace_slot_version": 1,
+        "match_position": 31,
+        "slot_kind": "empty",
+        "observed_game": null,
+        "passed_deal": null
+      },
+      {
+        "match_workspace_slot_version": 1,
+        "match_position": 32,
+        "slot_kind": "empty",
+        "observed_game": null,
+        "passed_deal": null
+      },
+      {
+        "match_workspace_slot_version": 1,
+        "match_position": 33,
+        "slot_kind": "empty",
+        "observed_game": null,
+        "passed_deal": null
+      },
+      {
+        "match_workspace_slot_version": 1,
+        "match_position": 34,
+        "slot_kind": "empty",
+        "observed_game": null,
+        "passed_deal": null
+      },
+      {
+        "match_workspace_slot_version": 1,
+        "match_position": 35,
+        "slot_kind": "empty",
+        "observed_game": null,
+        "passed_deal": null
+      },
+      {
+        "match_workspace_slot_version": 1,
+        "match_position": 36,
+        "slot_kind": "empty",
+        "observed_game": null,
+        "passed_deal": null
+      }
+    ]
+  }
+}

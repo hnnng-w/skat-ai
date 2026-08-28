@@ -11,36 +11,36 @@ from test_replay_coaching_contracts import (
 )
 from test_replay_coaching_prioritization import _zero_decision_data
 
-from skat_ai.bounded_search_result import (
+from skatmind.bounded_search_result import (
     ConsumedSearchBudget,
     build_serializable_bounded_search_result,
 )
-from skat_ai.historical_decision_snapshot import build_historical_decision_snapshots
-from skat_ai.historical_game import (
+from skatmind.historical_decision_snapshot import build_historical_decision_snapshots
+from skatmind.historical_game import (
     HISTORICAL_SEATS,
     build_historical_game_record,
     build_historical_game_summary,
 )
-from skat_ai.historical_search_review import (
+from skatmind.historical_search_review import (
     HISTORICAL_SEARCH_REVIEW_ANALYSIS_METHOD,
     HistoricalSearchReviewCoachingAnalysis,
     build_historical_search_review_coaching_analysis,
     build_historical_search_review_metrics,
     build_historical_search_review_summary,
 )
-from skat_ai.post_game_review import NOT_AVAILABLE_DECISION_QUALITY
-from skat_ai.replay_coaching_assessment import (
+from skatmind.post_game_review import NOT_AVAILABLE_DECISION_QUALITY
+from skatmind.replay_coaching_assessment import (
     build_replay_coaching_decision_assessment,
 )
-from skat_ai.replay_coaching_evidence import (
+from skatmind.replay_coaching_evidence import (
     REPLAY_COACHING_INFORMATION_POLICY,
     build_immediate_replay_coaching_evidence,
 )
-from skat_ai.replay_coaching_guidance import build_replay_coaching_guidance
-from skat_ai.replay_coaching_prioritization import (
+from skatmind.replay_coaching_guidance import build_replay_coaching_guidance
+from skatmind.replay_coaching_prioritization import (
     build_replay_coaching_prioritization_result,
 )
-from skat_ai.replay_coaching_report import (
+from skatmind.replay_coaching_report import (
     REPLAY_COACHING_OUTCOME_CONTEXT_POLICY,
     REPLAY_COACHING_REPORT_LIMITATIONS,
     REPLAY_COACHING_REPORT_METHOD,
@@ -51,14 +51,14 @@ from skat_ai.replay_coaching_report import (
     build_replay_coaching_report,
     build_serializable_replay_coaching_report,
 )
-from skat_ai.replay_coaching_report_context import (
+from skatmind.replay_coaching_report_context import (
     REPLAY_COACHING_TERMINAL_SUMMARY_FIELD_BY_END_REASON,
     ReplayCoachingGameContext,
     ReplayCoachingPlayerContext,
     build_replay_coaching_game_context,
     build_serializable_replay_coaching_game_context,
 )
-from skat_ai.retrospective_search_comparison import (
+from skatmind.retrospective_search_comparison import (
     build_search_actual_card_comparison,
     build_search_vs_immediate_comparison,
     build_serializable_search_actual_card_comparison,
@@ -83,9 +83,9 @@ def _collect_keys(value) -> set[str]:
 
 
 def _analyze(monkeypatch, data: dict, *, search=_historical_fake_search):
-    monkeypatch.setattr("skat_ai.historical_search_review.solve_compatible_world_minimax", search)
+    monkeypatch.setattr("skatmind.historical_search_review.solve_compatible_world_minimax", search)
     monkeypatch.setattr(
-        "skat_ai.historical_search_review.recommend_card_by_expected_value",
+        "skatmind.historical_search_review.recommend_card_by_expected_value",
         _historical_fake_immediate,
     )
     record = build_historical_game_record(data)
@@ -793,9 +793,9 @@ def test_one_pass_wrapper_preserves_public_review_and_call_counts(monkeypatch) -
         calls["immediate"] += 1
         return _historical_fake_immediate(**kwargs)
 
-    monkeypatch.setattr("skat_ai.historical_search_review.solve_compatible_world_minimax", search)
+    monkeypatch.setattr("skatmind.historical_search_review.solve_compatible_world_minimax", search)
     monkeypatch.setattr(
-        "skat_ai.historical_search_review.recommend_card_by_expected_value",
+        "skatmind.historical_search_review.recommend_card_by_expected_value",
         immediate,
     )
     result = build_historical_replay_coaching_analysis(
@@ -838,9 +838,9 @@ def test_public_builder_serializes_both_summaries_from_one_pass(monkeypatch) -> 
         calls["immediate"] += 1
         return _historical_fake_immediate(**kwargs)
 
-    monkeypatch.setattr("skat_ai.historical_search_review.solve_compatible_world_minimax", search)
+    monkeypatch.setattr("skatmind.historical_search_review.solve_compatible_world_minimax", search)
     monkeypatch.setattr(
-        "skat_ai.historical_search_review.recommend_card_by_expected_value",
+        "skatmind.historical_search_review.recommend_card_by_expected_value",
         immediate,
     )
 

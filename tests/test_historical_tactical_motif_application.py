@@ -4,21 +4,21 @@ from pathlib import Path
 
 import pytest
 
-import skat_ai.compatible_world_minimax as compatible_world_minimax_module
-import skat_ai.information_set_search_executor as information_set_search_executor_module
-from skat_ai.application import (
+import skatmind.compatible_world_minimax as compatible_world_minimax_module
+import skatmind.information_set_search_executor as information_set_search_executor_module
+from skatmind.application import (
     ApplicationExecutionOptions,
     HistoricalGameApplicationOptions,
     build_application_invocation,
     execute_application_invocation,
 )
-from skat_ai.application.execution import ApplicationWorkflowDependencies
-from skat_ai.application.historical_game_workflow import (
+from skatmind.application.execution import ApplicationWorkflowDependencies
+from skatmind.application.historical_game_workflow import (
     HistoricalGameWorkflowDependencies,
 )
-from skat_ai.errors import SkatAIValidationError
-from skat_ai.historical_decision_snapshot import build_historical_decision_snapshots
-from skat_ai.historical_tactical_motif_review import (
+from skatmind.errors import SkatMindValidationError
+from skatmind.historical_decision_snapshot import build_historical_decision_snapshots
+from skatmind.historical_tactical_motif_review import (
     build_historical_tactical_motif_review_v1,
 )
 
@@ -140,7 +140,7 @@ def test_tactical_review_reuses_one_snapshot_sequence_when_combined() -> None:
 
 
 def test_tactical_option_is_strict_boolean_and_omitted_by_default() -> None:
-    with pytest.raises(SkatAIValidationError, match="must be a boolean"):
+    with pytest.raises(SkatMindValidationError, match="must be a boolean"):
         HistoricalGameApplicationOptions(
             historical_tactical_motif_review=1  # type: ignore[arg-type]
         )

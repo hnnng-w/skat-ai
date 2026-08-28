@@ -11,8 +11,8 @@ from test_observed_game_contracts import (
     observed_plays_from_historical,
 )
 
-from skat_ai.game_declaration import GameDeclaration
-from skat_ai.observed_game_evidence import (
+from skatmind.game_declaration import GameDeclaration
+from skatmind.observed_game_evidence import (
     ObservedGameEvidenceSummaryV1,
     build_observed_game_evidence_summary_v1,
 )
@@ -176,8 +176,8 @@ def test_commentary_and_response_counts_use_canonical_retained_values() -> None:
 
 
 def test_evidence_builder_is_deterministic_fresh_and_executes_no_workflow(monkeypatch) -> None:
-    import skat_ai.historical_game as historical_game
-    import skat_ai.training_dataset as training_dataset
+    import skatmind.historical_game as historical_game
+    import skatmind.training_dataset as training_dataset
 
     def unexpected_execution(*_args, **_kwargs):
         raise AssertionError("Evidence summary attempted workflow materialization.")

@@ -101,7 +101,7 @@ LEARNING_CORPUS_HUMAN_EVIDENCE_EXPORT_POLICY =
 The export document kind is:
 
 ```text
-skat_ai_learning_corpus_human_evidence
+skatmind_learning_corpus_human_evidence
 ```
 
 ## Canonical identities
@@ -119,13 +119,13 @@ separators = (",", ":")
 The SHA-256 domains are:
 
 ```text
-skat-ai\0learning_corpus_human_evidence_collection_v1\0
-skat-ai\0learning_corpus_human_evidence_game_v1\0
-skat-ai\0learning_corpus_commentary_content_v1\0
-skat-ai\0learning_corpus_commentary_evidence_v1\0
-skat-ai\0learning_corpus_response_content_v1\0
-skat-ai\0learning_corpus_response_evidence_v1\0
-skat-ai\0learning_corpus_human_evidence_export_v1\0
+skatmind\0learning_corpus_human_evidence_collection_v1\0
+skatmind\0learning_corpus_human_evidence_game_v1\0
+skatmind\0learning_corpus_commentary_content_v1\0
+skatmind\0learning_corpus_commentary_evidence_v1\0
+skatmind\0learning_corpus_response_content_v1\0
+skatmind\0learning_corpus_response_evidence_v1\0
+skatmind\0learning_corpus_human_evidence_export_v1\0
 ```
 
 The Commentary content fingerprint covers the exact complete

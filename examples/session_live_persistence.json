@@ -1,8 +1,8 @@
 {
   "session_persistence_version": 1,
-  "document_kind": "skat_ai_session",
-  "state_fingerprint": "11acc26419b61691446f7dadd5497b515ed203420356e25d983fe5896b9a4532",
-  "content_fingerprint": "578d091972c4bb6a8b29971d947e0fb03cc6f4424df99655741cc71ec831ebb0",
+  "document_kind": "skatmind_session",
+  "state_fingerprint": "9bd9609bee3ce56307a63fe5b8e355d0d385a8a635e658244112be5760debbdb",
+  "content_fingerprint": "e6b626479dd3ced79664de9b308f17823cceb8b8d271ab49228eb8384b544582",
   "state": {
     "session_contract_version": 1,
     "session_id": "session-live-example",

@@ -8,11 +8,11 @@ from test_historical_information_set_search_review import (
     _zero_decision_record,
 )
 
-from skat_ai.historical_information_set_search_review import (
+from skatmind.historical_information_set_search_review import (
     HistoricalInformationSetSearchReviewSettingsV1,
     build_historical_information_set_search_review_v1,
 )
-from skat_ai.information_set_replay_coaching_report import (
+from skatmind.information_set_replay_coaching_report import (
     INFORMATION_SET_REPLAY_COACHING_GUIDANCE_POLICY,
     INFORMATION_SET_REPLAY_COACHING_LIMITATIONS,
     INFORMATION_SET_REPLAY_COACHING_METHOD,
@@ -22,7 +22,7 @@ from skat_ai.information_set_replay_coaching_report import (
     build_information_set_replay_coaching_report_v1,
     build_serializable_information_set_replay_coaching_report_v1,
 )
-from skat_ai.replay_coaching_report import (
+from skatmind.replay_coaching_report import (
     build_replay_coaching_report,
     build_serializable_replay_coaching_report,
 )

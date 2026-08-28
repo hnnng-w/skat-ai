@@ -6,12 +6,12 @@ import pytest
 from jsonschema import Draft202012Validator, FormatChecker
 from referencing import Registry, Resource
 
-from skat_ai.historical_game import build_historical_game_record
-from skat_ai.input_validation import validate_position_input
-from skat_ai.opponent_policy import VALID_OPPONENT_CARD_POLICIES
-from skat_ai.opponent_policy_preset import VALID_OPPONENT_POLICY_PRESETS
-from skat_ai.opponent_statistics import build_opponent_statistics_input
-from skat_ai.training_dataset import build_training_dataset_input
+from skatmind.historical_game import build_historical_game_record
+from skatmind.input_validation import validate_position_input
+from skatmind.opponent_policy import VALID_OPPONENT_CARD_POLICIES
+from skatmind.opponent_policy_preset import VALID_OPPONENT_POLICY_PRESETS
+from skatmind.opponent_statistics import build_opponent_statistics_input
+from skatmind.training_dataset import build_training_dataset_input
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 SCHEMA_PATH = PROJECT_ROOT / "schemas" / "input.schema.json"

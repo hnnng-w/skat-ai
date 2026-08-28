@@ -5,31 +5,31 @@ from pathlib import Path
 import pytest
 
 from main import resolve_multi_step_card_selection_policy
-from skat_ai.bounded_search_result import (
+from skatmind.bounded_search_result import (
     AggregateSearchCandidateResult,
     BoundedSearchResult,
     ConsumedSearchBudget,
     RequestedSearchBudget,
     mark_bounded_search_fallback_used,
 )
-from skat_ai.card_selection import (
+from skatmind.card_selection import (
     DEFAULT_POLICY_COMPARISON_POLICIES,
     LEGACY_CARD_SELECTION_POLICIES,
     SEARCH_AWARE_MULTI_STEP_POLICIES,
     VALID_MULTI_STEP_POLICIES,
     choose_card_by_policy,
 )
-from skat_ai.coherent_hidden_world import (
+from skatmind.coherent_hidden_world import (
     CoherentHiddenWorld,
     derive_simulation_child_seed,
 )
-from skat_ai.game_declaration import GameDeclaration
-from skat_ai.game_state import GameState
-from skat_ai.information_set_search_workflow import (
+from skatmind.game_declaration import GameDeclaration
+from skatmind.game_state import GameState
+from skatmind.information_set_search_workflow import (
     INFORMATION_SET_SEARCH_RECOMMENDATION_METHOD,
     InformationSetSearchSettings,
 )
-from skat_ai.input_loader import (
+from skatmind.input_loader import (
     build_local_game_state_from_input,
     get_analysis_metadata_from_input,
     get_game_declaration_from_input,
@@ -37,17 +37,17 @@ from skat_ai.input_loader import (
     get_simulation_settings_from_input,
     load_position_from_json,
 )
-from skat_ai.multi_step_recommendation import (
+from skatmind.multi_step_recommendation import (
     MULTI_STEP_BOUNDED_SEARCH_DECISION_STREAM,
 )
-from skat_ai.multi_step_simulation import simulate_multiple_steps
-from skat_ai.multi_step_summary import build_multi_step_summary
-from skat_ai.policy_comparison import (
+from skatmind.multi_step_simulation import simulate_multiple_steps
+from skatmind.multi_step_summary import build_multi_step_summary
+from skatmind.policy_comparison import (
     build_policy_recommendation,
     compare_multi_step_policies,
     sort_policy_results_by_local_point_swing,
 )
-from skat_ai.recommendation_workflow import (
+from skatmind.recommendation_workflow import (
     AUTO_METHOD,
     BOUNDED_SEARCH_METHOD,
     COMPATIBLE_WORLD_MINIMAX_METHOD,
@@ -56,8 +56,8 @@ from skat_ai.recommendation_workflow import (
     RecommendationMethodConfiguration,
     RecommendationWorkflowResult,
 )
-from skat_ai.result_serialization import build_serializable_multi_step_result
-from skat_ai.strategic_metadata import StrategicMetadata
+from skatmind.result_serialization import build_serializable_multi_step_result
+from skatmind.strategic_metadata import StrategicMetadata
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
@@ -330,7 +330,7 @@ def test_search_repeats_with_public_counts_fresh_budget_and_separate_seeds(
         return _workflow(kwargs["configuration"], kwargs["state"], kwargs["state"].hand[0])
 
     monkeypatch.setattr(
-        "skat_ai.multi_step_simulation.execute_recommendation_workflow",
+        "skatmind.multi_step_simulation.execute_recommendation_workflow",
         fake_workflow,
     )
     result = simulate_multiple_steps(
@@ -419,7 +419,7 @@ def test_search_runs_only_after_canonical_completion_boundary(
         return _workflow(kwargs["configuration"], kwargs["state"], "D7")
 
     monkeypatch.setattr(
-        "skat_ai.multi_step_simulation.execute_recommendation_workflow",
+        "skatmind.multi_step_simulation.execute_recommendation_workflow",
         fake_workflow,
     )
     result = simulate_multiple_steps(
@@ -479,7 +479,7 @@ def test_strict_search_executes_qualified_partial_and_timeout_recommendations(
     configuration = _configuration(budget=_budget(timeout=timeout))
 
     monkeypatch.setattr(
-        "skat_ai.multi_step_simulation.execute_recommendation_workflow",
+        "skatmind.multi_step_simulation.execute_recommendation_workflow",
         lambda **kwargs: _workflow(
             kwargs["configuration"],
             kwargs["state"],
@@ -521,7 +521,7 @@ def test_auto_executes_immediate_fallback_and_counts_it(
     )
     configuration = _configuration(AUTO_METHOD)
     monkeypatch.setattr(
-        "skat_ai.multi_step_simulation.execute_recommendation_workflow",
+        "skatmind.multi_step_simulation.execute_recommendation_workflow",
         lambda **kwargs: _workflow(
             kwargs["configuration"],
             kwargs["state"],
@@ -562,7 +562,7 @@ def test_auto_without_search_or_immediate_card_stops_without_marking_fallback(
     )
     configuration = _configuration(AUTO_METHOD)
     monkeypatch.setattr(
-        "skat_ai.multi_step_simulation.execute_recommendation_workflow",
+        "skatmind.multi_step_simulation.execute_recommendation_workflow",
         lambda **kwargs: _workflow(
             kwargs["configuration"],
             kwargs["state"],
@@ -617,7 +617,7 @@ def test_no_recommendation_retains_opponent_preparation_and_stops(
         )
 
     monkeypatch.setattr(
-        "skat_ai.multi_step_simulation.execute_recommendation_workflow",
+        "skatmind.multi_step_simulation.execute_recommendation_workflow",
         no_recommendation,
     )
     result = simulate_multiple_steps(
@@ -665,7 +665,7 @@ def test_unexpected_search_errors_propagate(monkeypatch: pytest.MonkeyPatch) -> 
         next_player="me",
     )
     monkeypatch.setattr(
-        "skat_ai.multi_step_simulation.execute_recommendation_workflow",
+        "skatmind.multi_step_simulation.execute_recommendation_workflow",
         lambda **_kwargs: (_ for _ in ()).throw(RuntimeError("search failed")),
     )
     with pytest.raises(RuntimeError, match="search failed"):
@@ -702,7 +702,7 @@ def test_shared_public_prefix_search_decision_is_invariant_across_private_roots(
         return _workflow(kwargs["configuration"], kwargs["state"], "CA")
 
     monkeypatch.setattr(
-        "skat_ai.multi_step_simulation.execute_recommendation_workflow",
+        "skatmind.multi_step_simulation.execute_recommendation_workflow",
         fake_workflow,
     )
     first = simulate_multiple_steps(

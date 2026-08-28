@@ -6,15 +6,15 @@ import pytest
 from test_historical_game import build_historical_input
 from test_training_dataset import build_training_input
 
-from skat_ai.historical_decision_snapshot import build_historical_decision_snapshots
-from skat_ai.historical_game import build_historical_game_summary
-from skat_ai.rolling_opponent_policy_evaluation import (
+from skatmind.historical_decision_snapshot import build_historical_decision_snapshots
+from skatmind.historical_game import build_historical_game_summary
+from skatmind.rolling_opponent_policy_evaluation import (
     _build_paired_results,
     _build_prediction,
     build_serializable_rolling_opponent_policy_evaluation,
     evaluate_rolling_opponent_policy_predictions,
 )
-from skat_ai.training_dataset import build_training_dataset_input
+from skatmind.training_dataset import build_training_dataset_input
 
 
 def build_dataset(specs: list[tuple[str, str, dict]]):

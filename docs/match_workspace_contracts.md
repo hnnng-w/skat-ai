@@ -59,8 +59,14 @@ MATCH_WORKSPACE_RESUME_POLICY =
 The persistence document kind is:
 
 ```text
-skat_ai_match_workspace
+skatmind_match_workspace
 ```
+
+Issue #205 also reads exact pre-rename version-1 Workspace documents through a
+strict input-only kind/domain profile. Load never rewrites the source; mixed
+identity is rejected; the next explicit successful compare-and-swap Save writes
+the canonical kind and SkatMind fingerprint domains. See
+[SkatMind rename and migration](skatmind_rename_and_migration.md).
 
 These versions are independent from the Package, Public API, Session, Match
 Capture, observed-Game, fixed-list, Historical, Provenance, and Schema versions.
@@ -236,7 +242,7 @@ ASCII-escaped, finite canonical JSON for the complete validated
 `workspace.to_dict()`, prefixed by the NUL-separated domain:
 
 ```text
-skat-ai\0match_workspace_v1\0
+skatmind\0match_workspace_v1\0
 ```
 
 It includes revision, Match metadata and snapshots, all Slot kinds, observed
@@ -247,7 +253,7 @@ Workspace fingerprints.
 The content fingerprint uses the separate domain:
 
 ```text
-skat-ai\0match_workspace_persistence_v1\0
+skatmind\0match_workspace_persistence_v1\0
 ```
 
 Its material contains persistence version, document kind, Workspace fingerprint,
@@ -280,9 +286,9 @@ invalid versions, non-canonical arrays, invalid linkage or rotation, chronology
 conflicts, and either fingerprint mismatch. Progress is freshly derived after
 verification and is not persisted authority.
 
-Malformed or tampered persisted content raises `SkatAIValidationError`. A
+Malformed or tampered persisted content raises `SkatMindValidationError`. A
 post-verification disagreement among internally produced values raises
-`SkatAIInvariantError`.
+`SkatMindInvariantError`.
 
 ## File Load and Save
 

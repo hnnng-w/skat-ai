@@ -4,12 +4,12 @@ Issue #142 adds installed CLI contract version `1`. The three supported
 invocation forms are:
 
 ```text
-skat-ai
-python -m skat_ai
+skatmind
+python -m skatmind
 python main.py
 ```
 
-`skat-ai` and `python -m skat_ai` are installed Package interfaces. Repository-
+`skatmind` and `python -m skatmind` are installed Package interfaces. Repository-
 root `python main.py` is the Legacy compatibility interface and remains supported
 through at least `v1.0.0`.
 
@@ -38,34 +38,39 @@ An Editable, Wheel, or sdist installation exposes exactly one Console Script:
 
 ```toml
 [project.scripts]
-skat-ai = "skat_ai.cli:main"
+skatmind = "skatmind.cli:main"
 ```
 
-No GUI Script or second command alias is installed. `python -m skat_ai` delegates
-through `skat_ai/__main__.py` to the same Package-owned implementation. The
+No GUI Script or second command alias is installed. `python -m skatmind` delegates
+through `skatmind/__main__.py` to the same Package-owned implementation. The
 repository-root `main.py` file is not installed.
+
+Issue #205 is a hard cut: clean installations provide no old import Package,
+module form, or Console Script alias. Existing callers must move to the three
+forms above. Strict persisted-input compatibility is separate from CLI and import
+compatibility; see [SkatMind rename and migration](skatmind_rename_and_migration.md).
 
 ## Help and version
 
 Use either installed form from any caller working directory:
 
 ```powershell
-skat-ai --help
-python -m skat_ai --help
-skat-ai --version
-python -m skat_ai --version
+skatmind --help
+python -m skatmind --help
+skatmind --version
+python -m skatmind --version
 ```
 
 The exact installed version output is:
 
 ```text
-skat-ai 0.17.0
+SkatMind 0.17.0
 ```
 
 The source-only fallback, when distribution metadata is unavailable, is:
 
 ```text
-skat-ai 0+unknown
+SkatMind 0+unknown
 ```
 
 Help and version exit with Code `0`, write no error output, read no input or
@@ -77,16 +82,16 @@ focused `examples/...` commands.
 Session help is available with equal installed, module, and Legacy behavior:
 
 ```powershell
-skat-ai session --help
-python -m skat_ai session --help
+skatmind session --help
+python -m skatmind session --help
 python main.py session --help
 ```
 
 Issue #165 adds the separate local Match Capture family with the same parity:
 
 ```powershell
-skat-ai capture --workspace MATCH.json
-python -m skat_ai capture --workspace MATCH.json
+skatmind capture --workspace MATCH.json
+python -m skatmind capture --workspace MATCH.json
 python main.py capture --workspace MATCH.json
 ```
 
@@ -98,8 +103,8 @@ Issue #179 adds the separate private local Learning Corpus family with equal
 installed, module, and Legacy behavior:
 
 ```powershell
-skat-ai corpus --corpus CORPUS_ROOT
-python -m skat_ai corpus --corpus CORPUS_ROOT
+skatmind corpus --corpus CORPUS_ROOT
+python -m skatmind corpus --corpus CORPUS_ROOT
 python main.py corpus --corpus CORPUS_ROOT
 ```
 
@@ -150,8 +155,8 @@ Immediate fallback and never silently selects Information-set Search.
 The same JSON method and settings now work with existing Multi-Step options:
 
 ```powershell
-skat-ai --input position.json --multi-step 1
-skat-ai --input position.json --multi-step 1 --compare-policies
+skatmind --input position.json --multi-step 1
+skatmind --input position.json --multi-step 1 --compare-policies
 ```
 
 The existing card-policy matching rule applies. Every local decision performs
@@ -176,7 +181,7 @@ The CLI preserves this transport sequence:
 11. Print human-readable output unless `--quiet` is supplied.
 12. Print file confirmations unless `--quiet` is supplied.
 
-The CLI does not execute `skat_ai.api.v1` as an intermediate layer. It uses the
+The CLI does not execute `skatmind.api.v1` as an intermediate layer. It uses the
 same internal Application orchestration as the Public Python API while retaining
 CLI-specific file transport, validation, and presentation.
 
@@ -205,9 +210,9 @@ Public API, Schema, or derived persistence. See
 Use caller-owned paths with either installed form:
 
 ```powershell
-skat-ai --input position.json
-python -m skat_ai --input historical-game.json --output result.json --quiet
-skat-ai --input position.json --include-provenance --output result.json
+skatmind --input position.json
+python -m skatmind --input historical-game.json --output result.json --quiet
+skatmind --input position.json --include-provenance --output result.json
 ```
 
 Without `--quiet`, successful workflows preserve the existing human-readable
@@ -285,7 +290,7 @@ The stable process Exit Codes are:
 2 = CLI usage failure
 ```
 
-Semantic CLI errors use `SkatAICliUsageError`, the `CLI error:` prefix, and Code
+Semantic CLI errors use `SkatMindCliUsageError`, the `CLI error:` prefix, and Code
 `2`. Standard `argparse` syntax and unknown-option errors also use Code `2`.
 Expected `ValueError` and `OSError` failures use the `Error:` prefix and Code
 `1`. Unexpected exception classes are not broadly caught.
@@ -310,13 +315,13 @@ request limit `413`, and generic internal failure `500`.
 
 ## Compatibility
 
-The canonical implementation is under `skat_ai.cli`. Root `main.py` is a thin
+The canonical implementation is under `skatmind.cli`. Root `main.py` is a thin
 compatibility facade that preserves its existing importable wrappers, validators,
 formatters, Exit Code constants, `CliUsageError` alias, callable signatures, and
 established monkeypatch seams. A patched Root seam affects Legacy execution but
 does not require the installed Package CLI to import Root `main.py`.
 
-Issue #162 keeps `skat_ai.cli.execution` and `skat_ai.cli.session` as explicit
+Issue #162 keeps `skatmind.cli.execution` and `skatmind.cli.session` as explicit
 compatibility facades while focused internal modules own parsing, validation,
 Application adaptation, dispatch, transport, persistence/Checkpoint
 orchestration, and presentation. The Session Assistant imports those focused
@@ -325,7 +330,7 @@ output, Exit Code, Console Script, or compatibility version. See
 [CLI internal architecture](cli_internal_architecture.md).
 
 CLI functions and installed-CLI constants remain internal and are not stable
-Public Python API exports. Issue #147 additively extends `skat_ai.api.v1`, Root
+Public Python API exports. Issue #147 additively extends `skatmind.api.v1`, Root
 JSON Schema, and generated scenarios while preserving default Root JSON and the
 flattened Public API envelope.
 

@@ -1,14 +1,14 @@
-from skat_ai.bounded_search_result import RequestedSearchBudget
-from skat_ai.coherent_hidden_world import CoherentHiddenWorld
-from skat_ai.game_declaration import GameDeclaration
-from skat_ai.game_state import GameState
-from skat_ai.live_analysis_provenance import (
+from skatmind.bounded_search_result import RequestedSearchBudget
+from skatmind.coherent_hidden_world import CoherentHiddenWorld
+from skatmind.game_declaration import GameDeclaration
+from skatmind.game_state import GameState
+from skatmind.live_analysis_provenance import (
     build_live_decision_provenance_attachment,
 )
-from skat_ai.multi_step_simulation import simulate_multiple_steps
-from skat_ai.policy_comparison import compare_multi_step_policies
-from skat_ai.recommendation_workflow import RecommendationMethodConfiguration
-from skat_ai.strategic_metadata import StrategicMetadata
+from skatmind.multi_step_simulation import simulate_multiple_steps
+from skatmind.policy_comparison import compare_multi_step_policies
+from skatmind.recommendation_workflow import RecommendationMethodConfiguration
+from skatmind.strategic_metadata import StrategicMetadata
 
 
 def _world(
@@ -187,7 +187,7 @@ def test_search_inclusive_policy_comparison_threads_same_hook_once_per_policy(
         }
 
     monkeypatch.setattr(
-        "skat_ai.policy_comparison.simulate_multiple_steps",
+        "skatmind.policy_comparison.simulate_multiple_steps",
         fake_simulate_multiple_steps,
     )
     def hook(**_kwargs):

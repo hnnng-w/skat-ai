@@ -7,12 +7,12 @@ from test_session_decision_checkpoint import _ready_live_state
 from test_session_decision_observation import _observed
 from test_session_transitions import _complete_retrospective_session
 
-import skat_ai.api.v1.session as session_api
-import skat_ai.api.v1.session.files as session_files
-import skat_ai.cli.session as session_cli
-import skat_ai.cli.session_application as session_application
-import skat_ai.cli.session_assistant as assistant
-import skat_ai.cli.session_checkpoints as session_checkpoints
+import skatmind.api.v1.session as session_api
+import skatmind.api.v1.session.files as session_files
+import skatmind.cli.session as session_cli
+import skatmind.cli.session_application as session_application
+import skatmind.cli.session_assistant as assistant
+import skatmind.cli.session_checkpoints as session_checkpoints
 
 
 def _input_from(values: list[str]):

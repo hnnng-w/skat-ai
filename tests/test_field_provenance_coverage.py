@@ -2,13 +2,13 @@ from dataclasses import FrozenInstanceError
 
 import pytest
 
-from skat_ai.errors import SkatAIValidationError
-from skat_ai.field_provenance import (
+from skatmind.errors import SkatMindValidationError
+from skatmind.field_provenance import (
     FieldProvenanceEntry,
     FieldProvenanceExemption,
     FieldProvenanceLedger,
 )
-from skat_ai.field_provenance_coverage import (
+from skatmind.field_provenance_coverage import (
     FieldProvenanceCoverageSummary,
     build_field_provenance_coverage_summary,
     build_serializable_field_provenance_coverage_summary,
@@ -84,14 +84,14 @@ def test_leaf_enumeration_uses_sorted_object_keys_and_numeric_array_order() -> N
     ),
 )
 def test_leaf_enumeration_rejects_non_json_values(document: object) -> None:
-    with pytest.raises(SkatAIValidationError):
+    with pytest.raises(SkatMindValidationError):
         enumerate_json_leaf_paths(document)
 
 
 def test_leaf_enumeration_rejects_container_cycles_with_the_public_path() -> None:
     document: list[object] = []
     document.append(document)
-    with pytest.raises(SkatAIValidationError, match="cycles") as exc_info:
+    with pytest.raises(SkatMindValidationError, match="cycles") as exc_info:
         enumerate_json_leaf_paths(document)
     assert exc_info.value.path == "/0"
 
@@ -183,7 +183,7 @@ def test_coverage_summary_reports_orphaned_exemption() -> None:
     )
     summary = build_field_provenance_coverage_summary({"a": 1}, ledger)
     assert summary.orphaned_exemption_paths == ("/missing",)
-    with pytest.raises(SkatAIValidationError) as exc_info:
+    with pytest.raises(SkatMindValidationError) as exc_info:
         validate_field_provenance_coverage({"a": 1}, ledger)
     assert exc_info.value.path == "/missing"
 
@@ -208,7 +208,7 @@ def test_coverage_summary_reports_orphaned_exemption() -> None:
 def test_complete_coverage_validation_uses_public_json_pointer_error_paths(
     document: object, ledger: FieldProvenanceLedger, error_path: str
 ) -> None:
-    with pytest.raises(SkatAIValidationError) as exc_info:
+    with pytest.raises(SkatMindValidationError) as exc_info:
         validate_field_provenance_coverage(document, ledger)
     assert exc_info.value.path == error_path
 
@@ -233,7 +233,7 @@ def test_coverage_summary_serialization_is_deterministic() -> None:
 
 
 def test_coverage_summary_rejects_unreconciled_counts() -> None:
-    with pytest.raises(SkatAIValidationError, match="reconcile"):
+    with pytest.raises(SkatMindValidationError, match="reconcile"):
         FieldProvenanceCoverageSummary(
             leaf_path_count=1,
             provenanced_path_count=1,

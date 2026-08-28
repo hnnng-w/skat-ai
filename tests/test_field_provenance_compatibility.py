@@ -1,19 +1,19 @@
 from dataclasses import fields
 
-import skat_ai
-import skat_ai.api
-import skat_ai.api.v1 as api_v1
-import skat_ai.errors
-from skat_ai.hidden_card_inference import HiddenCardEvidence, HiddenCardInferenceConstraints
-from skat_ai.historical_decision_snapshot import HistoricalDecisionSnapshot
-from skat_ai.public_hand_constraint import PublicHandConstraint
-from skat_ai.replay_coaching_evidence import DecisionTimeReplayCoachingEvidence
-from skat_ai.training_dataset import TrainingProvenance
+import skatmind
+import skatmind.api
+import skatmind.api.v1 as api_v1
+import skatmind.errors
+from skatmind.hidden_card_inference import HiddenCardEvidence, HiddenCardInferenceConstraints
+from skatmind.historical_decision_snapshot import HistoricalDecisionSnapshot
+from skatmind.public_hand_constraint import PublicHandConstraint
+from skatmind.replay_coaching_evidence import DecisionTimeReplayCoachingEvidence
+from skatmind.training_dataset import TrainingProvenance
 
 
 def test_only_public_field_provenance_wrappers_are_exported() -> None:
-    assert skat_ai.__all__ == ("api", "errors", "__version__")
-    assert skat_ai.api.__all__ == ("v1",)
+    assert skatmind.__all__ == ("api", "errors", "__version__")
+    assert skatmind.api.__all__ == ("v1",)
     assert "FieldProvenanceEntry" not in api_v1.__all__
     assert "FieldProvenanceLedger" not in api_v1.__all__
     assert "InformationUseContext" not in api_v1.__all__
@@ -29,7 +29,7 @@ def test_only_public_field_provenance_wrappers_are_exported() -> None:
     assert "FieldProvenanceArtifactV1" in api_v1.__all__
     assert "FieldProvenanceBundleV1" in api_v1.__all__
     assert "ApplicationProvenanceBundle" not in api_v1.__all__
-    assert "FieldProvenanceEntry" not in skat_ai.errors.__all__
+    assert "FieldProvenanceEntry" not in skatmind.errors.__all__
 
 
 def test_existing_specialized_provenance_contract_fields_are_unchanged() -> None:

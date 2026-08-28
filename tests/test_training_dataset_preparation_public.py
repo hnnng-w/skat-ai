@@ -15,24 +15,24 @@ from test_fixed_three_player_historical_list_public import (
 from test_input_schema import INPUT_VALIDATOR
 from test_output_schema import OUTPUT_VALIDATOR
 
-import skat_ai.training_dataset_preparation_workflow as workflow_module
-from skat_ai.dataset_partition_plan import (
+import skatmind.training_dataset_preparation_workflow as workflow_module
+from skatmind.dataset_partition_plan import (
     COMPONENT_BALANCED_UNSEEN_PLAYER_ALGORITHM,
     TEMPORAL_KNOWN_OPPONENT_ALGORITHM,
     build_unavailable_dataset_partition_plan,
 )
-from skat_ai.input_loader import (
+from skatmind.input_loader import (
     get_input_workflow,
     load_training_dataset_preparation_request_from_json,
 )
-from skat_ai.training_dataset import (
+from skatmind.training_dataset import (
     build_serializable_training_dataset_input,
     build_training_dataset_input,
 )
-from skat_ai.training_dataset_preparation import (
+from skatmind.training_dataset_preparation import (
     build_serializable_training_dataset_preparation_request,
 )
-from skat_ai.training_dataset_preparation_workflow import (
+from skatmind.training_dataset_preparation_workflow import (
     TrainingDatasetPreparationResult,
     build_serializable_training_dataset_preparation_result,
     build_training_dataset_preparation_result,

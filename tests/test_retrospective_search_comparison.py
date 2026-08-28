@@ -2,7 +2,7 @@ from dataclasses import FrozenInstanceError
 
 import pytest
 
-from skat_ai.bounded_search_result import (
+from skatmind.bounded_search_result import (
     BOUNDED_SEARCH_ANALYSIS_METHOD,
     BOUNDED_SEARCH_SCHEMA_VERSION,
     AggregateSearchCandidateResult,
@@ -11,7 +11,7 @@ from skat_ai.bounded_search_result import (
     RequestedSearchBudget,
     rank_search_candidate_results,
 )
-from skat_ai.retrospective_search_comparison import (
+from skatmind.retrospective_search_comparison import (
     NO_COMPLETED_SEARCH_WORLDS,
     SEARCH_CARD_NOT_AVAILABLE,
     build_search_actual_card_comparison,
@@ -19,7 +19,7 @@ from skat_ai.retrospective_search_comparison import (
     build_serializable_search_actual_card_comparison,
     build_serializable_search_vs_immediate_comparison,
 )
-from skat_ai.terminal_utility import TERMINAL_UTILITY_VERSION
+from skatmind.terminal_utility import TERMINAL_UTILITY_VERSION
 
 
 def _candidate(

@@ -11,21 +11,21 @@ from test_historical_declarer_concession import build_concession_prefix
 from test_historical_game import build_historical_input, rebuild_historical_suffix
 from test_training_dataset_preparation import build_preparation_input
 
-import skat_ai.dataset_partition_plan as partition_plan_module
-import skat_ai.player_disjoint_unseen_player_split as split_module
-import skat_ai.training_dataset_preparation as preparation_module
-from skat_ai.dataset_partition_objective import build_record_count_objective
-from skat_ai.dataset_partition_plan import (
+import skatmind.dataset_partition_plan as partition_plan_module
+import skatmind.player_disjoint_unseen_player_split as split_module
+import skatmind.training_dataset_preparation as preparation_module
+from skatmind.dataset_partition_objective import build_record_count_objective
+from skatmind.dataset_partition_plan import (
     COMPONENT_BALANCED_UNSEEN_PLAYER_ALGORITHM,
     build_complete_dataset_partition_plan,
     build_serializable_dataset_partition_plan,
     validate_dataset_partition_plan,
 )
-from skat_ai.dataset_preparation_identity import (
+from skatmind.dataset_preparation_identity import (
     build_source_identity_fingerprint,
     build_unseen_player_selection_fingerprint,
 )
-from skat_ai.training_dataset_preparation import (
+from skatmind.training_dataset_preparation import (
     build_dataset_preparation_source_facts,
     build_serializable_training_dataset_preparation_request,
     build_training_dataset_preparation_request,

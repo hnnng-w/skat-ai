@@ -10,9 +10,9 @@ from test_historical_search_review import (
     _fake_search,
 )
 
-from skat_ai.bounded_search_evaluation import evaluate_bounded_search_dataset
-from skat_ai.historical_search_review import derive_historical_search_decision_seed
-from skat_ai.training_dataset import build_training_dataset_input
+from skatmind.bounded_search_evaluation import evaluate_bounded_search_dataset
+from skatmind.historical_search_review import derive_historical_search_decision_seed
+from skatmind.training_dataset import build_training_dataset_input
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -102,10 +102,10 @@ def _shared_prefix_evaluation_dataset():
 
 def _patch_fast_analyses(monkeypatch) -> None:
     monkeypatch.setattr(
-        "skat_ai.historical_search_review.solve_compatible_world_minimax", _fake_search
+        "skatmind.historical_search_review.solve_compatible_world_minimax", _fake_search
     )
     monkeypatch.setattr(
-        "skat_ai.historical_search_review.recommend_card_by_expected_value",
+        "skatmind.historical_search_review.recommend_card_by_expected_value",
         _fake_immediate,
     )
 
@@ -147,11 +147,11 @@ def test_evaluation_preserves_shared_prefix_privacy_with_zero_decision_record(
         return _fake_search(**{**kwargs, "random_seed": 0})
 
     monkeypatch.setattr(
-        "skat_ai.historical_search_review.solve_compatible_world_minimax",
+        "skatmind.historical_search_review.solve_compatible_world_minimax",
         seed_independent_search,
     )
     monkeypatch.setattr(
-        "skat_ai.historical_search_review.recommend_card_by_expected_value",
+        "skatmind.historical_search_review.recommend_card_by_expected_value",
         _fake_immediate,
     )
 

@@ -1,7 +1,7 @@
 import random
 
-from skat_ai.game_state import GameState
-from skat_ai.opponent_lead import (
+from skatmind.game_state import GameState
+from skatmind.opponent_lead import (
     build_state_after_opponent_lead,
     build_state_after_opponent_second_hand_play,
     choose_lowest_point_lead_card,
@@ -543,7 +543,7 @@ def test_simulate_right_response_to_left_lead_once_uses_response_policy(
         return ["C7"], ["D9", "DA"]
 
     monkeypatch.setattr(
-        "skat_ai.opponent_lead.generate_random_opponent_hands",
+        "skatmind.opponent_lead.generate_random_opponent_hands",
         fake_generate_random_opponent_hands,
     )
     state = GameState(
@@ -781,7 +781,7 @@ def test_simulate_left_declarer_lead_does_not_treat_declarer_as_partner(
         return ["DA"], ["D10", "D9"]
 
     monkeypatch.setattr(
-        "skat_ai.opponent_lead.generate_random_opponent_hands",
+        "skatmind.opponent_lead.generate_random_opponent_hands",
         fake_generate_random_opponent_hands,
     )
     state = GameState(

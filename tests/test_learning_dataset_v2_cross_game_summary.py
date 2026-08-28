@@ -19,25 +19,25 @@ from test_observed_game_contracts import (
     observed_plays_from_historical,
 )
 
-import skat_ai.learning_dataset_v2_summary_builder as summary_builder_module
-import skat_ai.learning_dataset_v2_summary_contracts as summary_contracts_module
-import skat_ai.learning_dataset_v2_summary_export as summary_export_module
-from skat_ai import __version__
-from skat_ai.api.v1.contracts import PUBLIC_API_CONTRACT_VERSION
-from skat_ai.learning_corpus_human_evidence import (
+import skatmind.learning_dataset_v2_summary_builder as summary_builder_module
+import skatmind.learning_dataset_v2_summary_contracts as summary_contracts_module
+import skatmind.learning_dataset_v2_summary_export as summary_export_module
+from skatmind import __version__
+from skatmind.api.v1.contracts import PUBLIC_API_CONTRACT_VERSION
+from skatmind.learning_corpus_human_evidence import (
     LEARNING_CORPUS_COMMENTATOR_IDENTITY_KINDS,
 )
-from skat_ai.learning_corpus_identity import (
+from skatmind.learning_corpus_identity import (
     LEARNING_CORPUS_IDENTITY_VERSION,
     build_learning_corpus_canonical_json_bytes_v1,
 )
-from skat_ai.learning_corpus_match_snapshot import (
+from skatmind.learning_corpus_match_snapshot import (
     build_learning_corpus_match_snapshot_v1,
 )
-from skat_ai.learning_corpus_player_catalog import (
+from skatmind.learning_corpus_player_catalog import (
     build_learning_corpus_player_catalog_v1,
 )
-from skat_ai.learning_corpus_strategy_teacher import (
+from skatmind.learning_corpus_strategy_teacher import (
     LEARNING_CORPUS_STRATEGY_TEACHER_SEARCH_STATUSES,
     LearningCorpusStrategyTeacherEvidenceCollectionV1,
     _build_collection_fingerprint_v1,
@@ -45,22 +45,22 @@ from skat_ai.learning_corpus_strategy_teacher import (
     _strategy_teacher_counts_v1,
     build_learning_corpus_strategy_teacher_report_source_v1,
 )
-from skat_ai.learning_corpus_strategy_teacher_builder import _collection_material
-from skat_ai.learning_dataset_v2_builder import build_learning_dataset_v2
-from skat_ai.learning_dataset_v2_contracts import LEARNING_DATASET_VERSION
-from skat_ai.learning_dataset_v2_partition_contracts import (
+from skatmind.learning_corpus_strategy_teacher_builder import _collection_material
+from skatmind.learning_dataset_v2_builder import build_learning_dataset_v2
+from skatmind.learning_dataset_v2_contracts import LEARNING_DATASET_VERSION
+from skatmind.learning_dataset_v2_partition_contracts import (
     LEARNING_DATASET_PARTITION_MODES,
     LEARNING_DATASET_PARTITION_PREPARATION_VERSION,
     LearningDatasetPartitionWeightsV1,
 )
-from skat_ai.learning_dataset_v2_partition_preparation import (
+from skatmind.learning_dataset_v2_partition_preparation import (
     build_learning_dataset_partition_preparation_request_v1,
     prepare_learning_dataset_v2_partitions_v1,
 )
-from skat_ai.learning_dataset_v2_summary_builder import (
+from skatmind.learning_dataset_v2_summary_builder import (
     build_learning_dataset_v2_cross_game_summary_v1,
 )
-from skat_ai.learning_dataset_v2_summary_contracts import (
+from skatmind.learning_dataset_v2_summary_contracts import (
     _COMMUNICATION_SUMMARY_FINGERPRINT_DOMAIN,
     _COVERAGE_ID_DOMAIN,
     _CROSS_GAME_SUMMARY_FINGERPRINT_DOMAIN,
@@ -105,19 +105,19 @@ from skat_ai.learning_dataset_v2_summary_contracts import (
     LearningDatasetSummaryIntegerCountV1,
     build_learning_dataset_summary_coverage_v1,
 )
-from skat_ai.learning_dataset_v2_summary_export import (
+from skatmind.learning_dataset_v2_summary_export import (
     _SUMMARY_EXPORT_ID_DOMAIN,
     LEARNING_DATASET_SUMMARY_DOCUMENT_KIND,
     LearningDatasetCrossGameSummaryExportV1,
     build_learning_dataset_v2_cross_game_summary_export_v1,
     serialize_learning_dataset_v2_cross_game_summary_export_v1,
 )
-from skat_ai.match_workspace_contracts import create_match_workspace_v1
-from skat_ai.match_workspace_persistence_codec import (
+from skatmind.match_workspace_contracts import create_match_workspace_v1
+from skatmind.match_workspace_persistence_codec import (
     build_match_workspace_persistence_document_v1,
 )
-from skat_ai.recommendation_workflow import FLAT_RECOMMENDATION_METHODS
-from skat_ai.training_dataset import TRAINING_DATASET_SCHEMA_VERSION, TRAINING_TARGET
+from skatmind.recommendation_workflow import FLAT_RECOMMENDATION_METHODS
+from skatmind.training_dataset import TRAINING_DATASET_SCHEMA_VERSION, TRAINING_TARGET
 
 
 def _hash(domain: bytes, value: object) -> str:
@@ -258,7 +258,7 @@ def test_versions_vocabularies_policies_document_kind_and_domains_are_exact() ->
         "deterministic_path_free_json_document",
     )
     assert LEARNING_DATASET_SUMMARY_DOCUMENT_KIND == (
-        "skat_ai_learning_dataset_v2_cross_game_summary"
+        "skatmind_learning_dataset_v2_cross_game_summary"
     )
     assert (
         _SUMMARY_COUNT_ID_DOMAIN,
@@ -272,7 +272,7 @@ def test_versions_vocabularies_policies_document_kind_and_domains_are_exact() ->
         _CROSS_GAME_SUMMARY_FINGERPRINT_DOMAIN,
         _SUMMARY_EXPORT_ID_DOMAIN,
     ) == tuple(
-        f"skat-ai\0{name}\0".encode()
+        f"skatmind\0{name}\0".encode()
         for name in (
             "learning_dataset_v2_summary_count_v1",
             "learning_dataset_v2_summary_coverage_v1",
@@ -1122,7 +1122,7 @@ def test_builder_validates_sources_once_rebuilds_two_requests_and_generates_no_p
 
         monkeypatch.setattr(summary_builder_module, name, counted)
 
-    import skat_ai.learning_dataset_v2_partition_preparation as partition_module
+    import skatmind.learning_dataset_v2_partition_preparation as partition_module
 
     original_generator = partition_module.generate_learning_dataset_partition_plan_v1
 
@@ -1286,13 +1286,13 @@ def test_summary_and_export_identities_serialization_and_privacy_are_exact(
 
 def test_summary_modules_keep_private_transport_and_execution_import_boundaries() -> None:
     forbidden_prefixes = (
-        "skat_ai.api",
-        "skat_ai.capture_web",
-        "skat_ai.cli",
-        "skat_ai.application",
-        "skat_ai.match_decision_analysis",
-        "skat_ai.match_historical_analysis",
-        "skat_ai.replay_coaching",
+        "skatmind.api",
+        "skatmind.capture_web",
+        "skatmind.cli",
+        "skatmind.application",
+        "skatmind.match_decision_analysis",
+        "skatmind.match_historical_analysis",
+        "skatmind.replay_coaching",
     )
     for module in (
         summary_contracts_module,

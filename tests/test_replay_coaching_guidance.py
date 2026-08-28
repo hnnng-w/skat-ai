@@ -16,27 +16,27 @@ from test_replay_coaching_prioritization import (
     _zero_decision_data,
 )
 
-from skat_ai.bounded_search_result import (
+from skatmind.bounded_search_result import (
     ConsumedSearchBudget,
     rank_search_candidate_results,
 )
-from skat_ai.historical_decision_snapshot import build_historical_decision_snapshots
-from skat_ai.historical_game import (
+from skatmind.historical_decision_snapshot import build_historical_decision_snapshots
+from skatmind.historical_game import (
     build_historical_game_record,
     build_historical_game_summary,
 )
-from skat_ai.historical_search_review import (
+from skatmind.historical_search_review import (
     HistoricalSearchReviewCoachingAnalysis,
     build_historical_search_review_coaching_analysis,
     build_historical_search_review_internal_result,
 )
-from skat_ai.replay_coaching_guidance import (
+from skatmind.replay_coaching_guidance import (
     ReplayCoachingGuidanceResult,
     build_replay_coaching_guidance,
     build_serializable_replay_coaching_guidance_result,
 )
-from skat_ai.replay_coaching_key_decisions import build_replay_coaching_key_decisions
-from skat_ai.replay_coaching_patterns import (
+from skatmind.replay_coaching_key_decisions import build_replay_coaching_key_decisions
+from skatmind.replay_coaching_patterns import (
     MIN_REPLAY_COACHING_PATTERN_OCCURRENCES,
     REPLAY_COACHING_ACTIONABLE_PATTERN_TYPES,
     REPLAY_COACHING_DESCRIPTIVE_PATTERN_TYPES,
@@ -49,10 +49,10 @@ from skat_ai.replay_coaching_patterns import (
     get_replay_coaching_pattern_ordering_key,
     is_replay_coaching_pattern_occurrence,
 )
-from skat_ai.replay_coaching_prioritization import (
+from skatmind.replay_coaching_prioritization import (
     build_replay_coaching_prioritization_result,
 )
-from skat_ai.replay_coaching_recommendations import (
+from skatmind.replay_coaching_recommendations import (
     MAX_REPLAY_COACHING_DECISION_RECOMMENDATIONS,
     MAX_REPLAY_COACHING_PATTERN_RECOMMENDATIONS,
     REPLAY_COACHING_DECISION_RECOMMENDATION_TYPES,
@@ -63,7 +63,7 @@ from skat_ai.replay_coaching_recommendations import (
     build_replay_coaching_decision_recommendations,
     build_replay_coaching_pattern_recommendations,
 )
-from skat_ai.rules import get_legal_cards, get_trick_winner
+from skatmind.rules import get_legal_cards, get_trick_winner
 
 
 def _plain(value):
@@ -222,10 +222,10 @@ def _analyzed_patterns(
     data=None,
 ):
     monkeypatch.setattr(
-        "skat_ai.historical_search_review.solve_compatible_world_minimax", search
+        "skatmind.historical_search_review.solve_compatible_world_minimax", search
     )
     monkeypatch.setattr(
-        "skat_ai.historical_search_review.recommend_card_by_expected_value",
+        "skatmind.historical_search_review.recommend_card_by_expected_value",
         immediate,
     )
     record = build_historical_game_record(data or build_historical_input())
@@ -1068,10 +1068,10 @@ def test_historical_search_review_coaching_orchestration_reuses_one_pass(
         return _historical_fake_immediate(**kwargs)
 
     monkeypatch.setattr(
-        "skat_ai.historical_search_review.solve_compatible_world_minimax", search
+        "skatmind.historical_search_review.solve_compatible_world_minimax", search
     )
     monkeypatch.setattr(
-        "skat_ai.historical_search_review.recommend_card_by_expected_value",
+        "skatmind.historical_search_review.recommend_card_by_expected_value",
         immediate,
     )
     analysis = build_historical_search_review_coaching_analysis(

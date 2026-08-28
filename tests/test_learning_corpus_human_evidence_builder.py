@@ -6,27 +6,27 @@ import pytest
 from test_learning_corpus_human_evidence import _rich_snapshot, _store
 from test_match_workspace_contracts import _definition, _observed_game, _set_game
 
-import skat_ai.application.execution as application_execution
-import skat_ai.learning_corpus_current_snapshots as current_snapshots_module
-import skat_ai.learning_corpus_human_evidence as evidence_module
-import skat_ai.learning_corpus_human_evidence_builder as builder_module
-import skat_ai.training_dataset as training_dataset_module
-from skat_ai.errors import SkatAIValidationError
-from skat_ai.learning_corpus_human_evidence_builder import (
+import skatmind.application.execution as application_execution
+import skatmind.learning_corpus_current_snapshots as current_snapshots_module
+import skatmind.learning_corpus_human_evidence as evidence_module
+import skatmind.learning_corpus_human_evidence_builder as builder_module
+import skatmind.training_dataset as training_dataset_module
+from skatmind.errors import SkatMindValidationError
+from skatmind.learning_corpus_human_evidence_builder import (
     build_learning_corpus_human_evidence_collection_v1,
 )
-from skat_ai.learning_corpus_match_snapshot import (
+from skatmind.learning_corpus_match_snapshot import (
     build_learning_corpus_match_snapshot_v1,
 )
-from skat_ai.learning_corpus_persistence_codec import (
+from skatmind.learning_corpus_persistence_codec import (
     _build_learning_corpus_catalog_file_bytes_v1,
 )
-from skat_ai.learning_corpus_persistence_contracts import (
+from skatmind.learning_corpus_persistence_contracts import (
     LearningCorpusStoreResumeResultV1,
 )
-from skat_ai.match_workspace_contracts import create_match_workspace_v1
-from skat_ai.match_workspace_persistence import _build_match_workspace_file_bytes_v1
-from skat_ai.match_workspace_persistence_codec import (
+from skatmind.match_workspace_contracts import create_match_workspace_v1
+from skatmind.match_workspace_persistence import _build_match_workspace_file_bytes_v1
+from skatmind.match_workspace_persistence_codec import (
     build_match_workspace_persistence_document_v1,
 )
 
@@ -108,7 +108,7 @@ def test_builder_strictly_revalidates_store_catalog_fingerprints() -> None:
     _, snapshot = _rich_snapshot()
     store = _store(snapshot, current=(snapshot,))
     object.__setattr__(store.document, "catalog_fingerprint", "0" * 64)
-    with pytest.raises(SkatAIValidationError, match="catalog_fingerprint"):
+    with pytest.raises(SkatMindValidationError, match="catalog_fingerprint"):
         build_learning_corpus_human_evidence_collection_v1(store)
 
 
@@ -218,19 +218,19 @@ def test_builder_performs_no_io_analysis_profile_or_dataset_generation(
 def test_human_evidence_modules_have_no_io_analysis_profile_dataset_api_or_cli_imports() -> None:
     forbidden = (
         "pathlib",
-        "skat_ai.api",
-        "skat_ai.application",
-        "skat_ai.capture_web",
-        "skat_ai.cli",
-        "skat_ai.match_analysis",
-        "skat_ai.player_profile",
-        "skat_ai.training_dataset",
+        "skatmind.api",
+        "skatmind.application",
+        "skatmind.capture_web",
+        "skatmind.cli",
+        "skatmind.match_analysis",
+        "skatmind.player_profile",
+        "skatmind.training_dataset",
     )
     paths = (
-        PROJECT_ROOT / "src/skat_ai/learning_corpus_current_snapshots.py",
-        PROJECT_ROOT / "src/skat_ai/learning_corpus_human_evidence.py",
-        PROJECT_ROOT / "src/skat_ai/learning_corpus_human_evidence_builder.py",
-        PROJECT_ROOT / "src/skat_ai/learning_corpus_human_evidence_export.py",
+        PROJECT_ROOT / "src/skatmind/learning_corpus_current_snapshots.py",
+        PROJECT_ROOT / "src/skatmind/learning_corpus_human_evidence.py",
+        PROJECT_ROOT / "src/skatmind/learning_corpus_human_evidence_builder.py",
+        PROJECT_ROOT / "src/skatmind/learning_corpus_human_evidence_export.py",
     )
     violations = []
     for path in paths:

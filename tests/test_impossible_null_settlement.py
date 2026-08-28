@@ -1,7 +1,7 @@
 import pytest
 
-from skat_ai.game_declaration import GameDeclaration
-from skat_ai.impossible_null_settlement import (
+from skatmind.game_declaration import GameDeclaration
+from skatmind.impossible_null_settlement import (
     ImpossibleNullSettlementSelection,
     build_impossible_null_settlement_selection_from_input,
     build_impossible_null_settlement_summary,

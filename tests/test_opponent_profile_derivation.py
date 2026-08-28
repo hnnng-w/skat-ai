@@ -2,12 +2,12 @@ from dataclasses import replace
 
 import pytest
 
-from skat_ai.opponent_profile_derivation import (
+from skatmind.opponent_profile_derivation import (
     PROFILE_DERIVATION_VERSION,
     derive_opponent_profile,
     get_evidence_confidence,
 )
-from skat_ai.player_profile import PlayerProfile
+from skatmind.player_profile import PlayerProfile
 
 
 def get_signal(profile: PlayerProfile, code: str):

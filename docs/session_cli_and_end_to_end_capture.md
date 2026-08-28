@@ -18,13 +18,13 @@ The stable file-transport namespace is:
 
 ```text
 PUBLIC_SESSION_FILE_API_VERSION = 1
-PUBLIC_SESSION_FILE_API_NAMESPACE = skat_ai.api.v1.session.files
+PUBLIC_SESSION_FILE_API_NAMESPACE = skatmind.api.v1.session.files
 PUBLIC_SESSION_FILE_API_COMPATIBILITY_POLICY = additive_until_v1_0
 SESSION_FILE_API_OPERATIONS = (save, load)
 ```
 
-`files` is appended to `skat_ai.api.v1.session.__all__`. The exact
-`skat_ai.api.v1.session.files.__all__` order is:
+`files` is appended to `skatmind.api.v1.session.__all__`. The exact
+`skatmind.api.v1.session.files.__all__` order is:
 
 ```text
 PUBLIC_SESSION_FILE_API_VERSION
@@ -123,8 +123,8 @@ SESSION_CLI_AUTOMATIC_CHECKPOINT_POLICY = collect_without_automatic_analysis
 All three supported forms use the same Session parser and implementation:
 
 ```powershell
-skat-ai session --help
-python -m skat_ai session --help
+skatmind session --help
+python -m skatmind session --help
 python main.py session --help
 ```
 
@@ -180,7 +180,7 @@ recommendation methods, and Search budget identifiers remain authoritative.
 ### `new`
 
 ```powershell
-skat-ai session new --session SESSION.json --input CREATE.json
+skatmind session new --session SESSION.json --input CREATE.json
 ```
 
 The strict creation object contains exactly `session_id`, `capture_mode`,
@@ -192,7 +192,7 @@ created. Optional `--output` contains the `SessionApiResultV1` creation Result.
 ### `show`
 
 ```powershell
-skat-ai session show --session SESSION.json
+skatmind session show --session SESSION.json
 ```
 
 `show` loads and strictly resumes once, performs no Save or analysis, and reports
@@ -204,7 +204,7 @@ status, and an available observed Card. Optional `--output` contains the public
 ### `apply`
 
 ```powershell
-skat-ai session apply --session SESSION.json --input COMMAND.json
+skatmind session apply --session SESSION.json --input COMMAND.json
 ```
 
 The command is strict JSON parsed by `parse_session_command()`. Applied,
@@ -216,7 +216,7 @@ local Plays as described below.
 ### `undo`
 
 ```powershell
-skat-ai session undo --session SESSION.json --target-revision N
+skatmind session undo --session SESSION.json --target-revision N
 ```
 
 Undo calls public `rewind_session()` once. Only `applied` is saved; `unchanged`,
@@ -226,7 +226,7 @@ active Checkpoint tuple is retained and lineage is recomputed on resume.
 ### `correct`
 
 ```powershell
-skat-ai session correct --session SESSION.json --input CORRECTION.json
+skatmind session correct --session SESSION.json --input CORRECTION.json
 ```
 
 The strict correction object contains exactly
@@ -238,7 +238,7 @@ first-failed source records retain the existing correction semantics.
 ### `checkpoint`
 
 ```powershell
-skat-ai session checkpoint --session SESSION.json
+skatmind session checkpoint --session SESSION.json
 ```
 
 This constructs Position Export Options, collects or reuses the exact current
@@ -250,7 +250,7 @@ unavailable Position-export Result.
 ### `export-position`
 
 ```powershell
-skat-ai session export-position \
+skatmind session export-position \
     --session SESSION.json \
     --output POSITION_REQUEST.json
 ```
@@ -262,7 +262,7 @@ Checkpoint. Unavailability is Code `0`. Position Analysis does not execute.
 ### `export-historical`
 
 ```powershell
-skat-ai session export-historical \
+skatmind session export-historical \
     --session SESSION.json \
     --output HISTORICAL_REQUEST.json
 ```
@@ -274,7 +274,7 @@ nor modifies the Session file.
 ### `analyze`
 
 ```powershell
-skat-ai session analyze \
+skatmind session analyze \
     --session SESSION.json \
     --output POSITION_RESULT.json
 ```
@@ -290,7 +290,7 @@ executes no Application workflow, and exits with Code `0`.
 ### `review`
 
 ```powershell
-skat-ai session review \
+skatmind session review \
     --session SESSION.json \
     --checkpoint-index N \
     --output REVIEW_RESULT.json
@@ -306,7 +306,7 @@ exit with Code `0`. Review never modifies the Session or Checkpoint.
 ### `finalize`
 
 ```powershell
-skat-ai session finalize \
+skatmind session finalize \
     --session SESSION.json \
     --output HISTORICAL_RESULT.json
 ```
@@ -321,7 +321,7 @@ Code `0`; finalization does not modify the Session.
 ### `assistant`
 
 ```powershell
-skat-ai session assistant --session SESSION.json
+skatmind session assistant --session SESSION.json
 ```
 
 The Assistant creates a missing Session through explicit prompts or resumes an
@@ -461,7 +461,7 @@ materialization, analysis, and export layers without changing this Session CLI.
 Public Match APIs remain absent.
 
 Issue #162 modularizes the internal Session transport without changing this
-contract. `skat_ai.cli.session` remains the compatibility facade; focused modules
+contract. `skatmind.cli.session` remains the compatibility facade; focused modules
 own parsing, strict JSON, context/persistence, Checkpoints, handlers, Application
 execution, and presentation. The Assistant now consumes those services directly.
 See [CLI internal architecture](cli_internal_architecture.md).

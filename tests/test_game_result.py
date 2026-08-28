@@ -1,4 +1,4 @@
-from skat_ai.game_result import (
+from skatmind.game_result import (
     build_game_result_summary_from_points,
     build_game_result_summary_from_score_summary,
     get_card_point_result_status,

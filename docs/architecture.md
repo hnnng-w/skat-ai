@@ -4,7 +4,7 @@ This document describes the project structure and main modules.
 
 ## Overview
 
-`skat-ai` is organized as a small rule-based analysis engine around a JSON input/output workflow.
+SkatMind is organized as a small rule-based analysis engine around a JSON input/output workflow.
 
 Issues #160, #161, #163, #164, #165, #166, #167, and #168 add internal Match,
 observed-Game, persistent Workspace, transport-free Capture Application, private
@@ -144,9 +144,11 @@ canonical Multi-Step phases without widening Search or public contracts. Broader
 solvers and hosted/remote integration are post-v1.
 
 Issue #204 applies `AGPL-3.0-only` and closes B-04 without changing product
-behavior or active Package identity. Five blockers B-05 through B-09 remain;
-B-09 is outside the 53-row ledger. Issue #205, **Rename the complete project and
-public Package surface to SkatMind**, is the exact next action.
+behavior or active Package identity. Issue #205 completes the hard-cut SkatMind
+Package/import/CLI/resource/Schema/identifier migration, strict legacy input-only
+compatibility, and reviewed historical-evidence boundary. P-09 is `satisfied`
+and B-08 is closed. Four blockers B-05, B-06, B-07, and B-09 remain; B-09 is
+outside the 53-row ledger. Issue #206 is the exact next action.
 
 Issues #160 through #168 form the published `v0.15.0` Package baseline, and Issue
 #169 updated only Package/release metadata and documentation to complete Release
@@ -161,7 +163,7 @@ the existing Engine workflows:
 
 ```text
 Session Commands
-    -> stable skat_ai.api.v1.session wrapper and optional returned-value provenance
+    -> stable skatmind.api.v1.session wrapper and optional returned-value provenance
     -> immutable accepted Session State
     -> optional immutable Undo or one-command correction
     -> optional private persistence document and atomic local save
@@ -338,10 +340,10 @@ The project is not a machine-learning model. Its behavior is based on Skat rules
 
 | File | Purpose |
 | --- | --- |
-| `src/skat_ai/tactical_motif_contracts.py` | Immutable version-1 facts, occurrences, observations, report/scopes, exact taxonomy, policies, limitations, and serialization. |
-| `src/skat_ai/tactical_motif_detection.py` | Pure decision-time fact construction and deterministic after-play/after-Trick motif predicates over retained Snapshots. |
-| `src/skat_ai/historical_tactical_motif_review.py` | One-game chronology, complete/partial observation composition, canonical aggregates, and exact source reconciliation. |
-| `src/skat_ai/match_historical_tactical_motif_analysis.py` | Private Match option adaptation, validated Root reconciliation, and safe browser report projection. |
+| `src/skatmind/tactical_motif_contracts.py` | Immutable version-1 facts, occurrences, observations, report/scopes, exact taxonomy, policies, limitations, and serialization. |
+| `src/skatmind/tactical_motif_detection.py` | Pure decision-time fact construction and deterministic after-play/after-Trick motif predicates over retained Snapshots. |
+| `src/skatmind/historical_tactical_motif_review.py` | One-game chronology, complete/partial observation composition, canonical aggregates, and exact source reconciliation. |
+| `src/skatmind/match_historical_tactical_motif_analysis.py` | Private Match option adaptation, validated Root reconciliation, and safe browser report projection. |
 
 These modules execute no Search, Coaching, Commentary, Response-Link, Profile,
 or opponent Policy stage. See [Tactical motif evidence](tactical_motif_evidence.md).
@@ -350,21 +352,21 @@ or opponent Policy stage. See [Tactical motif evidence](tactical_motif_evidence.
 
 | File | Purpose |
 | --- | --- |
-| `src/skat_ai/field_provenance.py` | Shared immutable field-level provenance language, dependencies, and serialization. |
-| `src/skat_ai/field_provenance_coverage.py` | Deterministic JSON-leaf coverage auditing. |
-| `src/skat_ai/field_provenance_policy.py` | Information Use Context validation and public redaction. |
-| `src/skat_ai/live_analysis_provenance.py` | Live Position decision collection and complete Result attachment orchestration. |
-| `src/skat_ai/retrospective_review_provenance.py` | Flat retrospective stage separation and shared complete-attachment construction. |
-| `src/skat_ai/historical_review_provenance.py` | Historical decision, review-summary, Coaching, and complete Result attachment orchestration. |
-| `src/skat_ai/replay_coaching_provenance.py` | Replay Coaching evidence, assessment, prioritization, guidance, and report mapping. |
-| `src/skat_ai/information_set_search_provenance.py` | Privacy-safe retained-stage Information-set Search, same-selection PIMC, Immediate, actual-Card, and comparison provenance entries. |
-| `src/skat_ai/position_result_provenance.py` | Complete Position Root Result mapping and dependency enforcement. |
-| `src/skat_ai/historical_result_provenance.py` | Complete Historical Root Result mapping and dependency enforcement. |
-| `src/skat_ai/settlement_result_provenance.py` | Shared retained Settlement Result entry construction. |
-| `src/skat_ai/application/provenance.py` | Immutable attachments and canonical per-workflow bundle ordering. |
-| `src/skat_ai/v1_information_provenance_sources.py` | Exact consumed Request/effective-option/external sources, canonical ledgers, and invocation-local bindings. |
-| `src/skat_ai/v1_information_provenance_enforcement.py` | Four-stage contract identity, pre-analysis context enforcement, workflow-scoped reference authorization, and retained linkage. |
-| `src/skat_ai/v1_information_provenance_serialization.py` | Shared Result/artifact mappings, exact final reconciliation, and immutable lifecycle checkpoints. |
+| `src/skatmind/field_provenance.py` | Shared immutable field-level provenance language, dependencies, and serialization. |
+| `src/skatmind/field_provenance_coverage.py` | Deterministic JSON-leaf coverage auditing. |
+| `src/skatmind/field_provenance_policy.py` | Information Use Context validation and public redaction. |
+| `src/skatmind/live_analysis_provenance.py` | Live Position decision collection and complete Result attachment orchestration. |
+| `src/skatmind/retrospective_review_provenance.py` | Flat retrospective stage separation and shared complete-attachment construction. |
+| `src/skatmind/historical_review_provenance.py` | Historical decision, review-summary, Coaching, and complete Result attachment orchestration. |
+| `src/skatmind/replay_coaching_provenance.py` | Replay Coaching evidence, assessment, prioritization, guidance, and report mapping. |
+| `src/skatmind/information_set_search_provenance.py` | Privacy-safe retained-stage Information-set Search, same-selection PIMC, Immediate, actual-Card, and comparison provenance entries. |
+| `src/skatmind/position_result_provenance.py` | Complete Position Root Result mapping and dependency enforcement. |
+| `src/skatmind/historical_result_provenance.py` | Complete Historical Root Result mapping and dependency enforcement. |
+| `src/skatmind/settlement_result_provenance.py` | Shared retained Settlement Result entry construction. |
+| `src/skatmind/application/provenance.py` | Immutable attachments and canonical per-workflow bundle ordering. |
+| `src/skatmind/v1_information_provenance_sources.py` | Exact consumed Request/effective-option/external sources, canonical ledgers, and invocation-local bindings. |
+| `src/skatmind/v1_information_provenance_enforcement.py` | Four-stage contract identity, pre-analysis context enforcement, workflow-scoped reference authorization, and retained linkage. |
+| `src/skatmind/v1_information_provenance_serialization.py` | Shared Result/artifact mappings, exact final reconciliation, and immutable lifecycle checkpoints. |
 
 Live and retrospective provenance is retained as an internal Application
 sidecar. Existing workflow values are observed through optional hooks; analysis,
@@ -380,11 +382,11 @@ canonical Root execution before that optional public conversion.
 
 | File | Purpose |
 | --- | --- |
-| `src/skat_ai/cli/execution.py` | Package-owned Root compatibility facade and leading-`corpus`, `capture`, then `session` dispatch. |
-| `src/skat_ai/cli/corpus.py` | Private local Learning Corpus CLI startup, browser opening, shutdown, and Exit Code transport. |
-| `src/skat_ai/cli/capture.py` | Private local Capture CLI startup and Exit Code transport. |
-| `src/skat_ai/cli/session.py` | Session compatibility facade over focused parser and orchestration services. |
-| `src/skat_ai/__main__.py` | Module invocation delegation. |
+| `src/skatmind/cli/execution.py` | Package-owned Root compatibility facade and leading-`corpus`, `capture`, then `session` dispatch. |
+| `src/skatmind/cli/corpus.py` | Private local Learning Corpus CLI startup, browser opening, shutdown, and Exit Code transport. |
+| `src/skatmind/cli/capture.py` | Private local Capture CLI startup and Exit Code transport. |
+| `src/skatmind/cli/session.py` | Session compatibility facade over focused parser and orchestration services. |
+| `src/skatmind/__main__.py` | Module invocation delegation. |
 | `main.py` | Thin Legacy compatibility facade and Root monkeypatch adapter. |
 
 Root parsing, validation, Legacy dependency resolution, Application adaptation,
@@ -399,8 +401,8 @@ import it. See [CLI internal architecture](cli_internal_architecture.md).
 
 | File                   | Purpose                                                                            |
 | ---------------------- | ---------------------------------------------------------------------------------- |
-| `src/skat_ai/deck.py`  | Deck and card helpers.                                                             |
-| `src/skat_ai/rules.py` | Card notation, card points, trump logic, legal-card logic, and trick-winner logic. |
+| `src/skatmind/deck.py`  | Deck and card helpers.                                                             |
+| `src/skatmind/rules.py` | Card notation, card points, trump logic, legal-card logic, and trick-winner logic. |
 
 The internal card-strength values in `rules.py` are comparison values only. They are not Skat card points and must not be used for scoring.
 
@@ -408,86 +410,86 @@ The internal card-strength values in `rules.py` are comparison values only. They
 
 | File                                | Purpose                                                                                                             |
 | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| `src/skat_ai/input_loader.py`       | Loads JSON input, extracts settings, and converts input into internal structures.                                   |
-| `src/skat_ai/input_validation.py`   | Validates input fields, cards, metadata, points, game-end consistency, policy settings, and rating-system metadata. |
-| `src/skat_ai/known_cards.py`        | Tracks and validates known cards.                                                                                   |
-| `src/skat_ai/information_policy.py` | Centralizes live-vs-post-game information rules and builds `information_policy_summary`.                            |
-| `src/skat_ai/turn_phase.py`         | Normalizes and validates canonical `trick_leader` and `next_player` from the current trick length.                  |
-| `src/skat_ai/historical_game.py`    | Typed stable-ID historical records, complete-deal validation, strict play replay, and historical result serialization. |
-| `src/skat_ai/historical_game_end.py` | Versioned stable-ID historical game-end union parsing and canonical serialization. |
-| `src/skat_ai/historical_game_event.py` | Versioned non-terminal historical event union, boundary replay, and event summary orchestration. |
-| `src/skat_ai/historical_play_prefix.py` | Exact immutable prefix replay, remaining-hand reconstruction, and incomplete-trick state. |
-| `src/skat_ai/historical_declarer_concession.py` | Historical point accounting and shared declarer-concession adjudication/settlement adaptation. |
-| `src/skat_ai/historical_defender_concession.py` | Stable-ID historical adaptation of shared defender-concession adjudication and settlement. |
-| `src/skat_ai/historical_declarer_card_exposure.py` | Exact stable-ID reconciliation and shared accepted-exposure adjudication/settlement adaptation. |
-| `src/skat_ai/historical_declarer_card_exposure_continuation.py` | Timed exact declarer-hand reconciliation and non-adjudicating historical continuation semantics. |
-| `src/skat_ai/historical_defender_open_play.py` | Exact historical state reconstruction, bounded flat adjudication reuse, stable-ID proof mapping, and privacy-safe assignment output. |
-| `src/skat_ai/historical_defender_open_play_continuation.py` | Timed exact-hand reconciliation and non-adjudicating historical continuation semantics. |
-| `src/skat_ai/historical_player_mapping.py` | Shared deterministic circular mapping between stable historical IDs and flat player order. |
-| `src/skat_ai/historical_decision_cardinality.py` | Shared actual-play cardinality for snapshots, review decisions, training samples, and rolling targets. |
-| `src/skat_ai/historical_decision_snapshot.py` | Typed information-safe pre-play snapshot reconstruction and serialization over a validated historical result. |
-| `src/skat_ai/historical_snapshot_adapter.py` | Decision-time snapshot to local immediate-analysis position conversion. |
-| `src/skat_ai/historical_game_review.py` | Historical decision evaluation, deterministic seeds, unavailable handling, and complete-game aggregation. |
-| `src/skat_ai/historical_search_review.py` | Decision-time bounded Search plus independent Immediate analysis, stable private seed derivation, and reconciled historical aggregates. |
-| `src/skat_ai/training_dataset.py` | Typed dataset/provenance records, duplicate and partition validation, historical replay reuse, sample generation, and count reconciliation. |
-| `src/skat_ai/bounded_search_evaluation.py` | Canonical dataset selection, stable global decision-prefix evaluation, zero-decision preservation, and aggregate Search quality output. |
-| `src/skat_ai/information_set_search_contracts.py` | Private versioned method, Policy, Budget, Request, controlled-Decision, consumed-budget, and Result contracts without execution. |
-| `src/skat_ai/information_set_search_state.py` | Exact-world/public-history reconciliation, actor Information Sets, shrinking public hands, public voids, and pure exact-transition delegation. |
-| `src/skat_ai/information_set_search_policy.py` | Deterministic information-safe fixed-Player Policy validation and canonical action selection. |
-| `src/skat_ai/information_set_search_preparation.py` | Three-Trick eligibility, existing Compatible-world selection reuse, ordered World State construction, equal-root reconciliation, and strict retained-Preparation validation without reselection. |
-| `src/skat_ai/information_set_search_executor.py` | Private bounded selected-world best response, fixed-player rollout, controlled Information-set grouping, complete contingent Policy retention, exact counters, and invocation-local memoization. |
-| `src/skat_ai/information_set_search_workflow.py` | Strict flat routing, exact nine-field settings, effective left/right fixed-Policy mapping, and no-fallback execution. |
-| `src/skat_ai/information_set_search_public.py` | Safe aggregate public Result projection without Worlds, Observations, or the private controlled Policy table. |
-| `src/skat_ai/information_set_search_comparison.py` | Retained same-selection PIMC and independent Immediate comparison with post-analysis actual-Card attachment. |
-| `src/skat_ai/information_set_search_multi_step.py` | Version-1 Multi-Step Decision, domain-separated child settings, safe serialization, and compact Policy Comparison diagnostics. |
-| `src/skat_ai/historical_information_set_search_review.py` | Information-safe Historical Decision execution, deterministic seeds, descriptive metrics, and breakdowns. |
-| `src/skat_ai/information_set_search_evaluation.py` | Stable Dataset-v1 validation/test selection, global Decision cap, and no-training aggregate evaluation. |
-| `src/skat_ai/information_set_replay_coaching_evidence.py` | Exact pre-actual evidence reconstruction and retained actual-Card comparison reconciliation without rerunning analysis. |
-| `src/skat_ai/information_set_replay_coaching_assessment.py` | Information-set evidence bases, assessability, aggregate-equivalence, impact, factors, and canonical limitations. |
-| `src/skat_ai/information_set_replay_coaching_report.py` | Version-1 report composition over shared Key Decision, Turning Point, pattern, Guidance, scope, and Outcome Context behavior. |
-| `src/skat_ai/replay_coaching_method_neutral.py` | Narrow private adapters that let existing deterministic Coaching algorithms consume either assessment family. |
-| `src/skat_ai/dataset_partition_policy.py` | Versioned policy parsing, canonical serialization, exact stable-player membership extraction, and unseen-player conflict formatting. |
-| `src/skat_ai/dataset_partition_audit.py` | Deterministic partition, membership, overlap, known-opponent coverage, and unseen-player compliance auditing. |
-| `src/skat_ai/training_feature_view.py` | Information-safe conversion from stable-ID snapshots to relative model-facing features. |
-| `src/skat_ai/opponent_statistics.py` | Typed external statistics/provenance records, percentage validation, normalized profile conversion, and serialization. |
-| `src/skat_ai/historical_opponent_statistics.py` | Canonical partition/time selection, exact historical aggregation, provenance, summary, and reusable export construction. |
-| `src/skat_ai/historical_opponent_workflow.py` | Explicit supported-end-reason validation shared by historical opponent workflows. |
-| `src/skat_ai/opponent_profile_derivation.py` | Typed versioned evidence, scoped confidence, signal, classification, and explanation derivation. |
-| `src/skat_ai/rolling_opponent_policy_evaluation.py` | Strict rolling as-of profile construction, snapshot policy prediction, metrics, breakdowns, and reconciliation. |
-| `src/skat_ai/rfc3339.py` | Shared offset-aware RFC 3339 parsing for preserved timestamp text and instant comparison. |
+| `src/skatmind/input_loader.py`       | Loads JSON input, extracts settings, and converts input into internal structures.                                   |
+| `src/skatmind/input_validation.py`   | Validates input fields, cards, metadata, points, game-end consistency, policy settings, and rating-system metadata. |
+| `src/skatmind/known_cards.py`        | Tracks and validates known cards.                                                                                   |
+| `src/skatmind/information_policy.py` | Centralizes live-vs-post-game information rules and builds `information_policy_summary`.                            |
+| `src/skatmind/turn_phase.py`         | Normalizes and validates canonical `trick_leader` and `next_player` from the current trick length.                  |
+| `src/skatmind/historical_game.py`    | Typed stable-ID historical records, complete-deal validation, strict play replay, and historical result serialization. |
+| `src/skatmind/historical_game_end.py` | Versioned stable-ID historical game-end union parsing and canonical serialization. |
+| `src/skatmind/historical_game_event.py` | Versioned non-terminal historical event union, boundary replay, and event summary orchestration. |
+| `src/skatmind/historical_play_prefix.py` | Exact immutable prefix replay, remaining-hand reconstruction, and incomplete-trick state. |
+| `src/skatmind/historical_declarer_concession.py` | Historical point accounting and shared declarer-concession adjudication/settlement adaptation. |
+| `src/skatmind/historical_defender_concession.py` | Stable-ID historical adaptation of shared defender-concession adjudication and settlement. |
+| `src/skatmind/historical_declarer_card_exposure.py` | Exact stable-ID reconciliation and shared accepted-exposure adjudication/settlement adaptation. |
+| `src/skatmind/historical_declarer_card_exposure_continuation.py` | Timed exact declarer-hand reconciliation and non-adjudicating historical continuation semantics. |
+| `src/skatmind/historical_defender_open_play.py` | Exact historical state reconstruction, bounded flat adjudication reuse, stable-ID proof mapping, and privacy-safe assignment output. |
+| `src/skatmind/historical_defender_open_play_continuation.py` | Timed exact-hand reconciliation and non-adjudicating historical continuation semantics. |
+| `src/skatmind/historical_player_mapping.py` | Shared deterministic circular mapping between stable historical IDs and flat player order. |
+| `src/skatmind/historical_decision_cardinality.py` | Shared actual-play cardinality for snapshots, review decisions, training samples, and rolling targets. |
+| `src/skatmind/historical_decision_snapshot.py` | Typed information-safe pre-play snapshot reconstruction and serialization over a validated historical result. |
+| `src/skatmind/historical_snapshot_adapter.py` | Decision-time snapshot to local immediate-analysis position conversion. |
+| `src/skatmind/historical_game_review.py` | Historical decision evaluation, deterministic seeds, unavailable handling, and complete-game aggregation. |
+| `src/skatmind/historical_search_review.py` | Decision-time bounded Search plus independent Immediate analysis, stable private seed derivation, and reconciled historical aggregates. |
+| `src/skatmind/training_dataset.py` | Typed dataset/provenance records, duplicate and partition validation, historical replay reuse, sample generation, and count reconciliation. |
+| `src/skatmind/bounded_search_evaluation.py` | Canonical dataset selection, stable global decision-prefix evaluation, zero-decision preservation, and aggregate Search quality output. |
+| `src/skatmind/information_set_search_contracts.py` | Private versioned method, Policy, Budget, Request, controlled-Decision, consumed-budget, and Result contracts without execution. |
+| `src/skatmind/information_set_search_state.py` | Exact-world/public-history reconciliation, actor Information Sets, shrinking public hands, public voids, and pure exact-transition delegation. |
+| `src/skatmind/information_set_search_policy.py` | Deterministic information-safe fixed-Player Policy validation and canonical action selection. |
+| `src/skatmind/information_set_search_preparation.py` | Three-Trick eligibility, existing Compatible-world selection reuse, ordered World State construction, equal-root reconciliation, and strict retained-Preparation validation without reselection. |
+| `src/skatmind/information_set_search_executor.py` | Private bounded selected-world best response, fixed-player rollout, controlled Information-set grouping, complete contingent Policy retention, exact counters, and invocation-local memoization. |
+| `src/skatmind/information_set_search_workflow.py` | Strict flat routing, exact nine-field settings, effective left/right fixed-Policy mapping, and no-fallback execution. |
+| `src/skatmind/information_set_search_public.py` | Safe aggregate public Result projection without Worlds, Observations, or the private controlled Policy table. |
+| `src/skatmind/information_set_search_comparison.py` | Retained same-selection PIMC and independent Immediate comparison with post-analysis actual-Card attachment. |
+| `src/skatmind/information_set_search_multi_step.py` | Version-1 Multi-Step Decision, domain-separated child settings, safe serialization, and compact Policy Comparison diagnostics. |
+| `src/skatmind/historical_information_set_search_review.py` | Information-safe Historical Decision execution, deterministic seeds, descriptive metrics, and breakdowns. |
+| `src/skatmind/information_set_search_evaluation.py` | Stable Dataset-v1 validation/test selection, global Decision cap, and no-training aggregate evaluation. |
+| `src/skatmind/information_set_replay_coaching_evidence.py` | Exact pre-actual evidence reconstruction and retained actual-Card comparison reconciliation without rerunning analysis. |
+| `src/skatmind/information_set_replay_coaching_assessment.py` | Information-set evidence bases, assessability, aggregate-equivalence, impact, factors, and canonical limitations. |
+| `src/skatmind/information_set_replay_coaching_report.py` | Version-1 report composition over shared Key Decision, Turning Point, pattern, Guidance, scope, and Outcome Context behavior. |
+| `src/skatmind/replay_coaching_method_neutral.py` | Narrow private adapters that let existing deterministic Coaching algorithms consume either assessment family. |
+| `src/skatmind/dataset_partition_policy.py` | Versioned policy parsing, canonical serialization, exact stable-player membership extraction, and unseen-player conflict formatting. |
+| `src/skatmind/dataset_partition_audit.py` | Deterministic partition, membership, overlap, known-opponent coverage, and unseen-player compliance auditing. |
+| `src/skatmind/training_feature_view.py` | Information-safe conversion from stable-ID snapshots to relative model-facing features. |
+| `src/skatmind/opponent_statistics.py` | Typed external statistics/provenance records, percentage validation, normalized profile conversion, and serialization. |
+| `src/skatmind/historical_opponent_statistics.py` | Canonical partition/time selection, exact historical aggregation, provenance, summary, and reusable export construction. |
+| `src/skatmind/historical_opponent_workflow.py` | Explicit supported-end-reason validation shared by historical opponent workflows. |
+| `src/skatmind/opponent_profile_derivation.py` | Typed versioned evidence, scoped confidence, signal, classification, and explanation derivation. |
+| `src/skatmind/rolling_opponent_policy_evaluation.py` | Strict rolling as-of profile construction, snapshot policy prediction, metrics, breakdowns, and reconciliation. |
+| `src/skatmind/rfc3339.py` | Shared offset-aware RFC 3339 parsing for preserved timestamp text and instant comparison. |
 
 ## Interactive Sessions
 
 | File | Purpose |
 | --- | --- |
-| `src/skat_ai/session_commands.py` | Version-1 typed caller-fact Commands, immutable event/end payloads, and allowed-phase metadata. |
-| `src/skat_ai/session_contracts.py` | Stable three-Player identity, Capture Modes, phases, accepted Command records, authoritative Log, and immutable Session State. |
-| `src/skat_ai/session_validation.py` | Diagnostics, Position/Historical readiness, valid-incomplete status, and Transition Result invariants. |
-| `src/skat_ai/session_projection.py` | Frozen canonical accepted-fact projection and deterministic internal serialization. |
-| `src/skat_ai/session_incremental_validation.py` | One-Command phase, rule, ownership, information-policy, event/end, and readiness validation. |
-| `src/skat_ai/session_transitions.py` | Revision-zero creation, full accepted-Log replay, forged-State checks, conflicts, atomic append, and Transition Results. |
-| `src/skat_ai/session_export_contracts.py` | Immutable version-1 available/unavailable Request export result and policy invariants. |
-| `src/skat_ai/session_historical_export.py` | One-replay Historical readiness gate, exact projection mapping, canonical builder round trip, and immutable existing Root Request construction. |
-| `src/skat_ai/session_position_export.py` | Immutable analysis options, one-replay Position readiness gate, stable-to-relative information-safe mapping, existing builder validation, and immutable Root Request construction. |
-| `src/skat_ai/session_decision_checkpoint.py` | Immutable local pre-Play metadata and replay-verified frozen Position Request construction. |
-| `src/skat_ai/session_history_contracts.py` | History Edit policies, immutable Undo/Correction contracts, and Checkpoint Lineage relationships. |
-| `src/skat_ai/session_history.py` | Strict-prefix reconstruction, Undo, one-command correction, first-rejection suffix replay, and exact Checkpoint lineage classification. |
-| `src/skat_ai/session_persistence_contracts.py` | Private version-1 persistence, resume, and optimistic write contracts and exact policy constants. |
-| `src/skat_ai/session_persistence_codec.py` | Canonical domain-separated fingerprints, strict typed reconstruction, accepted-Log replay, fingerprint verification, and resumed lineage derivation. |
-| `src/skat_ai/session_persistence.py` | Strict private file loading and canonical optimistic same-directory atomic save transport. |
-| `src/skat_ai/session_decision_observation.py` | Immutable observation statuses and first accepted local-Play derivation from Checkpoint lineage and accepted history. |
-| `src/skat_ai/session_checkpoint_review.py` | Frozen-request-plus-observed-Card post-game-review Request export without execution. |
-| `src/skat_ai/session_checkpoint_collection.py` | Exact Position-ready Checkpoint collection, canonical retention, and equality deduplication without analysis. |
-| `src/skat_ai/api/v1/session/files/` | Stable version-1 public file Save/Load contracts, strict Result validation, and stable error translation. |
-| `src/skat_ai/cli/session.py` | Compatibility facade for the separate 12-subcommand Session CLI. |
-| `src/skat_ai/cli/session_parser.py` | Session parser and Position export-option mapping. |
-| `src/skat_ai/cli/session_transport.py` | Strict caller-file JSON loading. |
-| `src/skat_ai/cli/session_context.py` | Context, persistence-document, and optimistic Save orchestration. |
-| `src/skat_ai/cli/session_checkpoints.py` | Source/result/correction Checkpoint collection and retention. |
-| `src/skat_ai/cli/session_operations.py` | Twelve handlers, dispatch, and Save/no-Save decisions. |
-| `src/skat_ai/cli/session_application.py` | Existing Position/Historical Application execution without Session file I/O. |
-| `src/skat_ai/cli/session_presentation.py` | Privacy-safe Session and Engine Result transport presentation. |
-| `src/skat_ai/cli/session_assistant.py` | Deterministic phase-aware prompts over explicit focused services. |
+| `src/skatmind/session_commands.py` | Version-1 typed caller-fact Commands, immutable event/end payloads, and allowed-phase metadata. |
+| `src/skatmind/session_contracts.py` | Stable three-Player identity, Capture Modes, phases, accepted Command records, authoritative Log, and immutable Session State. |
+| `src/skatmind/session_validation.py` | Diagnostics, Position/Historical readiness, valid-incomplete status, and Transition Result invariants. |
+| `src/skatmind/session_projection.py` | Frozen canonical accepted-fact projection and deterministic internal serialization. |
+| `src/skatmind/session_incremental_validation.py` | One-Command phase, rule, ownership, information-policy, event/end, and readiness validation. |
+| `src/skatmind/session_transitions.py` | Revision-zero creation, full accepted-Log replay, forged-State checks, conflicts, atomic append, and Transition Results. |
+| `src/skatmind/session_export_contracts.py` | Immutable version-1 available/unavailable Request export result and policy invariants. |
+| `src/skatmind/session_historical_export.py` | One-replay Historical readiness gate, exact projection mapping, canonical builder round trip, and immutable existing Root Request construction. |
+| `src/skatmind/session_position_export.py` | Immutable analysis options, one-replay Position readiness gate, stable-to-relative information-safe mapping, existing builder validation, and immutable Root Request construction. |
+| `src/skatmind/session_decision_checkpoint.py` | Immutable local pre-Play metadata and replay-verified frozen Position Request construction. |
+| `src/skatmind/session_history_contracts.py` | History Edit policies, immutable Undo/Correction contracts, and Checkpoint Lineage relationships. |
+| `src/skatmind/session_history.py` | Strict-prefix reconstruction, Undo, one-command correction, first-rejection suffix replay, and exact Checkpoint lineage classification. |
+| `src/skatmind/session_persistence_contracts.py` | Private version-1 persistence, resume, and optimistic write contracts and exact policy constants. |
+| `src/skatmind/session_persistence_codec.py` | Canonical domain-separated fingerprints, strict typed reconstruction, accepted-Log replay, fingerprint verification, and resumed lineage derivation. |
+| `src/skatmind/session_persistence.py` | Strict private file loading and canonical optimistic same-directory atomic save transport. |
+| `src/skatmind/session_decision_observation.py` | Immutable observation statuses and first accepted local-Play derivation from Checkpoint lineage and accepted history. |
+| `src/skatmind/session_checkpoint_review.py` | Frozen-request-plus-observed-Card post-game-review Request export without execution. |
+| `src/skatmind/session_checkpoint_collection.py` | Exact Position-ready Checkpoint collection, canonical retention, and equality deduplication without analysis. |
+| `src/skatmind/api/v1/session/files/` | Stable version-1 public file Save/Load contracts, strict Result validation, and stable error translation. |
+| `src/skatmind/cli/session.py` | Compatibility facade for the separate 12-subcommand Session CLI. |
+| `src/skatmind/cli/session_parser.py` | Session parser and Position export-option mapping. |
+| `src/skatmind/cli/session_transport.py` | Strict caller-file JSON loading. |
+| `src/skatmind/cli/session_context.py` | Context, persistence-document, and optimistic Save orchestration. |
+| `src/skatmind/cli/session_checkpoints.py` | Source/result/correction Checkpoint collection and retention. |
+| `src/skatmind/cli/session_operations.py` | Twelve handlers, dispatch, and Save/no-Save decisions. |
+| `src/skatmind/cli/session_application.py` | Existing Position/Historical Application execution without Session file I/O. |
+| `src/skatmind/cli/session_presentation.py` | Privacy-safe Session and Engine Result transport presentation. |
+| `src/skatmind/cli/session_assistant.py` | Deterministic phase-aware prompts over explicit focused services. |
 
 Session State contains no `GameState`, Search World, cache, random stream,
 analysis Result, generated timestamp, path, or fingerprint. Persistence paths and
@@ -515,85 +517,85 @@ public files, automatic collection, execution, and Assistant behavior.
 
 | File | Purpose |
 | --- | --- |
-| `src/skat_ai/match_source_metadata.py` | Version-1 media timecodes and descriptive YouTube, other-video, or manual source metadata without network access. |
-| `src/skat_ai/match_tournament_format.py` | Immutable append-only named-format registry and canonical EuroSkat 36er Standard definition. |
-| `src/skat_ai/match_player_snapshot.py` | Fixed-place Match participants and optional immutable existing Opponent Statistics snapshots. |
-| `src/skat_ai/match_player_statistics_context.py` | Per-participant strict temporal eligibility plus existing normalized Profile conversion and derivation. |
-| `src/skat_ai/match_player_statistics_preparation.py` | Canonical fixed-place eligible Opponent Statistics input without side binding or policy application. |
-| `src/skat_ai/match_player_statistics_updates.py` | Deterministic Snapshot IDs and immutable conflict-first set/clear wrappers over definition replacement. |
-| `src/skat_ai/match_capture_contracts.py` | Exact three-Player Match identity, metadata, canonical format, uniqueness, perspective, and serialization reconciliation. |
-| `src/skat_ai/observed_game_contracts.py` | Match-linked observed Game identity, historical seats, optional Card evidence, complete reconciliation, and serialization. |
-| `src/skat_ai/observed_game_trace.py` | Chronological partial and complete Play validation, Turn Order, existing rule reuse, and derived trace summary. |
-| `src/skat_ai/observed_game_commentary.py` | Authoritative free-text Decision commentary, commentator identity, later response links, and canonical ordering. |
-| `src/skat_ai/observed_game_evidence.py` | Pure retained-fact capability derivation without Request construction or workflow execution. |
-| `src/skat_ai/match_workspace_contracts.py` | Exact 36-Slot Workspace, passed-deal and derived position-fact contracts, canonical validation, and revision-zero creation. |
-| `src/skat_ai/match_workspace_rotation.py` | Existing fixed-list rotation reuse and twelve-round derived position facts. |
-| `src/skat_ai/match_workspace_operations.py` | Immutable observed-Game, passed-deal, clearing, and Match-definition correction operations with revision conflicts. |
-| `src/skat_ai/match_workspace_progress.py` | Occupancy and observed-evidence Progress derivation without materialization. |
-| `src/skat_ai/match_workspace_persistence_contracts.py` | Private Workspace document, Resume, optimistic write, and exact policy contracts. |
-| `src/skat_ai/match_workspace_persistence_codec.py` | Domain-separated fingerprints and strict nested Workspace reconstruction. |
-| `src/skat_ai/match_workspace_persistence.py` | Strict private Load and canonical optimistic same-directory atomic Save transport. |
-| `src/skat_ai/learning_corpus_identity.py` | Finite canonical JSON, object kinds, policies, and domain-separated source/reference identities. |
-| `src/skat_ai/learning_corpus_references.py` | Snapshot-scoped Player, Game, Decision, Commentary, and Response References. |
-| `src/skat_ai/learning_corpus_match_snapshot.py` | Immutable exact Workspace Match Snapshot derivation and closed-reference validation. |
-| `src/skat_ai/learning_corpus_catalog.py` | Lightweight entries, explicit Current selections, canonical Catalogs, and pure classification. |
-| `src/skat_ai/learning_corpus_persistence_contracts.py` | Private persistence, Store, Catalog Change, write, import, and persisted-selection Results plus fixed policies. |
-| `src/skat_ai/learning_corpus_persistence_codec.py` | Catalog/content fingerprints, strict Catalog and Match Snapshot reconstruction, and canonical file bytes. |
-| `src/skat_ai/learning_corpus_catalog_operations.py` | Pure conflict-first Snapshot import and explicit Current-selection changes. |
-| `src/skat_ai/learning_corpus_persistence.py` | Fixed layout initialization, strict Store Resume, orphan scan, immutable object publication, and atomic Catalog Save. |
-| `src/skat_ai/learning_corpus_import.py` | Strict Workspace-file import and persisted Current-selection orchestration. |
-| `src/skat_ai/learning_corpus_current_snapshots.py` | Shared strict in-memory resolution of explicit Current Match Snapshots for derived Corpus views. |
-| `src/skat_ai/learning_corpus_player_catalog.py` | Derived Current-Snapshot Player observations, exact stable-ID entries, reconciled counts, and one deterministic Catalog fingerprint. |
-| `src/skat_ai/learning_corpus_player_aliases.py` | Exact participant/source alias observations, conflict reporting, and pure resolution without merge. |
-| `src/skat_ai/learning_corpus_player_statistics.py` | Exact Statistics fingerprints/history and strict latest-unambiguous or explicit-observation as-of selection without Profile derivation. |
-| `src/skat_ai/learning_corpus_human_evidence.py` | Minimized Human Evidence contracts, exact source fingerprints, Snapshot-scoped IDs, collection reconciliation, and privacy policies. |
-| `src/skat_ai/learning_corpus_human_evidence_builder.py` | One-pass Current-Snapshot source/reference reconciliation and factual Commentary/Response behavior derivation without analysis or I/O. |
-| `src/skat_ai/learning_corpus_human_evidence_export.py` | Builder-independent private export identity and canonical in-memory JSON bytes. |
-| `src/skat_ai/learning_corpus_strategy_teacher.py` | Exact Decision Report source bindings, immutable minimized method-bound Evidence, collection counts, and domain-separated identities. |
-| `src/skat_ai/learning_corpus_information_set_strategy_teacher.py` | Builder-only minimized safe Information-set Result/comparison Evidence and focused extension policies. |
-| `src/skat_ai/learning_corpus_strategy_teacher_builder.py` | Current-Snapshot/Game/Decision closure, one exact Request rebuild, retained Result validation, and strategy-field extraction without analysis execution. |
-| `src/skat_ai/learning_corpus_strategy_teacher_export.py` | Builder-independent private Strategy Teacher export identity and canonical path-free JSON bytes. |
-| `src/skat_ai/learning_dataset_v2_contracts.py` | Private task-neutral Dataset-v2 contracts, statuses, separated evidence families, immutable values, counts, and domain-separated identities. |
-| `src/skat_ai/learning_dataset_v2_builder.py` | Exact four-source reconciliation, Current-only safe/skipped Decision derivation, cached Statistics Contexts, strict evidence joins, and normalized pools without execution or I/O. |
-| `src/skat_ai/learning_dataset_v2_export.py` | Builder-independent Dataset export identity and canonical path-free JSON bytes. |
-| `src/skat_ai/learning_dataset_v2_partition_contracts.py` | Private partition vocabulary, immutable group/Plan/audit/view/Result contracts, and strict complete/unavailable invariants. |
-| `src/skat_ai/learning_dataset_v2_partition_identity.py` | Domain-separated source, request, seed, Plan, audit, view, and export identities. |
-| `src/skat_ai/learning_dataset_v2_partition_algorithms.py` | Exact integer objective, temporal Known-player generation, Player-component unseen-player allocation, and strict local improvement. |
-| `src/skat_ai/learning_dataset_v2_partition_audit.py` | Match/Record/evidence closure, Statistics temporal safety, Player overlap, and component local-optimality auditing. |
-| `src/skat_ai/learning_dataset_v2_partition_preparation.py` | Exact source reconciliation, Match-group derivation, complete/unavailable orchestration, summaries, and lossless indexes. |
-| `src/skat_ai/learning_dataset_v2_partition_export.py` | Builder-independent partition Result export identity and canonical path-free JSON bytes. |
-| `src/skat_ai/learning_dataset_v2_summary_contracts.py` | Private exact-Count primitives, Match/Player/Communication/Strategy/readiness summaries, policies, validation, and domain-separated identities. |
-| `src/skat_ai/learning_dataset_v2_summary_builder.py` | One-pass Dataset/Catalog/evidence aggregation and exact supplied-partition Result reconciliation without Plan generation. |
-| `src/skat_ai/learning_dataset_v2_summary_export.py` | Builder-independent cross-game Summary export identity and canonical path-free JSON bytes. |
-| `src/skat_ai/learning_corpus_tactical_motif_evidence.py` | Current-Snapshot Tactical Evidence/skip/collection contracts, exact coverage, policies, validation, and domain-separated identities. |
-| `src/skat_ai/learning_corpus_tactical_motif_builder.py` | Safe Match Decision-state reconstruction and exact shared Tactical detector reuse without Historical execution. |
-| `src/skat_ai/learning_corpus_tactical_motif_summary.py` | Exact global, Player, role, seat, phase, contract, distinct-Game/Match, and bounded recurrence summaries without interpretation. |
-| `src/skat_ai/learning_corpus_tactical_motif_export.py` | Builder-independent private Tactical Evidence/Summary export identities and canonical path-free JSON bytes. |
-| `src/skat_ai/learning_corpus_tactical_coaching_contracts.py` | Immutable exact Teacher Assessment, Decision Summary, focus, Player Report, Coaching Report, policy, limitation, and identity contracts. |
-| `src/skat_ai/learning_corpus_tactical_coaching_assessment.py` | Exact Tactical/Teacher joins and retained-method assessment without analysis execution. |
-| `src/skat_ai/learning_corpus_tactical_cross_game_coaching.py` | Semantic Decision consensus, repeated cross-Game thresholds, bounded priority, fixed Guidance, and Player Catalog ordering. |
-| `src/skat_ai/learning_corpus_tactical_coaching_export.py` | Builder-independent private Tactical Coaching export identity and canonical path-free JSON bytes. |
-| `src/skat_ai/match_analysis_report_source_export.py` | Exact executed Decision Report source envelope and canonical private transfer bytes. |
-| `src/skat_ai/match_analysis_report_source_codec.py` | Strict complete Report/Request/Result reconstruction and canonical identity verification for uploads. |
-| `src/skat_ai/corpus_web/` | Private one-root context, strict uploads, optimistic operations, bounded process-local sources, unlocked preparation, minimized rendering, authenticated downloads, security, and HTTP lifecycle. |
-| `src/skat_ai/match_capture_application_contracts.py` | Capture versions/policies, caller Card entries, builder-controlled Position Views, and immutable Application Results. |
-| `src/skat_ai/match_capture_position_view.py` | Current Slot/Trick/Player, exact or bounded selectable Cards, blockers, evidence, and Progress derivation. |
-| `src/skat_ai/match_capture_game_updates.py` | Defensive complete-Game rebuilding, deterministic IDs, automatic Play derivation, truncation cleanup, and annotation updates. |
-| `src/skat_ai/match_capture_application.py` | Conflict-first orchestration over existing Workspace operations without persistence or analysis. |
-| `src/skat_ai/match_observed_reconstruction.py` | One validated observed trace plus only its exactly reconstructable playable hands and evidence summary. |
-| `src/skat_ai/match_decision_review_preparation.py` | Information-safe acting-own-hand Decision snapshots, actual-Card cutoff, skipped reasons, and relative eligible Profile bindings without application. |
-| `src/skat_ai/match_historical_materialization.py` | Strict complete-Deal normal-completion Historical availability, construction, canonical round trip, and Match-level played-time policy. |
-| `src/skat_ai/match_training_source_materialization.py` | Existing unpartitioned Training source Records and ordered available/unavailable collection without Plans, partitions, or samples. |
-| `src/skat_ai/match_workspace_materialization.py` | Exact 36-Slot preparation, counts/status, Passed Deals, Commentary sidecars, and existing complete-list construction plus aggregation without workflow execution. |
-| `src/skat_ai/match_analysis_contracts.py` | Explicit Match analysis options/results, normal unavailability, no-workflow materialization reports, deterministic report IDs, and bounded report-store/export policies. |
-| `src/skat_ai/match_decision_analysis.py` | One prepared Decision to one validated flat Position Request and exact existing Application execution with actor-relative eligible Profiles. |
-| `src/skat_ai/match_information_set_search.py` | Match budget mapping, strict safe Result/comparison reconciliation, and curated browser diagnostics for one-Decision Information-set Search. |
-| `src/skat_ai/match_historical_analysis.py` | Strict Historical availability, selected existing modes, bounded Profile injection, one exact Application invocation, and Result reconciliation. |
-| `src/skat_ai/match_historical_information_set_analysis.py` | Match Historical mode adaptation, one shared Information-set Review, fixed-Policy Profile behavior, strict Result reconciliation, and safe rendering views. |
-| `src/skat_ai/match_analysis_exports.py` | Canonical private Root Result, materialization, Historical, Training-source, list-input, and list-aggregation download documents. |
-| `src/skat_ai/capture_web/` | Private Web/Protocol contracts, timecode presentation, locked context, browser-safe state, direct operation delegation, explicit analysis, max-eight report store, rendering, security, Standard Library server, downloads, and packaged assets. |
-| `src/skat_ai/cli/capture_parser.py` | Exact three-option Capture parser and command identity. |
-| `src/skat_ai/cli/capture.py` | Startup, browser open, loopback server lifecycle, interrupt, and Exit Code transport. |
+| `src/skatmind/match_source_metadata.py` | Version-1 media timecodes and descriptive YouTube, other-video, or manual source metadata without network access. |
+| `src/skatmind/match_tournament_format.py` | Immutable append-only named-format registry and canonical EuroSkat 36er Standard definition. |
+| `src/skatmind/match_player_snapshot.py` | Fixed-place Match participants and optional immutable existing Opponent Statistics snapshots. |
+| `src/skatmind/match_player_statistics_context.py` | Per-participant strict temporal eligibility plus existing normalized Profile conversion and derivation. |
+| `src/skatmind/match_player_statistics_preparation.py` | Canonical fixed-place eligible Opponent Statistics input without side binding or policy application. |
+| `src/skatmind/match_player_statistics_updates.py` | Deterministic Snapshot IDs and immutable conflict-first set/clear wrappers over definition replacement. |
+| `src/skatmind/match_capture_contracts.py` | Exact three-Player Match identity, metadata, canonical format, uniqueness, perspective, and serialization reconciliation. |
+| `src/skatmind/observed_game_contracts.py` | Match-linked observed Game identity, historical seats, optional Card evidence, complete reconciliation, and serialization. |
+| `src/skatmind/observed_game_trace.py` | Chronological partial and complete Play validation, Turn Order, existing rule reuse, and derived trace summary. |
+| `src/skatmind/observed_game_commentary.py` | Authoritative free-text Decision commentary, commentator identity, later response links, and canonical ordering. |
+| `src/skatmind/observed_game_evidence.py` | Pure retained-fact capability derivation without Request construction or workflow execution. |
+| `src/skatmind/match_workspace_contracts.py` | Exact 36-Slot Workspace, passed-deal and derived position-fact contracts, canonical validation, and revision-zero creation. |
+| `src/skatmind/match_workspace_rotation.py` | Existing fixed-list rotation reuse and twelve-round derived position facts. |
+| `src/skatmind/match_workspace_operations.py` | Immutable observed-Game, passed-deal, clearing, and Match-definition correction operations with revision conflicts. |
+| `src/skatmind/match_workspace_progress.py` | Occupancy and observed-evidence Progress derivation without materialization. |
+| `src/skatmind/match_workspace_persistence_contracts.py` | Private Workspace document, Resume, optimistic write, and exact policy contracts. |
+| `src/skatmind/match_workspace_persistence_codec.py` | Domain-separated fingerprints and strict nested Workspace reconstruction. |
+| `src/skatmind/match_workspace_persistence.py` | Strict private Load and canonical optimistic same-directory atomic Save transport. |
+| `src/skatmind/learning_corpus_identity.py` | Finite canonical JSON, object kinds, policies, and domain-separated source/reference identities. |
+| `src/skatmind/learning_corpus_references.py` | Snapshot-scoped Player, Game, Decision, Commentary, and Response References. |
+| `src/skatmind/learning_corpus_match_snapshot.py` | Immutable exact Workspace Match Snapshot derivation and closed-reference validation. |
+| `src/skatmind/learning_corpus_catalog.py` | Lightweight entries, explicit Current selections, canonical Catalogs, and pure classification. |
+| `src/skatmind/learning_corpus_persistence_contracts.py` | Private persistence, Store, Catalog Change, write, import, and persisted-selection Results plus fixed policies. |
+| `src/skatmind/learning_corpus_persistence_codec.py` | Catalog/content fingerprints, strict Catalog and Match Snapshot reconstruction, and canonical file bytes. |
+| `src/skatmind/learning_corpus_catalog_operations.py` | Pure conflict-first Snapshot import and explicit Current-selection changes. |
+| `src/skatmind/learning_corpus_persistence.py` | Fixed layout initialization, strict Store Resume, orphan scan, immutable object publication, and atomic Catalog Save. |
+| `src/skatmind/learning_corpus_import.py` | Strict Workspace-file import and persisted Current-selection orchestration. |
+| `src/skatmind/learning_corpus_current_snapshots.py` | Shared strict in-memory resolution of explicit Current Match Snapshots for derived Corpus views. |
+| `src/skatmind/learning_corpus_player_catalog.py` | Derived Current-Snapshot Player observations, exact stable-ID entries, reconciled counts, and one deterministic Catalog fingerprint. |
+| `src/skatmind/learning_corpus_player_aliases.py` | Exact participant/source alias observations, conflict reporting, and pure resolution without merge. |
+| `src/skatmind/learning_corpus_player_statistics.py` | Exact Statistics fingerprints/history and strict latest-unambiguous or explicit-observation as-of selection without Profile derivation. |
+| `src/skatmind/learning_corpus_human_evidence.py` | Minimized Human Evidence contracts, exact source fingerprints, Snapshot-scoped IDs, collection reconciliation, and privacy policies. |
+| `src/skatmind/learning_corpus_human_evidence_builder.py` | One-pass Current-Snapshot source/reference reconciliation and factual Commentary/Response behavior derivation without analysis or I/O. |
+| `src/skatmind/learning_corpus_human_evidence_export.py` | Builder-independent private export identity and canonical in-memory JSON bytes. |
+| `src/skatmind/learning_corpus_strategy_teacher.py` | Exact Decision Report source bindings, immutable minimized method-bound Evidence, collection counts, and domain-separated identities. |
+| `src/skatmind/learning_corpus_information_set_strategy_teacher.py` | Builder-only minimized safe Information-set Result/comparison Evidence and focused extension policies. |
+| `src/skatmind/learning_corpus_strategy_teacher_builder.py` | Current-Snapshot/Game/Decision closure, one exact Request rebuild, retained Result validation, and strategy-field extraction without analysis execution. |
+| `src/skatmind/learning_corpus_strategy_teacher_export.py` | Builder-independent private Strategy Teacher export identity and canonical path-free JSON bytes. |
+| `src/skatmind/learning_dataset_v2_contracts.py` | Private task-neutral Dataset-v2 contracts, statuses, separated evidence families, immutable values, counts, and domain-separated identities. |
+| `src/skatmind/learning_dataset_v2_builder.py` | Exact four-source reconciliation, Current-only safe/skipped Decision derivation, cached Statistics Contexts, strict evidence joins, and normalized pools without execution or I/O. |
+| `src/skatmind/learning_dataset_v2_export.py` | Builder-independent Dataset export identity and canonical path-free JSON bytes. |
+| `src/skatmind/learning_dataset_v2_partition_contracts.py` | Private partition vocabulary, immutable group/Plan/audit/view/Result contracts, and strict complete/unavailable invariants. |
+| `src/skatmind/learning_dataset_v2_partition_identity.py` | Domain-separated source, request, seed, Plan, audit, view, and export identities. |
+| `src/skatmind/learning_dataset_v2_partition_algorithms.py` | Exact integer objective, temporal Known-player generation, Player-component unseen-player allocation, and strict local improvement. |
+| `src/skatmind/learning_dataset_v2_partition_audit.py` | Match/Record/evidence closure, Statistics temporal safety, Player overlap, and component local-optimality auditing. |
+| `src/skatmind/learning_dataset_v2_partition_preparation.py` | Exact source reconciliation, Match-group derivation, complete/unavailable orchestration, summaries, and lossless indexes. |
+| `src/skatmind/learning_dataset_v2_partition_export.py` | Builder-independent partition Result export identity and canonical path-free JSON bytes. |
+| `src/skatmind/learning_dataset_v2_summary_contracts.py` | Private exact-Count primitives, Match/Player/Communication/Strategy/readiness summaries, policies, validation, and domain-separated identities. |
+| `src/skatmind/learning_dataset_v2_summary_builder.py` | One-pass Dataset/Catalog/evidence aggregation and exact supplied-partition Result reconciliation without Plan generation. |
+| `src/skatmind/learning_dataset_v2_summary_export.py` | Builder-independent cross-game Summary export identity and canonical path-free JSON bytes. |
+| `src/skatmind/learning_corpus_tactical_motif_evidence.py` | Current-Snapshot Tactical Evidence/skip/collection contracts, exact coverage, policies, validation, and domain-separated identities. |
+| `src/skatmind/learning_corpus_tactical_motif_builder.py` | Safe Match Decision-state reconstruction and exact shared Tactical detector reuse without Historical execution. |
+| `src/skatmind/learning_corpus_tactical_motif_summary.py` | Exact global, Player, role, seat, phase, contract, distinct-Game/Match, and bounded recurrence summaries without interpretation. |
+| `src/skatmind/learning_corpus_tactical_motif_export.py` | Builder-independent private Tactical Evidence/Summary export identities and canonical path-free JSON bytes. |
+| `src/skatmind/learning_corpus_tactical_coaching_contracts.py` | Immutable exact Teacher Assessment, Decision Summary, focus, Player Report, Coaching Report, policy, limitation, and identity contracts. |
+| `src/skatmind/learning_corpus_tactical_coaching_assessment.py` | Exact Tactical/Teacher joins and retained-method assessment without analysis execution. |
+| `src/skatmind/learning_corpus_tactical_cross_game_coaching.py` | Semantic Decision consensus, repeated cross-Game thresholds, bounded priority, fixed Guidance, and Player Catalog ordering. |
+| `src/skatmind/learning_corpus_tactical_coaching_export.py` | Builder-independent private Tactical Coaching export identity and canonical path-free JSON bytes. |
+| `src/skatmind/match_analysis_report_source_export.py` | Exact executed Decision Report source envelope and canonical private transfer bytes. |
+| `src/skatmind/match_analysis_report_source_codec.py` | Strict complete Report/Request/Result reconstruction and canonical identity verification for uploads. |
+| `src/skatmind/corpus_web/` | Private one-root context, strict uploads, optimistic operations, bounded process-local sources, unlocked preparation, minimized rendering, authenticated downloads, security, and HTTP lifecycle. |
+| `src/skatmind/match_capture_application_contracts.py` | Capture versions/policies, caller Card entries, builder-controlled Position Views, and immutable Application Results. |
+| `src/skatmind/match_capture_position_view.py` | Current Slot/Trick/Player, exact or bounded selectable Cards, blockers, evidence, and Progress derivation. |
+| `src/skatmind/match_capture_game_updates.py` | Defensive complete-Game rebuilding, deterministic IDs, automatic Play derivation, truncation cleanup, and annotation updates. |
+| `src/skatmind/match_capture_application.py` | Conflict-first orchestration over existing Workspace operations without persistence or analysis. |
+| `src/skatmind/match_observed_reconstruction.py` | One validated observed trace plus only its exactly reconstructable playable hands and evidence summary. |
+| `src/skatmind/match_decision_review_preparation.py` | Information-safe acting-own-hand Decision snapshots, actual-Card cutoff, skipped reasons, and relative eligible Profile bindings without application. |
+| `src/skatmind/match_historical_materialization.py` | Strict complete-Deal normal-completion Historical availability, construction, canonical round trip, and Match-level played-time policy. |
+| `src/skatmind/match_training_source_materialization.py` | Existing unpartitioned Training source Records and ordered available/unavailable collection without Plans, partitions, or samples. |
+| `src/skatmind/match_workspace_materialization.py` | Exact 36-Slot preparation, counts/status, Passed Deals, Commentary sidecars, and existing complete-list construction plus aggregation without workflow execution. |
+| `src/skatmind/match_analysis_contracts.py` | Explicit Match analysis options/results, normal unavailability, no-workflow materialization reports, deterministic report IDs, and bounded report-store/export policies. |
+| `src/skatmind/match_decision_analysis.py` | One prepared Decision to one validated flat Position Request and exact existing Application execution with actor-relative eligible Profiles. |
+| `src/skatmind/match_information_set_search.py` | Match budget mapping, strict safe Result/comparison reconciliation, and curated browser diagnostics for one-Decision Information-set Search. |
+| `src/skatmind/match_historical_analysis.py` | Strict Historical availability, selected existing modes, bounded Profile injection, one exact Application invocation, and Result reconciliation. |
+| `src/skatmind/match_historical_information_set_analysis.py` | Match Historical mode adaptation, one shared Information-set Review, fixed-Policy Profile behavior, strict Result reconciliation, and safe rendering views. |
+| `src/skatmind/match_analysis_exports.py` | Canonical private Root Result, materialization, Historical, Training-source, list-input, and list-aggregation download documents. |
+| `src/skatmind/capture_web/` | Private Web/Protocol contracts, timecode presentation, locked context, browser-safe state, direct operation delegation, explicit analysis, max-eight report store, rendering, security, Standard Library server, downloads, and packaged assets. |
+| `src/skatmind/cli/capture_parser.py` | Exact three-option Capture parser and command identity. |
+| `src/skatmind/cli/capture.py` | Startup, browser open, loopback server lifecycle, interrupt, and Exit Code transport. |
 
 The only executable format identity is `euroskat_36_standard_v1`, with provider
 `EuroSkat`, display name `36er Standard`, three Players, and 36 Games. This is a
@@ -630,7 +632,7 @@ Validation is split between JSON Schema and Python validation:
 
 | File                          | Purpose                                                                |
 | ----------------------------- | ---------------------------------------------------------------------- |
-| `src/skat_ai/game_history.py` | Completed-trick structure, sequence, role, and rule-winner validation. |
+| `src/skatmind/game_history.py` | Completed-trick structure, sequence, role, and rule-winner validation. |
 
 Completed-trick validation is used to prevent inconsistent historical game states, duplicate cards, impossible sequences, and mismatched trick winners where enough information is available. When `cards` and ordered `players` are present, validation derives the rule winner and checks both `winner_player` and concrete `winner_role` metadata against that derived result. In live-decision input, supplied `winner_role` must be verifiable from `cards`, `players`, `game_type`, and concrete `declarer_player`; post-game legacy side-only histories remain supported when that evidence is absent.
 
@@ -643,11 +645,11 @@ three remaining hands at each play, and only projects derived
 
 | File                               | Purpose                                                                                                   |
 | ---------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| `src/skat_ai/game_declaration.py`  | Game declaration metadata, default handling, matador inference integration, and serialization.            |
-| `src/skat_ai/matador_inference.py` | Automatic matador inference from known declarer-card context where possible.                              |
-| `src/skat_ai/game_value.py`        | Game value calculation for suit, grand, and null games.                                                   |
-| `src/skat_ai/game_result.py`       | Raw card-point result, winner, remaining points, Schneider/Schwarz status, and adjusted result summaries. |
-| `src/skat_ai/game_history.py`      | Known point summary from explicit points and completed tricks.                                            |
+| `src/skatmind/game_declaration.py`  | Game declaration metadata, default handling, matador inference integration, and serialization.            |
+| `src/skatmind/matador_inference.py` | Automatic matador inference from known declarer-card context where possible.                              |
+| `src/skatmind/game_value.py`        | Game value calculation for suit, grand, and null games.                                                   |
+| `src/skatmind/game_result.py`       | Raw card-point result, winner, remaining points, Schneider/Schwarz status, and adjusted result summaries. |
+| `src/skatmind/game_history.py`      | Known point summary from explicit points and completed tricks.                                            |
 
 Matador inference is intentionally conservative. It uses currently known declarer-card context and safe completed-trick ownership facts where `cards`, ordered `players`, and concrete `declarer_player` identify who played each card. It does not infer ownership from `winner_role`, `winner_player`, trick winner, hidden cards, or sampled worlds, and it does not reconstruct every possible matador state from historical trick ownership.
 
@@ -662,33 +664,33 @@ insufficient.
 
 | File                                | Purpose                                                                                                       |
 | ----------------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| `src/skat_ai/game_end.py`           | Legacy game-end reason handling and remaining-point assignment.                                               |
-| `src/skat_ai/declarer_concession.py` | Typed version-1 validation, hand-count reconciliation, and no-assignment declarer-concession adjudication.    |
-| `src/skat_ai/defender_concession.py` | Typed party validation, pre-concession decision derivation, and no-assignment defender-concession adjudication. |
-| `src/skat_ai/declarer_card_exposure.py` | Typed 4.4.4 exposure, exact defender unanimity, card reconciliation, and accepted-claim adjudication. |
-| `src/skat_ai/declarer_card_exposure_continuation.py` | Separate typed 4.4.4 ongoing continuation, response validation, reconciliation, and summary. |
-| `src/skat_ai/defender_open_play_continuation.py` | Typed 4.4.5/4.1.6 returned-hand continuation, reconciliation, and non-adjudicating summary. |
-| `src/skat_ai/game_continuation.py` | Runtime dispatcher for the version-1 ongoing continuation union. |
-| `src/skat_ai/defender_open_play.py` | Typed 4.4.5 exact-state validation, adjudication, rule assignment, and privacy-safe summary. |
-| `src/skat_ai/exact_rest_trick_proof.py` | Immutable, canonical, memoized exact game tree with existential exposing-defender and universal other-player nodes. |
-| `src/skat_ai/open_card_throw.py` | Typed 4.4.6 event, hand reconciliation, party-level unresolved assignment, and result adjudication. |
-| `src/skat_ai/historical_open_card_throw.py` | Exact historical replay adapter, stable-ID mapping, confirmed hand reconciliation, and shared 4.4.6 adjudication. |
-| `src/skat_ai/theoretical_level_exclusion.py` | Bounded jack-only theoretical Schwarz exclusion and privacy-safe evidence. |
-| `src/skat_ai/public_hand_constraint.py` | Immutable exact public-hand ownership constraint and stable serialization. |
-| `src/skat_ai/ouvert_simulation.py` | Declared-Ouvert exact-hand validation, construction, and deterministic multi-source constraint resolution. |
-| `src/skat_ai/game_decision.py`       | Shared bounded pre-game-end decision state for defender concession and declarer card exposure.                |
-| `src/skat_ai/game_shortening.py`    | Runtime dispatcher for the version-1 structured game-shortening union.                                        |
-| `src/skat_ai/settlement_normative_matrix.py` | Internal immutable version-3 policy matrix with 61 preserved cases, one supported bounded Historical Claim, and durable v1 exclusions. |
-| `src/skat_ai/party_wide_claim_contracts.py` | Private structured Claim identity, party reconciliation, exact policies, and deterministic serialization. |
-| `src/skat_ai/party_wide_claim_evidence.py` | Private complete-world Evidence, one Historical-prefix replay, stable/flat mapping, and one untraversed exact-state preparation. |
-| `src/skat_ai/party_wide_claim_proof_contracts.py` | Private Proof Request/preparation, assignment, diagnostic Move, and supplied valid/invalid/unavailable Result invariants without execution. |
-| `src/skat_ai/party_wide_claim_proof_executor.py` | Private bounded exhaustive exact AND/OR traversal, invocation-local memoization, counters, canonical decisive lines, and existing Result construction. |
-| `src/skat_ai/party_wide_claim_adjudication_contracts.py` | Private immutable adjudication Facts/Result, exact statuses, policies, no-outcome relationships, and defensive serialization. |
-| `src/skat_ai/party_wide_claim_adjudication.py` | Strict retained-Proof reconciliation, exact assignment composition, preexisting-winner preservation, completed private Result, and existing Final Settlement reuse. |
-| `src/skat_ai/historical_party_wide_claim.py` | Focused one-replay Historical Claim adaptation, one Proof/adjudication pipeline, privacy-bounded output mapping, and retained Settlement reuse. |
-| `src/skat_ai/overbid.py`            | Bid-value comparison, overbid detection, and required game-value calculation.                                 |
-| `src/skat_ai/final_settlement.py`   | Simplified single-game settlement scoring, including supported Suit/Grand overbid loss handling.              |
-| `src/skat_ai/performance_rating.py` | Performance layer, partial fixed-three-player SkWO scoring, and separation from settlement. |
+| `src/skatmind/game_end.py`           | Legacy game-end reason handling and remaining-point assignment.                                               |
+| `src/skatmind/declarer_concession.py` | Typed version-1 validation, hand-count reconciliation, and no-assignment declarer-concession adjudication.    |
+| `src/skatmind/defender_concession.py` | Typed party validation, pre-concession decision derivation, and no-assignment defender-concession adjudication. |
+| `src/skatmind/declarer_card_exposure.py` | Typed 4.4.4 exposure, exact defender unanimity, card reconciliation, and accepted-claim adjudication. |
+| `src/skatmind/declarer_card_exposure_continuation.py` | Separate typed 4.4.4 ongoing continuation, response validation, reconciliation, and summary. |
+| `src/skatmind/defender_open_play_continuation.py` | Typed 4.4.5/4.1.6 returned-hand continuation, reconciliation, and non-adjudicating summary. |
+| `src/skatmind/game_continuation.py` | Runtime dispatcher for the version-1 ongoing continuation union. |
+| `src/skatmind/defender_open_play.py` | Typed 4.4.5 exact-state validation, adjudication, rule assignment, and privacy-safe summary. |
+| `src/skatmind/exact_rest_trick_proof.py` | Immutable, canonical, memoized exact game tree with existential exposing-defender and universal other-player nodes. |
+| `src/skatmind/open_card_throw.py` | Typed 4.4.6 event, hand reconciliation, party-level unresolved assignment, and result adjudication. |
+| `src/skatmind/historical_open_card_throw.py` | Exact historical replay adapter, stable-ID mapping, confirmed hand reconciliation, and shared 4.4.6 adjudication. |
+| `src/skatmind/theoretical_level_exclusion.py` | Bounded jack-only theoretical Schwarz exclusion and privacy-safe evidence. |
+| `src/skatmind/public_hand_constraint.py` | Immutable exact public-hand ownership constraint and stable serialization. |
+| `src/skatmind/ouvert_simulation.py` | Declared-Ouvert exact-hand validation, construction, and deterministic multi-source constraint resolution. |
+| `src/skatmind/game_decision.py`       | Shared bounded pre-game-end decision state for defender concession and declarer card exposure.                |
+| `src/skatmind/game_shortening.py`    | Runtime dispatcher for the version-1 structured game-shortening union.                                        |
+| `src/skatmind/settlement_normative_matrix.py` | Internal immutable version-3 policy matrix with 61 preserved cases, one supported bounded Historical Claim, and durable v1 exclusions. |
+| `src/skatmind/party_wide_claim_contracts.py` | Private structured Claim identity, party reconciliation, exact policies, and deterministic serialization. |
+| `src/skatmind/party_wide_claim_evidence.py` | Private complete-world Evidence, one Historical-prefix replay, stable/flat mapping, and one untraversed exact-state preparation. |
+| `src/skatmind/party_wide_claim_proof_contracts.py` | Private Proof Request/preparation, assignment, diagnostic Move, and supplied valid/invalid/unavailable Result invariants without execution. |
+| `src/skatmind/party_wide_claim_proof_executor.py` | Private bounded exhaustive exact AND/OR traversal, invocation-local memoization, counters, canonical decisive lines, and existing Result construction. |
+| `src/skatmind/party_wide_claim_adjudication_contracts.py` | Private immutable adjudication Facts/Result, exact statuses, policies, no-outcome relationships, and defensive serialization. |
+| `src/skatmind/party_wide_claim_adjudication.py` | Strict retained-Proof reconciliation, exact assignment composition, preexisting-winner preservation, completed private Result, and existing Final Settlement reuse. |
+| `src/skatmind/historical_party_wide_claim.py` | Focused one-replay Historical Claim adaptation, one Proof/adjudication pipeline, privacy-bounded output mapping, and retained Settlement reuse. |
+| `src/skatmind/overbid.py`            | Bid-value comparison, overbid detection, and required game-value calculation.                                 |
+| `src/skatmind/final_settlement.py`   | Simplified single-game settlement scoring, including supported Suit/Grand overbid loss handling.              |
+| `src/skatmind/performance_rating.py` | Performance layer, partial fixed-three-player SkWO scoring, and separation from settlement. |
 
 The first three structured shortening paths bypass legacy point assignment and
 preserve observed and unplayed points. Defender open play instead records an
@@ -745,19 +747,19 @@ boundaries](claim_and_settlement_v1_boundaries.md).
 
 | File                                   | Purpose                                                |
 | -------------------------------------- | ------------------------------------------------------ |
-| `src/skat_ai/simulation.py`            | Monte Carlo simulation logic.                          |
-| `src/skat_ai/coherent_hidden_world.py` | Immutable private path ownership, reconciliation, privacy-safe summaries, and child-seed derivation. |
-| `src/skat_ai/hidden_card_inference.py` | Exact public-evidence constraints, compatible-world DP counts and marginals, uniform sampling, and privacy-safe summaries. |
-| `src/skat_ai/simulation_context.py`    | Simulation context creation and strict-context checks. |
-| `src/skat_ai/simulation_step.py`       | Single simulation-step handling.                       |
-| `src/skat_ai/canonical_multi_step_phase.py` | Immutable version-1 exact nine-row phase-plan contract, policy constants, and builder validation. |
-| `src/skat_ai/state_transition.py`      | Applies local plays and immutable existing-Trick completion transitions. |
-| `src/skat_ai/multi_step_simulation.py` | Multi-step simulation orchestration.                   |
-| `src/skat_ai/multi_step_recommendation.py` | Immutable privacy-safe compatible-world Search decision and compact comparison diagnostics. |
-| `src/skat_ai/multi_step_summary.py`    | Serializable multi-step result summaries.              |
-| `src/skat_ai/search_budget_profiles.py` | Immutable versioned Search budgets for interactive, historical-review, and evaluation workflows. |
-| `src/skat_ai/retrospective_search_comparison.py` | Search actual-card and Search-versus-Immediate aggregate comparisons. |
-| `src/skat_ai/bounded_search_post_game_review.py` | Flat post-game Search comparison summary construction. |
+| `src/skatmind/simulation.py`            | Monte Carlo simulation logic.                          |
+| `src/skatmind/coherent_hidden_world.py` | Immutable private path ownership, reconciliation, privacy-safe summaries, and child-seed derivation. |
+| `src/skatmind/hidden_card_inference.py` | Exact public-evidence constraints, compatible-world DP counts and marginals, uniform sampling, and privacy-safe summaries. |
+| `src/skatmind/simulation_context.py`    | Simulation context creation and strict-context checks. |
+| `src/skatmind/simulation_step.py`       | Single simulation-step handling.                       |
+| `src/skatmind/canonical_multi_step_phase.py` | Immutable version-1 exact nine-row phase-plan contract, policy constants, and builder validation. |
+| `src/skatmind/state_transition.py`      | Applies local plays and immutable existing-Trick completion transitions. |
+| `src/skatmind/multi_step_simulation.py` | Multi-step simulation orchestration.                   |
+| `src/skatmind/multi_step_recommendation.py` | Immutable privacy-safe compatible-world Search decision and compact comparison diagnostics. |
+| `src/skatmind/multi_step_summary.py`    | Serializable multi-step result summaries.              |
+| `src/skatmind/search_budget_profiles.py` | Immutable versioned Search budgets for interactive, historical-review, and evaluation workflows. |
+| `src/skatmind/retrospective_search_comparison.py` | Search actual-card and Search-versus-Immediate aggregate comparisons. |
+| `src/skatmind/bounded_search_post_game_review.py` | Flat post-game Search comparison summary construction. |
 
 The simulation layer is probabilistic and heuristic. It is designed for analysis support, not for perfect-information solving.
 
@@ -920,19 +922,19 @@ rolling behavior remains unchanged.
 
 | File                                     | Purpose                                          |
 | ---------------------------------------- | ------------------------------------------------ |
-| `src/skat_ai/opponent_policy.py`         | Opponent policy definitions and selection logic. |
-| `src/skat_ai/opponent_lead.py`           | Opponent lead/response behavior and coherent existing-Trick completion. |
-| `src/skat_ai/opponent_sequence.py`       | Canonical phase classification, bounded opponent sequencing, and continuation to the next local Decision. |
-| `src/skat_ai/opponent_policy_preset.py`  | Named policy presets.                            |
-| `src/skat_ai/opponent_profile_policy.py` | Profile-based policy recommendation.             |
-| `src/skat_ai/player_profile.py`          | Player profile modeling.                         |
-| `src/skat_ai/opponent_statistics.py`     | External statistics normalization and derivation serialization without policy application. |
-| `src/skat_ai/historical_opponent_statistics.py` | Exact settlement-based aggregation and reusable statistics export without policy application. |
-| `src/skat_ai/opponent_profile_derivation.py` | Deterministic explainable profile derivation. |
-| `src/skat_ai/live_opponent_profile_binding.py` | Exact left/right lookup in a validated external statistics summary. |
-| `src/skat_ai/opponent_profile_application.py` | Manual/external source precedence and stable live application summary. |
-| `src/skat_ai/historical_opponent_profile_binding.py` | Exact participant matching, strict pre-game temporal validation, and compact top-level provenance. |
-| `src/skat_ai/historical_opponent_profile_application.py` | Per-snapshot stable-ID left/right profile resolution and effective-policy reconciliation. |
+| `src/skatmind/opponent_policy.py`         | Opponent policy definitions and selection logic. |
+| `src/skatmind/opponent_lead.py`           | Opponent lead/response behavior and coherent existing-Trick completion. |
+| `src/skatmind/opponent_sequence.py`       | Canonical phase classification, bounded opponent sequencing, and continuation to the next local Decision. |
+| `src/skatmind/opponent_policy_preset.py`  | Named policy presets.                            |
+| `src/skatmind/opponent_profile_policy.py` | Profile-based policy recommendation.             |
+| `src/skatmind/player_profile.py`          | Player profile modeling.                         |
+| `src/skatmind/opponent_statistics.py`     | External statistics normalization and derivation serialization without policy application. |
+| `src/skatmind/historical_opponent_statistics.py` | Exact settlement-based aggregation and reusable statistics export without policy application. |
+| `src/skatmind/opponent_profile_derivation.py` | Deterministic explainable profile derivation. |
+| `src/skatmind/live_opponent_profile_binding.py` | Exact left/right lookup in a validated external statistics summary. |
+| `src/skatmind/opponent_profile_application.py` | Manual/external source precedence and stable live application summary. |
+| `src/skatmind/historical_opponent_profile_binding.py` | Exact participant matching, strict pre-game temporal validation, and compact top-level provenance. |
+| `src/skatmind/historical_opponent_profile_application.py` | Per-snapshot stable-ID left/right profile resolution and effective-policy reconciliation. |
 
 Opponent policy handling supports both global and separate left/right opponent policy settings.
 
@@ -984,7 +986,7 @@ Issue #22's current heuristic and explainable defender-partnership scope is impl
 
 ## Left/right opponent policy flow
 
-Opponent policy handling is centralized in `src/skat_ai/effective_opponent_policy.py`.
+Opponent policy handling is centralized in `src/skatmind/effective_opponent_policy.py`.
 The Position Application workflow builds one `EffectiveOpponentPolicySettings` value per analysis invocation
 and shares it with immediate analysis, multi-step simulation, and multi-step policy
 comparison.
@@ -1030,12 +1032,12 @@ receive the same activated response map as immediate analysis.
 
 | File                                | Purpose                                     |
 | ----------------------------------- | ------------------------------------------- |
-| `src/skat_ai/analysis_report.py`    | Card analysis report construction.          |
-| `src/skat_ai/card_selection.py`     | Card selection helpers.                     |
-| `src/skat_ai/recommender.py`        | Recommendation and strategic summary logic. |
-| `src/skat_ai/policy_comparison.py`  | Policy comparison logic.                    |
-| `src/skat_ai/analysis_metadata.py`  | Analysis-mode and metadata handling.        |
-| `src/skat_ai/strategic_metadata.py` | Strategic metadata helpers.                 |
+| `src/skatmind/analysis_report.py`    | Card analysis report construction.          |
+| `src/skatmind/card_selection.py`     | Card selection helpers.                     |
+| `src/skatmind/recommender.py`        | Recommendation and strategic summary logic. |
+| `src/skatmind/policy_comparison.py`  | Policy comparison logic.                    |
+| `src/skatmind/analysis_metadata.py`  | Analysis-mode and metadata handling.        |
+| `src/skatmind/strategic_metadata.py` | Strategic metadata helpers.                 |
 
 The analysis report is the basis for recommendations, post-game comparison, and several CLI/JSON summaries when a local decision is available. Opponent-turn and ended-game positions intentionally use an empty report.
 
@@ -1058,7 +1060,7 @@ card-point metrics.
 
 | File                              | Purpose                                                                                                                      |
 | --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| `src/skat_ai/post_game_review.py` | Actual-card comparison, decision quality classification, decision factors, explanation text, and recommendation gap details. |
+| `src/skatmind/post_game_review.py` | Actual-card comparison, decision quality classification, decision factors, explanation text, and recommendation gap details. |
 
 Post-game review uses the regular analysis report and optionally compares it with `actual_card_played`. If Immediate Analysis is unavailable because there is no current local decision, post-game review returns an unavailable summary instead of comparing against an empty report.
 
@@ -1090,8 +1092,8 @@ Current post-game review output includes:
 
 | File                                  | Purpose                                                                    |
 | ------------------------------------- | -------------------------------------------------------------------------- |
-| `src/skat_ai/output_writer.py`        | Writes JSON output.                                                        |
-| `src/skat_ai/result_serialization.py` | Serialization helpers for nested and simulation-related output structures. |
+| `src/skatmind/output_writer.py`        | Writes JSON output.                                                        |
+| `src/skatmind/result_serialization.py` | Serialization helpers for nested and simulation-related output structures. |
 
 Output is designed to be regression-friendly and schema-validatable.
 

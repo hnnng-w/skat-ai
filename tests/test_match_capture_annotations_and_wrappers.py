@@ -9,15 +9,15 @@ from pathlib import Path
 import pytest
 from test_match_workspace_contracts import _definition
 
-import skat_ai
-import skat_ai.api.v1 as api_v1
-import skat_ai.api.v1.session as session_api
-import skat_ai.api.v1.session.files as session_files_api
+import skatmind
+import skatmind.api.v1 as api_v1
+import skatmind.api.v1.session as session_api
+import skatmind.api.v1.session.files as session_files_api
 from scripts.validate_generated_outputs_schema import SCENARIOS
-from skat_ai.cli.root_parser import build_argument_parser
-from skat_ai.cli.session_parser import build_session_argument_parser
-from skat_ai.game_declaration import GameDeclaration
-from skat_ai.match_capture_application import (
+from skatmind.cli.root_parser import build_argument_parser
+from skatmind.cli.session_parser import build_session_argument_parser
+from skatmind.game_declaration import GameDeclaration
+from skatmind.match_capture_application import (
     append_match_capture_plays_v1,
     clear_match_capture_position_v1,
     mark_match_capture_passed_deal_v1,
@@ -31,14 +31,14 @@ from skat_ai.match_capture_application import (
     truncate_match_capture_plays_v1,
     undo_match_capture_last_play_v1,
 )
-from skat_ai.match_capture_application_contracts import MatchCaptureCardEntryV1
-from skat_ai.match_capture_game_updates import (
+from skatmind.match_capture_application_contracts import MatchCaptureCardEntryV1
+from skatmind.match_capture_game_updates import (
     build_default_match_capture_commentary_id_v1,
     build_default_match_capture_response_link_id_v1,
 )
-from skat_ai.match_source_metadata import MediaTimecodeV1
-from skat_ai.match_workspace_contracts import create_match_workspace_v1
-from skat_ai.match_workspace_persistence_codec import (
+from skatmind.match_source_metadata import MediaTimecodeV1
+from skatmind.match_workspace_contracts import create_match_workspace_v1
+from skatmind.match_workspace_persistence_codec import (
     build_match_workspace_persistence_document_v1,
 )
 
@@ -620,7 +620,7 @@ def test_capture_services_execute_no_file_network_application_or_hidden_workflow
     monkeypatch.setattr(socket, "create_connection", fail)
     monkeypatch.setattr(urllib.request, "urlopen", fail)
     monkeypatch.setattr(
-        "skat_ai.application.execution.execute_application_invocation",
+        "skatmind.application.execution.execute_application_invocation",
         fail,
     )
     result = start_match_capture_game_v1(
@@ -635,7 +635,7 @@ def test_capture_import_architecture_has_no_transport_persistence_or_analysis_de
     None
 ):
     module_paths = tuple(
-        PROJECT_ROOT / "src" / "skat_ai" / filename
+        PROJECT_ROOT / "src" / "skatmind" / filename
         for filename in (
             "match_capture_application_contracts.py",
             "match_capture_position_view.py",
@@ -644,16 +644,16 @@ def test_capture_import_architecture_has_no_transport_persistence_or_analysis_de
         )
     )
     forbidden_prefixes = (
-        "skat_ai.cli",
-        "skat_ai.api",
-        "skat_ai.application",
-        "skat_ai.match_workspace_persistence",
-        "skat_ai.session",
-        "skat_ai.historical",
-        "skat_ai.search",
-        "skat_ai.bounded_search",
-        "skat_ai.replay_coaching",
-        "skat_ai.training_dataset",
+        "skatmind.cli",
+        "skatmind.api",
+        "skatmind.application",
+        "skatmind.match_workspace_persistence",
+        "skatmind.session",
+        "skatmind.historical",
+        "skatmind.search",
+        "skatmind.bounded_search",
+        "skatmind.replay_coaching",
+        "skatmind.training_dataset",
     )
     for module_path in module_paths:
         tree = ast.parse(module_path.read_text(encoding="utf-8"))
@@ -668,7 +668,7 @@ def test_capture_import_architecture_has_no_transport_persistence_or_analysis_de
             for name in imported
             for prefix in forbidden_prefixes
         ), (module_path, imported)
-    for cli_path in (PROJECT_ROOT / "src" / "skat_ai" / "cli").glob("*.py"):
+    for cli_path in (PROJECT_ROOT / "src" / "skatmind" / "cli").glob("*.py"):
         if cli_path.name in {"capture.py", "capture_parser.py"}:
             continue
         source = cli_path.read_text(encoding="utf-8")
@@ -684,7 +684,7 @@ def test_public_cli_package_schema_output_and_persistence_boundaries_are_unchang
         "append_match_capture_play_v1",
     }
     for namespace in (
-        skat_ai,
+        skatmind,
         api_v1,
         session_api,
         session_files_api,
@@ -697,7 +697,7 @@ def test_public_cli_package_schema_output_and_persistence_boundaries_are_unchang
     assert "match-capture" not in session_help
     assert len(tuple((PROJECT_ROOT / "schemas").glob("*.schema.json"))) == 71
     assert (
-        len(tuple((PROJECT_ROOT / "src" / "skat_ai" / "schema_resources").glob("*.schema.json")))
+        len(tuple((PROJECT_ROOT / "src" / "skatmind" / "schema_resources").glob("*.schema.json")))
         == 71
     )
     assert len(SCENARIOS) == 98

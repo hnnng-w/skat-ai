@@ -10,18 +10,18 @@ from test_observed_game_contracts import (
     observed_plays_from_historical,
 )
 
-import skat_ai
-import skat_ai.api.v1 as api_v1
-import skat_ai.api.v1.session as session_api
-import skat_ai.api.v1.session.files as session_files_api
+import skatmind
+import skatmind.api.v1 as api_v1
+import skatmind.api.v1.session as session_api
+import skatmind.api.v1.session.files as session_files_api
 from scripts.validate_generated_outputs_schema import SCENARIOS
-from skat_ai.api.v1.contracts import WorkflowV1
-from skat_ai.cli.root_parser import build_argument_parser
-from skat_ai.cli.session_parser import build_session_argument_parser
-from skat_ai.game_declaration import GameDeclaration
-from skat_ai.match_capture_contracts import MatchCaptureDefinitionV1
-from skat_ai.match_source_metadata import MediaTimecodeV1
-from skat_ai.match_workspace_contracts import (
+from skatmind.api.v1.contracts import WorkflowV1
+from skatmind.cli.root_parser import build_argument_parser
+from skatmind.cli.session_parser import build_session_argument_parser
+from skatmind.game_declaration import GameDeclaration
+from skatmind.match_capture_contracts import MatchCaptureDefinitionV1
+from skatmind.match_source_metadata import MediaTimecodeV1
+from skatmind.match_workspace_contracts import (
     MATCH_PASSED_DEAL_VERSION,
     MATCH_WORKSPACE_CONTRACT_VERSION,
     MATCH_WORKSPACE_SLOT_KINDS,
@@ -35,7 +35,7 @@ from skat_ai.match_workspace_contracts import (
     create_match_workspace_v1,
     validate_match_workspace_v1,
 )
-from skat_ai.match_workspace_operations import (
+from skatmind.match_workspace_operations import (
     MATCH_WORKSPACE_CHANGE_OPERATIONS,
     MATCH_WORKSPACE_CHANGE_STATUSES,
     MATCH_WORKSPACE_CHANGE_VERSION,
@@ -45,24 +45,24 @@ from skat_ai.match_workspace_operations import (
     replace_match_workspace_definition_v1,
     set_match_workspace_observed_game_v1,
 )
-from skat_ai.match_workspace_progress import (
+from skatmind.match_workspace_progress import (
     MATCH_WORKSPACE_PROGRESS_POLICY,
     MATCH_WORKSPACE_PROGRESS_VERSION,
     MatchWorkspaceProgressV1,
     build_match_workspace_progress_v1,
 )
-from skat_ai.match_workspace_rotation import (
+from skatmind.match_workspace_rotation import (
     MATCH_WORKSPACE_ROTATION_POLICY,
     build_match_workspace_position_fact_v1,
     build_match_workspace_position_facts_v1,
     build_match_workspace_seat_assignment_v1,
 )
-from skat_ai.observed_game_commentary import (
+from skatmind.observed_game_commentary import (
     ObservedDecisionCommentaryV1,
     ObservedDecisionResponseLinkV1,
 )
-from skat_ai.observed_game_contracts import build_observed_game_record_v1
-from skat_ai.observed_game_trace import ObservedPlayV1
+from skatmind.observed_game_contracts import build_observed_game_record_v1
+from skatmind.observed_game_trace import ObservedPlayV1
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
@@ -398,7 +398,7 @@ def test_all_position_facts_cover_twelve_rounds_and_dealer_is_rearhand() -> None
 def test_workspace_creation_delegates_all_36_positions_to_existing_rotation(
     monkeypatch,
 ) -> None:
-    import skat_ai.match_workspace_rotation as rotation_module
+    import skatmind.match_workspace_rotation as rotation_module
 
     positions = []
     original = rotation_module.build_fixed_three_player_list_seat_assignment
@@ -958,7 +958,7 @@ def test_public_api_cli_schema_output_and_package_boundaries_remain_unchanged() 
         "save_match_workspace_file_v1",
     }
     public_exports = (
-        set(skat_ai.__all__)
+        set(skatmind.__all__)
         | set(api_v1.__all__)
         | set(session_api.__all__)
         | set(session_files_api.__all__)
@@ -975,11 +975,11 @@ def test_public_api_cli_schema_output_and_package_boundaries_remain_unchanged() 
     )
     assert "match-workspace" not in build_argument_parser().format_help()
     assert "match-workspace" not in build_session_argument_parser().format_help()
-    assert skat_ai.__version__ == "0.17.0"
+    assert skatmind.__version__ == "0.17.0"
     assert len(tuple((PROJECT_ROOT / "schemas").glob("*.schema.json"))) == 71
     assert len(
         tuple(
-            (PROJECT_ROOT / "src" / "skat_ai" / "schema_resources").glob(
+            (PROJECT_ROOT / "src" / "skatmind" / "schema_resources").glob(
                 "*.schema.json"
             )
         )

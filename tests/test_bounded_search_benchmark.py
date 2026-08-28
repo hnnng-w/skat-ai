@@ -6,8 +6,8 @@ import sys
 from pathlib import Path
 
 from scripts.benchmark_bounded_search import _build_information_view
-from skat_ai.bounded_search_information import LIVE_LOCAL_VIEW_SOURCE
-from skat_ai.search_budget_profiles import SEARCH_BUDGET_PROFILE_IDENTIFIERS
+from skatmind.bounded_search_information import LIVE_LOCAL_VIEW_SOURCE
+from skatmind.search_budget_profiles import SEARCH_BUDGET_PROFILE_IDENTIFIERS
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 CORPUS_PATH = PROJECT_ROOT / "benchmarks" / "bounded_search_late_game_v1.json"

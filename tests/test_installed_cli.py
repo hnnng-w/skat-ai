@@ -7,8 +7,8 @@ from pathlib import Path
 import pytest
 
 import main as legacy_main
-from skat_ai.api.v1 import ExecutionOptionsV1, execute_document
-from skat_ai.application import (
+from skatmind.api.v1 import ExecutionOptionsV1, execute_document
+from skatmind.application import (
     ApplicationExecutionOptions,
     HistoricalGameApplicationOptions,
     PositionAnalysisApplicationOptions,
@@ -16,7 +16,7 @@ from skat_ai.application import (
     build_application_invocation,
     execute_application_invocation,
 )
-from skat_ai.cli import execution as cli
+from skatmind.cli import execution as cli
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 EXAMPLES = PROJECT_ROOT / "examples"
@@ -166,7 +166,7 @@ def _run_subprocess(prefix: list[str], args: list[str]) -> subprocess.CompletedP
 
 
 def _run_installed_subprocess(args: list[str]) -> subprocess.CompletedProcess[str]:
-    command = "from skat_ai.cli import main; raise SystemExit(main())"
+    command = "from skatmind.cli import main; raise SystemExit(main())"
     return _run_subprocess([sys.executable, "-c", command], args)
 
 
@@ -264,12 +264,12 @@ def _assert_cross_execution_documents_equal_except_wall_clock_elapsed(
 
 def test_installed_cli_contract_constants_are_exact_and_internal() -> None:
     assert cli.INSTALLED_CLI_CONTRACT_VERSION == 1
-    assert cli.INSTALLED_CLI_COMMAND == "skat-ai"
-    assert cli.MODULE_CLI_COMMAND == "python -m skat_ai"
+    assert cli.INSTALLED_CLI_COMMAND == "skatmind"
+    assert cli.MODULE_CLI_COMMAND == "python -m skatmind"
     assert cli.LEGACY_CLI_COMMAND == "python main.py"
     assert cli.CLI_INVOCATION_STYLES == ("installed", "module", "legacy")
 
-    import skat_ai.api.v1 as api_v1
+    import skatmind.api.v1 as api_v1
 
     assert "INSTALLED_CLI_CONTRACT_VERSION" not in api_v1.__all__
     assert "INSTALLED_CLI_COMMAND" not in api_v1.__all__
@@ -342,11 +342,11 @@ def test_help_is_invocation_specific_without_changing_options() -> None:
     module = cli.build_argument_parser("module").format_help()
     legacy = cli.build_argument_parser("legacy").format_help()
 
-    assert installed.startswith("usage: skat-ai")
-    assert module.startswith("usage: python -m skat_ai")
+    assert installed.startswith("usage: skatmind")
+    assert module.startswith("usage: python -m skatmind")
     assert legacy.startswith("usage: python main.py")
-    assert "skat-ai --input position.json" in installed
-    assert "python -m skat_ai --input position.json" in module
+    assert "skatmind --input position.json" in installed
+    assert "python -m skatmind --input position.json" in module
     assert "examples/grand_second_position.json" not in installed
     assert "examples/grand_second_position.json" not in module
     assert "python main.py --input examples/grand_second_position.json" in legacy
@@ -382,24 +382,24 @@ def test_help_and_version_exit_without_loading_or_execution(
         cli.run_cli(["--version"], invocation_style=style)
     version_output = capsys.readouterr()
     assert version_exit.value.code == 0
-    assert version_output.out == "skat-ai 0.17.0\n"
+    assert version_output.out == "SkatMind 0.17.0\n"
     assert version_output.err == ""
 
 
 def test_module_entry_point_and_package_cli_do_not_import_root_main() -> None:
     command = (
         "import json, sys\n"
-        "import skat_ai.cli\n"
+        "import skatmind.cli\n"
         "print(json.dumps({'root_loaded': 'main' in sys.modules, "
-        "'callable': callable(skat_ai.cli.main)}))\n"
+        "'callable': callable(skatmind.cli.main)}))\n"
     )
     imported = _run_subprocess([sys.executable, "-c", command], [])
-    module_version = _run_subprocess([sys.executable, "-m", "skat_ai"], ["--version"])
+    module_version = _run_subprocess([sys.executable, "-m", "skatmind"], ["--version"])
 
     assert imported.returncode == 0
     assert json.loads(imported.stdout) == {"root_loaded": False, "callable": True}
     assert module_version.returncode == 0
-    assert module_version.stdout == "skat-ai 0.17.0\n"
+    assert module_version.stdout == "SkatMind 0.17.0\n"
     assert module_version.stderr == ""
 
 
@@ -427,7 +427,7 @@ def test_all_seven_cli_forms_match_application_and_public_api(
     ) == 0
     assert capsys.readouterr().out == ""
     module = _run_subprocess(
-        [sys.executable, "-m", "skat_ai"],
+        [sys.executable, "-m", "skatmind"],
         [*common, "--output", str(module_output)],
     )
     legacy = _run_subprocess(
@@ -492,7 +492,7 @@ def test_all_seven_provenance_outputs_match_public_installed_module_and_legacy(
     assert cli.run_cli([*common, str(paths["installed"])]) == 0
     assert capsys.readouterr().out == ""
     module = _run_subprocess(
-        [sys.executable, "-m", "skat_ai"],
+        [sys.executable, "-m", "skatmind"],
         [*common, str(paths["module"])],
     )
     legacy = _run_subprocess(
@@ -556,7 +556,7 @@ def test_provenance_summary_is_concise_and_quiet_retains_json(
     for forbidden in ("field_path", "reference_id", "player_id", "cards"):
         assert forbidden not in emitted_section
 
-    module = _run_subprocess([sys.executable, "-m", "skat_ai"], args)
+    module = _run_subprocess([sys.executable, "-m", "skatmind"], args)
     legacy = _run_subprocess(
         [sys.executable, str(PROJECT_ROOT / "main.py")],
         args,
@@ -629,7 +629,7 @@ def test_human_readable_output_and_confirmation_match_module_and_legacy(
 
     assert cli.run_cli(args, invocation_style="installed") == 0
     installed = capsys.readouterr()
-    module = _run_subprocess([sys.executable, "-m", "skat_ai"], args)
+    module = _run_subprocess([sys.executable, "-m", "skatmind"], args)
     legacy = _run_subprocess([sys.executable, str(PROJECT_ROOT / "main.py")], args)
 
     assert installed.err == module.stderr == legacy.stderr == ""
@@ -767,7 +767,7 @@ def test_representative_submodes_match_all_execution_boundaries(
     assert cli.run_cli([*common, str(paths["installed"])]) == 0
     assert capsys.readouterr().out == ""
     module = _run_subprocess(
-        [sys.executable, "-m", "skat_ai"],
+        [sys.executable, "-m", "skatmind"],
         [*common, str(paths["module"])],
     )
     legacy = _run_subprocess(
@@ -829,7 +829,7 @@ def test_auxiliary_export_matches_all_boundaries(tmp_path: Path, capsys) -> None
     assert cli.run_cli(args(installed_output, installed_export)) == 0
     assert capsys.readouterr().out == ""
     module = _run_subprocess(
-        [sys.executable, "-m", "skat_ai"],
+        [sys.executable, "-m", "skatmind"],
         args(module_output, module_export),
     )
     legacy = _run_subprocess(
@@ -899,7 +899,7 @@ def test_usage_expected_failure_and_unexpected_option_exit_codes(
     assert failure.out == ""
     assert failure.err.startswith("Error: Input file not found:")
 
-    unknown = _run_subprocess([sys.executable, "-m", "skat_ai"], ["--provenance"])
+    unknown = _run_subprocess([sys.executable, "-m", "skatmind"], ["--provenance"])
     assert unknown.returncode == 2
     assert unknown.stdout == ""
     assert "unrecognized arguments: --provenance" in unknown.stderr
@@ -909,7 +909,7 @@ def test_usage_expected_failure_and_unexpected_option_exit_codes(
     "runner",
     [
         _run_installed_subprocess,
-        lambda args: _run_subprocess([sys.executable, "-m", "skat_ai"], args),
+        lambda args: _run_subprocess([sys.executable, "-m", "skatmind"], args),
         lambda args: _run_subprocess(
             [sys.executable, str(PROJECT_ROOT / "main.py")], args
         ),

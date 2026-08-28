@@ -2,18 +2,18 @@
 
 ## Contract identity
 
-The stable in-memory Session namespace is `skat_ai.api.v1.session`:
+The stable in-memory Session namespace is `skatmind.api.v1.session`:
 
 ```text
 PUBLIC_SESSION_API_VERSION = 1
-PUBLIC_SESSION_API_NAMESPACE = skat_ai.api.v1.session
+PUBLIC_SESSION_API_NAMESPACE = skatmind.api.v1.session
 PUBLIC_SESSION_API_COMPATIBILITY_POLICY = additive_until_v1_0
 ```
 
-`session` is appended to `skat_ai.api.v1.__all__`; every earlier export retains
-its order and identity. `skat_ai.__all__`, `skat_ai.api.__all__`, and
-`skat_ai.errors.__all__` are unchanged. Direct imports from `skat_ai.session_*`
-remain unsupported. Only names in `skat_ai.api.v1.session.__all__` are stable.
+`session` is appended to `skatmind.api.v1.__all__`; every earlier export retains
+its order and identity. `skatmind.__all__`, `skatmind.api.__all__`, and
+`skatmind.errors.__all__` are unchanged. Direct imports from `skatmind.session_*`
+remain unsupported. Only names in `skatmind.api.v1.session.__all__` are stable.
 
 The canonical operations are, in order:
 
@@ -173,7 +173,7 @@ executes analysis. See
 
 ## Public file transport
 
-Issue #157 adds stable `skat_ai.api.v1.session.files` version `1`, with exact
+Issue #157 adds stable `skatmind.api.v1.session.files` version `1`, with exact
 `save` and `load` operations. `SessionFileApiResultV1` maps Save to the existing
 `SessionPersistenceWriteResultV1` and Load to `SessionResumeResultV1`, retains no
 path, and has no provenance option. Save preserves expected-content-fingerprint
@@ -185,9 +185,9 @@ The file API is independently versioned and exported only as the appended
 [Session CLI and end-to-end capture](session_cli_and_end_to_end_capture.md) for
 its exact 12-name export surface and signatures.
 
-The existing public error hierarchy is reused. Existing `SkatAIError` values
+The existing public error hierarchy is reused. Existing `SkatMindError` values
 pass through; public-boundary `ValueError` and `TypeError` become
-`SkatAIValidationError`; Schema, resource, invariant, and serialization failures
+`SkatMindValidationError`; Schema, resource, invariant, and serialization failures
 use their existing stable error classes.
 
 ## Schema and boundaries

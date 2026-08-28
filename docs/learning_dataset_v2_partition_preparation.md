@@ -100,15 +100,15 @@ separators = (",", ":")
 The exact SHA-256 domains are:
 
 ```text
-skat-ai\0learning_dataset_v2_partition_source_identity_v1\0
-skat-ai\0learning_dataset_v2_partition_source_content_v1\0
-skat-ai\0learning_dataset_v2_partition_request_v1\0
-skat-ai\0learning_dataset_v2_match_group_v1\0
-skat-ai\0learning_dataset_v2_player_component_v1\0
-skat-ai\0learning_dataset_v2_partition_plan_v1\0
-skat-ai\0learning_dataset_v2_partition_audit_v1\0
-skat-ai\0learning_dataset_v2_partitioned_view_v1\0
-skat-ai\0learning_dataset_v2_partition_export_v1\0
+skatmind\0learning_dataset_v2_partition_source_identity_v1\0
+skatmind\0learning_dataset_v2_partition_source_content_v1\0
+skatmind\0learning_dataset_v2_partition_request_v1\0
+skatmind\0learning_dataset_v2_match_group_v1\0
+skatmind\0learning_dataset_v2_player_component_v1\0
+skatmind\0learning_dataset_v2_partition_plan_v1\0
+skatmind\0learning_dataset_v2_partition_audit_v1\0
+skatmind\0learning_dataset_v2_partitioned_view_v1\0
+skatmind\0learning_dataset_v2_partition_export_v1\0
 ```
 
 Mode-specific seed domains are:
@@ -248,7 +248,7 @@ evidence contract gains a `partition` field.
 The path-free export document kind is:
 
 ```text
-skat_ai_learning_dataset_v2_partition_preparation
+skatmind_learning_dataset_v2_partition_preparation
 ```
 
 The export builder accepts an already-prepared complete or unavailable Result

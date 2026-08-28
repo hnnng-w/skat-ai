@@ -1,7 +1,7 @@
 import pytest
 
-from skat_ai.input_loader import build_local_game_state_from_input
-from skat_ai.input_validation import (
+from skatmind.input_loader import build_local_game_state_from_input
+from skatmind.input_validation import (
     validate_boolean,
     validate_cards,
     validate_completed_tricks,

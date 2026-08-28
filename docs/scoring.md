@@ -1,6 +1,6 @@
 # Scoring and settlement
 
-This document explains card points, game value, and single-game settlement in `skat-ai`.
+This document explains card points, game value, and single-game settlement in `skatmind`.
 
 ## Card points
 

@@ -6,10 +6,10 @@ from test_learning_corpus_strategy_teacher import (
     _source_bundle,
 )
 
-from skat_ai.api.v1.contracts import ResultDocumentV1
-from skat_ai.application.execution import ApplicationWorkflowDependencies
-from skat_ai.application.position_workflow import PositionWorkflowDependencies
-from skat_ai.bounded_search_result import (
+from skatmind.api.v1.contracts import ResultDocumentV1
+from skatmind.application.execution import ApplicationWorkflowDependencies
+from skatmind.application.position_workflow import PositionWorkflowDependencies
+from skatmind.bounded_search_result import (
     BOUNDED_SEARCH_ANALYSIS_METHOD,
     BOUNDED_SEARCH_SCHEMA_VERSION,
     AggregateSearchCandidateResult,
@@ -17,16 +17,16 @@ from skat_ai.bounded_search_result import (
     ConsumedSearchBudget,
     rank_search_candidate_results,
 )
-from skat_ai.learning_corpus_strategy_teacher import (
+from skatmind.learning_corpus_strategy_teacher import (
     build_learning_corpus_strategy_teacher_report_source_v1,
 )
-from skat_ai.learning_corpus_strategy_teacher_builder import (
+from skatmind.learning_corpus_strategy_teacher_builder import (
     build_learning_corpus_strategy_teacher_evidence_collection_v1,
 )
-from skat_ai.match_analysis_contracts import build_match_analysis_report_v1
-from skat_ai.match_decision_analysis import execute_match_decision_analysis_v1
-from skat_ai.rules import get_legal_cards
-from skat_ai.terminal_utility import TERMINAL_UTILITY_VERSION
+from skatmind.match_analysis_contracts import build_match_analysis_report_v1
+from skatmind.match_decision_analysis import execute_match_decision_analysis_v1
+from skatmind.rules import get_legal_cards
+from skatmind.terminal_utility import TERMINAL_UTILITY_VERSION
 
 
 @pytest.fixture(scope="module")
@@ -260,7 +260,7 @@ def test_partial_and_timeout_search_states_are_preserved(
         )
 
     monkeypatch.setattr(
-        "skat_ai.recommendation_workflow.solve_compatible_world_minimax",
+        "skatmind.recommendation_workflow.solve_compatible_world_minimax",
         search,
     )
     _workspace, _snapshot, _result, _report, source, store = _source_bundle(
@@ -326,7 +326,7 @@ def test_sampled_world_search_coverage_is_preserved(monkeypatch) -> None:
         )
 
     monkeypatch.setattr(
-        "skat_ai.recommendation_workflow.solve_compatible_world_minimax",
+        "skatmind.recommendation_workflow.solve_compatible_world_minimax",
         search,
     )
     _workspace, _snapshot, _result, _report, source, store = _source_bundle(

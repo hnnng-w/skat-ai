@@ -10,7 +10,7 @@ from test_historical_game import build_historical_input
 from test_historical_game_event_chain import add_continuation
 from test_historical_open_card_throw import build_throw_prefix
 
-from skat_ai.fixed_three_player_historical_list import (
+from skatmind.fixed_three_player_historical_list import (
     FIXED_THREE_PLAYER_HISTORICAL_LIST_SCHEMA_VERSION,
     FIXED_THREE_PLAYER_LIST_ENTRIES_PER_ROUND,
     FIXED_THREE_PLAYER_LIST_ENTRY_COUNT,
@@ -24,16 +24,16 @@ from skat_ai.fixed_three_player_historical_list import (
     build_serializable_fixed_three_player_historical_list,
     build_serializable_fixed_three_player_historical_list_entry_facts,
 )
-from skat_ai.fixed_three_player_list_contribution import (
+from skatmind.fixed_three_player_list_contribution import (
     FixedThreePlayerListContribution,
     build_fixed_three_player_list_contributions,
 )
-from skat_ai.fixed_three_player_list_rotation import (
+from skatmind.fixed_three_player_list_rotation import (
     FIXED_THREE_PLAYER_LIST_TABLE_PLACES,
     FixedThreePlayerListSeatAssignment,
     build_fixed_three_player_list_seat_assignment,
 )
-from skat_ai.performance_rating import (
+from skatmind.performance_rating import (
     build_list_performance_summary,
     build_list_performance_summary_from_game_contributions,
     build_list_standings_summary,
@@ -566,7 +566,7 @@ def test_shortened_game_with_incomplete_final_trick_is_supported() -> None:
 
 
 def test_incomplete_historical_settlement_is_rejected(monkeypatch) -> None:
-    from skat_ai import fixed_three_player_historical_list as list_module
+    from skatmind import fixed_three_player_historical_list as list_module
 
     original = list_module.build_historical_game_summary
 
@@ -585,7 +585,7 @@ def test_incomplete_historical_settlement_is_rejected(monkeypatch) -> None:
 
 
 def test_incomplete_historical_summary_status_is_rejected(monkeypatch) -> None:
-    from skat_ai import fixed_three_player_historical_list as list_module
+    from skatmind import fixed_three_player_historical_list as list_module
 
     original = list_module.build_historical_game_summary
 

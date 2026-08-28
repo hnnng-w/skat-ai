@@ -12,34 +12,34 @@ from test_opponent_statistics import (
     build_valid_record,
 )
 
-import skat_ai
-import skat_ai.api.v1 as api_v1
-import skat_ai.api.v1.session as session_api
+import skatmind
+import skatmind.api.v1 as api_v1
+import skatmind.api.v1.session as session_api
 from scripts.validate_generated_outputs_schema import SCENARIOS
-from skat_ai.fixed_three_player_historical_list import (
+from skatmind.fixed_three_player_historical_list import (
     build_fixed_three_player_historical_list,
 )
-from skat_ai.fixed_three_player_list_rotation import (
+from skatmind.fixed_three_player_list_rotation import (
     FIXED_THREE_PLAYER_LIST_TABLE_PLACES,
 )
-from skat_ai.match_capture_contracts import (
+from skatmind.match_capture_contracts import (
     MATCH_CAPTURE_CONTRACT_VERSION,
     MATCH_PERSPECTIVE_POLICY,
     MatchCaptureDefinitionV1,
 )
-from skat_ai.match_player_snapshot import (
+from skatmind.match_player_snapshot import (
     MATCH_PLAYER_STATISTICS_SNAPSHOT_VERSION,
     MatchParticipantV1,
     MatchPlayerStatisticsSnapshotV1,
 )
-from skat_ai.match_source_metadata import (
+from skatmind.match_source_metadata import (
     MATCH_SOURCE_KINDS,
     MATCH_SOURCE_METADATA_VERSION,
     MEDIA_TIMECODE_VERSION,
     MatchSourceMetadataV1,
     MediaTimecodeV1,
 )
-from skat_ai.match_tournament_format import (
+from skatmind.match_tournament_format import (
     EUROSKAT_36_STANDARD_V1_FORMAT,
     MATCH_TOURNAMENT_FORMAT_REGISTRY,
     MATCH_TOURNAMENT_FORMAT_REGISTRY_POLICY,
@@ -48,12 +48,12 @@ from skat_ai.match_tournament_format import (
     MatchTournamentFormatV1,
     get_match_tournament_format_v1,
 )
-from skat_ai.opponent_statistics import (
+from skatmind.opponent_statistics import (
     OpponentStatisticsInput,
     build_opponent_statistics_input,
     build_serializable_opponent_statistics_input,
 )
-from skat_ai.session_contracts import SESSION_CONTRACT_VERSION, SessionPlayerV1
+from skatmind.session_contracts import SESSION_CONTRACT_VERSION, SessionPlayerV1
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
@@ -439,7 +439,7 @@ def test_snapshot_and_participant_defensively_copy_nested_immutable_values() -> 
 def test_snapshot_serialization_reuses_opponent_serializer_without_derivation(
     monkeypatch,
 ) -> None:
-    import skat_ai.opponent_statistics as statistics_module
+    import skatmind.opponent_statistics as statistics_module
 
     def unexpected_derivation(*_args, **_kwargs):
         raise AssertionError("Snapshot serialization derived a Player Profile.")
@@ -749,13 +749,13 @@ def test_existing_internal_public_package_and_count_contracts_are_unchanged() ->
         "player_label": None,
         "seat": "forehand",
     }
-    assert skat_ai.__all__ == ("api", "errors", "__version__")
+    assert skatmind.__all__ == ("api", "errors", "__version__")
     assert "MatchCaptureDefinitionV1" not in api_v1.__all__
     assert "MatchCaptureDefinitionV1" not in session_api.__all__
     assert len(tuple((PROJECT_ROOT / "schemas").glob("*.schema.json"))) == 71
     assert len(
         tuple(
-            (PROJECT_ROOT / "src" / "skat_ai" / "schema_resources").glob(
+            (PROJECT_ROOT / "src" / "skatmind" / "schema_resources").glob(
                 "*.schema.json"
             )
         )
@@ -765,4 +765,4 @@ def test_existing_internal_public_package_and_count_contracts_are_unchanged() ->
         (PROJECT_ROOT / "pyproject.toml").read_text(encoding="utf-8")
     )
     assert pyproject["project"]["version"] == "0.17.0"
-    assert skat_ai.__version__ == "0.17.0"
+    assert skatmind.__version__ == "0.17.0"

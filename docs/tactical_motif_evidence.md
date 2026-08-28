@@ -165,8 +165,8 @@ ineligible for Strategy Teacher source download.
 Installed, module, and Legacy Root forms accept:
 
 ```powershell
-skat-ai --input examples/historical_tactical_motif_review.json --historical-tactical-motif-review
-python -m skat_ai --input examples/historical_tactical_motif_review.json --historical-tactical-motif-review
+skatmind --input examples/historical_tactical_motif_review.json --historical-tactical-motif-review
+python -m skatmind --input examples/historical_tactical_motif_review.json --historical-tactical-motif-review
 python main.py --input examples/historical_tactical_motif_review.json --historical-tactical-motif-review
 ```
 
@@ -194,7 +194,7 @@ The strict standalone Schema and byte-identical packaged resource are:
 
 ```text
 schemas/historical_tactical_motif_review.schema.json
-src/skat_ai/schema_resources/historical_tactical_motif_review.schema.json
+src/skatmind/schema_resources/historical_tactical_motif_review.schema.json
 ```
 
 The Schema closes every object, fixes motif-type-to-family-and-evidence-time

@@ -16,13 +16,13 @@ from test_observed_game_contracts import (
     observed_plays_from_historical,
 )
 
-from skat_ai.learning_corpus_catalog import (
+from skatmind.learning_corpus_catalog import (
     build_learning_corpus_catalog_v1,
     build_learning_corpus_current_match_selection_v1,
     build_learning_corpus_match_snapshot_catalog_entry_v1,
     create_empty_learning_corpus_catalog_v1,
 )
-from skat_ai.learning_corpus_human_evidence import (
+from skatmind.learning_corpus_human_evidence import (
     LEARNING_CORPUS_ANALYSIS_SEPARATION_POLICY,
     LEARNING_CORPUS_COMMENTARY_EVIDENCE_VERSION,
     LEARNING_CORPUS_COMMENTATOR_IDENTITY_KINDS,
@@ -45,31 +45,31 @@ from skat_ai.learning_corpus_human_evidence import (
     build_learning_corpus_commentary_content_fingerprint_v1,
     build_learning_corpus_response_content_fingerprint_v1,
 )
-from skat_ai.learning_corpus_human_evidence_builder import (
+from skatmind.learning_corpus_human_evidence_builder import (
     build_learning_corpus_human_evidence_collection_v1,
 )
-from skat_ai.learning_corpus_identity import (
+from skatmind.learning_corpus_identity import (
     build_learning_corpus_canonical_json_bytes_v1,
 )
-from skat_ai.learning_corpus_match_snapshot import (
+from skatmind.learning_corpus_match_snapshot import (
     build_learning_corpus_match_snapshot_v1,
 )
-from skat_ai.learning_corpus_persistence_codec import (
+from skatmind.learning_corpus_persistence_codec import (
     build_learning_corpus_catalog_persistence_document_v1,
 )
-from skat_ai.learning_corpus_persistence_contracts import (
+from skatmind.learning_corpus_persistence_contracts import (
     LearningCorpusStoreResumeResultV1,
 )
-from skat_ai.match_source_metadata import MediaTimecodeV1
-from skat_ai.match_workspace_contracts import create_match_workspace_v1
-from skat_ai.match_workspace_persistence_codec import (
+from skatmind.match_source_metadata import MediaTimecodeV1
+from skatmind.match_workspace_contracts import create_match_workspace_v1
+from skatmind.match_workspace_persistence_codec import (
     build_match_workspace_persistence_document_v1,
 )
-from skat_ai.observed_game_commentary import (
+from skatmind.observed_game_commentary import (
     ObservedDecisionCommentaryV1,
     ObservedDecisionResponseLinkV1,
 )
-from skat_ai.observed_game_trace import ObservedPlayV1
+from skatmind.observed_game_trace import ObservedPlayV1
 
 
 def _hash(domain: bytes, value: object) -> str:
@@ -397,7 +397,7 @@ def test_empty_collection_is_valid_deterministic_and_fingerprinted() -> None:
     material = first.to_dict()
     del material["human_evidence_collection_fingerprint"]
     assert first.human_evidence_collection_fingerprint == _hash(
-        b"skat-ai\0learning_corpus_human_evidence_collection_v1\0",
+        b"skatmind\0learning_corpus_human_evidence_collection_v1\0",
         material,
     )
 
@@ -410,7 +410,7 @@ def test_game_evidence_retains_exact_source_context_without_full_trace() -> None
     definition = snapshot.workspace.match_definition
     reference = snapshot.game_references[0]
     assert game.game_evidence_id == _hash(
-        b"skat-ai\0learning_corpus_human_evidence_game_v1\0",
+        b"skatmind\0learning_corpus_human_evidence_game_v1\0",
         {
             "learning_corpus_human_evidence_game_version": 1,
             "match_snapshot_id": snapshot.match_snapshot_id,
@@ -476,7 +476,7 @@ def test_commentary_fingerprints_identity_kinds_text_cards_timecodes_seats_and_r
         source_play = source_game.plays[source.decision_index - 1]
         decision_reference = snapshot.decision_references[source.decision_index - 1]
         expected_fingerprint = _hash(
-            b"skat-ai\0learning_corpus_commentary_content_v1\0",
+            b"skatmind\0learning_corpus_commentary_content_v1\0",
             source.to_dict(),
         )
         assert evidence.commentary_content_fingerprint == expected_fingerprint
@@ -484,7 +484,7 @@ def test_commentary_fingerprints_identity_kinds_text_cards_timecodes_seats_and_r
             expected_fingerprint
         )
         assert evidence.commentary_evidence_id == _hash(
-            b"skat-ai\0learning_corpus_commentary_evidence_v1\0",
+            b"skatmind\0learning_corpus_commentary_evidence_v1\0",
             {
                 "learning_corpus_commentary_evidence_version": 1,
                 "game_evidence_id": collection.games[0].game_evidence_id,
@@ -562,7 +562,7 @@ def test_response_fingerprints_same_and_later_tricks_and_one_to_many_relationshi
         response_reference = response_references[evidence.response_reference_id]
         response_play = source_game.plays[source.response_decision_index - 1]
         expected_fingerprint = _hash(
-            b"skat-ai\0learning_corpus_response_content_v1\0",
+            b"skatmind\0learning_corpus_response_content_v1\0",
             source.to_dict(),
         )
         assert evidence.response_content_fingerprint == expected_fingerprint
@@ -570,7 +570,7 @@ def test_response_fingerprints_same_and_later_tricks_and_one_to_many_relationshi
             expected_fingerprint
         )
         assert evidence.response_evidence_id == _hash(
-            b"skat-ai\0learning_corpus_response_evidence_v1\0",
+            b"skatmind\0learning_corpus_response_evidence_v1\0",
             {
                 "learning_corpus_response_evidence_version": 1,
                 "game_evidence_id": evidence.game_evidence_id,
@@ -660,7 +660,7 @@ def test_collection_counts_references_order_and_fingerprint_reconcile() -> None:
     material = collection.to_dict()
     del material["human_evidence_collection_fingerprint"]
     assert collection.human_evidence_collection_fingerprint == _hash(
-        b"skat-ai\0learning_corpus_human_evidence_collection_v1\0",
+        b"skatmind\0learning_corpus_human_evidence_collection_v1\0",
         material,
     )
 

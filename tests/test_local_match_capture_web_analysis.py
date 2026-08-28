@@ -16,37 +16,37 @@ from test_match_historical_analysis import _strict_workspace
 from test_match_workspace_contracts import _definition
 from test_match_workspace_materialization import _all_passed_workspace
 
-import skat_ai.capture_web.analysis as analysis_module
-import skat_ai.capture_web.server as server_module
-from skat_ai.api.v1.contracts import ResultDocumentV1
-from skat_ai.capture_web.analysis import execute_match_capture_web_analysis_v1
-from skat_ai.capture_web.context import MatchCaptureWebContextV1
-from skat_ai.capture_web.operations import (
+import skatmind.capture_web.analysis as analysis_module
+import skatmind.capture_web.server as server_module
+from skatmind.api.v1.contracts import ResultDocumentV1
+from skatmind.capture_web.analysis import execute_match_capture_web_analysis_v1
+from skatmind.capture_web.context import MatchCaptureWebContextV1
+from skatmind.capture_web.operations import (
     apply_match_capture_web_operation_v1,
     reload_match_capture_workspace_v1,
 )
-from skat_ai.capture_web.rendering import render_match_capture_web_page_v1
-from skat_ai.capture_web.report_store import MatchAnalysisReportStoreV1
-from skat_ai.capture_web.server import start_match_capture_web_server_v1
-from skat_ai.capture_web.state import build_match_capture_web_state_v1
-from skat_ai.match_analysis_contracts import (
+from skatmind.capture_web.rendering import render_match_capture_web_page_v1
+from skatmind.capture_web.report_store import MatchAnalysisReportStoreV1
+from skatmind.capture_web.server import start_match_capture_web_server_v1
+from skatmind.capture_web.state import build_match_capture_web_state_v1
+from skatmind.match_analysis_contracts import (
     MatchDecisionAnalysisOptionsV1,
     MatchHistoricalAnalysisOptionsV1,
     build_match_analysis_report_v1,
     prepare_match_materialization_report_v1,
 )
-from skat_ai.match_analysis_exports import build_match_materialization_summary_export_v1
-from skat_ai.match_analysis_report_source_codec import (
+from skatmind.match_analysis_exports import build_match_materialization_summary_export_v1
+from skatmind.match_analysis_report_source_codec import (
     resume_match_analysis_report_source_export_v1,
 )
-from skat_ai.match_analysis_report_source_export import (
+from skatmind.match_analysis_report_source_export import (
     build_match_analysis_report_source_export_v1,
     serialize_match_analysis_report_source_export_v1,
 )
-from skat_ai.match_decision_analysis import execute_match_decision_analysis_v1
-from skat_ai.match_historical_analysis import execute_match_historical_analysis_v1
-from skat_ai.match_workspace_contracts import MatchWorkspaceV1, create_match_workspace_v1
-from skat_ai.match_workspace_persistence_codec import (
+from skatmind.match_decision_analysis import execute_match_decision_analysis_v1
+from skatmind.match_historical_analysis import execute_match_historical_analysis_v1
+from skatmind.match_workspace_contracts import MatchWorkspaceV1, create_match_workspace_v1
+from skatmind.match_workspace_persistence_codec import (
     build_match_workspace_persistence_document_v1,
 )
 
@@ -517,7 +517,7 @@ def test_state_build_prepares_evidence_but_executes_no_application(
         raise AssertionError("ordinary browser state executed Application analysis")
 
     monkeypatch.setattr(
-        "skat_ai.application.execution.execute_application_invocation",
+        "skatmind.application.execution.execute_application_invocation",
         forbidden,
     )
     state = build_match_capture_web_state_v1(
@@ -1138,7 +1138,7 @@ def test_export_serialization_value_error_is_artifact_unavailable(
     path: str,
     builder_name: str,
 ) -> None:
-    import skat_ai.capture_web.server as server_module
+    import skatmind.capture_web.server as server_module
 
     context = _partial_context(tmp_path)
     operation = "analyze_decision" if path == "report" else "prepare_materialization"
@@ -1192,7 +1192,7 @@ def test_download_serialization_linearizes_before_report_invalidation(
     tmp_path: Path,
     monkeypatch,
 ) -> None:
-    from skat_ai.match_analysis_exports import MatchArtifactExportV1
+    from skatmind.match_analysis_exports import MatchArtifactExportV1
 
     context = _create_context(tmp_path)
     prepared = execute_match_capture_web_analysis_v1(

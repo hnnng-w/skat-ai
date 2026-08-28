@@ -3,10 +3,10 @@ from test_historical_game import build_historical_input
 from test_match_workspace_contracts import _definition
 from test_observed_game_contracts import declaration_from_historical
 
-import skat_ai.match_capture_application as application_module
-import skat_ai.match_capture_position_view as position_view_module
-from skat_ai.game_declaration import GameDeclaration
-from skat_ai.match_capture_application import (
+import skatmind.match_capture_application as application_module
+import skatmind.match_capture_position_view as position_view_module
+from skatmind.game_declaration import GameDeclaration
+from skatmind.match_capture_application import (
     append_match_capture_play_v1,
     append_match_capture_plays_v1,
     mark_match_capture_passed_deal_v1,
@@ -17,10 +17,10 @@ from skat_ai.match_capture_application import (
     set_match_capture_perspective_initial_hand_v1,
     start_match_capture_game_v1,
 )
-from skat_ai.match_capture_application_contracts import MatchCaptureCardEntryV1
-from skat_ai.match_capture_game_updates import build_default_match_capture_game_id_v1
-from skat_ai.match_source_metadata import MediaTimecodeV1
-from skat_ai.match_workspace_contracts import create_match_workspace_v1
+from skatmind.match_capture_application_contracts import MatchCaptureCardEntryV1
+from skatmind.match_capture_game_updates import build_default_match_capture_game_id_v1
+from skatmind.match_source_metadata import MediaTimecodeV1
+from skatmind.match_workspace_contracts import create_match_workspace_v1
 
 
 def _entry(card: str, start: int | None = None) -> MatchCaptureCardEntryV1:

@@ -2,13 +2,13 @@ from dataclasses import replace
 
 import pytest
 
-from skat_ai.historical_decision_snapshot import (
+from skatmind.historical_decision_snapshot import (
     HistoricalDecisionSnapshot,
     HistoricalSnapshotDeclaration,
     HistoricalSnapshotPlay,
     HistoricalSnapshotVisibleState,
 )
-from skat_ai.tactical_motif_detection import (
+from skatmind.tactical_motif_detection import (
     build_tactical_decision_facts_v1,
     build_tactical_decision_observation_from_snapshot_v1,
     build_tactical_decision_observation_v1,

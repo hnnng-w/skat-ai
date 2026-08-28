@@ -9,17 +9,17 @@ from pathlib import Path
 import pytest
 
 import main as legacy_main
-import skat_ai.cli as cli_package
-import skat_ai.cli.execution as root_cli
-import skat_ai.cli.session as session_cli
-from skat_ai.cli.root_option_context import (
+import skatmind.cli as cli_package
+import skatmind.cli.execution as root_cli
+import skatmind.cli.session as session_cli
+from skatmind.cli.root_option_context import (
     current_supplied_workflow_option_names,
     invoke_with_supplied_root_cli_options,
 )
-from skat_ai.errors import SkatAIValidationError
+from skatmind.errors import SkatMindValidationError
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-SOURCE_ROOT = PROJECT_ROOT / "src" / "skat_ai"
+SOURCE_ROOT = PROJECT_ROOT / "src" / "skatmind"
 
 
 def _action_contract(parser: argparse.ArgumentParser) -> tuple[tuple[object, ...], ...]:
@@ -198,8 +198,8 @@ def test_root_parser_identity_description_examples_and_formatter_are_exact() -> 
         "convert a training dataset, or normalize opponent statistics from JSON."
     )
     commands = {
-        "installed": "skat-ai",
-        "module": "python -m skat_ai",
+        "installed": "skatmind",
+        "module": "python -m skatmind",
         "legacy": "python main.py",
     }
     for style, command in commands.items():
@@ -208,8 +208,8 @@ def test_root_parser_identity_description_examples_and_formatter_are_exact() -> 
         assert parser.description == description
         assert parser.formatter_class is argparse.RawDescriptionHelpFormatter
         assert parser.epilog == root_cli._invocation_examples(style)
-    assert "skat-ai --input position.json" in root_cli._invocation_examples("installed")
-    assert "python -m skat_ai --input position.json" in root_cli._invocation_examples("module")
+    assert "skatmind --input position.json" in root_cli._invocation_examples("installed")
+    assert "python -m skatmind --input position.json" in root_cli._invocation_examples("module")
     assert (
         "python main.py --input examples/grand_second_position.json"
         in root_cli._invocation_examples("legacy")
@@ -290,8 +290,8 @@ def test_session_parser_subcommand_action_contracts_are_exact() -> None:
 
 def test_session_parser_program_names_and_description_are_exact() -> None:
     programs = {
-        "installed": "skat-ai session",
-        "module": "python -m skat_ai session",
+        "installed": "skatmind session",
+        "module": "python -m skatmind session",
         "legacy": "python main.py session",
     }
     for style, program in programs.items():
@@ -436,7 +436,7 @@ def test_strict_session_json_errors_are_exact(
 ) -> None:
     input_path = tmp_path / "input.json"
     input_path.write_bytes(content)
-    with pytest.raises(SkatAIValidationError) as raised:
+    with pytest.raises(SkatMindValidationError) as raised:
         session_cli.load_strict_json_object(str(input_path))
     assert str(raised.value) == message
     assert raised.value.path == ""
@@ -542,7 +542,7 @@ def test_application_public_api_match_and_observed_game_do_not_import_cli() -> N
             else:
                 continue
             for module_name in imported:
-                if module_name == "main" or module_name.startswith("skat_ai.cli"):
+                if module_name == "main" or module_name.startswith("skatmind.cli"):
                     violations.append((path.relative_to(PROJECT_ROOT), node.lineno, module_name))
     assert violations == []
 
@@ -556,18 +556,18 @@ def test_capture_web_layering_and_execution_boundaries() -> None:
         imported[path.name] = tuple(
             node.module or "" for node in ast.walk(tree) if isinstance(node, ast.ImportFrom)
         )
-    assert "skat_ai.match_capture_application" in imported["operations.py"]
+    assert "skatmind.match_capture_application" in imported["operations.py"]
     assert all(
         not any(
             module == forbidden or module.startswith(f"{forbidden}.")
             for module in modules
             for forbidden in (
-                "skat_ai.application",
-                "skat_ai.api",
-                "skat_ai.session",
-                "skat_ai.search",
-                "skat_ai.bounded_search",
-                "skat_ai.replay_coaching",
+                "skatmind.application",
+                "skatmind.api",
+                "skatmind.session",
+                "skatmind.search",
+                "skatmind.bounded_search",
+                "skatmind.replay_coaching",
             )
         )
         for modules in imported.values()
@@ -579,21 +579,21 @@ def test_capture_web_layering_and_execution_boundaries() -> None:
         *sorted(SOURCE_ROOT.glob("observed_game_*.py")),
     ]
     for path in lower_paths:
-        assert "skat_ai.capture_web" not in path.read_text(encoding="utf-8")
+        assert "skatmind.capture_web" not in path.read_text(encoding="utf-8")
 
 
 def test_corpus_web_layering_and_execution_boundaries() -> None:
     corpus_root = SOURCE_ROOT / "corpus_web"
     corpus_paths = sorted(corpus_root.glob("*.py"))
     forbidden = (
-        "skat_ai.application",
-        "skat_ai.api",
-        "skat_ai.match_decision_analysis",
-        "skat_ai.match_historical_analysis",
-        "skat_ai.search",
-        "skat_ai.bounded_search",
-        "skat_ai.replay_coaching",
-        "skat_ai.cli",
+        "skatmind.application",
+        "skatmind.api",
+        "skatmind.match_decision_analysis",
+        "skatmind.match_historical_analysis",
+        "skatmind.search",
+        "skatmind.bounded_search",
+        "skatmind.replay_coaching",
+        "skatmind.cli",
     )
     violations = []
     for path in corpus_paths:
@@ -621,13 +621,13 @@ def test_corpus_web_layering_and_execution_boundaries() -> None:
         *sorted((SOURCE_ROOT / "api").rglob("*.py")),
     ]
     for path in lower_paths:
-        assert "skat_ai.corpus_web" not in path.read_text(encoding="utf-8")
+        assert "skatmind.corpus_web" not in path.read_text(encoding="utf-8")
 
     capture_text = "".join(
         path.read_text(encoding="utf-8")
         for path in sorted((SOURCE_ROOT / "capture_web").glob("*.py"))
     )
-    assert "skat_ai.corpus_web" not in capture_text
+    assert "skatmind.corpus_web" not in capture_text
 
 
 def test_tactical_coaching_core_is_private_transport_and_io_free() -> None:
@@ -640,10 +640,10 @@ def test_tactical_coaching_core_is_private_transport_and_io_free() -> None:
         "pathlib",
         "socket",
         "urllib",
-        "skat_ai.api",
-        "skat_ai.capture_web",
-        "skat_ai.cli",
-        "skat_ai.corpus_web",
+        "skatmind.api",
+        "skatmind.capture_web",
+        "skatmind.cli",
+        "skatmind.corpus_web",
     )
     violations = []
     for path in paths:
@@ -667,10 +667,10 @@ def test_tactical_coaching_core_is_private_transport_and_io_free() -> None:
 def test_root_presentation_modules_are_transport_and_execution_free() -> None:
     presentation_root = SOURCE_ROOT / "cli" / "presentation"
     forbidden_modules = {
-        "skat_ai.application",
-        "skat_ai.api",
-        "skat_ai.input_loader",
-        "skat_ai.output_writer",
+        "skatmind.application",
+        "skatmind.api",
+        "skatmind.input_loader",
+        "skatmind.output_writer",
     }
     violations = []
     for path in sorted(presentation_root.rglob("*.py")):
@@ -700,9 +700,9 @@ def test_session_assistant_uses_focused_services_not_session_facade() -> None:
             imported_modules.extend(alias.name for alias in node.names)
         elif isinstance(node, ast.ImportFrom):
             imported_modules.append(node.module or "")
-            if node.module == "skat_ai.cli":
+            if node.module == "skatmind.cli":
                 assert all(alias.name != "session" for alias in node.names)
-    assert "skat_ai.cli.session" not in imported_modules
+    assert "skatmind.cli.session" not in imported_modules
 
 
 def test_focused_cli_modules_do_not_import_compatibility_facades() -> None:
@@ -721,21 +721,21 @@ def test_focused_cli_modules_do_not_import_compatibility_facades() -> None:
                 imported = tuple(alias.name for alias in node.names)
             elif isinstance(node, ast.ImportFrom):
                 imported = (node.module or "",)
-                if node.module == "skat_ai.cli":
-                    imported += tuple(f"skat_ai.cli.{alias.name}" for alias in node.names)
+                if node.module == "skatmind.cli":
+                    imported += tuple(f"skatmind.cli.{alias.name}" for alias in node.names)
             else:
                 continue
             for module_name in imported:
                 if module_name in {
-                    "skat_ai.cli.execution",
-                    "skat_ai.cli.session",
+                    "skatmind.cli.execution",
+                    "skatmind.cli.session",
                 }:
                     violations.append((path.relative_to(PROJECT_ROOT), node.lineno, module_name))
     assert violations == []
 
 
 def test_session_assistant_subcommand_retains_facade_service_seams(monkeypatch) -> None:
-    import skat_ai.cli.session_assistant as assistant_module
+    import skatmind.cli.session_assistant as assistant_module
 
     sentinel = object()
     monkeypatch.setattr(session_cli, "_persist_mutation", sentinel)
@@ -754,10 +754,10 @@ def test_session_assistant_subcommand_retains_facade_service_seams(monkeypatch) 
 def test_ordinary_session_services_do_not_import_assistant() -> None:
     command = (
         "import sys; "
-        "import skat_ai.cli.session as session_cli; "
-        "assert 'skat_ai.cli.session_assistant' not in sys.modules; "
+        "import skatmind.cli.session as session_cli; "
+        "assert 'skatmind.cli.session_assistant' not in sys.modules; "
         "session_cli._operation_services(); "
-        "assert 'skat_ai.cli.session_assistant' not in sys.modules"
+        "assert 'skatmind.cli.session_assistant' not in sys.modules"
     )
     completed = subprocess.run(
         [sys.executable, "-c", command],
@@ -1031,9 +1031,9 @@ def test_root_parser_retains_exact_supplied_cli_option_names() -> None:
 @pytest.mark.parametrize(
     "module_order",
     [
-        ("skat_ai.cli.execution", "skat_ai.cli.session", "skat_ai.cli.session_assistant"),
-        ("skat_ai.cli.session_assistant", "skat_ai.cli.session", "skat_ai.cli.execution"),
-        ("skat_ai.cli.session", "skat_ai.cli.execution", "skat_ai.cli.session_assistant"),
+        ("skatmind.cli.execution", "skatmind.cli.session", "skatmind.cli.session_assistant"),
+        ("skatmind.cli.session_assistant", "skatmind.cli.session", "skatmind.cli.execution"),
+        ("skatmind.cli.session", "skatmind.cli.execution", "skatmind.cli.session_assistant"),
     ],
 )
 def test_cli_modules_import_without_circular_imports(module_order: tuple[str, ...]) -> None:
@@ -1054,9 +1054,9 @@ def test_capture_modules_import_without_circular_imports() -> None:
     command = "; ".join(
         [
             "import importlib",
-            "importlib.import_module('skat_ai.cli.capture')",
-            "importlib.import_module('skat_ai.capture_web.server')",
-            "importlib.import_module('skat_ai.cli.execution')",
+            "importlib.import_module('skatmind.cli.capture')",
+            "importlib.import_module('skatmind.capture_web.server')",
+            "importlib.import_module('skatmind.cli.execution')",
         ]
     )
     completed = subprocess.run(
@@ -1071,9 +1071,9 @@ def test_capture_modules_import_without_circular_imports() -> None:
 
 def test_characterized_modules_are_importable_by_exact_name() -> None:
     for name in (
-        "skat_ai.cli.execution",
-        "skat_ai.cli.session",
-        "skat_ai.cli.session_assistant",
+        "skatmind.cli.execution",
+        "skatmind.cli.session",
+        "skatmind.cli.session_assistant",
         "main",
     ):
         assert importlib.import_module(name) is sys.modules[name]

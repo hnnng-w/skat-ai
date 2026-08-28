@@ -65,7 +65,7 @@ Result, it reconciles:
 * Representative Line legality and completeness through the existing Result
   constructor.
 
-Forged immutable values raise `SkatAIInvariantError`. Reconciliation does not
+Forged immutable values raise `SkatMindInvariantError`. Reconciliation does not
 replay the Historical prefix, rebuild `ExactSearchState`, execute proof, or use
 the Representative Line as assignment authority.
 

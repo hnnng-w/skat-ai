@@ -2,7 +2,7 @@
 
 ## Version and purpose
 
-`src/skat_ai/settlement_normative_matrix.py` defines immutable Settlement
+`src/skatmind/settlement_normative_matrix.py` defines immutable Settlement
 Normative Matrix version `3` with the same 61 canonical case IDs in the same
 order as versions `1` and `2`. It records current support, interpretation scope,
 the approved bounded Historical party-wide Claim, and durable v1 exclusions in
@@ -31,7 +31,7 @@ The sources have this order:
    and competition rules.
 2. The documented International Skat Court decision collection interpretation
    for ISkO 3.6.2 governs the bounded impossible-Null replacement case.
-3. Approved `skat-ai` product contracts define bounded software evidence,
+3. Approved `skatmind` product contracts define bounded software evidence,
    privacy, continuation, historical representation, and unavailable behavior
    where the official rules do not define a software interface.
 4. Existing runtime behavior retained only for compatibility is identified as

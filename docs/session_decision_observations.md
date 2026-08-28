@@ -143,7 +143,7 @@ observe_checkpoint
 export_checkpoint_review
 ```
 
-The stable `skat_ai.api.v1.session` namespace preserves its first 52 exports and
+The stable `skatmind.api.v1.session` namespace preserves its first 52 exports and
 then appends, before `files`:
 
 ```text

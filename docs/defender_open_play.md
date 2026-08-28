@@ -1,6 +1,6 @@
 # Defender open play
 
-`skat-ai` supports bounded exact post-game adjudication of defender open play
+`skatmind` supports bounded exact post-game adjudication of defender open play
 under the November 2022 wording of ISkO 4.4.5.
 
 This branch is different from defender concession and declarer card exposure. A

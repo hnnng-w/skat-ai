@@ -4,10 +4,10 @@ from pathlib import Path
 
 import pytest
 
-from skat_ai.live_opponent_profile_binding import (
+from skatmind.live_opponent_profile_binding import (
     resolve_live_opponent_profile_bindings,
 )
-from skat_ai.opponent_statistics import (
+from skatmind.opponent_statistics import (
     build_opponent_statistics_input,
     build_opponent_statistics_summary,
 )

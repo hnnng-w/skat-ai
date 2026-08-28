@@ -6,13 +6,13 @@ import pytest
 from test_fixed_three_player_historical_list import build_list_input
 from test_historical_game import build_historical_input
 
-from skat_ai.fixed_three_player_historical_list import (
+from skatmind.fixed_three_player_historical_list import (
     FIXED_THREE_PLAYER_HISTORICAL_LIST_SCHEMA_VERSION,
     FIXED_THREE_PLAYER_LIST_ENTRY_COUNT,
     build_fixed_three_player_historical_list,
     build_fixed_three_player_historical_list_entry_facts,
 )
-from skat_ai.fixed_three_player_historical_list_aggregation import (
+from skatmind.fixed_three_player_historical_list_aggregation import (
     FIXED_THREE_PLAYER_HISTORICAL_LIST_AGGREGATION_VERSION,
     FIXED_THREE_PLAYER_HISTORICAL_LIST_RANKING_STATUSES,
     FIXED_THREE_PLAYER_HISTORICAL_LIST_STANDINGS_BASIS,
@@ -25,17 +25,17 @@ from skat_ai.fixed_three_player_historical_list_aggregation import (
     build_serializable_fixed_three_player_historical_list_player_totals,
     validate_fixed_three_player_historical_list_player_totals,
 )
-from skat_ai.fixed_three_player_historical_list_progression import (
+from skatmind.fixed_three_player_historical_list_progression import (
     FixedThreePlayerHistoricalListProgressionSnapshot,
     build_serializable_fixed_three_player_historical_list_progression_snapshot,
 )
-from skat_ai.fixed_three_player_historical_list_standings import (
+from skatmind.fixed_three_player_historical_list_standings import (
     FixedThreePlayerHistoricalListStanding,
     FixedThreePlayerHistoricalListStandingsResult,
     build_fixed_three_player_historical_list_standings,
     build_serializable_fixed_three_player_historical_list_standing,
 )
-from skat_ai.performance_rating import (
+from skatmind.performance_rating import (
     build_list_performance_summary,
     build_list_performance_summary_from_game_contributions,
     build_list_standings_summary,
@@ -442,7 +442,7 @@ def test_aggregation_rejects_noncanonical_contribution_order(
     all_passed_list,
     monkeypatch,
 ) -> None:
-    from skat_ai import fixed_three_player_historical_list_aggregation as module
+    from skatmind import fixed_three_player_historical_list_aggregation as module
 
     facts = build_fixed_three_player_historical_list_entry_facts(all_passed_list)
     first = facts[0]
@@ -511,7 +511,7 @@ def test_every_player_total_invariant_is_validated(
 
 
 def test_entry_facts_are_derived_exactly_once(all_passed_list, monkeypatch) -> None:
-    from skat_ai import fixed_three_player_historical_list_aggregation as module
+    from skatmind import fixed_three_player_historical_list_aggregation as module
 
     original = module.build_fixed_three_player_historical_list_entry_facts
     calls = 0
@@ -559,7 +559,7 @@ def test_progression_rejects_non_authoritative_round_numbers(
     all_passed_list,
     monkeypatch,
 ) -> None:
-    from skat_ai import fixed_three_player_historical_list_aggregation as module
+    from skatmind import fixed_three_player_historical_list_aggregation as module
 
     facts = build_fixed_three_player_historical_list_entry_facts(all_passed_list)
     invalid_facts = (replace(facts[0], round_number=2), *facts[1:])
@@ -587,7 +587,7 @@ def test_standings_reject_formula_inconsistent_totals(all_passed_list) -> None:
 def test_final_reconciliation_rejects_final_status_without_required_lot(
     all_passed_list,
 ) -> None:
-    from skat_ai import fixed_three_player_historical_list_aggregation as module
+    from skatmind import fixed_three_player_historical_list_aggregation as module
 
     aggregation = build_fixed_three_player_historical_list_aggregation(all_passed_list)
 

@@ -13,11 +13,11 @@ from test_session_transitions import (
     _players,
 )
 
-import skat_ai.session_persistence_codec as codec_module
-from skat_ai.api.v1.contracts import RequestDocumentV1, WorkflowV1
-from skat_ai.errors import SkatAIValidationError
-from skat_ai.game_declaration import GameDeclaration
-from skat_ai.session_commands import (
+import skatmind.session_persistence_codec as codec_module
+from skatmind.api.v1.contracts import RequestDocumentV1, WorkflowV1
+from skatmind.errors import SkatMindValidationError
+from skatmind.game_declaration import GameDeclaration
+from skatmind.session_commands import (
     PromoteSessionToRetrospectiveCommandV1,
     RecordSessionDealtCardCommandV1,
     RecordSessionDiscardCommandV1,
@@ -29,19 +29,19 @@ from skat_ai.session_commands import (
     SetSessionGameMetadataCommandV1,
     SetSessionPublicHandCommandV1,
 )
-from skat_ai.session_decision_checkpoint import (
+from skatmind.session_decision_checkpoint import (
     SessionDecisionCheckpointV1,
     build_session_decision_checkpoint_v1,
 )
-from skat_ai.session_historical_export import export_session_historical_game_request_v1
-from skat_ai.session_history import rewind_session_state_v1
-from skat_ai.session_persistence_codec import (
+from skatmind.session_historical_export import export_session_historical_game_request_v1
+from skatmind.session_history import rewind_session_state_v1
+from skatmind.session_persistence_codec import (
     build_session_persistence_document_v1,
     build_session_state_fingerprint_v1,
     resume_session_document_v1,
 )
-from skat_ai.session_position_export import export_session_position_analysis_request_v1
-from skat_ai.session_transitions import create_session_state_v1
+from skatmind.session_position_export import export_session_position_analysis_request_v1
+from skatmind.session_transitions import create_session_state_v1
 
 
 def _canonical_bytes(value: object) -> bytes:
@@ -154,12 +154,12 @@ def test_state_and_content_fingerprints_match_independent_domain_oracles() -> No
         decision_checkpoints=(checkpoint,),
     )
     expected_state = hashlib.sha256(
-        b"skat-ai\0session_state_v1\0" + _canonical_bytes(state.to_dict())
+        b"skatmind\0session_state_v1\0" + _canonical_bytes(state.to_dict())
     ).hexdigest()
     content = document.to_dict()
     del content["content_fingerprint"]
     expected_content = hashlib.sha256(
-        b"skat-ai\0session_persistence_v1\0" + _canonical_bytes(content)
+        b"skatmind\0session_persistence_v1\0" + _canonical_bytes(content)
     ).hexdigest()
     assert document.state_fingerprint == expected_state
     assert document.content_fingerprint == expected_content
@@ -222,9 +222,9 @@ def test_every_current_command_reconstructs_exactly_and_rejects_field_drift() ->
 
         missing = dict(source)
         missing.pop(next(iter(missing)))
-        with pytest.raises(SkatAIValidationError, match="Missing"):
+        with pytest.raises(SkatMindValidationError, match="Missing"):
             codec_module._build_command(missing, path=f"/command/{index}")
-        with pytest.raises(SkatAIValidationError, match="Unsupported"):
+        with pytest.raises(SkatMindValidationError, match="Unsupported"):
             codec_module._build_command(
                 {**source, "unknown": None},
                 path=f"/command/{index}",
@@ -239,12 +239,12 @@ def test_command_reconstruction_preserves_nulls_and_rejects_nested_unknown_field
 
     event = _commands()[6].to_dict()
     event["event"]["exposure"]["unknown"] = True
-    with pytest.raises(SkatAIValidationError, match="Unsupported"):
+    with pytest.raises(SkatMindValidationError, match="Unsupported"):
         codec_module._build_command(event, path="/command")
 
     unhashable_end_reason = game_end.to_dict()
     unhashable_end_reason["game_end_reason"] = []
-    with pytest.raises(SkatAIValidationError, match="game_end_reason"):
+    with pytest.raises(SkatMindValidationError, match="game_end_reason"):
         codec_module._build_command(unhashable_end_reason, path="/command")
 
 
@@ -280,12 +280,12 @@ def test_strict_state_validation_and_request_checkpoint_reconstruction() -> None
 
     noncanonical = state.to_dict()
     noncanonical["players"].reverse()
-    with pytest.raises(SkatAIValidationError, match="canonical"):
+    with pytest.raises(SkatMindValidationError, match="canonical"):
         codec_module._build_state(noncanonical, path="/state")
 
     extra_request = checkpoint.to_dict()
     extra_request["request"]["document"]["output_path"] = "result.json"
-    with pytest.raises(SkatAIValidationError):
+    with pytest.raises(SkatMindValidationError):
         codec_module._build_checkpoint(
             extra_request,
             path="/decision_checkpoints/0",
@@ -317,7 +317,7 @@ def test_in_memory_resume_rejects_top_level_state_and_fingerprint_tampering() ->
     wrong_content_fingerprint["content_fingerprint"] = "f" * 64
     cases.append(wrong_content_fingerprint)
     for document in cases:
-        with pytest.raises(SkatAIValidationError):
+        with pytest.raises(SkatMindValidationError):
             resume_session_document_v1(document)
 
 

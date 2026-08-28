@@ -10,23 +10,23 @@ import pytest
 from test_learning_corpus_human_evidence import _store
 from test_learning_corpus_strategy_teacher import _changed_report, _source_bundle
 
-import skat_ai
-import skat_ai.api.v1 as api_v1
-import skat_ai.cli as cli
-import skat_ai.learning_corpus_strategy_teacher_builder as builder_module
+import skatmind
+import skatmind.api.v1 as api_v1
+import skatmind.cli as cli
+import skatmind.learning_corpus_strategy_teacher_builder as builder_module
 from scripts.validate_generated_outputs_schema import SCENARIOS
-from skat_ai.api.v1.contracts import WorkflowV1
-from skat_ai.learning_corpus_identity import (
+from skatmind.api.v1.contracts import WorkflowV1
+from skatmind.learning_corpus_identity import (
     build_learning_corpus_canonical_json_bytes_v1,
 )
-from skat_ai.learning_corpus_strategy_teacher import (
+from skatmind.learning_corpus_strategy_teacher import (
     LearningCorpusStrategyTeacherEvidenceCollectionV1,
     build_learning_corpus_strategy_teacher_report_source_v1,
 )
-from skat_ai.learning_corpus_strategy_teacher_builder import (
+from skatmind.learning_corpus_strategy_teacher_builder import (
     build_learning_corpus_strategy_teacher_evidence_collection_v1,
 )
-from skat_ai.learning_corpus_strategy_teacher_export import (
+from skatmind.learning_corpus_strategy_teacher_export import (
     LEARNING_CORPUS_STRATEGY_TEACHER_DOCUMENT_KIND,
     LEARNING_CORPUS_STRATEGY_TEACHER_EXPORT_POLICY,
     LEARNING_CORPUS_STRATEGY_TEACHER_EXPORT_VERSION,
@@ -34,7 +34,7 @@ from skat_ai.learning_corpus_strategy_teacher_export import (
     build_learning_corpus_strategy_teacher_evidence_export_v1,
     serialize_learning_corpus_strategy_teacher_evidence_export_v1,
 )
-from skat_ai.training_dataset import (
+from skatmind.training_dataset import (
     TRAINING_DATASET_SCHEMA_VERSION,
     TRAINING_FEATURE_GENERATION_VERSION,
     TRAINING_TARGET,
@@ -61,7 +61,7 @@ def collection():
 def test_export_contract_fields_and_identity_are_exact(collection) -> None:
     assert LEARNING_CORPUS_STRATEGY_TEACHER_EXPORT_VERSION == 1
     assert LEARNING_CORPUS_STRATEGY_TEACHER_DOCUMENT_KIND == (
-        "skat_ai_learning_corpus_strategy_teacher_evidence"
+        "skatmind_learning_corpus_strategy_teacher_evidence"
     )
     assert (
         LEARNING_CORPUS_STRATEGY_TEACHER_EXPORT_POLICY
@@ -82,7 +82,7 @@ def test_export_contract_fields_and_identity_are_exact(collection) -> None:
         collection.strategy_teacher_collection_fingerprint
     )
     assert export.export_id == _hash(
-        b"skat-ai\0learning_corpus_strategy_teacher_export_v1\0",
+        b"skatmind\0learning_corpus_strategy_teacher_export_v1\0",
         {
             "learning_corpus_strategy_teacher_export_version": 1,
             "document_kind": LEARNING_CORPUS_STRATEGY_TEACHER_DOCUMENT_KIND,
@@ -219,16 +219,16 @@ def test_forged_collection_fingerprint_is_rejected(collection) -> None:
 def test_strategy_teacher_modules_do_not_import_forbidden_boundaries() -> None:
     forbidden = (
         "pathlib",
-        "skat_ai.capture_web",
-        "skat_ai.cli",
-        "skat_ai.learning_corpus_human_evidence",
-        "skat_ai.learning_corpus_player_catalog",
-        "skat_ai.match_historical_analysis",
-        "skat_ai.replay_coaching",
-        "skat_ai.training_dataset",
+        "skatmind.capture_web",
+        "skatmind.cli",
+        "skatmind.learning_corpus_human_evidence",
+        "skatmind.learning_corpus_player_catalog",
+        "skatmind.match_historical_analysis",
+        "skatmind.replay_coaching",
+        "skatmind.training_dataset",
     )
     paths = tuple(
-        PROJECT_ROOT.glob("src/skat_ai/learning_corpus_strategy_teacher*.py")
+        PROJECT_ROOT.glob("src/skatmind/learning_corpus_strategy_teacher*.py")
     )
     violations = []
     for path in paths:
@@ -249,7 +249,7 @@ def test_strategy_teacher_remains_private_and_baselines_are_unchanged() -> None:
     pyproject = tomllib.loads((PROJECT_ROOT / "pyproject.toml").read_text())
     assert pyproject["project"]["version"] == "0.17.0"
     assert pyproject["project"]["requires-python"] == ">=3.13"
-    assert pyproject["project"]["scripts"] == {"skat-ai": "skat_ai.cli:main"}
+    assert pyproject["project"]["scripts"] == {"skatmind": "skatmind.cli:main"}
     assert TRAINING_DATASET_SCHEMA_VERSION == 1
     assert TRAINING_FEATURE_GENERATION_VERSION == 1
     assert TRAINING_TARGET == "actual_card_played"
@@ -257,11 +257,11 @@ def test_strategy_teacher_remains_private_and_baselines_are_unchanged() -> None:
     assert len(SCENARIOS) == 98
     assert len(tuple((PROJECT_ROOT / "schemas").glob("*.schema.json"))) == 71
     assert len(
-        tuple((PROJECT_ROOT / "src/skat_ai/schema_resources").glob("*.schema.json"))
+        tuple((PROJECT_ROOT / "src/skatmind/schema_resources").glob("*.schema.json"))
     ) == 71
     assert len(tuple((PROJECT_ROOT / "examples").glob("session_*.json"))) == 6
     assert not tuple((PROJECT_ROOT / "schemas").glob("*strategy_teacher*.json"))
-    for namespace in (skat_ai, api_v1, cli):
+    for namespace in (skatmind, api_v1, cli):
         assert not hasattr(
             namespace,
             "LearningCorpusStrategyTeacherEvidenceCollectionV1",
@@ -271,5 +271,5 @@ def test_strategy_teacher_remains_private_and_baselines_are_unchanged() -> None:
             "build_learning_corpus_strategy_teacher_evidence_export_v1",
         )
     assert LearningCorpusStrategyTeacherEvidenceCollectionV1.__module__ == (
-        "skat_ai.learning_corpus_strategy_teacher"
+        "skatmind.learning_corpus_strategy_teacher"
     )

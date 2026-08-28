@@ -5,16 +5,16 @@ from pathlib import Path
 
 import pytest
 
-from skat_ai.historical_decision_snapshot import build_historical_decision_snapshots
-from skat_ai.historical_game import (
+from skatmind.historical_decision_snapshot import build_historical_decision_snapshots
+from skatmind.historical_game import (
     build_historical_game_record,
     build_historical_game_summary,
 )
-from skat_ai.historical_tactical_motif_review import (
+from skatmind.historical_tactical_motif_review import (
     build_historical_tactical_motif_review_v1,
     build_serializable_historical_tactical_motif_review_v1,
 )
-from skat_ai.tactical_motif_contracts import (
+from skatmind.tactical_motif_contracts import (
     TACTICAL_MOTIF_FAMILIES,
     TACTICAL_MOTIF_TYPES,
 )

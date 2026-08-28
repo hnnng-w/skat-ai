@@ -1,10 +1,10 @@
-from skat_ai.analysis_report import (
+from skatmind.analysis_report import (
     build_card_analysis_report,
     build_strategic_summary,
     calculate_expected_point_swing,
     format_card_analysis_report,
 )
-from skat_ai.game_state import GameState
+from skatmind.game_state import GameState
 
 
 def test_calculate_expected_point_swing() -> None:
@@ -256,7 +256,7 @@ def test_build_card_analysis_report_uses_response_policy_map(monkeypatch) -> Non
         return ["S8", "S10"], ["S9", "SA"]
 
     monkeypatch.setattr(
-        "skat_ai.simulation.generate_random_opponent_hands",
+        "skatmind.simulation.generate_random_opponent_hands",
         fake_generate_random_opponent_hands,
     )
     state = GameState(

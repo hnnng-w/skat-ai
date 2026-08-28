@@ -5,21 +5,21 @@ from pathlib import Path
 
 import pytest
 
-from skat_ai.historical_decision_snapshot import build_historical_decision_snapshots
-from skat_ai.historical_game import (
+from skatmind.historical_decision_snapshot import build_historical_decision_snapshots
+from skatmind.historical_game import (
     build_historical_game_record,
     build_historical_game_summary,
     build_serializable_historical_record,
 )
-from skat_ai.historical_game_review import build_historical_game_review_summary
-from skat_ai.historical_opponent_profile_application import (
+from skatmind.historical_game_review import build_historical_game_review_summary
+from skatmind.historical_opponent_profile_application import (
     resolve_historical_opponent_profiles_for_decision,
 )
-from skat_ai.historical_opponent_profile_binding import (
+from skatmind.historical_opponent_profile_binding import (
     resolve_historical_opponent_profile_bindings,
 )
-from skat_ai.opponent_statistics import build_opponent_statistics_input
-from skat_ai.rules import get_legal_cards
+from skatmind.opponent_statistics import build_opponent_statistics_input
+from skatmind.rules import get_legal_cards
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 HISTORICAL_PATH = PROJECT_ROOT / "examples" / "historical_grand_normal_completion.json"
@@ -267,7 +267,7 @@ def test_review_applies_actionable_profiles_and_reconciles_decision_output(
         )
 
     monkeypatch.setattr(
-        "skat_ai.historical_game_review.recommend_card_by_expected_value",
+        "skatmind.historical_game_review.recommend_card_by_expected_value",
         capture_policies,
     )
     record, _, snapshots, bindings = build_profile_inputs()
@@ -313,7 +313,7 @@ def test_explicit_policy_precedence_and_non_actionable_profiles_preserve_default
     monkeypatch,
 ) -> None:
     monkeypatch.setattr(
-        "skat_ai.historical_game_review.recommend_card_by_expected_value",
+        "skatmind.historical_game_review.recommend_card_by_expected_value",
         stub_expected_value_recommendation,
     )
     statistics_data = load_statistics_data()

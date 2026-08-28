@@ -1,4 +1,4 @@
-from skat_ai.game_end import (
+from skatmind.game_end import (
     apply_remaining_points_assignment,
     get_remaining_points_recipient,
     validate_game_end_reason,

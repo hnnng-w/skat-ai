@@ -2,8 +2,8 @@ import random
 
 import pytest
 
-from skat_ai.game_state import GameState
-from skat_ai.hidden_card_inference import (
+from skatmind.game_state import GameState
+from skatmind.hidden_card_inference import (
     CompatibleAssignmentProblem,
     build_hidden_card_inference_constraints,
     build_hidden_card_inference_model,
@@ -15,10 +15,10 @@ from skat_ai.hidden_card_inference import (
     derive_failed_to_follow_evidence,
     sample_compatible_hidden_world,
 )
-from skat_ai.multi_step_simulation import simulate_multiple_steps
-from skat_ai.policy_comparison import compare_multi_step_policies
-from skat_ai.public_hand_constraint import PublicHandConstraint
-from skat_ai.simulation import (
+from skatmind.multi_step_simulation import simulate_multiple_steps
+from skatmind.policy_comparison import compare_multi_step_policies
+from skatmind.public_hand_constraint import PublicHandConstraint
+from skatmind.simulation import (
     estimate_immediate_trick_values_for_legal_cards,
     generate_sampled_hidden_state,
 )
@@ -344,7 +344,7 @@ def test_immediate_candidates_receive_one_common_compatible_world_sequence(
         }
 
     monkeypatch.setattr(
-        "skat_ai.simulation.estimate_immediate_trick_value",
+        "skatmind.simulation.estimate_immediate_trick_value",
         capture_common_samples,
     )
 

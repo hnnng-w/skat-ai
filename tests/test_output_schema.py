@@ -7,38 +7,38 @@ import pytest
 from jsonschema import Draft202012Validator
 from referencing import Registry, Resource
 
-from skat_ai.dataset_partition_audit import (
+from skatmind.dataset_partition_audit import (
     audit_training_dataset_partitions,
     build_serializable_dataset_partition_audit,
 )
-from skat_ai.historical_decision_snapshot import (
+from skatmind.historical_decision_snapshot import (
     build_historical_decision_snapshots,
     build_serializable_historical_decision_snapshot_summary,
 )
-from skat_ai.historical_game import build_historical_game_summary
-from skat_ai.historical_game_review import build_historical_game_review_summary
-from skat_ai.historical_opponent_profile_binding import (
+from skatmind.historical_game import build_historical_game_summary
+from skatmind.historical_game_review import build_historical_game_review_summary
+from skatmind.historical_opponent_profile_binding import (
     resolve_historical_opponent_profile_bindings,
 )
-from skat_ai.historical_opponent_statistics import (
+from skatmind.historical_opponent_statistics import (
     aggregate_historical_opponent_statistics,
     build_historical_opponent_statistics_aggregation_summary,
 )
-from skat_ai.input_loader import (
+from skatmind.input_loader import (
     load_historical_game_from_json,
     load_opponent_statistics_from_json,
     load_training_dataset_from_json,
 )
-from skat_ai.opponent_statistics import build_opponent_statistics_summary
-from skat_ai.post_game_review import build_unavailable_post_game_review_summary
-from skat_ai.replay_coaching_report import (
+from skatmind.opponent_statistics import build_opponent_statistics_summary
+from skatmind.post_game_review import build_unavailable_post_game_review_summary
+from skatmind.replay_coaching_report import (
     build_historical_replay_coaching_public_summaries,
 )
-from skat_ai.rolling_opponent_policy_evaluation import (
+from skatmind.rolling_opponent_policy_evaluation import (
     build_serializable_rolling_opponent_policy_evaluation,
     evaluate_rolling_opponent_policy_predictions,
 )
-from skat_ai.training_dataset import build_training_dataset_summary
+from skatmind.training_dataset import build_training_dataset_summary
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 SCHEMA_PATH = PROJECT_ROOT / "schemas" / "output.schema.json"

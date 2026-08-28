@@ -1,13 +1,13 @@
-# Skat AI
+# SkatMind
 
-![Check](https://github.com/hnnng-w/skat-ai/actions/workflows/check.yml/badge.svg)
+![Check](https://github.com/hnnng-w/skatmind/actions/workflows/check.yml/badge.svg)
 
-Skat AI is a local Python-based analysis, simulation, and historical-data engine
+SkatMind is a local Python-based analysis, simulation, and historical-data engine
 for Skat positions and supported complete or shortened historical games.
 
 It evaluates legal card choices, estimates expected point swings, recommends cards, tracks game state, simulates multi-step play, and supports post-game review workflows. The project focuses on rule-based and probability-based analysis rather than machine learning.
 
-Skat AI is experimental. It includes bounded late-game Perfect-Information
+SkatMind is experimental. It includes bounded late-game Perfect-Information
 Minimax for exact worlds, but it is not a general hidden-information or complete-
 contract solver, a full official tournament system, or a replacement for
 official Skat rules arbitration.
@@ -173,7 +173,7 @@ official Skat rules arbitration.
 
 ### Public Python API contracts
 
-* Stable API contract version `1` under `skat_ai.api.v1`
+* Stable API contract version `1` under `skatmind.api.v1`
 * Exact seven-value Root `WorkflowV1` contract
 * Recursively immutable JSON `RequestDocumentV1` and `ResultDocumentV1` wrappers
 * Immutable `ExecutionOptionsV1`, compatibility policy, and API-version metadata
@@ -238,14 +238,14 @@ official Skat rules arbitration.
 * Optimistic expected-content-fingerprint `saved`, `unchanged`, and `conflict`
   results plus canonical pretty UTF-8/LF save bytes and same-directory atomic
   replacement
-* Stable in-memory `skat_ai.api.v1.session` version-1 namespace with exact
+* Stable in-memory `skatmind.api.v1.session` version-1 namespace with exact
   immutable Session type identity, strict public Command parsing, one-call
   wrappers for twelve operations, and one immutable Result envelope
 * Default-omitted, opt-in Session Provenance version `1` with complete exact-
   value coverage, engine-private redaction, and recomputed coverage
 * Strict standalone Draft 2020-12 `session.schema.json` mirrored into Package
   Resources, bringing the active authoritative and packaged Schema count to 63
-* Stable `skat_ai.api.v1.session.files` version `1` with path-free Save/Load
+* Stable `skatmind.api.v1.session.files` version `1` with path-free Save/Load
   Results, strict resume, expected-content-fingerprint compare-and-swap, and
   atomic same-directory replacement
 * Immutable Decision Observation version `1` with explicit observed, pending,
@@ -330,8 +330,8 @@ Issue #165 adds internal Match Capture Web, Web Protocol, and Capture CLI
 version `1`. Start the private local browser through any supported CLI form:
 
 ```powershell
-skat-ai capture --workspace MATCH.json
-python -m skat_ai capture --workspace MATCH.json
+skatmind capture --workspace MATCH.json
+python -m skatmind capture --workspace MATCH.json
 python main.py capture --workspace MATCH.json
 ```
 
@@ -522,8 +522,8 @@ and seven-download workflow. It adds no automatic capture, persistence, Public
 API, Schema, example, or generated scenario. See
 [Match Information-set Search and Strategy Teacher Evidence](docs/match_information_set_search_and_strategy_teacher.md).
 Start it with
-`skat-ai corpus --corpus CORPUS_ROOT`,
-`python -m skat_ai corpus --corpus CORPUS_ROOT`, or
+`skatmind corpus --corpus CORPUS_ROOT`,
+`python -m skatmind corpus --corpus CORPUS_ROOT`, or
 `python main.py corpus --corpus CORPUS_ROOT`. See
 [Learning Corpus identity and Catalogs](docs/learning_corpus_identity_and_catalogs.md),
 [Learning Corpus persistence and Workspace import](docs/learning_corpus_persistence_and_import.md),
@@ -600,8 +600,8 @@ scenario, Learning Dataset version `2`, or Dataset-v2 Summary contract. See
 The facade executes already loaded Root documents without caller transport I/O
 and preserves Root JSON output by default. Its lazy schema backend uses packaged
 resources and works from source, Editable, Wheel, and sdist installations. Installed CLI
-contract version `1` adds the exact `skat-ai` Console Script and
-`python -m skat_ai`; repository-root `main.py` remains a compatible Legacy
+contract version `1` adds the exact `skatmind` Console Script and
+`python -m skatmind`; repository-root `main.py` remains a compatible Legacy
 facade over the same Package implementation. Field-level provenance is
 internally enforced and attached for live and retrospective Position and
 Historical execution and for Dataset, Preparation, Opponent, Profile, list, and
@@ -664,17 +664,19 @@ Data, schema synchronization, clean-install validation, and current boundaries.
 The installation exposes both Package CLI forms:
 
 ```powershell
-skat-ai --help
-python -m skat_ai --help
-skat-ai session --help
-python -m skat_ai session --help
-skat-ai capture --help
-python -m skat_ai capture --help
+skatmind --help
+python -m skatmind --help
+skatmind session --help
+python -m skatmind session --help
+skatmind capture --help
+python -m skatmind capture --help
 ```
 
 See [Installed CLI](docs/installed_cli.md) for invocation identities, output,
 errors, compatibility, and clean-install validation. Repository examples are not
-installed as Package Data.
+installed as Package Data. The one approved pre-v1 namespace break and strict
+persisted-input boundary are documented in
+[SkatMind rename and migration](docs/skatmind_rename_and_migration.md).
 
 The behavior-preserving internal Root and Session transport split, Legacy patch
 facades, and one-way import boundary are documented in
@@ -688,7 +690,7 @@ Parse and execute an already loaded Root JSON document:
 import json
 from pathlib import Path
 
-from skat_ai.api.v1 import ExecutionOptionsV1, execute_document, serialize_result
+from skatmind.api.v1 import ExecutionOptionsV1, execute_document, serialize_result
 
 document = json.loads(Path("examples/grand_second_position.json").read_text())
 result = execute_document(
@@ -708,8 +710,8 @@ compatibility, errors, and normal Result states, and
 Show available CLI options and common command examples:
 
 ```powershell
-skat-ai --help
-python -m skat_ai --help
+skatmind --help
+python -m skatmind --help
 python main.py --help
 ```
 
@@ -719,12 +721,12 @@ Legacy repository interface and remains compatible through at least `v1.0.0`.
 Create, inspect, and continue one explicit private Session file:
 
 ```powershell
-skat-ai session new --session session.json --input examples/session_create_live.json
-skat-ai session show --session session.json
-skat-ai session assistant --session session.json
+skatmind session new --session session.json --input examples/session_create_live.json
+skatmind session show --session session.json
+skatmind session assistant --session session.json
 ```
 
-The same `session` family is available through `python -m skat_ai` and
+The same `session` family is available through `python -m skatmind` and
 `python main.py`. It has no default path. See
 [Session CLI and end-to-end capture](docs/session_cli_and_end_to_end_capture.md)
 for all 12 subcommands, options, persistence conflicts, privacy, and Exit Codes.
@@ -732,10 +734,10 @@ for all 12 subcommands, options, persistence conflicts, privacy, and Exit Codes.
 Capture one EuroSkat 36er Standard Match without authoring JSON:
 
 ```powershell
-skat-ai capture --workspace MATCH.json
+skatmind capture --workspace MATCH.json
 ```
 
-The same `capture` family is available through `python -m skat_ai` and
+The same `capture` family is available through `python -m skatmind` and
 `python main.py`. It has no default path and always binds to loopback. See
 [Local Match Capture interface](docs/local_match_capture_interface.md) for
 Workspace creation and Resume, forms, rapid Card entry, autosave, conflicts,
@@ -899,8 +901,8 @@ Add the bounded public-safe field-provenance sidecar through any supported CLI
 form:
 
 ```powershell
-skat-ai --input examples/grand_second_position.json --include-provenance --output outputs/result.json
-python -m skat_ai --input examples/grand_second_position.json --include-provenance --output outputs/result.json
+skatmind --input examples/grand_second_position.json --include-provenance --output outputs/result.json
+python -m skatmind --input examples/grand_second_position.json --include-provenance --output outputs/result.json
 python main.py --input examples/grand_second_position.json --include-provenance --output outputs/result.json
 ```
 
@@ -1877,12 +1879,13 @@ Runtime execution. Issue #184 adds the private bounded exhaustive exact AND/OR
 without product-code change. Issue #202 closes B-02 and makes P-10 and P-13
   `satisfied`. Issue #203 completes all nine concrete canonical Multi-Step
   phases, makes P-19 `satisfied`, and closes B-03. Issue #204 applies the exact
-  `AGPL-3.0-only` Package boundary and closes B-04. P-09 is now
-  `implementation_required` under rename blocker B-08, and the separate B-09
-  maintainer-UAT Gate sits outside the 53-row ledger. The milestone is not ready,
-  and Issue #205, **Rename the complete project and public Package surface to
-  SkatMind**, is next. No v1 Release title, theme,
-  date, tag, or publication commit is frozen.
+  `AGPL-3.0-only` Package boundary and closes B-04. Issue #205 completes the
+  hard-cut SkatMind Package, import, CLI, resource, Schema, identifier, and strict
+  legacy persisted-input migration boundary, makes P-09 `satisfied`, and closes
+  B-08. The separate B-09 maintainer-UAT Gate sits outside the 53-row ledger.
+  The milestone is not ready, and Issue #206, **Complete the v1 installation and
+  supported-platform matrix**, is next. No v1 Release title, theme, date, tag, or
+  publication commit is frozen.
 
 Current support and known limitations are tracked in the
 [requirements traceability matrix](docs/requirements_traceability.md). Product

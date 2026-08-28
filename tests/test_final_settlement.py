@@ -1,18 +1,18 @@
 import pytest
 
-from skat_ai.final_settlement import (
+from skatmind.final_settlement import (
     build_final_settlement_summary,
     calculate_basic_settlement_score,
     get_missing_final_settlement_inputs,
     is_declarer_base_contract_winner,
     is_overbid_settlement_supported,
 )
-from skat_ai.game_declaration import GameDeclaration
-from skat_ai.game_history import build_score_summary as build_state_score_summary
-from skat_ai.game_result import build_game_result_summary_from_score_summary
-from skat_ai.game_state import GameState
-from skat_ai.game_value import build_game_value_summary
-from skat_ai.simulation_step import simulate_and_advance_once
+from skatmind.game_declaration import GameDeclaration
+from skatmind.game_history import build_score_summary as build_state_score_summary
+from skatmind.game_result import build_game_result_summary_from_score_summary
+from skatmind.game_state import GameState
+from skatmind.game_value import build_game_value_summary
+from skatmind.simulation_step import simulate_and_advance_once
 
 
 def build_score_summary(

@@ -6,9 +6,9 @@ from pathlib import Path
 
 import pytest
 
-from skat_ai.api.v1 import ExecutionOptionsV1, WorkflowV1, execute_document
-from skat_ai.api.v1.execution import _translate_workflow_options
-from skat_ai.application import (
+from skatmind.api.v1 import ExecutionOptionsV1, WorkflowV1, execute_document
+from skatmind.api.v1.execution import _translate_workflow_options
+from skatmind.application import (
     ApplicationExecutionOptions,
     ApplicationExternalDocuments,
     HistoricalGameApplicationOptions,
@@ -16,40 +16,40 @@ from skat_ai.application import (
     build_application_invocation,
     execute_application_invocation,
 )
-from skat_ai.application.execution import (
+from skatmind.application.execution import (
     ApplicationWorkflowDependencies,
     validate_application_invocation,
 )
-from skat_ai.application.historical_game_workflow import (
+from skatmind.application.historical_game_workflow import (
     HistoricalGameWorkflowDependencies,
 )
-from skat_ai.application.training_dataset_workflow import (
+from skatmind.application.training_dataset_workflow import (
     TrainingDatasetWorkflowDependencies,
 )
-from skat_ai.bounded_search_information import build_historical_search_information_view
-from skat_ai.compatible_world_minimax import (
+from skatmind.bounded_search_information import build_historical_search_information_view
+from skatmind.compatible_world_minimax import (
     solve_compatible_world_minimax_on_selection_v1,
 )
-from skat_ai.effective_opponent_policy import build_effective_opponent_policy_settings
-from skat_ai.errors import SkatAIWorkflowError
-from skat_ai.historical_decision_snapshot import build_historical_decision_snapshots
-from skat_ai.historical_game import (
+from skatmind.effective_opponent_policy import build_effective_opponent_policy_settings
+from skatmind.errors import SkatMindWorkflowError
+from skatmind.historical_decision_snapshot import build_historical_decision_snapshots
+from skatmind.historical_game import (
     build_historical_game_record,
     build_historical_game_summary,
 )
-from skat_ai.historical_information_set_search_review import (
+from skatmind.historical_information_set_search_review import (
     HistoricalInformationSetSearchPreActualDependenciesV1,
     HistoricalInformationSetSearchReviewSettingsV1,
     build_historical_information_set_search_decision_review_v1,
     build_historical_information_set_search_pre_actual_analysis_v1,
     build_serializable_historical_information_set_search_decision_v1,
 )
-from skat_ai.information_set_search_contracts import (
+from skatmind.information_set_search_contracts import (
     build_information_set_search_request_v1,
 )
-from skat_ai.information_set_search_executor import execute_information_set_search_v1
-from skat_ai.information_set_search_preparation import prepare_information_set_search_v1
-from skat_ai.recommender import recommend_card_by_expected_value
+from skatmind.information_set_search_executor import execute_information_set_search_v1
+from skatmind.information_set_search_preparation import prepare_information_set_search_v1
+from skatmind.recommender import recommend_card_by_expected_value
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -122,7 +122,7 @@ def test_options_and_public_api_translation_are_additive_and_operation_scoped() 
     assert dataset.information_set_search_partitions == ("test",)
     assert dataset.information_set_search_max_decisions == 3
 
-    with pytest.raises(SkatAIWorkflowError, match="does not accept"):
+    with pytest.raises(SkatMindWorkflowError, match="does not accept"):
         _translate_workflow_options(
             WorkflowV1.TRAINING_DATASET,
             {
@@ -214,7 +214,7 @@ def test_historical_information_set_search_option_conflicts_are_strict(
         ApplicationExecutionOptions(historical_game=options),
     )
 
-    with pytest.raises(SkatAIWorkflowError, match=message):
+    with pytest.raises(SkatMindWorkflowError, match=message):
         validate_application_invocation(invocation)
 
 
@@ -258,7 +258,7 @@ def test_dataset_information_set_search_option_conflicts_are_strict(
         ApplicationExecutionOptions(training_dataset=options),
     )
 
-    with pytest.raises(SkatAIWorkflowError, match=message):
+    with pytest.raises(SkatMindWorkflowError, match=message):
         validate_application_invocation(invocation)
 
 

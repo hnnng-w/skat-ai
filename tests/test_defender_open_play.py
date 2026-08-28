@@ -4,20 +4,20 @@ from pathlib import Path
 
 import pytest
 
-from skat_ai.defender_open_play import (
+from skatmind.defender_open_play import (
     DefenderOpenPlayContext,
     adjudicate_defender_open_play,
     build_defender_open_play,
     validate_defender_open_play_context,
 )
-from skat_ai.exact_rest_trick_proof import build_exact_remaining_play_state
-from skat_ai.exact_search_state import ExactSearchState
-from skat_ai.final_settlement import build_final_settlement_summary
-from skat_ai.game_declaration import GameDeclaration
-from skat_ai.game_result import build_game_result_summary_from_points
-from skat_ai.game_value import build_game_value_summary
-from skat_ai.input_validation import validate_position_input
-from skat_ai.overbid import build_overbid_summary
+from skatmind.exact_rest_trick_proof import build_exact_remaining_play_state
+from skatmind.exact_search_state import ExactSearchState
+from skatmind.final_settlement import build_final_settlement_summary
+from skatmind.game_declaration import GameDeclaration
+from skatmind.game_result import build_game_result_summary_from_points
+from skatmind.game_value import build_game_value_summary
+from skatmind.input_validation import validate_position_input
+from skatmind.overbid import build_overbid_summary
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 

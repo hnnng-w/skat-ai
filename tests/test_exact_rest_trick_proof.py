@@ -1,6 +1,6 @@
 import pytest
 
-from skat_ai.exact_rest_trick_proof import (
+from skatmind.exact_rest_trick_proof import (
     ExactRemainingPlayState,
     build_exact_remaining_play_state,
     prove_defender_rest_tricks,

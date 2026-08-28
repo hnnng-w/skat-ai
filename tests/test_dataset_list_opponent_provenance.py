@@ -8,28 +8,28 @@ from test_search_provenance import _result as build_search_result
 from test_search_provenance import _unavailable as build_unavailable_search_result
 from test_training_dataset import build_training_input
 
-from skat_ai.api.v1 import WorkflowV1
-from skat_ai.application import (
+from skatmind.api.v1 import WorkflowV1
+from skatmind.application import (
     ApplicationExecutionOptions,
     TrainingDatasetApplicationOptions,
     build_application_invocation,
     execute_application_invocation,
 )
-from skat_ai.bounded_search_result import build_serializable_bounded_search_result
-from skat_ai.dataset_preparation_provenance import (
+from skatmind.bounded_search_result import build_serializable_bounded_search_result
+from skatmind.dataset_preparation_provenance import (
     DATASET_PREPARATION_PROVENANCE_VERSION,
     validate_dataset_preparation_assignment_references,
 )
-from skat_ai.errors import SkatAIValidationError
-from skat_ai.field_provenance import FieldProvenanceSourceReference
-from skat_ai.field_provenance_policy import InformationUseContext
-from skat_ai.historical_list_provenance import (
+from skatmind.errors import SkatMindValidationError
+from skatmind.field_provenance import FieldProvenanceSourceReference
+from skatmind.field_provenance_policy import InformationUseContext
+from skatmind.historical_list_provenance import (
     HISTORICAL_LIST_PROVENANCE_VERSION,
     validate_historical_list_progression_dependencies,
 )
-from skat_ai.opponent_workflow_provenance import OPPONENT_WORKFLOW_PROVENANCE_VERSION
-from skat_ai.retrospective_review_provenance import build_complete_provenance_attachment
-from skat_ai.training_dataset_provenance import (
+from skatmind.opponent_workflow_provenance import OPPONENT_WORKFLOW_PROVENANCE_VERSION
+from skatmind.retrospective_review_provenance import build_complete_provenance_attachment
+from skatmind.training_dataset_provenance import (
     TRAINING_DATASET_PROVENANCE_VERSION,
     _search_result_entry_builder,
 )
@@ -613,7 +613,7 @@ def test_assignment_reference_validator_rejects_unknown_mode_fields() -> None:
     with pytest.raises(ValueError, match="notes"):
         validate_dataset_preparation_assignment_references("known_opponent", (reference,))
 
-    with pytest.raises(SkatAIValidationError):
+    with pytest.raises(SkatMindValidationError):
         FieldProvenanceSourceReference(
             reference_type="external_record",
             reference_id="hidden",

@@ -7,11 +7,11 @@ import pytest
 from jsonschema import FormatChecker
 
 import main as main_module
-import skat_ai.api.v1.execution as facade_module
-import skat_ai.api.v1.schema_validation as schema_validation_module
-import skat_ai.application as application_module
-import skat_ai.public_field_provenance as public_provenance_module
-from skat_ai.api.v1 import (
+import skatmind.api.v1.execution as facade_module
+import skatmind.api.v1.schema_validation as schema_validation_module
+import skatmind.application as application_module
+import skatmind.public_field_provenance as public_provenance_module
+from skatmind.api.v1 import (
     DEFAULT_INPUT_REFERENCE_V1,
     EXECUTION_ARTIFACT_NAMES_V1,
     ExecutionArtifactV1,
@@ -25,7 +25,7 @@ from skat_ai.api.v1 import (
     parse_request,
     serialize_result,
 )
-from skat_ai.application import (
+from skatmind.application import (
     ApplicationArtifact,
     ApplicationExecutionResult,
     HistoricalGameApplicationOptions,
@@ -35,14 +35,14 @@ from skat_ai.application import (
     execute_application_invocation,
     validate_application_invocation,
 )
-from skat_ai.errors import (
-    SkatAIError,
-    SkatAIInvariantError,
-    SkatAIResourceError,
-    SkatAISchemaError,
-    SkatAISerializationError,
-    SkatAIValidationError,
-    SkatAIWorkflowError,
+from skatmind.errors import (
+    SkatMindError,
+    SkatMindInvariantError,
+    SkatMindResourceError,
+    SkatMindSchemaError,
+    SkatMindSerializationError,
+    SkatMindValidationError,
+    SkatMindWorkflowError,
 )
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -125,9 +125,9 @@ def test_execution_options_are_recursive_defensive_immutable_and_deterministic()
         options.workflow_options["new"] = True
     with pytest.raises(FrozenInstanceError):
         options.validate_output = True
-    with pytest.raises(SkatAIValidationError, match="supplied together"):
+    with pytest.raises(SkatMindValidationError, match="supplied together"):
         ExecutionOptionsV1(opponent_statistics_document=load_example("opponent_statistics.json"))
-    with pytest.raises(SkatAIValidationError, match="supplied together"):
+    with pytest.raises(SkatMindValidationError, match="supplied together"):
         ExecutionOptionsV1(opponent_statistics_reference="statistics")
     with pytest.raises(TypeError):
         ExecutionOptionsV1(output_path="result.json")
@@ -166,9 +166,9 @@ def test_public_execution_contracts_are_frozen_defensive_and_flattened() -> None
             }
         ],
     }
-    with pytest.raises(SkatAIValidationError, match="one of"):
+    with pytest.raises(SkatMindValidationError, match="one of"):
         ExecutionArtifactV1(name="unknown", document={})
-    with pytest.raises(SkatAIValidationError, match="duplicate"):
+    with pytest.raises(SkatMindValidationError, match="duplicate"):
         ExecutionResultV1(result=result.result, artifacts=(artifact, artifact))
 
 
@@ -197,7 +197,7 @@ def test_parse_request_reports_deterministic_rfc6901_schema_path() -> None:
 
     paths = []
     for _ in range(2):
-        with pytest.raises(SkatAISchemaError) as caught:
+        with pytest.raises(SkatMindSchemaError) as caught:
             parse_request(invalid)
         paths.append(caught.value.path)
 
@@ -208,7 +208,7 @@ def test_output_only_field_provenance_is_rejected_from_root_input() -> None:
     invalid = load_example("grand_second_position.json")
     invalid["field_provenance"] = {"forged": True}
 
-    with pytest.raises(SkatAISchemaError, match="output-only") as caught:
+    with pytest.raises(SkatMindSchemaError, match="output-only") as caught:
         parse_request(invalid)
     assert caught.value.path == "/field_provenance"
 
@@ -216,7 +216,7 @@ def test_output_only_field_provenance_is_rejected_from_root_input() -> None:
         workflow=WorkflowV1.POSITION_ANALYSIS,
         document=invalid,
     )
-    with pytest.raises(SkatAIWorkflowError, match="output-only"):
+    with pytest.raises(SkatMindWorkflowError, match="output-only"):
         execute(request)
 
 
@@ -235,12 +235,12 @@ def test_execute_revalidates_direct_requests_and_rejects_forged_workflow() -> No
         document=load_example("grand_second_position.json"),
     )
 
-    with pytest.raises(SkatAIWorkflowError, match="does not match"):
+    with pytest.raises(SkatMindWorkflowError, match="does not match"):
         execute(request)
 
     valid = parse_request(load_example("grand_second_position.json"))
     object.__setattr__(valid, "api_contract_version", 2)
-    with pytest.raises(SkatAIValidationError, match="api_contract_version"):
+    with pytest.raises(SkatMindValidationError, match="api_contract_version"):
         execute(valid)
 
 
@@ -250,7 +250,7 @@ def test_execute_refreezes_a_forged_request_document() -> None:
     forged["caller_metadata"] = object()
     object.__setattr__(request, "document", forged)
 
-    with pytest.raises(SkatAIValidationError, match="JSON-compatible"):
+    with pytest.raises(SkatMindValidationError, match="JSON-compatible"):
         execute(request)
 
 
@@ -419,7 +419,7 @@ def test_external_opponent_statistics_are_validated_injected_and_not_executed() 
     assert result["opponent_profile_application_summary"]["statistics_input_file"] == (
         "descriptive:opponents"
     )
-    with pytest.raises(SkatAIWorkflowError, match="opponent_statistics workflow"):
+    with pytest.raises(SkatMindWorkflowError, match="opponent_statistics workflow"):
         execute_document(
             load_example("grand_second_position.json"),
             options=ExecutionOptionsV1(
@@ -500,7 +500,7 @@ def test_information_set_replay_coaching_option_is_forwarded_without_new_api_sur
 def test_unknown_transport_and_provenance_workflow_options_are_rejected(
     field_name: str,
 ) -> None:
-    with pytest.raises(SkatAIWorkflowError, match="unsupported"):
+    with pytest.raises(SkatMindWorkflowError, match="unsupported"):
         execute_document(
             load_example("grand_second_position.json"),
             options=ExecutionOptionsV1(workflow_options={field_name: True}),
@@ -508,7 +508,7 @@ def test_unknown_transport_and_provenance_workflow_options_are_rejected(
 
 
 def test_private_match_decision_option_is_not_publicly_selectable() -> None:
-    with pytest.raises(SkatAIWorkflowError, match="unsupported"):
+    with pytest.raises(SkatMindWorkflowError, match="unsupported"):
         execute_document(
             load_example("grand_second_position.json"),
             options=ExecutionOptionsV1(
@@ -518,12 +518,12 @@ def test_private_match_decision_option_is_not_publicly_selectable() -> None:
 
 
 def test_fields_from_another_workflow_and_simple_workflow_options_are_rejected() -> None:
-    with pytest.raises(SkatAIWorkflowError, match="unsupported"):
+    with pytest.raises(SkatMindWorkflowError, match="unsupported"):
         execute_document(
             load_example("historical_grand_normal_completion.json"),
             options=ExecutionOptionsV1(workflow_options={"multi_step_count": 1}),
         )
-    with pytest.raises(SkatAIWorkflowError, match="empty"):
+    with pytest.raises(SkatMindWorkflowError, match="empty"):
         execute_document(
             load_example("opponent_statistics.json"),
             options=ExecutionOptionsV1(workflow_options={"operation": "summary"}),
@@ -531,19 +531,19 @@ def test_fields_from_another_workflow_and_simple_workflow_options_are_rejected()
 
 
 def test_application_semantic_option_validation_is_always_reused() -> None:
-    with pytest.raises(SkatAIWorkflowError, match="requires multi_step_count"):
+    with pytest.raises(SkatMindWorkflowError, match="requires multi_step_count"):
         execute_document(
             load_example("grand_second_position.json"),
             options=ExecutionOptionsV1(workflow_options={"compare_policies": True}),
         )
-    with pytest.raises(SkatAIWorkflowError, match="requires bounded_search_seed"):
+    with pytest.raises(SkatMindWorkflowError, match="requires bounded_search_seed"):
         execute_document(
             load_example("training_dataset_normal_play.json"),
             options=ExecutionOptionsV1(
                 workflow_options={"operation": "bounded_search_evaluation"}
             ),
         )
-    with pytest.raises(SkatAIWorkflowError, match="does not accept"):
+    with pytest.raises(SkatMindWorkflowError, match="does not accept"):
         execute_document(
             load_example("training_dataset_normal_play.json"),
             options=ExecutionOptionsV1(
@@ -575,14 +575,14 @@ def test_output_validation_can_be_disabled_but_input_and_semantics_cannot(
     )
     request = parse_request(load_example("grand_second_position.json"))
 
-    with pytest.raises(SkatAISchemaError):
+    with pytest.raises(SkatMindSchemaError):
         execute(request)
     result = execute(request, options=ExecutionOptionsV1(validate_output=False))
     assert result.result.document == {"input_file": DEFAULT_INPUT_REFERENCE_V1}
 
     invalid = load_example("grand_second_position.json")
     invalid["sample_count"] = 0
-    with pytest.raises(SkatAISchemaError):
+    with pytest.raises(SkatMindSchemaError):
         execute_document(invalid, options=ExecutionOptionsV1(validate_output=False))
 
 
@@ -605,7 +605,7 @@ def test_auxiliary_artifact_validation_can_be_disabled(monkeypatch) -> None:
     monkeypatch.setattr(application_module, "execute_application_invocation", fake_execute)
     monkeypatch.setattr(facade_module, "validate_output_document", lambda _document: None)
 
-    with pytest.raises(SkatAISchemaError):
+    with pytest.raises(SkatMindSchemaError):
         execute_document(load_example("training_dataset_normal_play.json"))
     result = execute_document(
         load_example("training_dataset_normal_play.json"),
@@ -693,21 +693,21 @@ def test_serialization_is_fresh_deterministic_and_type_checked() -> None:
         "warnings",
         "artifacts",
     ]
-    with pytest.raises(SkatAISerializationError):
+    with pytest.raises(SkatMindSerializationError):
         serialize_result(result.result)
 
 
 @pytest.mark.parametrize(
     ("raw_error", "public_error"),
     [
-        (ValueError("domain value"), SkatAIValidationError),
-        (OSError("resource"), SkatAIResourceError),
+        (ValueError("domain value"), SkatMindValidationError),
+        (OSError("resource"), SkatMindResourceError),
     ],
 )
 def test_raw_boundary_errors_are_translated_with_message_and_cause(
     monkeypatch,
     raw_error: Exception,
-    public_error: type[SkatAIError],
+    public_error: type[SkatMindError],
 ) -> None:
     def fail(_invocation):
         raise raw_error
@@ -724,13 +724,13 @@ def test_raw_boundary_errors_are_translated_with_message_and_cause(
 def test_existing_public_errors_are_preserved_and_unexpected_errors_escape(
     monkeypatch,
 ) -> None:
-    marker = SkatAIWorkflowError("preserve me")
+    marker = SkatMindWorkflowError("preserve me")
 
     def fail_public(_invocation):
         raise marker
 
     monkeypatch.setattr(application_module, "execute_application_invocation", fail_public)
-    with pytest.raises(SkatAIWorkflowError) as caught:
+    with pytest.raises(SkatMindWorkflowError) as caught:
         execute_document(load_example("opponent_statistics.json"))
     assert caught.value is marker
 
@@ -797,7 +797,7 @@ def test_missing_invalid_and_unresolvable_packaged_schemas_use_stable_errors(
     missing = tmp_path / "missing"
     monkeypatch.setattr(schema_validation_module, "_schema_resource_root", lambda: missing)
     schema_validation_module._validator_for.cache_clear()
-    with pytest.raises(SkatAIResourceError):
+    with pytest.raises(SkatMindResourceError):
         parse_request(load_example("opponent_statistics.json"))
 
     invalid = tmp_path / "invalid"
@@ -814,7 +814,7 @@ def test_missing_invalid_and_unresolvable_packaged_schemas_use_stable_errors(
     )
     monkeypatch.setattr(schema_validation_module, "_schema_resource_root", lambda: invalid)
     schema_validation_module._validator_for.cache_clear()
-    with pytest.raises(SkatAIInvariantError):
+    with pytest.raises(SkatMindInvariantError):
         parse_request(load_example("opponent_statistics.json"))
 
     unresolved = tmp_path / "unresolved"
@@ -831,7 +831,7 @@ def test_missing_invalid_and_unresolvable_packaged_schemas_use_stable_errors(
     )
     monkeypatch.setattr(schema_validation_module, "_schema_resource_root", lambda: unresolved)
     schema_validation_module._validator_for.cache_clear()
-    with pytest.raises(SkatAIResourceError, match="unavailable"):
+    with pytest.raises(SkatMindResourceError, match="unavailable"):
         parse_request(load_example("opponent_statistics.json"))
     schema_validation_module._validator_for.cache_clear()
 
@@ -875,7 +875,7 @@ def test_malformed_packaged_schema_resources_are_invariant_errors(
     )
     schema_validation_module._validator_for.cache_clear()
 
-    with pytest.raises(SkatAIInvariantError, match=match):
+    with pytest.raises(SkatMindInvariantError, match=match):
         parse_request(load_example("opponent_statistics.json"))
 
     schema_validation_module._validator_for.cache_clear()

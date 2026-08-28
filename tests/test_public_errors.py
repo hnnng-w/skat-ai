@@ -5,52 +5,52 @@ from types import SimpleNamespace
 import pytest
 
 import main as main_module
-from skat_ai.errors import (
+from skatmind.errors import (
     CLI_EXIT_CODE_FAILURE,
     CLI_EXIT_CODE_SUCCESS,
     CLI_EXIT_CODE_USAGE,
-    SkatAICliUsageError,
-    SkatAIDeprecationWarning,
-    SkatAIError,
-    SkatAIInformationPolicyError,
-    SkatAIInvariantError,
-    SkatAIResourceError,
-    SkatAISchemaError,
-    SkatAISerializationError,
-    SkatAIValidationError,
-    SkatAIWorkflowError,
+    SkatMindCliUsageError,
+    SkatMindDeprecationWarning,
+    SkatMindError,
+    SkatMindInformationPolicyError,
+    SkatMindInvariantError,
+    SkatMindResourceError,
+    SkatMindSchemaError,
+    SkatMindSerializationError,
+    SkatMindValidationError,
+    SkatMindWorkflowError,
 )
 
 ERROR_CODES = (
-    (SkatAIError, "skat_ai_error"),
-    (SkatAIValidationError, "validation_error"),
-    (SkatAIWorkflowError, "workflow_error"),
-    (SkatAIInformationPolicyError, "information_policy_error"),
-    (SkatAISchemaError, "schema_error"),
-    (SkatAISerializationError, "serialization_error"),
-    (SkatAIResourceError, "resource_error"),
-    (SkatAIInvariantError, "invariant_error"),
-    (SkatAICliUsageError, "cli_usage_error"),
+    (SkatMindError, "skatmind_error"),
+    (SkatMindValidationError, "validation_error"),
+    (SkatMindWorkflowError, "workflow_error"),
+    (SkatMindInformationPolicyError, "information_policy_error"),
+    (SkatMindSchemaError, "schema_error"),
+    (SkatMindSerializationError, "serialization_error"),
+    (SkatMindResourceError, "resource_error"),
+    (SkatMindInvariantError, "invariant_error"),
+    (SkatMindCliUsageError, "cli_usage_error"),
 )
 
 
 def test_public_error_hierarchy_preserves_builtin_catch_compatibility() -> None:
-    assert issubclass(SkatAIError, Exception)
-    assert issubclass(SkatAIValidationError, SkatAIError)
-    assert issubclass(SkatAIValidationError, ValueError)
-    assert issubclass(SkatAIWorkflowError, SkatAIValidationError)
-    assert issubclass(SkatAIInformationPolicyError, SkatAIValidationError)
-    assert issubclass(SkatAISchemaError, SkatAIValidationError)
-    assert issubclass(SkatAISerializationError, SkatAIError)
-    assert issubclass(SkatAISerializationError, ValueError)
-    assert not issubclass(SkatAISerializationError, SkatAIValidationError)
-    assert issubclass(SkatAIResourceError, SkatAIError)
-    assert issubclass(SkatAIResourceError, OSError)
-    assert issubclass(SkatAIInvariantError, SkatAIError)
-    assert issubclass(SkatAIInvariantError, RuntimeError)
-    assert issubclass(SkatAICliUsageError, SkatAIWorkflowError)
-    assert issubclass(SkatAICliUsageError, ValueError)
-    assert issubclass(SkatAIDeprecationWarning, DeprecationWarning)
+    assert issubclass(SkatMindError, Exception)
+    assert issubclass(SkatMindValidationError, SkatMindError)
+    assert issubclass(SkatMindValidationError, ValueError)
+    assert issubclass(SkatMindWorkflowError, SkatMindValidationError)
+    assert issubclass(SkatMindInformationPolicyError, SkatMindValidationError)
+    assert issubclass(SkatMindSchemaError, SkatMindValidationError)
+    assert issubclass(SkatMindSerializationError, SkatMindError)
+    assert issubclass(SkatMindSerializationError, ValueError)
+    assert not issubclass(SkatMindSerializationError, SkatMindValidationError)
+    assert issubclass(SkatMindResourceError, SkatMindError)
+    assert issubclass(SkatMindResourceError, OSError)
+    assert issubclass(SkatMindInvariantError, SkatMindError)
+    assert issubclass(SkatMindInvariantError, RuntimeError)
+    assert issubclass(SkatMindCliUsageError, SkatMindWorkflowError)
+    assert issubclass(SkatMindCliUsageError, ValueError)
+    assert issubclass(SkatMindDeprecationWarning, DeprecationWarning)
 
 
 @pytest.mark.parametrize(("error_type", "code"), ERROR_CODES)
@@ -70,7 +70,7 @@ def test_error_codes_and_serialization_are_stable(error_type: type, code: str) -
 
 
 def test_error_path_is_serialized_without_private_state() -> None:
-    error = SkatAISchemaError("Field is invalid.", path="document.records[0]")
+    error = SkatMindSchemaError("Field is invalid.", path="document.records[0]")
 
     assert error.to_dict() == {
         "code": "schema_error",
@@ -81,12 +81,12 @@ def test_error_path_is_serialized_without_private_state() -> None:
 
 
 def test_error_code_cannot_be_overridden_per_instance() -> None:
-    error = SkatAIValidationError("Invalid value.")
+    error = SkatMindValidationError("Invalid value.")
 
     with pytest.raises(AttributeError):
         error.code = "caller_override"
     with pytest.raises(TypeError):
-        SkatAIValidationError("Invalid value.", code="caller_override")
+        SkatMindValidationError("Invalid value.", code="caller_override")
     error.__dict__["code"] = "caller_override"
     assert error.code == "validation_error"
 
@@ -94,24 +94,24 @@ def test_error_code_cannot_be_overridden_per_instance() -> None:
 @pytest.mark.parametrize("message", ["", None, 1])
 def test_error_requires_a_non_empty_string_message(message: object) -> None:
     with pytest.raises(ValueError, match="message"):
-        SkatAIError(message)
+        SkatMindError(message)
 
 
 def test_error_path_must_be_a_string_or_none() -> None:
     with pytest.raises(ValueError, match="path"):
-        SkatAIError("Invalid.", path=1)
+        SkatMindError("Invalid.", path=1)
 
 
 def test_public_deprecation_category_emits_no_warning_yet() -> None:
     with warnings.catch_warnings(record=True) as caught:
         warnings.simplefilter("always")
-        SkatAIDeprecationWarning("Future warning category.")
+        SkatMindDeprecationWarning("Future warning category.")
 
     assert caught == []
 
 
 def test_legacy_cli_error_is_exact_public_alias() -> None:
-    assert main_module.CliUsageError is SkatAICliUsageError
+    assert main_module.CliUsageError is SkatMindCliUsageError
     assert str(main_module.CliUsageError("Same wording.")) == "Same wording."
 
 
@@ -130,7 +130,7 @@ def test_main_uses_usage_exit_constant_and_preserves_wording(monkeypatch, capsys
     monkeypatch.setattr(
         main_module,
         "load_json_object",
-        lambda _path: (_ for _ in ()).throw(SkatAICliUsageError("Invalid invocation.")),
+        lambda _path: (_ for _ in ()).throw(SkatMindCliUsageError("Invalid invocation.")),
     )
 
     assert main_module.main() == CLI_EXIT_CODE_USAGE

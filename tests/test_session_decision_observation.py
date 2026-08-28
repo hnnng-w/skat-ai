@@ -11,15 +11,15 @@ from test_session_transitions import (
     _retrospective_before_play,
 )
 
-import skat_ai.session_decision_observation as observation_module
-from skat_ai.session_commands import (
+import skatmind.session_decision_observation as observation_module
+from skatmind.session_commands import (
     RecordSessionDealtCardCommandV1,
     RecordSessionPlayCommandV1,
     SetSessionGameEndCommandV1,
     SetSessionGameMetadataCommandV1,
 )
-from skat_ai.session_decision_checkpoint import build_session_decision_checkpoint_v1
-from skat_ai.session_decision_observation import (
+from skatmind.session_decision_checkpoint import build_session_decision_checkpoint_v1
+from skatmind.session_decision_observation import (
     SESSION_DECISION_OBSERVATION_POLICY,
     SESSION_DECISION_OBSERVATION_REASON_CODES,
     SESSION_DECISION_OBSERVATION_STATUSES,
@@ -27,12 +27,12 @@ from skat_ai.session_decision_observation import (
     SessionDecisionObservationV1,
     observe_session_decision_checkpoint_v1,
 )
-from skat_ai.session_history import (
+from skatmind.session_history import (
     build_session_state_from_accepted_prefix_v1,
     correct_session_command_v1,
 )
-from skat_ai.session_history_contracts import SessionCommandCorrectionV1
-from skat_ai.session_position_export import export_session_position_analysis_request_v1
+from skatmind.session_history_contracts import SessionCommandCorrectionV1
+from skatmind.session_position_export import export_session_position_analysis_request_v1
 
 
 def _observed():

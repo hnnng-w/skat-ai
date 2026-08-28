@@ -21,7 +21,7 @@ version `1`, JSON Schema versions, and Domain contract versions.
 
 ## Public identity
 
-The stable `skat_ai.api.v1` namespace exports:
+The stable `skatmind.api.v1` namespace exports:
 
 ```text
 PUBLIC_FIELD_PROVENANCE_VERSION
@@ -191,7 +191,7 @@ unchanged in field structure.
 import json
 from pathlib import Path
 
-from skat_ai.api.v1 import ExecutionOptionsV1, execute_document, serialize_result
+from skatmind.api.v1 import ExecutionOptionsV1, execute_document, serialize_result
 
 document = json.loads(Path("examples/opponent_statistics.json").read_text())
 result = execute_document(
@@ -231,8 +231,8 @@ and actual artifacts through the registered schemas by default.
 All three CLI forms accept the same opt-in flag:
 
 ```powershell
-skat-ai --input examples/opponent_statistics.json --include-provenance --output outputs/statistics.json
-python -m skat_ai --input examples/opponent_statistics.json --include-provenance --output outputs/statistics.json
+skatmind --input examples/opponent_statistics.json --include-provenance --output outputs/statistics.json
+python -m skatmind --input examples/opponent_statistics.json --include-provenance --output outputs/statistics.json
 python main.py --input examples/opponent_statistics.json --include-provenance --output outputs/statistics.json
 ```
 
@@ -254,14 +254,14 @@ confirmations while retaining `field_provenance` in JSON written with
 `--output`:
 
 ```powershell
-skat-ai --input examples/opponent_statistics.json --include-provenance --output outputs/statistics.json --quiet
+skatmind --input examples/opponent_statistics.json --include-provenance --output outputs/statistics.json --quiet
 ```
 
 Historical Opponent Statistics aggregation can include Result and actual export
 artifact provenance together:
 
 ```powershell
-skat-ai --input examples/training_dataset_variable_length.json --aggregate-opponent-statistics --export-opponent-statistics outputs/opponent-statistics.json --include-provenance --output outputs/aggregation.json --quiet
+skatmind --input examples/training_dataset_variable_length.json --aggregate-opponent-statistics --export-opponent-statistics outputs/opponent-statistics.json --include-provenance --output outputs/aggregation.json --quiet
 ```
 
 The `aggregation.json` sidecar maps the actual export artifact. The separate
@@ -298,11 +298,11 @@ Root Result sidecar on their Position or Historical output.
 
 ## Session distinction
 
-`skat_ai.api.v1.session` has its own default-omitted complete returned-value
+`skatmind.api.v1.session` has its own default-omitted complete returned-value
 provenance and standalone Schema. Its appended `observe_checkpoint` and
 `export_checkpoint_review` operations preserve the frozen decision-time Request
 and classify the actual Card as `retrospective_attachment`. The stable
-`skat_ai.api.v1.session.files` Save/Load Result has no provenance option and
+`skatmind.api.v1.session.files` Save/Load Result has no provenance option and
 retains no path.
 
 The Session CLI `--include-provenance` applies to public Session operation JSON

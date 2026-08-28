@@ -12,15 +12,15 @@ from pathlib import Path
 import pytest
 
 import scripts.benchmark_information_set_search as benchmark
-import skat_ai
-import skat_ai.api.v1 as api_v1
+import skatmind
+import skatmind.api.v1 as api_v1
 from scripts.validate_generated_outputs_schema import SCENARIOS
-from skat_ai.api.v1 import WorkflowV1
-from skat_ai.bounded_search_information import (
+from skatmind.api.v1 import WorkflowV1
+from skatmind.bounded_search_information import (
     LIVE_LOCAL_VIEW_SOURCE,
     get_remaining_search_trick_count,
 )
-from skat_ai.information_set_search_contracts import (
+from skatmind.information_set_search_contracts import (
     INFORMATION_SET_SEARCH_BUDGET_VERSION,
     INFORMATION_SET_SEARCH_OBSERVATION_VERSION,
     INFORMATION_SET_SEARCH_POLICY_SETTINGS_VERSION,
@@ -29,8 +29,8 @@ from skat_ai.information_set_search_contracts import (
     INFORMATION_SET_SEARCH_RESULT_VERSION,
     INFORMATION_SET_SEARCH_WORLD_STATE_VERSION,
 )
-from skat_ai.search_budget_profiles import SEARCH_BUDGET_PROFILE_IDENTIFIERS
-from skat_ai.settlement_normative_matrix import (
+from skatmind.search_budget_profiles import SEARCH_BUDGET_PROFILE_IDENTIFIERS
+from skatmind.settlement_normative_matrix import (
     SETTLEMENT_NORMATIVE_MATRIX_VERSION,
     get_normative_settlement_cases,
 )
@@ -599,10 +599,10 @@ def test_runner_stage_summaries_use_patchable_performance_clock(
 def test_runner_freezes_operational_timeouts_without_changing_profiles(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    import skat_ai.compatible_world_minimax as compatible_world_minimax
-    import skat_ai.information_set_search_executor as information_set_search_executor
-    import skat_ai.perfect_information_minimax as perfect_information_minimax
-    from skat_ai.search_budget_profiles import get_information_set_search_budget_profile
+    import skatmind.compatible_world_minimax as compatible_world_minimax
+    import skatmind.information_set_search_executor as information_set_search_executor
+    import skatmind.perfect_information_minimax as perfect_information_minimax
+    from skatmind.search_budget_profiles import get_information_set_search_budget_profile
 
     def unexpected_operational_clock() -> float:
         raise AssertionError("Benchmark execution used a production timeout clock.")
@@ -645,14 +645,15 @@ def test_runner_has_no_latency_threshold_percentile_or_sleep() -> None:
     assert "latency_threshold" not in source.lower()
 
 
-def test_existing_pimc_benchmark_bytes_and_behavioral_entry_remain_unchanged() -> None:
+def test_existing_pimc_benchmark_corpus_and_renamed_runner_entry_are_exact() -> None:
     assert hashlib.sha256(OLD_CORPUS_PATH.read_bytes()).hexdigest().upper() == (
         "7A76152CDC2BA36BD4BBB1FDD29CEBA30D760A97D410EA9B4E61122ABD2D700D"
     )
     assert hashlib.sha256(OLD_SCRIPT_PATH.read_bytes()).hexdigest().upper() == (
-        "F0C273CB8D473062A17AF1157FF81B719CC9442DB8FA8F364C591BDBD725A0AB"
+        "3E1FB236AAE0C37BD8F057A501DCC2C5DCC2C414DA2C83823C1A029418E3501E"
     )
     old_source = OLD_SCRIPT_PATH.read_text(encoding="utf-8")
+    assert "from skatmind.search_budget_profiles import" in old_source
     assert '"bounded_search_compatible_world_performance_v1"' in old_source
     assert 'parser.add_argument("--corpus"' in old_source
     assert 'parser.add_argument("--warmup-runs"' in old_source
@@ -674,11 +675,11 @@ def test_benchmark_privacy_import_and_packaging_boundaries_are_private() -> None
         )
     )
     forbidden_fragments = (
-        "skat_ai.api",
-        "skat_ai.cli",
-        "skat_ai.match",
-        "skat_ai.capture",
-        "skat_ai.corpus",
+        "skatmind.api",
+        "skatmind.cli",
+        "skatmind.match",
+        "skatmind.capture",
+        "skatmind.corpus",
     )
     assert not any(
         fragment in imported for fragment in forbidden_fragments for imported in imports
@@ -714,16 +715,16 @@ def test_benchmark_privacy_import_and_packaging_boundaries_are_private() -> None
         for patterns in package_data.values()
         for pattern in patterns
     )
-    assert pyproject["project"]["scripts"] == {"skat-ai": "skat_ai.cli:main"}
+    assert pyproject["project"]["scripts"] == {"skatmind": "skatmind.cli:main"}
 
 
 def test_package_public_artifact_and_changelog_baselines_are_unchanged() -> None:
     pyproject = tomllib.loads((PROJECT_ROOT / "pyproject.toml").read_text(encoding="utf-8"))
     project = pyproject["project"]
 
-    assert project["version"] == skat_ai.__version__ == "0.17.0"
+    assert project["version"] == skatmind.__version__ == "0.17.0"
     assert project["requires-python"] == ">=3.13"
-    assert project["scripts"] == {"skat-ai": "skat_ai.cli:main"}
+    assert project["scripts"] == {"skatmind": "skatmind.cli:main"}
     assert api_v1.PUBLIC_API_CONTRACT_VERSION == 1
     assert len(WorkflowV1) == 7
     assert not any("BENCHMARK" in name for name in api_v1.__all__)
@@ -733,7 +734,7 @@ def test_package_public_artifact_and_changelog_baselines_are_unchanged() -> None
     assert (
         len(
             tuple(
-                (PROJECT_ROOT / "src" / "skat_ai" / "schema_resources").glob(
+                (PROJECT_ROOT / "src" / "skatmind" / "schema_resources").glob(
                     "*.schema.json"
                 )
             )

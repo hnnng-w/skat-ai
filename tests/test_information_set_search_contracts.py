@@ -6,20 +6,20 @@ from pathlib import Path
 
 import pytest
 
-import skat_ai
-import skat_ai.api.v1 as api_v1
+import skatmind
+import skatmind.api.v1 as api_v1
 from scripts.validate_generated_outputs_schema import SCENARIOS
-from skat_ai.api.v1 import WorkflowV1
-from skat_ai.bounded_search_result import (
+from skatmind.api.v1 import WorkflowV1
+from skatmind.bounded_search_result import (
     BOUNDED_SEARCH_METHODS,
     BOUNDED_SEARCH_STATUSES,
     BOUNDED_SEARCH_STOP_REASONS,
     AggregateSearchCandidateResult,
     rank_search_candidate_results,
 )
-from skat_ai.deck import get_full_deck
-from skat_ai.game_declaration import GameDeclaration
-from skat_ai.information_set_search_contracts import (
+from skatmind.deck import get_full_deck
+from skatmind.game_declaration import GameDeclaration
+from skatmind.information_set_search_contracts import (
     BOUNDED_INFORMATION_SET_POLICY_SEARCH_METHOD,
     INFORMATION_SET_SEARCH_BUDGET_VERSION,
     INFORMATION_SET_SEARCH_CLAIM_POLICY,
@@ -340,7 +340,7 @@ def test_existing_search_contracts_and_ranking_are_unchanged() -> None:
 
 def test_new_modules_have_no_solver_public_transport_or_io_imports() -> None:
     module_paths = tuple(
-        PROJECT_ROOT / "src" / "skat_ai" / name
+        PROJECT_ROOT / "src" / "skatmind" / name
         for name in (
             "information_set_search_contracts.py",
             "information_set_search_state.py",
@@ -429,11 +429,11 @@ def test_public_package_schema_example_and_scenario_baselines_are_unchanged() ->
         "InformationSetSearchResultV1",
     }
     assert private_names.isdisjoint(api_v1.__all__)
-    assert skat_ai.__all__ == ("api", "errors", "__version__")
+    assert skatmind.__all__ == ("api", "errors", "__version__")
     assert len(WorkflowV1) == 7
     assert len(tuple((PROJECT_ROOT / "schemas").glob("*.schema.json"))) == 71
     assert (
-        len(tuple((PROJECT_ROOT / "src" / "skat_ai" / "schema_resources").glob("*.schema.json")))
+        len(tuple((PROJECT_ROOT / "src" / "skatmind" / "schema_resources").glob("*.schema.json")))
         == 71
     )
     assert len(tuple((PROJECT_ROOT / "examples").glob("session_*.json"))) == 6
@@ -441,6 +441,6 @@ def test_public_package_schema_example_and_scenario_baselines_are_unchanged() ->
     project = tomllib.loads((PROJECT_ROOT / "pyproject.toml").read_text(encoding="utf-8"))[
         "project"
     ]
-    assert project["version"] == skat_ai.__version__ == "0.17.0"
+    assert project["version"] == skatmind.__version__ == "0.17.0"
     assert project["requires-python"] == ">=3.13"
-    assert project["scripts"] == {"skat-ai": "skat_ai.cli:main"}
+    assert project["scripts"] == {"skatmind": "skatmind.cli:main"}

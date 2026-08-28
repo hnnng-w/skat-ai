@@ -4,8 +4,8 @@ from pathlib import Path
 
 import pytest
 
-from skat_ai.corpus_web.contracts import LEARNING_CORPUS_WEB_MAX_REQUEST_BYTES
-from skat_ai.corpus_web.uploads import (
+from skatmind.corpus_web.contracts import LEARNING_CORPUS_WEB_MAX_REQUEST_BYTES
+from skatmind.corpus_web.uploads import (
     decode_learning_corpus_uploaded_json_v1,
     parse_learning_corpus_multipart_upload_v1,
 )
@@ -15,7 +15,7 @@ def _multipart(
     fields: tuple[tuple[str, str], ...],
     files: tuple[tuple[str, str, bytes, str], ...],
     *,
-    boundary: str = "skat-ai-boundary",
+    boundary: str = "skatmind-boundary",
 ) -> tuple[bytes, str]:
     parts: list[bytes] = []
     for name, value in fields:
@@ -67,7 +67,7 @@ def test_strict_multipart_parses_one_file_ignores_filename_and_cleans_temp() -> 
 
 
 def test_multipart_ignores_non_ascii_filename_and_boundary_token_in_json() -> None:
-    content = b'{"value":"--skat-ai-boundary"}'
+    content = b'{"value":"--skatmind-boundary"}'
     body, content_type = _multipart(
         (("operation", "import_match_workspace"),),
         (("workspace_file", "Übung.json", content, "application/json"),),

@@ -6,9 +6,9 @@ import pytest
 from jsonschema import Draft202012Validator
 from referencing import Registry, Resource
 
-from skat_ai.api.v1 import ExecutionOptionsV1, execute_document
-from skat_ai.application.contracts import PositionAnalysisApplicationOptions
-from skat_ai.application.position_workflow import build_position_analysis_result
+from skatmind.api.v1 import ExecutionOptionsV1, execute_document
+from skatmind.application.contracts import PositionAnalysisApplicationOptions
+from skatmind.application.position_workflow import build_position_analysis_result
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 SCHEMAS_DIR = PROJECT_ROOT / "schemas"

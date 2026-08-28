@@ -2,17 +2,17 @@ import random
 
 import pytest
 
-import skat_ai.multi_step_simulation as multi_step_module
-import skat_ai.opponent_lead as opponent_lead_module
-from skat_ai.card_tracking import get_unseen_cards
-from skat_ai.coherent_hidden_world import CoherentHiddenWorld
-from skat_ai.game_declaration import GameDeclaration
-from skat_ai.game_state import GameState
-from skat_ai.multi_step_simulation import simulate_multiple_steps
-from skat_ai.opponent_sequence import get_unsupported_turn_phase_reason
-from skat_ai.policy_comparison import compare_multi_step_policies
-from skat_ai.public_hand_constraint import PublicHandConstraint
-from skat_ai.side_ownership import get_player_side
+import skatmind.multi_step_simulation as multi_step_module
+import skatmind.opponent_lead as opponent_lead_module
+from skatmind.card_tracking import get_unseen_cards
+from skatmind.coherent_hidden_world import CoherentHiddenWorld
+from skatmind.game_declaration import GameDeclaration
+from skatmind.game_state import GameState
+from skatmind.multi_step_simulation import simulate_multiple_steps
+from skatmind.opponent_sequence import get_unsupported_turn_phase_reason
+from skatmind.policy_comparison import compare_multi_step_policies
+from skatmind.public_hand_constraint import PublicHandConstraint
+from skatmind.side_ownership import get_player_side
 
 
 def _world(

@@ -1,6 +1,6 @@
 import pytest
 
-from skat_ai.post_game_review import (
+from skatmind.post_game_review import (
     ACCEPTABLE_DECISION_QUALITY,
     MISTAKE_DECISION_QUALITY,
     NOT_AVAILABLE_DECISION_QUALITY,

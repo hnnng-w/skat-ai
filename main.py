@@ -1,13 +1,13 @@
 """Legacy repository CLI compatibility facade.
 
-The canonical implementation is package-owned under :mod:`skat_ai.cli`.
+The canonical implementation is package-owned under :mod:`skatmind.cli`.
 """
 
 import sys
 from functools import wraps
 
-from skat_ai.cli import execution as _cli
-from skat_ai.cli.execution import *  # noqa: F403
+from skatmind.cli import execution as _cli
+from skatmind.cli.execution import *  # noqa: F403
 
 _LEGACY_PATCH_POINT_FUNCTIONS = _cli._LEGACY_PATCH_POINT_FUNCTIONS
 _format_list_player_identity = _cli._format_list_player_identity

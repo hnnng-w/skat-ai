@@ -9,7 +9,7 @@ from test_match_workspace_contracts import (
     _set_game,
 )
 
-from skat_ai.learning_corpus_catalog import (
+from skatmind.learning_corpus_catalog import (
     LEARNING_CORPUS_CATALOG_VERSION,
     LEARNING_CORPUS_MATCH_SNAPSHOT_RELATIONS,
     LEARNING_CORPUS_SNAPSHOT_CLASSIFICATION_VERSION,
@@ -22,7 +22,7 @@ from skat_ai.learning_corpus_catalog import (
     build_learning_corpus_match_snapshot_catalog_entry_v1,
     classify_learning_corpus_match_snapshot_v1,
 )
-from skat_ai.learning_corpus_identity import (
+from skatmind.learning_corpus_identity import (
     LEARNING_CORPUS_CURRENT_SELECTION_POLICY,
     LEARNING_CORPUS_DUPLICATE_POLICY,
     LEARNING_CORPUS_IDENTITY_POLICY,
@@ -37,12 +37,12 @@ from skat_ai.learning_corpus_identity import (
     LEARNING_CORPUS_SOURCE_OF_TRUTH_POLICY,
     build_learning_corpus_canonical_json_bytes_v1,
 )
-from skat_ai.learning_corpus_match_snapshot import (
+from skatmind.learning_corpus_match_snapshot import (
     LEARNING_CORPUS_MATCH_SNAPSHOT_VERSION,
     LearningCorpusMatchSnapshotV1,
     build_learning_corpus_match_snapshot_v1,
 )
-from skat_ai.learning_corpus_references import (
+from skatmind.learning_corpus_references import (
     LEARNING_CORPUS_REFERENCE_VERSION,
     LearningCorpusCommentaryReferenceV1,
     LearningCorpusDecisionReferenceV1,
@@ -51,8 +51,8 @@ from skat_ai.learning_corpus_references import (
     LearningCorpusResponseReferenceV1,
     build_learning_corpus_game_content_fingerprint_v1,
 )
-from skat_ai.match_workspace_contracts import create_match_workspace_v1
-from skat_ai.match_workspace_persistence_codec import (
+from skatmind.match_workspace_contracts import create_match_workspace_v1
+from skatmind.match_workspace_persistence_codec import (
     build_match_workspace_persistence_document_v1,
 )
 
@@ -261,7 +261,7 @@ def test_all_seven_hash_domains_match_independent_oracles() -> None:
         "workspace": workspace.to_dict(),
     }
     assert snapshot.match_snapshot_id == _hash(
-        b"skat-ai\0learning_corpus_match_snapshot_v1\0",
+        b"skatmind\0learning_corpus_match_snapshot_v1\0",
         snapshot_material,
     )
 
@@ -269,13 +269,13 @@ def test_all_seven_hash_domains_match_independent_oracles() -> None:
     player_material = player.to_dict()
     del player_material["player_observation_id"]
     assert player.player_observation_id == _hash(
-        b"skat-ai\0learning_corpus_player_observation_v1\0",
+        b"skatmind\0learning_corpus_player_observation_v1\0",
         player_material,
     )
 
     game_reference = snapshot.game_references[0]
     assert game_reference.game_content_fingerprint == _hash(
-        b"skat-ai\0learning_corpus_game_content_v1\0",
+        b"skatmind\0learning_corpus_game_content_v1\0",
         game.to_dict(),
     )
     assert build_learning_corpus_game_content_fingerprint_v1(game) == (
@@ -290,7 +290,7 @@ def test_all_seven_hash_domains_match_independent_oracles() -> None:
         "game_id": game_reference.game_id,
     }
     assert game_reference.game_reference_id == _hash(
-        b"skat-ai\0learning_corpus_game_reference_v1\0",
+        b"skatmind\0learning_corpus_game_reference_v1\0",
         game_material,
     )
 
@@ -298,7 +298,7 @@ def test_all_seven_hash_domains_match_independent_oracles() -> None:
     decision_material = decision.to_dict()
     del decision_material["decision_reference_id"]
     assert decision.decision_reference_id == _hash(
-        b"skat-ai\0learning_corpus_decision_reference_v1\0",
+        b"skatmind\0learning_corpus_decision_reference_v1\0",
         decision_material,
     )
 
@@ -306,7 +306,7 @@ def test_all_seven_hash_domains_match_independent_oracles() -> None:
     commentary_material = commentary.to_dict()
     del commentary_material["commentary_reference_id"]
     assert commentary.commentary_reference_id == _hash(
-        b"skat-ai\0learning_corpus_commentary_reference_v1\0",
+        b"skatmind\0learning_corpus_commentary_reference_v1\0",
         commentary_material,
     )
 
@@ -314,7 +314,7 @@ def test_all_seven_hash_domains_match_independent_oracles() -> None:
     response_material = response.to_dict()
     del response_material["response_reference_id"]
     assert response.response_reference_id == _hash(
-        b"skat-ai\0learning_corpus_response_reference_v1\0",
+        b"skatmind\0learning_corpus_response_reference_v1\0",
         response_material,
     )
 

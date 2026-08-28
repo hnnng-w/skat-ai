@@ -368,8 +368,8 @@ as artifact identity. They follow the existing ASCII-safe filename contract:
 ```
 
 The Evidence document kind is
-`skat_ai_learning_corpus_tactical_motif_evidence`. The Summary document kind is
-`skat_ai_learning_corpus_tactical_motif_cross_game_summary`. Both are path-free,
+`skatmind_learning_corpus_tactical_motif_evidence`. The Summary document kind is
+`skatmind_learning_corpus_tactical_motif_cross_game_summary`. Both are path-free,
 finite UTF-8 JSON with ASCII escaping, two-space indentation, LF line endings,
 and exactly one trailing LF. Routes require the existing authenticated cookie
 and valid loopback Host and expose no server path or query option.
