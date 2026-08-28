@@ -352,10 +352,10 @@ through Windows PowerShell 5.1 and on Ubuntu through the dedicated GitHub Action
 job. Package metadata remains `>=3.13`, but no Python 3.14, macOS, hardware,
 named-browser, or cross-machine latency matrix is claimed. Issue #206 reconciles
 both direct Production imports with exact lower bounds and implements all-seven-
-workflow source/Editable/Wheel/sdist evidence. P-34 and B-05 closure remains
-conditional on the local Windows matrix and full check plus green merged Ubuntu
-`check` and `v1-supported-platform-matrix` jobs. Issue #204 intentionally changed
-no dependency; Issue #206 owns the later metadata correction.
+workflow source/Editable/Wheel/sdist evidence. P-34 is `satisfied`, and B-05 is
+closed after the local Windows matrix/full check and merged Ubuntu `check` and
+`v1-supported-platform-matrix` jobs pass. Issue #204 intentionally changed no
+dependency; Issue #206 owns the later metadata correction.
 
 Issue #142 added the installed `skat-ai` command and `python -m skat_ai` without a
 public schema-resource API, new workflow, Root-output metadata, Provenance field,

@@ -702,6 +702,42 @@
                             "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
                         },
                         {
+                            "path":  "docs/v1_0_final_technical_release_readiness_audit.md",
+                            "line":  67,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "389a272c069f17a84fd48f1a0d0997ababe8253161c772faeeacf3b2d892c131",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "docs/v1_0_final_technical_release_readiness_audit.md",
+                            "line":  67,
+                            "token":  "underscore_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "389a272c069f17a84fd48f1a0d0997ababe8253161c772faeeacf3b2d892c131",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "docs/v1_0_final_technical_release_readiness_audit.md",
+                            "line":  68,
+                            "token":  "hyphenated_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "608dfd81aa3a543fbe6d0833460c73ddbea989fd99c8c1732ab0ece3982c632e",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
+                            "path":  "docs/v1_0_final_technical_release_readiness_audit.md",
+                            "line":  68,
+                            "token":  "underscore_identity",
+                            "count":  1,
+                            "classification":  "historical_evidence",
+                            "line_sha256":  "608dfd81aa3a543fbe6d0833460c73ddbea989fd99c8c1732ab0ece3982c632e",
+                            "reason":  "Reviewed published, point-in-time, migration, or frozen deterministic-protocol evidence retained verbatim."
+                        },
+                        {
                             "path":  "docs/v1_package_license.md",
                             "line":  152,
                             "token":  "hyphenated_identity",

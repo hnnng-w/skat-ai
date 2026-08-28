@@ -213,11 +213,11 @@ direct dependency floors and the installation/platform matrix, so the technical
 `satisfied_with_approved_bounded_scope`, 0 `evidence_required`, 0
 `implementation_required`, and 0 `product_decision_required`.
 
-Issue #206 formal closure remains conditional on green merged Ubuntu `check` and
-`v1-supported-platform-matrix` jobs. After that condition, the remaining blockers
-are B-06, B-07, and B-09; B-09 remains outside the 53-row ledger. The exact next
-action is Issue #207, **Perform the final technical v1.0.0 release-readiness
-audit**. The rename itself changed product identity, packaging, migration, and
-presentation only; Issue #206 owns the later dependency metadata change. Neither
-Issue changes Skat rules, Search, Recommendation, Settlement, Coaching, Tactical,
-Dataset, list, Statistics, security, build backend, license, or Package version.
+Issue #206 closes B-05 after green merged Ubuntu `check` and
+`v1-supported-platform-matrix` jobs. Issue #207 closes B-06 without a material
+technical blocker. The remaining blockers are B-09 and B-07; B-09 remains outside
+the 53-row ledger. Issue #208 maintainer UAT is the exact next action. The rename
+itself changed product identity, packaging, migration, and presentation only;
+Issue #206 owns the later dependency metadata change. Neither Issue changes Skat
+rules, Search, Recommendation, Settlement, Coaching, Tactical, Dataset, list,
+Statistics, security, build backend, license, or Package version.

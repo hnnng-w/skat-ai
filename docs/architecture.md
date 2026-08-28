@@ -149,9 +149,9 @@ Package/import/CLI/resource/Schema/identifier migration, strict legacy input-onl
 compatibility, and reviewed historical-evidence boundary. P-09 is `satisfied`
 and B-08 is closed. Issue #206 adds exact direct dependency floors and a reusable
 validation-only source/Editable/Wheel/sdist supported-platform matrix. P-34 is
-prepared as `satisfied` and B-05 is technically closed, conditional on both
-merged Ubuntu jobs passing. B-06, B-07, and B-09 remain; B-09 is outside the
-53-row ledger. Issue #207 is the exact next action after that CI condition.
+`satisfied`, and B-05 is closed after both merged Ubuntu jobs pass. Issue #207
+finds no material technical blocker and closes B-06. B-09 and B-07 remain; B-09
+is outside the 53-row ledger, and Issue #208 maintainer UAT is the next action.
 
 Issues #160 through #168 form the published `v0.15.0` Package baseline, and Issue
 #169 updated only Package/release metadata and documentation to complete Release
@@ -224,11 +224,12 @@ The position-analysis flow is:
 The alternative historical-game flow loads `historical_game_input`, builds a
 stable-ID record, and strictly replays either ten normal-completion tricks or an
 exact legal prefix ending in a versioned declarer-concession, defender-concession,
-unanimously accepted declarer-card-exposure, terminal defender-open-play, or
-open-card-throw event. Normal completion may contain at most one separate timed non-terminal
-defender-open-play or declarer-card-exposure continuation event. It derives
-points and ownership, reuses the declaration/value/overbid/settlement helpers,
-and emits `historical_game_summary`.
+unanimously accepted declarer-card-exposure, terminal defender-open-play, open-
+card-throw, or party-wide all-remaining-Tricks Claim event. Normal completion
+or one supported terminal shortening may follow at most one separate timed non-
+terminal defender-open-play or declarer-card-exposure continuation event. It
+derives points and ownership, reuses the declaration/value/overbid/settlement
+helpers, and emits `historical_game_summary`.
 A ready Retrospective Session can now construct that existing Root input through
 the internal Issue #152 exporter. Historical workflow execution remains a
 separate explicit API, Application, or CLI action. Issue #157 `session finalize`
@@ -321,9 +322,9 @@ to aggregate exact per-player role, result, Hand, and contract counts. It then
 reuses opponent-statistics normalization and profile derivation and can serialize
 a standalone `opponent_statistics_input`. It does not generate samples or run
 recommendation, review, policy application, quality evaluation, or training.
-Normal-completion, declarer-concession, defender-concession, declarer-card-exposure,
-defender-open-play, and open-card-throw records are explicitly supported and
-each contributes one game regardless of play count.
+Normal-completion, declarer-concession, defender-concession, declarer-card-
+exposure, defender-open-play, open-card-throw, and party-wide-Claim records are
+explicitly supported and each contributes one game regardless of play count.
 
 The rolling opponent-policy evaluation is explicitly a known-opponent flow. It
 selects disjoint source and target partitions, reports membership overlap,

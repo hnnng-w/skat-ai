@@ -344,11 +344,10 @@ with B-09 outside the 53-row ledger. Issue #205 subsequently completes the
 SkatMind Package, import, CLI, resource, Schema, identifier, and strict legacy
 persisted-input migration boundary, makes P-09 `satisfied`, and closes B-08.
 Issue #206 adds exact direct dependency floors and the validation-only source/
-Editable/Wheel/sdist Windows/Ubuntu matrix, makes P-34 `satisfied`, and
-technically closes B-05. Formal closure remains conditional on both merged Ubuntu
-jobs passing. B-06, B-07, and B-09 remain. The milestone remains not ready, and
-Issue #207, **Perform the final technical v1.0.0 release-readiness audit**, is
-next after that condition.
+Editable/Wheel/sdist Windows/Ubuntu matrix, makes P-34 `satisfied`, and closes
+B-05 after both merged Ubuntu jobs pass. Issue #207 finds no material technical
+blocker and closes B-06. B-09 and B-07 remain. The milestone remains not ready,
+and Issue #208, **Perform maintainer v1.0.0 user acceptance testing**, is next.
 
 The November 2022 ISkO and SkWO publication is the normative source for official
 rules and competition behavior. Product capabilities such as simulation,
@@ -652,9 +651,9 @@ For the table below, Issue #193 supersedes older broad wording that says
 Information-set Search performance evidence remains open. Repository-local
 benchmark evidence implements the bounded v0.17.0 performance contract.
 Issue #200 accepts deterministic functional and structural work as the bounded v1
-performance contract. Issue #206 implements final Windows and Ubuntu candidate
-evidence; formal closure remains conditional on green merged Ubuntu CI. Cross-
-machine latency guarantees are not required.
+performance contract. Issue #206 completes final Windows and Ubuntu candidate
+evidence and closes B-05 after green merged Ubuntu CI. Cross-machine latency
+guarantees are not required.
 
 Issue #200 supersedes any pre-audit completion-row wording below that calls an
 accepted bounded limitation open before v1. Bounded solver, Claim, Settlement,
@@ -750,9 +749,9 @@ diagnostics without fallback, and reuses one retained Review; private Match
 Historical controls use one Application invocation and time-safe fixed Policies.
 Issue #193 adds repository-local benchmark evidence for the unchanged executor
 and satisfies the bounded v0.17.0 performance-evidence contract. Issue #200
-accepts the deterministic functional/structural contract for v1. Final Windows
-and Ubuntu candidate evidence remains required; latency guarantees are not a v1
-gate and do not retroactively block the published v0.17.0 Release.
+accepts the deterministic functional/structural contract for v1. Issue #206
+completes the final Windows and Ubuntu candidate evidence; latency guarantees are
+not a v1 gate and do not retroactively block the published v0.17.0 Release.
 See
 [Match Information-set Search and Strategy Teacher Evidence](match_information_set_search_and_strategy_teacher.md)
 and [Information-set Replay Coaching and Match Historical analysis](information_set_replay_coaching_and_match_historical_analysis.md),
@@ -936,13 +935,12 @@ See [Learning Corpus Tactical Cross-game Coaching](learning_corpus_tactical_cros
 
 ## Release decision rule
 
-The authoritative current status ledger, accepted limitations, closed B-01
-through B-05 and B-08, remaining B-06, B-07, and B-09 blockers, and the ordered
-#207 through #208 plan are in the
-[v1.0 scope and traceability audit](v1_0_scope_and_traceability_audit.md).
+The authoritative current technical conclusion, accepted limitations, closed
+B-01 through B-06 and B-08, remaining B-09 and B-07 blockers, and exact next
+action are in the [final technical Release-readiness audit](v1_0_final_technical_release_readiness_audit.md).
 
-B-05 closure is effective only after the local Windows evidence and both merged
-Ubuntu jobs pass. Until then Issue #206 remains open and #207 does not begin.
+Issue #208 maintainer UAT is next after the Issue #207 documentation is merged
+and its required CI is green. Package `1.0.0` preparation remains blocked.
 
 `v1.0.0` is not ready while any required gate lacks evidence, any validation or
 test listed for a v1.0-required traceability row remains incomplete, any such

@@ -186,17 +186,17 @@ B-05:
     closed by Issue #206
 ```
 
-That closure becomes effective only when all three conditions hold on the exact
+That closure is effective because all three conditions hold on the exact
 candidate history:
 
 1. The local Windows matrix and final full check pass.
 2. The merged Ubuntu `check` job passes.
 3. The merged Ubuntu `v1-supported-platform-matrix` job passes.
 
-Until both merged Ubuntu jobs are green, Issue #206 remains open and the
-maintainer must not claim completed Ubuntu evidence. After those conditions, the
-53 required rows are 19 `satisfied`, 34
+The local Windows evidence and both merged Ubuntu jobs passed on exact commit
+`af9de1a63ed23b84cc758d0d0504a3c72073dbb0`; GitHub Actions run `33182864852`
+contains the green `check` and `v1-supported-platform-matrix` jobs. The 53
+required rows are therefore 19 `satisfied`, 34
 `satisfied_with_approved_bounded_scope`, and zero in each remaining required-row
-status. The remaining blockers are B-06, B-07, and B-09, with B-09 outside the
-53-row ledger. The exact next Issue is #207, **Perform the final technical
-v1.0.0 release-readiness audit**.
+status. Issue #207 closes B-06 without a material technical blocker. B-09 and
+B-07 remain, and Issue #208 maintainer UAT is the exact next action.

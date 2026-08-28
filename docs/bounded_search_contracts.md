@@ -749,7 +749,7 @@ Policy Comparison, one-Decision Match analysis, Match Historical execution, and
 separate Information-set Replay Coaching are integrated only for the bounded
 strict behavior above. Performance integration, cross-decision global Policy,
 equilibrium, global optimality, and calibrated probabilities remain absent. The
-stronger-search v1.0 completion gate therefore remains open.
+bounded Search v1 gate is satisfied; broader Search remains post-v1 work.
 
 See [Information-set Search contracts](information_set_search_contracts.md) and
 the [Information-set Search executor](information_set_search_executor.md) for

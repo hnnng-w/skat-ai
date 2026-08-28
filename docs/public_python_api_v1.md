@@ -271,7 +271,7 @@ Provenance-enabled Root output is validated through the strict referenced
 file API mappings, Decision Observations, review exports, and final Session
 Results use lazy standalone `session.schema.json` validation through the same
 local-only Package Resource registry. The repository and packaged mirrors
-contain 63 active Schema resources.
+contain 71 active Schema resources.
 
 `validate_output=False` skips only post-execution output and artifact schema
 validation. Input schema validation and Application semantic validation always

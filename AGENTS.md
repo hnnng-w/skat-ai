@@ -568,10 +568,10 @@ Schema/identifier migration, strict legacy persisted-input support, and reviewed
 historical-evidence boundary, makes P-09 `satisfied`, and closes B-08. B-09 adds
 maintainer UAT outside the 53-row ledger. Issue #206 adds exact direct dependency
 floors and the validation-only source/Editable/Wheel/sdist Windows/Ubuntu matrix,
-makes P-34 `satisfied`, and technically closes B-05. Formal Issue closure remains
-conditional on both merged Ubuntu jobs passing. `v1.0.0` is not ready; after that
-condition, the next action is Issue #207, **Perform the final technical v1.0.0
-release-readiness audit**.
+makes P-34 `satisfied`, and closes B-05 after both merged Ubuntu jobs pass. Issue
+#207 completes the final technical audit, closes B-06 with no material technical
+blocker, and approves Issue #208 maintainer UAT as the next action. B-09 and B-07
+remain open, so `v1.0.0` is not ready.
 No v1 Release title, theme, date, tag, publication commit, or production model is
 frozen.
 
@@ -845,9 +845,9 @@ implemented. Issue #191 adds the bounded one-Decision Match/Report/Teacher/
 Dataset/Corpus path. Issue #192 adds separate Information-set Replay Coaching and
 Match Historical Information-set Review/Coaching. Issue #193 adds separate local
 benchmark evidence for the unchanged executor. Performance acceptance for v1 is
-the deterministic functional and structural-work contract; fresh supported-
-platform evidence is implemented by Issue #206, with formal closure conditional
-on the two merged Ubuntu jobs, while latency guarantees are not a v1 gate.
+the deterministic functional and structural-work contract; supported-platform
+evidence is complete under Issue #206 on Windows and merged Ubuntu CI, while
+latency guarantees are not a v1 gate.
 There is no
 cross-decision global Policy, equilibrium, global optimality, or calibrated
 probability claim. Issue #194 adds deterministic structural Historical Tactical
@@ -863,9 +863,9 @@ field-level information provenance is complete under Issue #202 without widening
 the public contract. Issue #203 completes canonical Multi-Step phase coverage;
 Issue #204 closes the Package-license decision with exact `AGPL-3.0-only` legal
 files and PEP 639 metadata. Issue #205 completes the SkatMind rename and closes
-B-08. Issue #206 completes the technical platform matrix; merged Ubuntu CI is its
-remaining Issue-closure condition. The next gate is #207 technical readiness
-audit, followed by #208 maintainer UAT before B-07 Release preparation.
+B-08. Issue #206 completes the technical platform matrix and closes B-05 after
+merged Ubuntu CI passes. Issue #207 closes B-06; #208 maintainer UAT is next,
+before B-07 Release preparation.
 End-to-end local Live and Retrospective Session
 capture is implemented through public file Save/Load, automatic Checkpoints,
 accepted-Log actual-card observation, isolated review, explicit analysis, the
@@ -938,9 +938,9 @@ rule coverage exists.
 The authoritative rules and product audit is in
 [`docs/requirements_traceability.md`](docs/requirements_traceability.md). The
 requirements and completion gates for `v1.0.0` are in
-[`docs/v1_scope.md`](docs/v1_scope.md). The authoritative bounded v1
-classifications, blockers, and ordered follow-up plan are in
-[`docs/v1_0_scope_and_traceability_audit.md`](docs/v1_0_scope_and_traceability_audit.md).
+[`docs/v1_scope.md`](docs/v1_scope.md). The authoritative current technical
+conclusion and next action are in
+[`docs/v1_0_final_technical_release_readiness_audit.md`](docs/v1_0_final_technical_release_readiness_audit.md).
 
 Do not describe undecided future areas as permanently out of scope. Four-player
 tables are the only unconditional exclusion; other candidate areas use the

@@ -95,9 +95,9 @@ two direct Production imports with the exact ordered declarations above and
 validates the minimum-supported versions `jsonschema==4.23.0` and
 `referencing==0.31.0` in isolated Wheel and sdist environments. Neither direct
 dependency is vendored and neither has an upper bound. Both remain MIT-licensed;
-no license incompatibility is identified. This technically closes B-05 subject
-to the merged Ubuntu CI condition. Future dependency upgrades still require
-normal dependency and license review.
+no license incompatibility is identified. Issue #206 closes B-05 after the local
+Windows and merged Ubuntu evidence passes. Future dependency upgrades still
+require normal dependency and license review.
 
 This is a bounded repository audit, not an automated legal opinion or a claim
 about every future transitive version.
@@ -170,13 +170,13 @@ B-09 / Issue #208:
     preparation.
 ```
 
-The current pre-v1 sequence is:
+The completed technical sequence and next action are:
 
 1. #205: completed the SkatMind rename and migration boundary.
-2. #206: implements the v1 installation and supported-platform matrix; formal
-   closure is conditional on both merged Ubuntu jobs passing.
-3. #207: perform the final technical v1.0.0 release-readiness audit.
-4. #208: perform maintainer v1.0.0 user acceptance testing.
+2. #206: completed the v1 installation and supported-platform matrix and closed
+   B-05 after both merged Ubuntu jobs passed.
+3. #207: completed the final technical audit and closed B-06.
+4. #208: perform maintainer v1.0.0 user acceptance testing next.
 
 Release preparation remains B-07 and occurs only after #208 and any accepted
 findings are resolved. Its Issue number is not frozen; it is expected to be #209

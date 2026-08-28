@@ -1669,10 +1669,10 @@ Issue #201 [official-rule evidence](docs/v1_official_rule_evidence.md) closes th
 R-01/R-06 evidence gate B-01 without product-code change. Issue #202 closes B-02
 with mandatory internal end-to-end Provenance enforcement and makes P-10 and
 P-13 `satisfied`. Issue #203 completes canonical Multi-Step phase coverage,
-makes P-19 `satisfied`, and closes B-03. The remaining v1 blockers are a complete
-Package rename, final installation/platform evidence, final technical readiness
-evidence, maintainer user acceptance testing, and Package `1.0.0` Release
-preparation. Issue #204 applies the approved `AGPL-3.0-only` Package license and
+makes P-19 `satisfied`, and closes B-03. Issues #204 through #207 subsequently
+close B-04, B-08, B-05, and B-06. The remaining v1 blockers are maintainer user
+acceptance testing and Package `1.0.0` Release preparation. Issue #204 applies
+the approved `AGPL-3.0-only` Package license and
 closes B-04 without product behavior or active branding changes. The
 approved party-wide all-remaining-
 Tricks Claim now has
@@ -1888,18 +1888,19 @@ without product-code change. Issue #202 closes B-02 and makes P-10 and P-13
   legacy persisted-input migration boundary, makes P-09 `satisfied`, and closes
   B-08. Issue #206 declares the exact direct runtime dependencies, adds the
   source/Editable/Wheel/sdist resolved matrix plus minimum Wheel/sdist evidence,
-  and prepares P-34 as `satisfied` and B-05 as closed. Issue closure remains
-  conditional on green `check` and `v1-supported-platform-matrix` jobs on the
-  merged commit. The separate B-09 maintainer-UAT Gate sits outside the 53-row
-  ledger. The milestone is not ready; after that CI condition, Issue #207,
-  **Perform the final technical v1.0.0 release-readiness audit**, is next. No v1
-  Release title, theme, date, tag, or publication commit is frozen.
+  makes P-34 `satisfied`, and closes B-05 after both merged Ubuntu jobs pass.
+  Issue #207 completes the final technical audit, finds no material technical
+  blocker, and closes B-06. The separate B-09 maintainer-UAT Gate sits outside
+  the 53-row ledger. The milestone is not ready; Issue #208, **Perform maintainer
+  v1.0.0 user acceptance testing**, is next before B-07 Release preparation. No
+  v1 Release title, theme, date, tag, or publication commit is frozen.
 
 Current support and known limitations are tracked in the
 [requirements traceability matrix](docs/requirements_traceability.md). Product
 scope and completion gates are defined in the [v1.0 scope](docs/v1_scope.md).
-The authoritative required-row classifications, blockers, and ordered follow-up
-plan are in the [v1.0 scope and traceability audit](docs/v1_0_scope_and_traceability_audit.md).
+The required-row classifications are in the [scope and traceability
+audit](docs/v1_0_scope_and_traceability_audit.md); the current conclusion is in
+the [final technical Release-readiness audit](docs/v1_0_final_technical_release_readiness_audit.md).
 The Historical integration is documented in [Historical party-wide
   Claim](docs/historical_party_wide_claim.md). The private boundary is documented in [Party-wide Claim
   contracts](docs/party_wide_claim_contracts.md), the [Party-wide Claim proof

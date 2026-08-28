@@ -1338,10 +1338,9 @@ for all seven Root workflows without changing the bounded public contract. Issue
 #203 closes canonical Multi-Step phase coverage for all nine concrete phases
 without widening Search or public contracts. Issue #204 applies the exact
 `AGPL-3.0-only` Package boundary and closes B-04. Before `v1.0.0`, the project
-still requires final technical readiness evidence, maintainer UAT, and Package
-`1.0.0` Release preparation. The SkatMind rename is complete, and Issue #206
-implements final installation/platform evidence subject to green merged Ubuntu
-CI. End-to-end
+still requires maintainer UAT and Package `1.0.0` Release preparation. The
+SkatMind rename and final installation/platform evidence are complete; Issue
+#207 closes the final technical audit without a material blocker. End-to-end
 local Live and Retrospective Session capture is complete
 through Issues #150 through #157, including public files, automatic Checkpoints,
 accepted-Log observation, isolated review, explicit analysis, all 12 CLI
@@ -1541,10 +1540,9 @@ hard-cut SkatMind Package/import/CLI/resource/Schema/identifier rename, strict
 legacy persisted-input support, and historical-evidence boundary, makes P-09
 `satisfied`, and closes B-08. B-09 adds maintainer UAT outside the 53-row ledger.
 Issue #206 adds exact direct dependency floors and the supported installation/
-platform matrix, making P-34 `satisfied` and technically closing B-05. Formal
-Issue closure remains conditional on both merged Ubuntu jobs. B-06, B-07, and
-B-09 remain; `v1.0.0` is unready, and Issue #207, **Perform the final technical
-v1.0.0 release-readiness audit**, is next after that condition. #208 owns
-maintainer UAT. Release preparation
+platform matrix, makes P-34 `satisfied`, and closes B-05 after both merged Ubuntu
+jobs pass. Issue #207 closes B-06 with no material technical blocker. B-09 and
+B-07 remain; `v1.0.0` is unready, and Issue #208, **Perform maintainer v1.0.0 user
+acceptance testing**, is next. Release preparation
 remains deferred until afterward. No v1 Release title, theme, date, tag, or
 publication commit is frozen.
