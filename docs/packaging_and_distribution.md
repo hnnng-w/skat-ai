@@ -24,7 +24,8 @@ Package Data is declared for:
 * `skatmind/py.typed`;
 * every `skatmind.schema_resources/*.schema.json` resource;
 * `skatmind.capture_web` HTML, CSS, and JavaScript resources;
-* `skatmind.corpus_web` HTML, CSS, and JavaScript resources.
+* `skatmind.corpus_web` HTML, CSS, and JavaScript resources;
+* `skatmind.app_web` HTML, CSS, and optional JavaScript resources.
 
 The Package name remains `skatmind`, the Package version is `0.17.0`, and the
 Python requirement remains `>=3.13`. The exact ordered direct runtime
@@ -194,12 +195,12 @@ The registry:
 
 No schema-loading helper is exported publicly.
 
-The private Capture Web and Learning Corpus transports also load their HTML
-templates, CSS, and vanilla JavaScript through `importlib.resources`. Assets are
+The private app, Capture Web, and Learning Corpus transports load HTML templates,
+CSS, and optional vanilla JavaScript through `importlib.resources`. Assets are
 lazy, current-working-directory independent, locally packaged, and contain no
 external dependency, CDN, font, image, or build-system requirement.
-Issue #168 uses the Capture assets and discovered Python Package modules; Issue
-#179 uses the separate Corpus assets. Match reports, Corpus Report sources, and
+Issue #210 adds the app template and CSS; Issues #168 and #179 retain the Capture
+and Corpus assets. Match reports, Corpus Report sources, and
 prepared values remain process memory, and downloads are HTTP responses rather
 than Package Data or installed writable files.
 
@@ -237,6 +238,7 @@ Wheel inspection verifies:
 * `py.typed` and all 71 byte-identical schema resources;
 * exact Capture Web template, CSS, and JavaScript resource bytes;
 * exact Corpus Web template, CSS, and JavaScript resource bytes;
+* exact unified-app template and CSS resource bytes;
 * a valid pure-Python Wheel and RECORD;
 * exact `skatmind = skatmind.cli:main` Console Script metadata and
   `skatmind/__main__.py`;
@@ -246,7 +248,8 @@ Wheel inspection verifies:
 sdist inspection verifies:
 
 * `pyproject.toml`, `README.md`, exact root `LICENSE` and `COPYRIGHT`, Package
-  sources, `py.typed`, and every schema, Capture Web, and Corpus Web resource;
+  sources, `py.typed`, and every schema, Capture Web, Corpus Web, and unified-app
+  resource;
 * build and core metadata sufficient to build and install the same Package;
 * exact Console Script metadata and `src/skatmind/__main__.py`;
 * absence of a source-authored `setup.py`, root `main.py`, a second command, and
@@ -278,6 +281,11 @@ verifies:
   `python -m skatmind capture --help` succeed;
 * installed `skatmind corpus --help` and module
   `python -m skatmind corpus --help` succeed with exact options and default port;
+* installed/module `app --help` and repository Legacy `app --help` preserve exact
+  launch options and invocation identities;
+* packaged app resources load byte-for-byte, and one isolated in-process app
+  server creates only the three managed categories, authenticates all seven
+  routes, serves local CSS, exposes no Product operation endpoint, and shuts down;
 * Session `new`, `apply`, and `show` operate through a caller-selected file;
 * Session-triggered Position analysis, Checkpoint observation/review, and
   Retrospective finalization reuse the existing Application workflows;

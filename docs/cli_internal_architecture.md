@@ -46,29 +46,28 @@ python main.py
 ```
 
 `skatmind` is still the only Console Script and resolves exactly to
-`skatmind.cli:main`. `python -m skatmind` calls the same Package-owned Root CLI
+`skatmind.cli:main`. `python -m skatmind` calls the same Package-owned CLI entry
 with module invocation identity. Repository-root `main.py` remains a thin
 Legacy compatibility facade and is not included in distributions.
 
-`skatmind.cli.__all__` remains exactly `("main",)`. Leading dispatch precedence
-is `corpus`, then `capture`, then `session`, then the existing Root parser. All
-three command-family imports remain lazy.
+`skatmind.cli.__all__` remains exactly `("main",)`. Empty argv and leading `app`
+dispatch to the shell, followed by `corpus`, `capture`, `session`, and the
+existing Root parser. `src/skatmind/cli/entrypoint.py` performs the shell-first
+selection without importing the broad Root facade. Repository-root `main.py`
+uses the same lightweight route before loading its Legacy compatibility exports.
 
-## Approved future routing, not implemented
+## Implemented shell routing and remaining Issue #213 work
 
-Issue #209 freezes a future routing change without modifying this current
-architecture. Bare `skatmind`, bare `python -m skatmind`, and bare repository-
-root `python main.py` must launch the unified local frontend; `skatmind app` must
-be its explicit form; and `skatmind run` must become the canonical advanced Root
-JSON route. Direct `skatmind --input ...` must remain a Package-1.x compatibility
-route, while `session`, `capture`, and `corpus` remain advanced direct
-interfaces. Future top-level help must be concise and Product-oriented, with the
-complete Root options under `skatmind run --help`.
+Issue #210 makes bare `skatmind`, bare `python -m skatmind`, and bare repository-
+root `python main.py` launch the unified local shell. Leading `app` is the
+explicit installed/module/Legacy form. Direct `skatmind --input ...`, `session`,
+`capture`, and `corpus` remain supported advanced interfaces, and Root patch
+seams continue to receive the original `argv` value.
 
-Issues #210 through #213 own implementation. Until they complete, the current
-entry points, dispatch precedence, bare default `input_position.json`, and help
-documented above and in [Installed CLI](installed_cli.md) remain authoritative.
-See [Unified local frontend contract](unified_local_frontend_contract.md).
+Issue #213 still owns `skatmind run`, concise Product-oriented top-level help,
+and relocation of complete Root help. Current Root `--help` and direct Root
+options remain authoritative until then. See [Application shell](unified_local_frontend_application_shell.md)
+and [Unified local frontend contract](unified_local_frontend_contract.md).
 
 ## Learning Corpus CLI and browser transport
 
@@ -261,8 +260,8 @@ resources, and one in-process create/start/declare/Card/persist/shutdown smoke
 flow in the same clean environments. Package version `0.14.0`, seven Root
 workflows, 12 Session subcommands, 63 authoritative and packaged Schemas, and 85
 generated-output scenarios remain unchanged by Issue #165. The current Package
-version is `0.17.0`; the workflow, subcommand, Schema, scenario, and one-Console-
-Script baselines remain unchanged.
+version is `0.17.0` with seven Root workflows, 12 Session subcommands, 71
+authoritative and packaged Schemas, 98 generated outputs, and one Console Script.
 Issue #179 adds exact packaged Corpus browser resources,
 installed/module/Legacy Corpus help parity, and a clean-install initialize,
 import, select, prepare, Report-transfer, download, and invalidation smoke flow

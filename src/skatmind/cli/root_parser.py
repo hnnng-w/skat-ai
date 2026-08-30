@@ -51,7 +51,7 @@ def _invocation_examples(invocation_style: str) -> str:
         }
     return (
         "Examples:\n"
-        f"  {command}\n"
+        f"  {command} app\n"
         f"  {command} --input {paths['position']}\n"
         f"  {command} --input {paths['position']} --multi-step 2\n"
         f"  {command} --input {paths['position']} --multi-step 1 --compare-policies\n"

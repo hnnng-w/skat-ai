@@ -26,13 +26,13 @@ loaded and resumed before the server starts. Invalid existing files are rejected
 and never overwritten. An absent file remains absent until the browser creation
 form is accepted.
 
-These are current standalone advanced-interface requirements. Issue #209
-approves but does not implement a future unified frontend in which normal users
-select managed Match items without typing paths or ports. The unified application
-must reuse Capture operations directly in one server; it must not proxy, iframe,
-or start this standalone server as a child. `skatmind capture` and its explicit
-`--workspace` contract remain supported for advanced use. See
-[Unified local frontend contract](unified_local_frontend_contract.md).
+These remain current standalone advanced-interface requirements. Issue #210 adds
+the unified shell and a `/matches` placeholder but does not list, create, open,
+or resume Match items. Issue #212 owns direct reuse of Capture operations in the
+one app server; it must not proxy, iframe, or start this standalone server as a
+child. `skatmind capture` and its explicit `--workspace` contract remain
+supported for advanced use. See [Application shell](unified_local_frontend_application_shell.md)
+and [Unified local frontend contract](unified_local_frontend_contract.md).
 
 ## Workspace creation and Resume
 

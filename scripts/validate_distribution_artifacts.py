@@ -142,6 +142,11 @@ CORPUS_RESOURCE_NAMES = (
     "assets/corpus.css",
     "assets/corpus.js",
 )
+APP_RESOURCE_PREFIX = "skatmind/app_web/"
+APP_RESOURCE_NAMES = (
+    "templates/app.html",
+    "assets/app.css",
+)
 CONSOLE_SCRIPT_NAME = "skatmind"
 CONSOLE_SCRIPT_TARGET = "skatmind.cli:main"
 
@@ -254,6 +259,11 @@ def _expected_capture_resource_bytes() -> dict[str, bytes]:
 def _expected_corpus_resource_bytes() -> dict[str, bytes]:
     corpus_root = SOURCE_PACKAGE_DIRECTORY / "corpus_web"
     return {name: corpus_root.joinpath(name).read_bytes() for name in CORPUS_RESOURCE_NAMES}
+
+
+def _expected_app_resource_bytes() -> dict[str, bytes]:
+    app_root = SOURCE_PACKAGE_DIRECTORY / "app_web"
+    return {name: app_root.joinpath(name).read_bytes() for name in APP_RESOURCE_NAMES}
 
 
 def _expected_legal_file_bytes() -> dict[str, bytes]:
@@ -464,6 +474,7 @@ def _inspect_wheel(
     expected_modules: set[str],
     expected_capture_resources: dict[str, bytes],
     expected_corpus_resources: dict[str, bytes],
+    expected_app_resources: dict[str, bytes],
     expected_legal_files: dict[str, bytes],
 ) -> Message:
     with zipfile.ZipFile(wheel_path) as archive:
@@ -547,6 +558,15 @@ def _inspect_wheel(
             corpus_payload == expected_corpus_resources,
             "Wheel Corpus Web resources differ by filename or bytes.",
         )
+        app_payload = {
+            name.removeprefix(APP_RESOURCE_PREFIX): archive.read(name)
+            for name in names
+            if name.startswith(APP_RESOURCE_PREFIX) and not name.endswith(".py")
+        }
+        _require(
+            app_payload == expected_app_resources,
+            "Wheel App Web resources differ by filename or bytes.",
+        )
 
         forbidden_prefixes = ("tests/", "examples/", "outputs/", "generated_outputs/")
         _require(
@@ -599,6 +619,7 @@ def _inspect_sdist(
     expected_modules: set[str],
     expected_capture_resources: dict[str, bytes],
     expected_corpus_resources: dict[str, bytes],
+    expected_app_resources: dict[str, bytes],
     expected_legal_files: dict[str, bytes],
 ) -> Message:
     with tarfile.open(sdist_path, "r:gz") as archive:
@@ -714,6 +735,18 @@ def _inspect_sdist(
         _require(
             corpus_payload == expected_corpus_resources,
             "sdist Corpus Web resources differ by filename or bytes.",
+        )
+        app_prefix = f"{root}/src/{APP_RESOURCE_PREFIX}"
+        app_payload = {
+            name.removeprefix(app_prefix): _tar_bytes(archive, members[name])
+            for name in names
+            if name.startswith(app_prefix)
+            and not name.endswith(".py")
+            and members[name].isfile()
+        }
+        _require(
+            app_payload == expected_app_resources,
+            "sdist App Web resources differ by filename or bytes.",
         )
         _require(f"{root}/setup.py" not in names, "sdist contains setup.py.")
         _require(f"{root}/main.py" not in names, "sdist contains the repository Root main.py.")
@@ -946,6 +979,9 @@ from urllib.parse import urlencode
 
 import skatmind
 import skatmind.errors as public_errors
+from skatmind.app_web.context import AppWebContextV1
+from skatmind.app_web.managed_data import prepare_managed_home_v1
+from skatmind.app_web.server import start_app_web_server_v1
 from skatmind.api.v1 import (
     ExecutionOptionsV1,
     WorkflowV1,
@@ -1086,6 +1122,89 @@ for name in corpus_resource_names:
     corpus_digest.update(name.encode("utf-8"))
     corpus_digest.update(b"\0")
     corpus_digest.update(content)
+
+app_resource_root = importlib.resources.files("skatmind.app_web")
+app_resource_names = (
+    "templates/app.html",
+    "assets/app.css",
+)
+app_digest = hashlib.sha256()
+for name in app_resource_names:
+    content = app_resource_root.joinpath(name).read_bytes()
+    assert content
+    assert b"https://" not in content and b"http://" not in content
+    assert b"eval(" not in content and b"<script" not in content
+    app_digest.update(name.encode("utf-8"))
+    app_digest.update(b"\0")
+    app_digest.update(content)
+
+app_home = prepare_managed_home_v1(cwd / "app-managed-home")
+assert tuple(category.name for category in app_home.categories) == (
+    "sessions",
+    "matches",
+    "corpora",
+)
+assert sorted(path.relative_to(app_home.root).as_posix() for path in app_home.root.rglob("*")) == [
+    "corpora",
+    "matches",
+    "sessions",
+]
+app_context = AppWebContextV1.create(app_home)
+app_server = start_app_web_server_v1(app_context, port=0, token="app-distribution-token")
+app_thread = threading.Thread(target=app_server.serve_forever, daemon=True)
+app_thread.start()
+
+
+def app_request(method, path, *, headers=None, body=None):
+    connection = http.client.HTTPConnection("127.0.0.1", app_server.port)
+    connection.request(method, path, headers=headers or {}, body=body)
+    response = connection.getresponse()
+    content = response.read()
+    returned_headers = dict(response.getheaders())
+    connection.close()
+    return response.status, returned_headers, content
+
+
+try:
+    app_host = f"127.0.0.1:{app_server.port}"
+    status, headers, content = app_request(
+        "GET",
+        "/?token=app-distribution-token",
+        headers={"Host": app_host},
+    )
+    assert status == 303 and content == b"" and headers["Location"] == "/"
+    app_cookie = headers["Set-Cookie"].split(";", 1)[0]
+    app_get_headers = {"Host": app_host, "Cookie": app_cookie}
+    for app_route in (
+        "/",
+        "/analyze",
+        "/review",
+        "/sessions",
+        "/matches",
+        "/learning",
+        "/about",
+    ):
+        status, response_headers, content = app_request(
+            "GET",
+            app_route,
+            headers=app_get_headers,
+        )
+        assert status == 200 and b"<h1>" in content
+        assert response_headers["Cache-Control"] == "no-store"
+        assert b"app-distribution-token" not in content
+    status, _, content = app_request(
+        "GET",
+        "/assets/app.css",
+        headers=app_get_headers,
+    )
+    assert status == 200 and b"focus-visible" in content
+    status, _, _ = app_request("GET", "/api/v1/operations", headers=app_get_headers)
+    assert status == 404
+finally:
+    app_server.shutdown()
+    app_server.server_close()
+    app_thread.join(timeout=5)
+    assert not app_thread.is_alive()
 
 capture_path = cwd / "capture-workspace.json"
 capture_context = MatchCaptureWebContextV1.open(capture_path)
@@ -2572,6 +2691,13 @@ print(json.dumps({
     "capture_resource_digest": capture_digest.hexdigest(),
     "corpus_resource_names": corpus_resource_names,
     "corpus_resource_digest": corpus_digest.hexdigest(),
+    "app_resource_names": app_resource_names,
+    "app_resource_digest": app_digest.hexdigest(),
+    "app_shell": {
+        "managed_categories": [category.name for category in app_home.categories],
+        "route_count": 7,
+        "product_operation_endpoints": 0,
+    },
     "version": skatmind.__version__,
     "license_expression": distribution.metadata["License-Expression"],
     "license_files": distribution.metadata.get_all("License-File", []),
@@ -2951,6 +3077,30 @@ def _install_and_smoke(
                 forbidden_option not in corpus_help_result.stdout,
                 f"{label} {command_name} corpus --help exposes {forbidden_option!r}.",
             )
+        app_help_result = _run_cli_check(
+            [*prefix, "app", "--help"],
+            cwd=consumer_directory,
+            environment=environment,
+            expected_returncode=0,
+        )
+        _require(
+            not app_help_result.stderr,
+            f"{label} {command_name} app --help wrote stderr.",
+        )
+        _require(
+            f"usage: {command_name} app" in app_help_result.stdout,
+            f"{label} {command_name} app --help used the wrong command identity.",
+        )
+        for option in ("--data-root PATH", "--port INTEGER", "--no-open"):
+            _require(
+                option in app_help_result.stdout,
+                f"{label} {command_name} app --help omits {option!r}.",
+            )
+        for forbidden_option in ("--host", "--force", "--daemon", "--workspace"):
+            _require(
+                forbidden_option not in app_help_result.stdout,
+                f"{label} {command_name} app --help exposes {forbidden_option!r}.",
+            )
         for subcommand in (
             "new",
             "show",
@@ -2994,6 +3144,21 @@ def _install_and_smoke(
         _require(
             option in legacy_corpus_help.stdout,
             f"{label} Legacy corpus --help omits {option!r}.",
+        )
+    legacy_app_help = _run_cli_check(
+        [str(python), str(legacy_main), "app", "--help"],
+        cwd=legacy_directory,
+        environment=environment,
+        expected_returncode=0,
+    )
+    _require(
+        not legacy_app_help.stderr and "usage: python main.py app" in legacy_app_help.stdout,
+        f"{label} Legacy app --help used the wrong command identity.",
+    )
+    for option in ("--data-root PATH", "--port INTEGER", "--no-open"):
+        _require(
+            option in legacy_app_help.stdout,
+            f"{label} Legacy app --help omits {option!r}.",
         )
 
     if full_root_cli_matrix:
@@ -3587,6 +3752,7 @@ def _build_and_inspect_distribution_artifacts(
     expected_modules = _expected_module_names()
     expected_capture_resources = _expected_capture_resource_bytes()
     expected_corpus_resources = _expected_corpus_resource_bytes()
+    expected_app_resources = _expected_app_resource_bytes()
     _require(
         len(expected_schemas) == EXPECTED_SCHEMA_RESOURCE_COUNT,
         f"Expected {EXPECTED_SCHEMA_RESOURCE_COUNT} authoritative schemas, "
@@ -3628,6 +3794,7 @@ def _build_and_inspect_distribution_artifacts(
         expected_modules,
         expected_capture_resources,
         expected_corpus_resources,
+        expected_app_resources,
         expected_legal_files,
     )
     sdist_metadata = _inspect_sdist(
@@ -3636,6 +3803,7 @@ def _build_and_inspect_distribution_artifacts(
         expected_modules,
         expected_capture_resources,
         expected_corpus_resources,
+        expected_app_resources,
         expected_legal_files,
     )
     _require(

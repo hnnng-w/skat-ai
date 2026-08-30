@@ -112,6 +112,7 @@ The current bundled and repository evidence families were reviewed as follows:
 | JSON Schemas | The 71 authoritative files under `schemas/` and their byte-identical Package Resource mirrors are project schemas; no third-party metaschema is bundled. |
 | Capture HTML/CSS/JavaScript | The template, stylesheet, and vanilla JavaScript are first-party Package Data with no framework, CDN, font, image, or copied library. |
 | Corpus HTML/CSS/JavaScript | The template, stylesheet, and vanilla JavaScript are first-party Package Data with no framework, CDN, font, image, or copied library. |
+| Application-shell HTML/CSS | The unified shell template and stylesheet are first-party Package Data with no framework, script, CDN, font, image, or copied library. |
 | benchmark fixtures | The two repository-local JSON corpora are deterministic project evidence, not third-party source or data. |
 | examples | Repository-authored JSON requests and Session records; no third-party asset was identified. |
 | documentation assets | Repository-authored Markdown only; no bundled font, image, PDF, or copied documentation package was identified. |
@@ -146,11 +147,11 @@ individualized legal advice.
 ## v1 gates and rename
 
 Issue #204 closes B-04 after applying the exact legal files, PEP 639 metadata,
-artifact validation, tests, and documentation. The separate maintainer decision
-for the future product is `SkatMind`, with repository `hnnng-w/skatmind`,
-distribution and import namespace `skatmind`, and primary CLI `skatmind`.
-Issue #204 implements none of that rename; the current `skat-ai` / `skat_ai`
-surfaces remain unchanged.
+artifact validation, tests, and documentation. Issue #205 subsequently completes
+the hard-cut `SkatMind` product identity with repository `hnnng-w/skatmind`,
+distribution and import namespace `skatmind`, and primary CLI `skatmind`. The
+former `skat-ai` / `skat_ai` names remain only at reviewed legacy-input and
+historical-evidence boundaries.
 
 P-09 moves from `product_decision_required` to `implementation_required` under:
 
@@ -176,9 +177,14 @@ The completed technical sequence and next action are:
 2. #206: completed the v1 installation and supported-platform matrix and closed
    B-05 after both merged Ubuntu jobs passed.
 3. #207: completed the final technical audit and closed B-06.
-4. #208: perform maintainer v1.0.0 user acceptance testing next.
+4. #208: started maintainer v1.0.0 user acceptance testing; UAT-01 failed with
+   one accepted blocker and two accepted major findings.
+5. #209: froze the unified local frontend and launch contract.
+6. #210: implements the application shell and partially remediates
+   UAT-FINDING-001 without closing it.
+7. #211: Add guided position analysis, completed-game review, and Result
+   presentation next.
 
-Release preparation remains B-07 and occurs only after #208 and any accepted
-findings are resolved. Its Issue number is not frozen; it is expected to be #209
-only if #208 creates no remediation Issues. Publication and post-publication
+Release preparation remains B-07 and occurs only after the accepted UAT findings
+are resolved and paused UAT resumes. Publication and post-publication
 synchronization remain human-controlled.

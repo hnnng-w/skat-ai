@@ -667,12 +667,18 @@ for exact dependencies, installation forms, platform evidence, and boundaries.
 The installation exposes both Package CLI forms:
 
 ```powershell
+skatmind
+python -m skatmind
+skatmind app --help
+python -m skatmind app --help
 skatmind --help
 python -m skatmind --help
 skatmind session --help
 python -m skatmind session --help
 skatmind capture --help
 python -m skatmind capture --help
+skatmind corpus --help
+python -m skatmind corpus --help
 ```
 
 See [Installed CLI](docs/installed_cli.md) for invocation identities, output,
@@ -686,6 +692,18 @@ facades, and one-way import boundary are documented in
 [CLI internal architecture](docs/cli_internal_architecture.md).
 
 ## Usage
+
+Open the unified local application shell:
+
+```powershell
+skatmind
+```
+
+Bare installed, module, and Legacy invocation now open the same private
+loopback-only shell. `skatmind app` is the explicit form. Home and About are
+complete; guided analysis and Review remain placeholders until Issue #211, and
+Session, Match, and Learning lifecycles remain placeholders until Issue #212.
+See [Unified local frontend application shell](docs/unified_local_frontend_application_shell.md).
 
 Parse and execute an already loaded Root JSON document:
 
@@ -747,11 +765,11 @@ Workspace creation and Resume, forms, rapid Card entry, autosave, conflicts,
 explicit analysis and materialization, authenticated local downloads, local
 security, and privacy.
 
-Run the default analysis from the repository root. This reads the root
-`input_position.json` quick-start fixture:
+Run analysis from the repository root with the root `input_position.json`
+quick-start fixture:
 
 ```powershell
-python main.py
+python main.py --input input_position.json
 ```
 
 Run analysis with a specific input file:
@@ -1773,12 +1791,12 @@ open.
 Issue #209 later approves the local Session browser integration only as part of
 the unified frontend B-09 remediation; the other listed layers remain open.
 
-Package `0.17.0` still uses the technical Root JSON interface for bare
-`skatmind`, requires explicit paths for Session, Capture, and Corpus, and has no
-unified frontend. Issue #209 approves but does not implement a future bare-
-command local browser application, managed local data, guided workflows, and a
-separate `skatmind run` advanced automation route. See the
-[unified local frontend contract](docs/unified_local_frontend_contract.md).
+The current working Package `0.17.0` opens the unified local shell for bare
+installed, module, and Legacy invocation and supports explicit `skatmind app`.
+It creates only the managed data root and category directories on startup.
+Guided analysis/Review remain Issue #211 placeholders; Session, Match, and
+Learning lifecycles remain Issue #212 placeholders; `run` and final top-level
+help remain Issue #213 work. See the [application shell](docs/unified_local_frontend_application_shell.md).
 
 Issue #159 synchronized the historical `v0.14.0` publication status. The
 published `v0.15.0` milestone covers usable EuroSkat 36er Standard post-game
@@ -1902,8 +1920,8 @@ without product-code change. Issue #202 closes B-02 and makes P-10 and P-13
   blocker, and closes B-06. The separate B-09 maintainer-UAT Gate sits outside
   the 53-row ledger. Issue #208 then starts UAT; UAT-01 fails with three accepted
   findings, and UAT-02 through UAT-12 are paused. Issue #209 freezes the approved
-  unified local frontend contract without Product behavior change. Issue #210 is
-  the exact next implementation action. B-09 and B-07 remain open, Release
+  unified local frontend contract. Issue #210 implements the application shell
+  and partially remediates UAT-FINDING-001 without closing it. Issue #211 is next. B-09 and B-07 remain open, Release
   preparation is not ready, and no v1 Release title, theme, date, tag, or
   publication commit is frozen.
 
@@ -1913,8 +1931,8 @@ scope and completion gates are defined in the [v1.0 scope](docs/v1_scope.md).
 The required-row classifications are in the [scope and traceability
 audit](docs/v1_0_scope_and_traceability_audit.md); the current conclusion is in
 the [final technical Release-readiness audit](docs/v1_0_final_technical_release_readiness_audit.md).
-The approved future local Product entry and UAT remediation architecture are in
-the [unified local frontend contract](docs/unified_local_frontend_contract.md).
+The local Product entry is documented in the [application shell](docs/unified_local_frontend_application_shell.md),
+and the remaining UAT remediation architecture is in the [unified local frontend contract](docs/unified_local_frontend_contract.md).
 The Historical integration is documented in [Historical party-wide
   Claim](docs/historical_party_wide_claim.md). The private boundary is documented in [Party-wide Claim
   contracts](docs/party_wide_claim_contracts.md), the [Party-wide Claim proof

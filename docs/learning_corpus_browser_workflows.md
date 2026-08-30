@@ -68,15 +68,14 @@ Leading `corpus` dispatch is separate from leading `capture`, leading `session`,
 and the seven-workflow Root parser. All forms still use the one Console Script;
 repository-root `main.py` remains the Legacy facade and is not installed.
 
-These are current standalone advanced-interface requirements. Issue #209
-approves but does not implement a future unified frontend in which the Learning
-Corpus area uses the normal label `Learning & cross-game insights` and managed
-Corpus items require no typed root or port. The unified application must reuse
-Corpus operations directly in one server; it must not proxy, iframe, or start
-this standalone server as a child. `skatmind corpus` and its explicit `--corpus`
+These remain current standalone advanced-interface requirements. Issue #210 adds
+the unified shell and a `Learning & cross-game insights` placeholder but does not
+list, create, open, or resume Corpus items. Issue #212 owns direct reuse of Corpus
+operations in the one app server; it must not proxy, iframe, or start this
+standalone server as a child. `skatmind corpus` and its explicit `--corpus`
 contract remain supported for advanced use. Current selection, preparation,
-Report transfer, and downloads must remain explicit. See
-[Unified local frontend contract](unified_local_frontend_contract.md).
+Report transfer, and downloads remain explicit. See [Application shell](unified_local_frontend_application_shell.md)
+and [Unified local frontend contract](unified_local_frontend_contract.md).
 
 ## One explicit root
 

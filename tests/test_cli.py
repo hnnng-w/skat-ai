@@ -164,8 +164,8 @@ def test_cli_help_exits_zero_and_lists_important_options() -> None:
     assert_no_success_output(completed_process)
 
 
-def test_cli_default_input_success_exits_zero_and_prints_recommendation() -> None:
-    completed_process = run_cli()
+def test_cli_explicit_default_input_success_exits_zero_and_prints_recommendation() -> None:
+    completed_process = run_cli("--input", "input_position.json")
 
     assert completed_process.returncode == 0
     assert completed_process.stderr == ""

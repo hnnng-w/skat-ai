@@ -154,15 +154,14 @@ finds no material technical blocker and closes B-06. B-09 and B-07 remain; B-09
 is outside the 53-row ledger. Issue #208 then begins maintainer UAT; UAT-01 fails
 with three accepted findings, and UAT-02 through UAT-12 are paused.
 
-Issue #209 freezes the approved future
-[unified local frontend](unified_local_frontend_contract.md) without implementing
-it. The target is one foreground process, one `127.0.0.1` server on an operating-
-system-selected port, one authenticated browser session, one navigation, and one
-managed data root. It must reuse the transport-free Application, Session, Match,
-and Corpus operations directly rather than proxying or iframing the current
-standalone servers. Current bare Root dispatch and explicit Session, Capture,
-and Corpus paths remain unchanged. Issue #210 is the exact next implementation
-action; B-09 and B-07 remain open.
+Issue #210 implements the first [unified local frontend](unified_local_frontend_application_shell.md)
+slice: one foreground process, one `127.0.0.1` server on an operating-system-
+selected port, one authenticated browser session, one navigation, and one
+managed data root. It does not yet call the transport-free Application, Session,
+Match, or Corpus operations and does not proxy or iframe standalone servers.
+Bare installed/module/Legacy dispatch and explicit `app` now launch the shell;
+explicit Session, Capture, Corpus, and Root paths remain supported. Issue #211 is
+next; B-09 and B-07 remain open.
 
 Issues #160 through #168 form the published `v0.15.0` Package baseline, and Issue
 #169 updated only Package/release metadata and documentation to complete Release
@@ -397,7 +396,10 @@ canonical Root execution before that optional public conversion.
 
 | File | Purpose |
 | --- | --- |
-| `src/skatmind/cli/execution.py` | Package-owned Root compatibility facade and leading-`corpus`, `capture`, then `session` dispatch. |
+| `src/skatmind/cli/entrypoint.py` | Lightweight Package entry with shell-first bare/leading-`app` dispatch before broad Root imports. |
+| `src/skatmind/cli/execution.py` | Package-owned compatibility facade with `app`, `corpus`, `capture`, `session`, and Root dispatch. |
+| `src/skatmind/cli/app.py` | Unified shell managed-home preparation, browser opening, foreground lifecycle, and Exit Code transport. |
+| `src/skatmind/app_web/` | Private managed-data contracts, context, browser-safe state, rendering, security, Standard Library server, template, and packaged CSS. |
 | `src/skatmind/cli/corpus.py` | Private local Learning Corpus CLI startup, browser opening, shutdown, and Exit Code transport. |
 | `src/skatmind/cli/capture.py` | Private local Capture CLI startup and Exit Code transport. |
 | `src/skatmind/cli/session.py` | Session compatibility facade over focused parser and orchestration services. |

@@ -614,7 +614,7 @@ Release title, theme, date, tag, and publication commit:
 
 ## Post-audit UAT note
 
-This note records later Issue #208 and #209 state without rewriting the Issue
+This note records later Issue #208 through #210 state without rewriting the Issue
 #207 technical conclusion above. Maintainer UAT began after the #207 merge and
 required CI. UAT-01 technically executed but failed user acceptance with one
 accepted blocker and two accepted major findings:
@@ -631,12 +631,12 @@ UAT-FINDING-003:
     user concepts.
 ```
 
-Issue #209 freezes the approved future
+Issue #209 freezes the approved
 [unified local frontend contract](unified_local_frontend_contract.md) and the
-exact #210 through #213 implementation sequence. It changes no Product behavior,
-does not close a finding, does not repeat UAT-01, and does not resume UAT-02
-through UAT-12. Issue #210, **Add the unified local SkatMind application shell
-and managed data home**, is the exact next implementation action.
+exact #210 through #213 implementation sequence. Issue #210 implements the
+[application shell](unified_local_frontend_application_shell.md) and partially
+remediates UAT-FINDING-001 without closing it. It does not repeat UAT-01 or resume
+UAT-02 through UAT-12. Issue #211 is the exact next implementation action.
 
 The post-audit Release-process state is:
 
@@ -654,6 +654,16 @@ B-09:
     open and blocked by accepted UAT findings
 
 B-07:
+    open
+
+UAT-FINDING-001:
+    partially remediated
+    remains open
+
+UAT-FINDING-002:
+    open
+
+UAT-FINDING-003:
     open
 
 Release preparation:

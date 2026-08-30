@@ -122,6 +122,7 @@ def test_cli_exit_code_constants_are_exact() -> None:
 
 
 def test_main_uses_usage_exit_constant_and_preserves_wording(monkeypatch, capsys) -> None:
+    monkeypatch.setattr(sys, "argv", ["main.py", "--input", "unused.json"])
     monkeypatch.setattr(
         main_module,
         "parse_arguments",
@@ -138,6 +139,7 @@ def test_main_uses_usage_exit_constant_and_preserves_wording(monkeypatch, capsys
 
 
 def test_main_uses_failure_exit_constant_and_preserves_wording(monkeypatch, capsys) -> None:
+    monkeypatch.setattr(sys, "argv", ["main.py", "--input", "unused.json"])
     monkeypatch.setattr(
         main_module,
         "parse_arguments",
@@ -154,7 +156,7 @@ def test_main_uses_failure_exit_constant_and_preserves_wording(monkeypatch, caps
 
 
 def test_main_uses_success_exit_constant(monkeypatch) -> None:
-    monkeypatch.setattr(sys, "argv", ["main.py"])
+    monkeypatch.setattr(sys, "argv", ["main.py", "--input", "unused.json"])
     monkeypatch.setattr(main_module, "load_json_object", lambda _path: {})
     monkeypatch.setattr(main_module, "get_input_workflow", lambda _data: "opponent_statistics")
     monkeypatch.setattr(main_module, "validate_cli_arguments", lambda *args, **kwargs: None)

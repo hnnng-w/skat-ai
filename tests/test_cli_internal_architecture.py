@@ -630,6 +630,38 @@ def test_corpus_web_layering_and_execution_boundaries() -> None:
     assert "skatmind.corpus_web" not in capture_text
 
 
+def test_app_web_layering_and_startup_execution_boundaries() -> None:
+    app_root = SOURCE_ROOT / "app_web"
+    forbidden = (
+        "skatmind.application",
+        "skatmind.api",
+        "skatmind.session",
+        "skatmind.match_capture",
+        "skatmind.learning_corpus",
+        "skatmind.search",
+        "skatmind.bounded_search",
+        "skatmind.replay_coaching",
+        "skatmind.cli",
+    )
+    violations = []
+    for path in sorted(app_root.glob("*.py")):
+        tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Import):
+                imported = tuple(alias.name for alias in node.names)
+            elif isinstance(node, ast.ImportFrom):
+                imported = (node.module or "",)
+            else:
+                continue
+            for module_name in imported:
+                if any(
+                    module_name == blocked or module_name.startswith(f"{blocked}.")
+                    for blocked in forbidden
+                ):
+                    violations.append((path.relative_to(PROJECT_ROOT), node.lineno, module_name))
+    assert violations == []
+
+
 def test_tactical_coaching_core_is_private_transport_and_io_free() -> None:
     paths = [
         *sorted(SOURCE_ROOT.glob("learning_corpus_tactical_coaching_*.py")),

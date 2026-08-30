@@ -32,20 +32,18 @@ manually at commit `d5589f8`. See
 [Public Session API version 1](public_session_api_v1.md)
 and [Session CLI and end-to-end capture](session_cli_and_end_to_end_capture.md).
 
-## Approved future Product entry, not implemented
+## Implemented Product entry and remaining routing
 
-Issue #209 freezes bare `skatmind` as the future primary local browser
-application entry and `skatmind app` as its explicit form. It freezes
-`skatmind run` as the future canonical advanced Root JSON interface while
-retaining `skatmind --input ...` as a Package-1.x compatibility route. Direct
-`session`, `capture`, and `corpus` interfaces must remain supported for advanced
-use. Future `skatmind --help` must be concise and Product-oriented, and complete
-Root options must move to `skatmind run --help`.
+Issue #210 implements bare `skatmind` as the primary local browser application
+entry and `skatmind app` as its explicit form, with equal installed, module, and
+Legacy routing. Direct `skatmind --input ...`, `session`, `capture`, and `corpus`
+remain supported advanced interfaces. The shell options are `--data-root PATH`,
+`--port INTEGER`, and `--no-open`.
 
-None of that routing exists in Package `0.17.0`. The installation, help, options,
-explicit paths, and execution sections below document current behavior and must
-remain in use until Issues #210 through #213 complete. See
-[Unified local frontend contract](unified_local_frontend_contract.md).
+Issue #213 still owns `skatmind run`, concise Product-oriented top-level help,
+and complete Root options under `run --help`. Current technical Root `--help` and
+direct Root options remain in use. See [Application shell](unified_local_frontend_application_shell.md)
+and [Unified local frontend contract](unified_local_frontend_contract.md).
 
 ## Installation
 
@@ -134,9 +132,11 @@ destinations, actions, defaults, choices, repeatability, and semantic validation
 Issue #142 added `--version`; Issue #147 added Root `--include-provenance`;
 Issue #157 delegates a leading `session` token to the separate Session parser.
 Issue #165 adds leading `capture` dispatch before Session. Issue #179 adds leading
-`corpus` dispatch before Capture. Every other invocation preserves the existing
-Root parser. The full current option lists are available through `--help`,
-`session --help`, `capture --help`, and `corpus --help`.
+`corpus` dispatch before Capture. Issue #210 routes empty argv and leading `app`
+to the unified shell before those technical families. Every other invocation
+preserves the existing Root parser. The full current option lists are available
+through `app --help`, Root `--help`, `session --help`, `capture --help`, and
+`corpus --help`.
 
 The Information-set Search Root additions are:
 
@@ -393,9 +393,9 @@ Session persistence
 files and explicit JSON outputs remain private caller-controlled data; concise
 human output does not print complete private hands, full Skat, frozen Requests,
 fingerprints, provenance entries, or file contents by default. The Match and
-Learning Corpus browsers are private loopback-only local transports. Session
-GUI/browser UI remains absent in the current Package. Issue #209 approves its
-future integration into one unified local frontend under B-09. Hosted or remote
+Learning Corpus browsers are private loopback-only local transports. The current
+Package includes the unified local application shell, but Session,
+Match, and Learning lifecycles remain Issue #212 placeholders. Hosted or remote
 browser deployment, online-platform integration, cloud synchronization,
 distributed locking, encryption/key management, and automatic backups remain
 open.

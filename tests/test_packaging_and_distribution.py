@@ -13,6 +13,7 @@ SCHEMA_DIRECTORY = PROJECT_ROOT / "schemas"
 PACKAGED_SCHEMA_DIRECTORY = PROJECT_ROOT / "src" / "skatmind" / "schema_resources"
 CAPTURE_RESOURCE_DIRECTORY = PROJECT_ROOT / "src" / "skatmind" / "capture_web"
 CORPUS_RESOURCE_DIRECTORY = PROJECT_ROOT / "src" / "skatmind" / "corpus_web"
+APP_RESOURCE_DIRECTORY = PROJECT_ROOT / "src" / "skatmind" / "app_web"
 
 
 def test_build_metadata_package_discovery_and_package_data_are_explicit() -> None:
@@ -51,6 +52,11 @@ def test_build_metadata_package_discovery_and_package_data_are_explicit() -> Non
             "assets/*.js",
         ],
         "skatmind.corpus_web": [
+            "templates/*.html",
+            "assets/*.css",
+            "assets/*.js",
+        ],
+        "skatmind.app_web": [
             "templates/*.html",
             "assets/*.css",
             "assets/*.js",
@@ -146,6 +152,26 @@ def test_corpus_web_resources_are_local_package_data() -> None:
     assert b"https://" not in combined
     assert b"http://" not in combined
     assert b"eval(" not in combined
+
+
+def test_app_web_resources_are_local_package_data() -> None:
+    resources = importlib.resources.files("skatmind.app_web")
+    expected = {
+        "templates/app.html",
+        "assets/app.css",
+    }
+    for name in expected:
+        resource = resources.joinpath(name)
+        source = APP_RESOURCE_DIRECTORY.joinpath(name)
+        assert resource.is_file()
+        assert resource.read_bytes() == source.read_bytes()
+    combined = b"".join(
+        APP_RESOURCE_DIRECTORY.joinpath(name).read_bytes() for name in sorted(expected)
+    )
+    assert b"https://" not in combined
+    assert b"http://" not in combined
+    assert b"eval(" not in combined
+    assert b"<script" not in combined
 
 
 def test_match_player_statistics_modules_are_package_discovered() -> None:

@@ -9,6 +9,7 @@ established monkeypatch seams.
 import sys
 from types import ModuleType
 
+from skatmind.cli.entrypoint import main  # noqa: F401
 from skatmind.cli.presentation.common import *  # noqa: F403
 from skatmind.cli.presentation.dataset import *  # noqa: F403
 from skatmind.cli.presentation.historical import *  # noqa: F403
@@ -54,6 +55,13 @@ def run_cli(
     """Runs one argv-capable CLI invocation using the selected command identity."""
     _invocation_command(invocation_style)
     dispatch_argv = tuple(sys.argv[1:] if argv is None else argv)
+    if not dispatch_argv or dispatch_argv[:1] == ("app",):
+        from skatmind.cli.app import run_app_cli
+
+        return run_app_cli(
+            dispatch_argv if not dispatch_argv else dispatch_argv[1:],
+            invocation_style=invocation_style,
+        )
     if dispatch_argv[:1] == ("corpus",):
         from skatmind.cli.corpus import run_corpus_cli
 
@@ -80,8 +88,3 @@ def run_cli(
         return _run_cli(argv, invocation_style)
     with legacy_patch_namespace(legacy_namespace):  # noqa: F405
         return _run_cli(argv, invocation_style)
-
-
-def main() -> int:
-    """Runs the installed ``skatmind`` Console Script."""
-    return run_cli(invocation_style="installed")

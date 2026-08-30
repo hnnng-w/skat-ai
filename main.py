@@ -6,6 +6,11 @@ The canonical implementation is package-owned under :mod:`skatmind.cli`.
 import sys
 from functools import wraps
 
+if __name__ == "__main__" and (len(sys.argv) == 1 or sys.argv[1] == "app"):
+    from skatmind.cli.entrypoint import run_cli as _run_lightweight_cli
+
+    raise SystemExit(_run_lightweight_cli(invocation_style="legacy"))
+
 from skatmind.cli import execution as _cli
 from skatmind.cli.execution import *  # noqa: F403
 

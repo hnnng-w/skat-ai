@@ -2,9 +2,9 @@
 
 This document describes the example input files in `examples/`.
 
-The repository-root quick-start command `python main.py` reads the root
-`input_position.json` fixture. Files under `examples/` are selected explicitly
-with `--input`.
+The repository-root quick-start command `python main.py` opens the unified local
+application shell. The root `input_position.json` fixture and files under
+`examples/` are selected explicitly with `--input`.
 
 The examples are used for:
 
@@ -142,10 +142,10 @@ Show CLI help and command examples:
 python main.py --help
 ```
 
-Run the default live recommendation using the root `input_position.json` fixture:
+Run live recommendation using the root `input_position.json` fixture:
 
 ```powershell
-python main.py
+python main.py --input input_position.json
 ```
 
 Run live recommendation with an explicit input file:

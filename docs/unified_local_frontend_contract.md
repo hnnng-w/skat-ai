@@ -3,11 +3,11 @@
 ## Authority and status
 
 This document is the authoritative version-1 Product and architecture contract
-for the future unified local SkatMind frontend and its application-launch
-boundary. Issue #209 freezes this contract in response to the accepted Issue
-#208 UAT findings. It is a documentation-only decision and does not claim that
-the target frontend, launch routing, managed data home, forms, or Result views
-already exist.
+for the unified local SkatMind frontend and its application-launch boundary.
+Issue #209 froze this contract in response to the accepted Issue #208 UAT
+findings. Issue #210 now implements launch routing, the managed home, Home,
+navigation, About, secure serving, packaged assets, and honest placeholders.
+Issues #211 through #213 retain their frozen ownership below.
 
 The three states in this document must remain distinct:
 
@@ -16,15 +16,16 @@ Current behavior:
     the behavior implemented by Package 0.17.0
 
 Approved target contract:
-    the required future behavior frozen by Issue #209
+    the complete required behavior frozen by Issue #209, partly implemented
 
 Future implementation ownership:
-    the focused work assigned to Issues #210 through #213
+    the remaining focused work assigned to Issues #211 through #213
 ```
 
 Current executable contracts, Public APIs, persistence formats, browser
-protocols, Schemas, and information controls remain authoritative until the
-target is implemented. Issue #209 changes none of them.
+protocols, Schemas, and information controls remain authoritative while the
+remaining target is implemented. Issue #209 changed none of them; Issue #210
+adds only its private shell boundary.
 
 ## UAT source
 
@@ -54,7 +55,7 @@ does not repeat UAT-01, and does not resume the remaining UAT cases.
 
 ## Contract identity
 
-The frozen future implementation contract versions are:
+The frozen internal contract versions are:
 
 ```text
 UNIFIED_LOCAL_FRONTEND_CONTRACT_VERSION = 1
@@ -62,12 +63,12 @@ LOCAL_FRONTEND_LAUNCH_CONTRACT_VERSION = 1
 MANAGED_LOCAL_DATA_CONTRACT_VERSION = 1
 ```
 
-These identities must not be added as Product-code constants by Issue #209.
-They remain independent of the Package version, Public API contract version,
+Issue #210 implements these identities as private Product-code constants. They
+remain independent of the Package version, Public API contract version,
 seven Root workflow contracts, Session contracts, Match Workspace contracts,
 Learning Corpus contracts, Schema versions, and browser-protocol versions.
 
-The exact future internal policies are:
+The exact internal policies are:
 
 ```text
 bare_skatmind_opens_unified_local_frontend
@@ -82,20 +83,24 @@ advanced_cli_and_public_python_api_remain_supported
 existing_private_information_boundaries_remain_authoritative
 ```
 
-These policy strings are future internal policies, not Public API exports.
+These policy strings are private internal policies, not Public API exports.
 
 ## Current behavior
 
 Package `0.17.0` currently exposes one Console Script,
 `skatmind = skatmind.cli:main`, and supports installed, module, and repository-
-root Legacy invocation. Leading `corpus`, `capture`, and `session` select their
-separate command families; every other invocation enters the Root JSON parser.
+root Legacy invocation. Empty argv and leading `app` select the unified shell;
+leading `corpus`, `capture`, and `session` retain their separate command families;
+every other invocation enters the Root JSON parser.
 
 Consequently, current behavior is:
 
 ```text
 skatmind
-    run the Root JSON interface with default input_position.json
+    launch the unified local application shell
+
+skatmind app
+    explicitly launch the unified local application shell
 
 skatmind --help
     show the complete flat technical Root option list
@@ -115,10 +120,10 @@ skatmind corpus --corpus PATH ...
 
 `python -m skatmind` enters the same Package-owned dispatch. Repository-root
 `python main.py` remains the Legacy facade. Match Capture and Learning Corpus
-currently have separate server contexts, bootstrap URLs, cookies, navigation,
-and process entries. There is currently no unified frontend, `app` command,
-`run` command, managed data root, Session browser interface, or shared browser
-navigation.
+retain separate advanced server contexts, bootstrap URLs, cookies, navigation,
+and process entries. The unified shell and `app` command now exist with one
+managed root and shared shell navigation. The `run` command, guided Product
+workflows, managed item lifecycles, and Session browser operations do not yet exist.
 
 These current commands remain the accurate instructions until their owning
 implementation Issues complete.
@@ -680,11 +685,13 @@ UAT-FINDING-003:
     primary remediation in Issue #212
 ```
 
-Issue #210 is the exact next implementation action after Issue #209.
+Issue #210 implements its assigned shell slice. Issue #211 is the exact next
+implementation action. See [Unified local frontend application shell](unified_local_frontend_application_shell.md)
+for the implemented boundary and validation evidence.
 
 ## UAT repetition and Release state
 
-The state frozen by Issue #209 is:
+The post-Issue-#210 state is:
 
 ```text
 Issue #208:
@@ -700,6 +707,16 @@ B-09:
     open and blocked by accepted UAT findings
 
 B-07:
+    open
+
+UAT-FINDING-001:
+    partially remediated by the application shell
+    remains open
+
+UAT-FINDING-002:
+    open
+
+UAT-FINDING-003:
     open
 
 Release preparation:
@@ -739,7 +756,7 @@ the 53-row ledger and must not reopen B-06 or reclassify a completed row. B-07
 must remain open, Package `1.0.0` must remain unprepared, and Release preparation
 must remain not ready.
 
-## Non-goals and accepted limitations
+## Issue #209 historical non-goals and current accepted limitations
 
 Issue #209 must not implement launch routing, `app`, `run`, a server, routes,
 assets, managed storage, forms, Result views, CLI help, Session browser

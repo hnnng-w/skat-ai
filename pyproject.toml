@@ -34,6 +34,7 @@ skatmind = ["py.typed"]
 "skatmind.schema_resources" = ["*.schema.json"]
 "skatmind.capture_web" = ["templates/*.html", "assets/*.css", "assets/*.js"]
 "skatmind.corpus_web" = ["templates/*.html", "assets/*.css", "assets/*.js"]
+"skatmind.app_web" = ["templates/*.html", "assets/*.css", "assets/*.js"]
 
 [tool.ruff]
 line-length = 100

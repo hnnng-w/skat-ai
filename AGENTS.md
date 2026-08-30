@@ -572,9 +572,10 @@ makes P-34 `satisfied`, and closes B-05 after both merged Ubuntu jobs pass. Issu
 #207 completes the final technical audit and closes B-06 with no material
 technical blocker. Issue #208 then begins maintainer UAT; UAT-01 fails with one
 accepted blocker and two accepted major findings. Issue #209 freezes the approved
-unified local frontend and launch contract without changing Product behavior.
+unified local frontend and launch contract. Issue #210 implements the shell and
+managed data home, partially remediating UAT-FINDING-001 without closing it.
 UAT-02 through UAT-12 are paused, B-09 and B-07 remain open, and `v1.0.0` is not
-ready. Issue #210 is the exact next implementation action after Issue #209.
+ready. Issue #211 is the exact next implementation action.
 No v1 Release title, theme, date, tag, publication commit, or production model is
 frozen.
 
@@ -869,14 +870,14 @@ files and PEP 639 metadata. Issue #205 completes the SkatMind rename and closes
 B-08. Issue #206 completes the technical platform matrix and closes B-05 after
 merged Ubuntu CI passes. Issue #207 closes B-06. Issue #208 remains open after
 UAT-01 fails, and Issue #209 freezes the documentation-only remediation contract.
-Issue #210 is next; UAT-02 through UAT-12 and B-07 Release preparation remain
-paused.
+Issue #210 implements the application shell; Issue #211 is next. UAT-02 through
+UAT-12 and B-07 Release preparation remain paused.
 End-to-end local Live and Retrospective Session
 capture is implemented through public file Save/Load, automatic Checkpoints,
 accepted-Log actual-card observation, isolated review, explicit analysis, the
-12-subcommand CLI, and Assistant. Session GUI/browser UI remains absent in the
-current Product; Issue #209 approves its future integration into the unified
-frontend as B-09 remediation without reopening the completed technical ledger.
+12-subcommand CLI, and Assistant. The unified shell has only a Session
+placeholder; Issue #212 owns Session browser operations without reopening the
+completed technical ledger.
 Online-platform adapters, cloud synchronization, distributed locking,
 encryption/key management, and automatic backup policy remain absent. The
 historical published `v0.14.0` baseline
@@ -948,8 +949,10 @@ requirements and completion gates for `v1.0.0` are in
 [`docs/v1_scope.md`](docs/v1_scope.md). The historical technical conclusion and
 its post-audit UAT note are in
 [`docs/v1_0_final_technical_release_readiness_audit.md`](docs/v1_0_final_technical_release_readiness_audit.md).
-The approved but unimplemented frontend and launch boundary is authoritative in
-[`docs/unified_local_frontend_contract.md`](docs/unified_local_frontend_contract.md).
+The frontend boundary is authoritative in
+[`docs/unified_local_frontend_contract.md`](docs/unified_local_frontend_contract.md),
+and the implemented shell is documented in
+[`docs/unified_local_frontend_application_shell.md`](docs/unified_local_frontend_application_shell.md).
 
 Do not describe undecided future areas as permanently out of scope. Four-player
 tables are the only unconditional exclusion; other candidate areas use the
