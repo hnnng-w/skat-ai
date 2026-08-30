@@ -1745,7 +1745,7 @@ ledger. Issue #206 adds exact direct dependency floors, resolved source/Editable
 Wheel/sdist evidence, minimum Wheel/sdist evidence, and separate Windows/Ubuntu
 matrix execution. It makes P-34 `satisfied` and closes B-05 after both merged
 Ubuntu jobs pass. Issue #207 closes B-06 with no material technical blocker.
-B-09 and B-07 remain; Issue #208 maintainer UAT is next.
+B-09 and B-07 remain. Issue #208 then starts maintainer UAT; UAT-01 fails with one accepted blocker and two accepted major findings. Issue #209 freezes the approved unified local frontend and launch contract without Product behavior change. UAT-02 through UAT-12 are paused, and Issue #210 is the exact next implementation action.
 
 Historical published Package milestone: `v0.15.0`, providing usable manual post-
 game capture of one EuroSkat 36er Standard Match from descriptive video evidence.
@@ -2263,10 +2263,12 @@ Completed implementation scope:
   review export, automatic Checkpoint collection, all 12 CLI subcommands,
   explicit Position/Historical execution, the Assistant, examples, and generated
   outputs are implemented. Export-only operations execute no workflow, and the
-  reusable Application still has only seven Root workflows. Session GUI/browser UI,
-  online-platform adapters, cloud synchronization, distributed locking,
-  encryption/key management, and automatic backups remain absent and are not v1
-  requirements.
+  reusable Application still has only seven Root workflows. Session GUI/browser
+  UI remains absent in the current Product. Issue #209 approves its future
+  integration in one unified local frontend as B-09 remediation outside the
+  completed technical ledger. Online-platform adapters, cloud synchronization,
+  distributed locking, encryption/key management, and automatic backups remain
+  absent.
 * Opponent behavior and confidence remain heuristic and rule-based; behavioral evaluation does not prove stronger play.
 * No learned model or model-training workflow exists.
 * Match Capture contains identity/metadata, evidence-aware observed Games and
@@ -2334,26 +2336,32 @@ Completed implementation scope:
 
 ## Next recommended action
 
-Begin Issue #208, **Perform maintainer v1.0.0 user acceptance testing**, after
-the Issue #207 documentation is merged and its required CI is green.
+Implement Issue #210, **Add the unified local SkatMind application shell and
+managed data home**, after the Issue #209 documentation is merged and its
+required checks are green. Issue #209 creates no follow-up Issue; it freezes the
+exact #210 through #213 sequence and the authoritative
+[unified local frontend contract](unified_local_frontend_contract.md).
+
 Issues #201 through #203 close B-01 through B-03. Issue #204 applies the exact
 `AGPL-3.0-only` Package boundary and closes B-04 without changing product
 behavior. Issue #205 completes the SkatMind identity and migration boundary,
 makes P-09 `satisfied`, and closes B-08. #206 closes B-05 after its installation/
 platform evidence and merged jobs pass. #207 finds no material technical blocker
-and closes B-06. #208 owns the separate B-09 maintainer-UAT Gate outside the
-53-row ledger. B-07 Release preparation occurs
-only after #208 and remediation of accepted findings; its Issue number is not
-frozen. The published functional history remains Issues #182 through #196;
+and closes B-06. #208 remains open and owns the separate B-09 maintainer-UAT
+Gate outside the 53-row ledger. UAT-01 failed; UAT-02 through UAT-12 are paused
+until #210 through #213 complete and repeated UAT-01 passes. B-07 Release
+preparation remains open and not ready. The published functional history remains
+Issues #182 through #196;
 Issues #197 through #199 remain audit, Release preparation, and publication
 synchronization only. `v1.0.0` is not ready, and no Release title, theme, date,
 tag, or publication commit is frozen.
 
 Keep immutable imported Workspace Snapshots separate from derived artifacts.
 Public Match/Corpus/Dataset-v2 surfaces, derived persistence, broader Player
-Ratings and tactical truth, latency guarantees, Session GUI, database deployment,
-and Historical Teacher import are not v1 requirements. Broader solver, auction,
-learned-model, and hosted/remote work is post-v1.
+Ratings and tactical truth, latency guarantees, database deployment, and
+Historical Teacher import are not v1 requirements. The approved local Session
+browser integration is now owned by #212; broader solver, auction, learned-model,
+and hosted/remote work remains post-v1.
 
 Do not infer automatic newest selection, fuzzy Player merging, cross-revision
 Decision lineage, deletion, garbage collection, Human Evidence persistence,

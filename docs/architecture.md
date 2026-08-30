@@ -151,7 +151,18 @@ and B-08 is closed. Issue #206 adds exact direct dependency floors and a reusabl
 validation-only source/Editable/Wheel/sdist supported-platform matrix. P-34 is
 `satisfied`, and B-05 is closed after both merged Ubuntu jobs pass. Issue #207
 finds no material technical blocker and closes B-06. B-09 and B-07 remain; B-09
-is outside the 53-row ledger, and Issue #208 maintainer UAT is the next action.
+is outside the 53-row ledger. Issue #208 then begins maintainer UAT; UAT-01 fails
+with three accepted findings, and UAT-02 through UAT-12 are paused.
+
+Issue #209 freezes the approved future
+[unified local frontend](unified_local_frontend_contract.md) without implementing
+it. The target is one foreground process, one `127.0.0.1` server on an operating-
+system-selected port, one authenticated browser session, one navigation, and one
+managed data root. It must reuse the transport-free Application, Session, Match,
+and Corpus operations directly rather than proxying or iframing the current
+standalone servers. Current bare Root dispatch and explicit Session, Capture,
+and Corpus paths remain unchanged. Issue #210 is the exact next implementation
+action; B-09 and B-07 remain open.
 
 Issues #160 through #168 form the published `v0.15.0` Package baseline, and Issue
 #169 updated only Package/release metadata and documentation to complete Release

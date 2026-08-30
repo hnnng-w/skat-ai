@@ -54,6 +54,22 @@ Legacy compatibility facade and is not included in distributions.
 is `corpus`, then `capture`, then `session`, then the existing Root parser. All
 three command-family imports remain lazy.
 
+## Approved future routing, not implemented
+
+Issue #209 freezes a future routing change without modifying this current
+architecture. Bare `skatmind`, bare `python -m skatmind`, and bare repository-
+root `python main.py` must launch the unified local frontend; `skatmind app` must
+be its explicit form; and `skatmind run` must become the canonical advanced Root
+JSON route. Direct `skatmind --input ...` must remain a Package-1.x compatibility
+route, while `session`, `capture`, and `corpus` remain advanced direct
+interfaces. Future top-level help must be concise and Product-oriented, with the
+complete Root options under `skatmind run --help`.
+
+Issues #210 through #213 own implementation. Until they complete, the current
+entry points, dispatch precedence, bare default `input_position.json`, and help
+documented above and in [Installed CLI](installed_cli.md) remain authoritative.
+See [Unified local frontend contract](unified_local_frontend_contract.md).
+
 ## Learning Corpus CLI and browser transport
 
 Issue #179 adds `src/skatmind/cli/corpus_parser.py` for the exact `corpus` command,

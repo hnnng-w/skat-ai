@@ -1661,10 +1661,10 @@ The Human, Strategy Teacher, and Tactical families remain separate; Dataset
 version `2` remains unchanged. See [Learning Corpus Tactical Motif evidence and
 summaries](docs/learning_corpus_tactical_motif_evidence_and_summaries.md).
 
-Issue #200 freezes the bounded v1 scope. Public Match/Corpus/Dataset-v2 surfaces,
-derived persistence, broader Player Ratings and tactical-quality claims,
-cross-machine latency guarantees, and Session GUI work are not v1 requirements;
-broader solver, auction, learned-model, and hosted/remote work is post-v1. The
+Issue #200 freezes the bounded v1 scope. Public Match/Corpus/Dataset-v2 surfaces, derived persistence, broader Player Ratings and tactical-quality claims,
+and cross-machine latency guarantees are not technical-ledger v1 requirements. That completed ledger did not require Session GUI work; Issue #209 later adds
+unified local frontend implementation as required B-09 remediation outside the 53 rows. Broader solver, auction, learned-model, and hosted/remote work is
+post-v1. The
 Issue #201 [official-rule evidence](docs/v1_official_rule_evidence.md) closes the
 R-01/R-06 evidence gate B-01 without product-code change. Issue #202 closes B-02
 with mandatory internal end-to-end Provenance enforcement and makes P-10 and
@@ -1770,6 +1770,15 @@ UI, online-platform adapters, browser
 extensions, website scraping, cloud synchronization, distributed locking,
 encryption/key management, automatic backups, and unrelated pre-v1 gaps remain
 open.
+Issue #209 later approves the local Session browser integration only as part of
+the unified frontend B-09 remediation; the other listed layers remain open.
+
+Package `0.17.0` still uses the technical Root JSON interface for bare
+`skatmind`, requires explicit paths for Session, Capture, and Corpus, and has no
+unified frontend. Issue #209 approves but does not implement a future bare-
+command local browser application, managed local data, guided workflows, and a
+separate `skatmind run` advanced automation route. See the
+[unified local frontend contract](docs/unified_local_frontend_contract.md).
 
 Issue #159 synchronized the historical `v0.14.0` publication status. The
 published `v0.15.0` milestone covers usable EuroSkat 36er Standard post-game
@@ -1891,9 +1900,12 @@ without product-code change. Issue #202 closes B-02 and makes P-10 and P-13
   makes P-34 `satisfied`, and closes B-05 after both merged Ubuntu jobs pass.
   Issue #207 completes the final technical audit, finds no material technical
   blocker, and closes B-06. The separate B-09 maintainer-UAT Gate sits outside
-  the 53-row ledger. The milestone is not ready; Issue #208, **Perform maintainer
-  v1.0.0 user acceptance testing**, is next before B-07 Release preparation. No
-  v1 Release title, theme, date, tag, or publication commit is frozen.
+  the 53-row ledger. Issue #208 then starts UAT; UAT-01 fails with three accepted
+  findings, and UAT-02 through UAT-12 are paused. Issue #209 freezes the approved
+  unified local frontend contract without Product behavior change. Issue #210 is
+  the exact next implementation action. B-09 and B-07 remain open, Release
+  preparation is not ready, and no v1 Release title, theme, date, tag, or
+  publication commit is frozen.
 
 Current support and known limitations are tracked in the
 [requirements traceability matrix](docs/requirements_traceability.md). Product
@@ -1901,6 +1913,8 @@ scope and completion gates are defined in the [v1.0 scope](docs/v1_scope.md).
 The required-row classifications are in the [scope and traceability
 audit](docs/v1_0_scope_and_traceability_audit.md); the current conclusion is in
 the [final technical Release-readiness audit](docs/v1_0_final_technical_release_readiness_audit.md).
+The approved future local Product entry and UAT remediation architecture are in
+the [unified local frontend contract](docs/unified_local_frontend_contract.md).
 The Historical integration is documented in [Historical party-wide
   Claim](docs/historical_party_wide_claim.md). The private boundary is documented in [Party-wide Claim
   contracts](docs/party_wide_claim_contracts.md), the [Party-wide Claim proof

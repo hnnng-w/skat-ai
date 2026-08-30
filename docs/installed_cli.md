@@ -32,6 +32,21 @@ manually at commit `d5589f8`. See
 [Public Session API version 1](public_session_api_v1.md)
 and [Session CLI and end-to-end capture](session_cli_and_end_to_end_capture.md).
 
+## Approved future Product entry, not implemented
+
+Issue #209 freezes bare `skatmind` as the future primary local browser
+application entry and `skatmind app` as its explicit form. It freezes
+`skatmind run` as the future canonical advanced Root JSON interface while
+retaining `skatmind --input ...` as a Package-1.x compatibility route. Direct
+`session`, `capture`, and `corpus` interfaces must remain supported for advanced
+use. Future `skatmind --help` must be concise and Product-oriented, and complete
+Root options must move to `skatmind run --help`.
+
+None of that routing exists in Package `0.17.0`. The installation, help, options,
+explicit paths, and execution sections below document current behavior and must
+remain in use until Issues #210 through #213 complete. See
+[Unified local frontend contract](unified_local_frontend_contract.md).
+
 ## Installation
 
 An Editable, Wheel, or sdist installation exposes exactly one Console Script:
@@ -379,10 +394,11 @@ files and explicit JSON outputs remain private caller-controlled data; concise
 human output does not print complete private hands, full Skat, frozen Requests,
 fingerprints, provenance entries, or file contents by default. The Match and
 Learning Corpus browsers are private loopback-only local transports. Session
-GUI/browser UI, hosted or remote browser deployment, online-platform integration,
-cloud synchronization,
-distributed locking,
-encryption/key management, and automatic backups remain open.
+GUI/browser UI remains absent in the current Package. Issue #209 approves its
+future integration into one unified local frontend under B-09. Hosted or remote
+browser deployment, online-platform integration, cloud synchronization,
+distributed locking, encryption/key management, and automatic backups remain
+open.
 Information-set Search remains bounded to its documented flat, Multi-Step, Policy
 Comparison, Historical Review, Training Dataset evaluation, private one-Decision
 Match/Teacher, Match Historical, and Replay Coaching routes. Issue #193 supplies
@@ -392,5 +408,6 @@ than v0.17.0 Release blockers.
 See [Local Match Capture interface](local_match_capture_interface.md) and
 [Learning Corpus browser workflows](learning_corpus_browser_workflows.md) and
 [Public field provenance](public_field_provenance.md). See also
-[Information-set Search Multi-Step and Policy Comparison](information_set_search_multi_step_and_policy_comparison.md).
+[Information-set Search Multi-Step and Policy Comparison](information_set_search_multi_step_and_policy_comparison.md)
+and [Unified local frontend contract](unified_local_frontend_contract.md).
 See also [Match Information-set Search and Strategy Teacher Evidence](match_information_set_search_and_strategy_teacher.md).

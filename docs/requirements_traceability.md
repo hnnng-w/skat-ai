@@ -202,10 +202,10 @@ scenarios. The `v0.14.0` Package baseline therefore has 85 generated outputs and
 63 Schemas. The functional milestone is complete, and Issue #158 completed
 Package version `0.14.0` and Release-documentation preparation without changing
 product behavior. The maintainer subsequently published `v0.14.0` manually at
-commit `d5589f8`. Session GUI or
-browser UI, online-platform adapters, browser extensions, website scraping,
-cloud synchronization, distributed locking, encryption/key management, and
-automatic backup policy remain open.
+commit `d5589f8`. Session GUI/browser UI remains absent in the current Package.
+Issue #209 later approves its unified-frontend B-09 integration. Online-platform
+adapters, browser extensions, website scraping, cloud synchronization, distributed
+locking, encryption/key management, and automatic backup policy remain open.
 
 The published `v0.15.0` milestone provides usable manual
 post-game capture of one EuroSkat 36er Standard Match from descriptive video
@@ -374,9 +374,9 @@ outside the 53-row ledger. Issue #206 adds exact direct dependency floors and th
 source/Editable/Wheel/sdist Windows/Ubuntu matrix, makes P-34 `satisfied`, and
 closes B-05 after local Windows and merged Ubuntu evidence passes. Issue #207
 finds no material technical blocker and closes B-06. `v1.0.0` is not ready;
-Issue #208,
-**Perform maintainer v1.0.0 user acceptance testing**, is next before
-B-07 Release preparation.
+Issue #208 begins maintainer UAT, but UAT-01 fails with three accepted findings;
+Issue #209 freezes the approved frontend contract without Product behavior change.
+UAT-02 through UAT-12 are paused; Issue #210 is next; B-09 and B-07 remain open.
 
 ## Status vocabulary
 
@@ -869,3 +869,9 @@ Tactical Motif evidence and summaries](learning_corpus_tactical_motif_evidence_a
 See [v1.0 scope](v1_scope.md) for product classifications and completion gates,
 and the [v1.0 scope and traceability audit](v1_0_scope_and_traceability_audit.md)
 for the authoritative required-row ledger, blockers, and ordered Issue plan.
+
+The [unified local frontend contract](unified_local_frontend_contract.md) is an
+approved B-09 UAT remediation boundary, not a 54th required row. It must not
+reopen B-06 or reclassify the completed ledger. Current traceability rows above
+continue to describe implemented Package `0.17.0` behavior; Issues #210 through
+#213 own future frontend and advanced-CLI implementation.
