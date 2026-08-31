@@ -158,16 +158,28 @@ cookies cannot authenticate the app, and the app cookie cannot authenticate
 either standalone server.
 
 The server validates exact Host and cookie header cardinality for authenticated
-requests. Mutation attempts additionally require one exact same-origin `Origin`.
+requests. Mutation attempts additionally require one concrete HTTP loopback
+`Origin` whose hostname and port exactly match Host. Missing, `null`, duplicate,
+malformed, external, credential-bearing, path/query/fragment-bearing,
+wrong-port, and Host-mismatched Origins remain rejected. Referer and
+`Sec-Fetch-Site` are not authorization fallbacks.
 Body requests reject duplicate or missing length/type headers, transfer encoding,
 unsupported content types, short bodies, and oversized bodies. Multipart framing
 has a bounded allowance above the exact 1 MiB guided JSON file limit. Managed
 Session/Match JSON content and existing Corpus operations retain their separate
 16 MiB boundaries. Token comparison is constant-time.
 
-All responses apply `no-store`, `nosniff`, `no-referrer`, frame denial,
-restrictive Content Security Policy, and restrictive Permissions Policy headers.
-The server emits no CORS or access log and loads no external resource.
+All responses apply `no-store`, `nosniff`, `Referrer-Policy: origin`, frame
+denial, restrictive Content Security Policy, and restrictive Permissions Policy
+headers. The former `no-referrer` policy caused non-CORS browser POSTs to carry
+`Origin: null` under Fetch and therefore conflicted with the strict validator.
+`origin` preserves the concrete request Origin while any Referer contains only
+scheme, host, and port, not path or query. The same policy applies to standalone
+Match Capture and Learning Corpus. The server emits no CORS or access log and
+loads no external resource. Unified-app authorization failures use one
+deterministic HTML 403 page with no failed-check detail, request value, private
+value, Product data, or external asset; parser-level failures retain their
+minimal hardened response.
 
 ## Rendering and accessibility
 
@@ -202,10 +214,12 @@ downloads remain unchanged.
 
 Issues #210 through #213 complete implementation remediation with the shell,
 guided analysis/Review, readable Results, managed stateful workflows, and
-advanced CLI onboarding. All three findings remain open pending repeated UAT-01.
-UAT-01 remains failed; it is not repeated.
+advanced CLI onboarding. Repeated UAT-01 then exposes UAT-FINDING-004. Issue #214
+implements its Origin-policy remediation, but the issue and all four findings
+remain open pending maintainer Microsoft Edge verification. Repeated UAT-01 is
+blocked pending that verification.
 UAT-02 through UAT-12 remain paused. B-09 and B-07 remain open, B-06 remains
 closed, and the completed 53-row technical ledger is unchanged.
 
-The exact next action is to repeat UAT-01 under Issue #208 using a fresh clone
-and normal non-Editable runtime installation.
+The exact next action is Issue #214 maintainer verification under Issue #208 in
+Microsoft Edge using a fresh clone and normal non-Editable runtime installation.

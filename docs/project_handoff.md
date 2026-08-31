@@ -1755,8 +1755,11 @@ cross-area transfer workflows through the same server. UAT-FINDING-001 remains
 open pending repeated UAT, and Issue #212 implements the Product work owned by
 UAT-FINDING-003. Issue #213 adds canonical `run`, concise Product help, grouped
 advanced automation help, and unchanged direct Root compatibility. Implementation
-remediation for all three findings is complete, but each remains open pending
-repeated UAT-01. UAT-02 through UAT-12 are paused.
+remediation for all three initial findings is complete. Repeated UAT-01 then
+exposes UAT-FINDING-004. Issue #214 implements its browser-Origin policy
+remediation, but the issue and all findings remain open pending maintainer
+Microsoft Edge verification. Repeated UAT-01 is blocked pending that verification,
+and UAT-02 through UAT-12 are paused.
 
 Historical published Package milestone: `v0.15.0`, providing usable manual post-
 game capture of one EuroSkat 36er Standard Match from descriptive video evidence.
@@ -2347,8 +2350,8 @@ Completed implementation scope:
 
 ## Next recommended action
 
-Repeat UAT-01 under Issue #208 using a fresh clone and normal non-Editable
-runtime installation. Issues #210 through #213 implement bare/explicit shell
+Verify Issue #214 under Issue #208 in Microsoft Edge using a fresh clone and
+normal non-Editable runtime installation. Issues #210 through #213 implement bare/explicit shell
 launch, the managed data home, Home, navigation, About, secure local serving,
 guided analysis/Review, strict optional JSON transfer, readable Results, managed
 Session/Match/Learning workflows, and advanced CLI onboarding. See
@@ -2364,9 +2367,14 @@ makes P-09 `satisfied`, and closes B-08. #206 closes B-05 after its installation
 platform evidence and merged jobs pass. #207 finds no material technical blocker
 and closes B-06. #208 remains open and owns the separate B-09 maintainer-UAT
 Gate outside the 53-row ledger. Issues #210 through #213 complete implementation
-remediation; all findings remain open pending repeated UAT. UAT-01 failed and
-remains failed until repeated; UAT-02 through UAT-12 are paused until repeated
-UAT-01 passes. B-07 Release
+remediation. Repeated UAT-01 then exposes UAT-FINDING-004 because `no-referrer`
+makes browser POST Origin serialization `null` while all local browser surfaces
+require a concrete same-origin value. Issue #214 changes the unified app,
+standalone Capture, and standalone Corpus to `Referrer-Policy: origin`, retains
+null/forged-Origin rejection and origin-only Referer privacy, and adds a
+value-free unified HTML 403 page. Issue #214 and all findings remain open pending
+maintainer Edge verification. Repeated UAT-01 is blocked pending that
+verification; UAT-02 through UAT-12 remain paused. B-07 Release
 preparation remains open and not ready. The published functional history remains
 Issues #182 through #196;
 Issues #197 through #199 remain audit, Release preparation, and publication

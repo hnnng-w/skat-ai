@@ -672,6 +672,26 @@ def _request(
     return response.status, response_headers, response_body
 
 
+def _raw_request(
+    server,
+    method: str,
+    path: str,
+    headers: tuple[tuple[str, str], ...],
+    *,
+    body: bytes = b"",
+) -> tuple[int, dict[str, str], bytes]:
+    connection = http.client.HTTPConnection(MATCH_CAPTURE_WEB_BIND_HOST, server.port)
+    connection.putrequest(method, path, skip_host=True)
+    for name, value in headers:
+        connection.putheader(name, value)
+    connection.endheaders(body)
+    response = connection.getresponse()
+    response_body = response.read()
+    response_headers = {name.lower(): value for name, value in response.getheaders()}
+    connection.close()
+    return response.status, response_headers, response_body
+
+
 @pytest.fixture
 def running_server(tmp_path: Path):
     context = MatchCaptureWebContextV1.open(tmp_path / "web-match.json")
@@ -754,12 +774,13 @@ def test_host_cookie_origin_request_limit_and_security_headers(running_server) -
     assert status == 200
     assert headers["cache-control"] == "no-store"
     assert headers["x-content-type-options"] == "nosniff"
-    assert headers["referrer-policy"] == "no-referrer"
+    assert headers["referrer-policy"] == "origin"
     assert headers["x-frame-options"] == "DENY"
     assert headers["content-security-policy"] == (
         MATCH_CAPTURE_WEB_CONTENT_SECURITY_POLICY
     )
     assert headers["permissions-policy"] == MATCH_CAPTURE_WEB_PERMISSIONS_POLICY
+    assert "access-control-allow-origin" not in headers
 
     form = urlencode(_creation_values()).encode()
     missing_origin = dict(get_headers)
@@ -772,6 +793,30 @@ def test_host_cookie_origin_request_limit_and_security_headers(running_server) -
         body=form,
     )
     assert status == 403
+    invalid_origins = (
+        "null",
+        "not-an-origin",
+        f"http://127.0.0.1:{server.port}/",
+        f"http://127.0.0.1:{server.port}/path",
+        f"http://127.0.0.1:{server.port}?query=value",
+        f"http://127.0.0.1:{server.port}#fragment",
+        f"http://user@127.0.0.1:{server.port}",
+        f"http://127.0.0.1:{server.port - 1 if server.port > 1 else server.port + 1}",
+    )
+    for invalid_origin in invalid_origins:
+        invalid_headers = {
+            **post_headers,
+            "Origin": invalid_origin,
+            "Content-Type": "application/x-www-form-urlencoded",
+        }
+        status, _headers, _body = _request(
+            server,
+            "POST",
+            "/api/v1/create",
+            headers=invalid_headers,
+            body=form,
+        )
+        assert status == 403
     cross_origin = dict(post_headers)
     cross_origin["Origin"] = "http://evil.example"
     cross_origin["Content-Type"] = "application/x-www-form-urlencoded"
@@ -806,6 +851,85 @@ def test_host_cookie_origin_request_limit_and_security_headers(running_server) -
         body=b"",
     )
     assert status == 413
+
+
+def test_duplicate_capture_authorization_headers_and_cookie_are_rejected(
+    running_server,
+) -> None:
+    server, _context = running_server
+    get_headers, post_headers = _bootstrap(server)
+    host = get_headers["Host"]
+    cookie = get_headers["Cookie"]
+    base = (
+        ("Host", host),
+        ("Cookie", cookie),
+        ("Origin", post_headers["Origin"]),
+        ("Content-Length", "0"),
+        ("Content-Type", "application/x-www-form-urlencoded"),
+    )
+    for duplicated_name in ("Host", "Cookie", "Origin"):
+        duplicated_value = {
+            "Host": host,
+            "Cookie": cookie,
+            "Origin": post_headers["Origin"],
+        }[duplicated_name]
+        status, _headers, _body = _raw_request(
+            server,
+            "POST",
+            "/api/v1/create",
+            (*base, (duplicated_name, duplicated_value)),
+        )
+        assert status == 403
+
+    for duplicated_cookie in (
+        f"{cookie}; {cookie}",
+        f"{MATCH_CAPTURE_WEB_COOKIE_NAME}=wrong, {cookie}",
+    ):
+        status, _headers, _body = _request(
+            server,
+            "POST",
+            "/api/v1/create",
+            headers={
+                **post_headers,
+                "Cookie": duplicated_cookie,
+                "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body=b"",
+        )
+        assert status == 403
+
+
+def test_browser_referrer_policy_matches_mutation_origin_contract(running_server) -> None:
+    server, _context = running_server
+    get_headers, post_headers = _bootstrap(server)
+    status, headers, _body = _request(server, "GET", "/", headers=get_headers)
+    assert status == 200
+    assert headers["referrer-policy"] == "origin"
+    assert "access-control-allow-origin" not in headers
+
+    body = urlencode(_creation_values()).encode()
+    form_headers = {
+        **post_headers,
+        "Content-Type": "application/x-www-form-urlencoded",
+    }
+    status, headers, _body = _request(
+        server,
+        "POST",
+        "/api/v1/create",
+        headers=form_headers,
+        body=body,
+    )
+    assert status == 303
+    assert headers["location"] == "/position/1"
+
+    status, _headers, _body = _request(
+        server,
+        "POST",
+        "/api/v1/create",
+        headers={**form_headers, "Origin": "null"},
+        body=body,
+    )
+    assert status == 403
 
 
 def test_asset_allowlist_traversal_unknown_routes_and_methods(running_server) -> None:

@@ -464,7 +464,8 @@ temporal contexts. Search Worlds, hidden ownership, controlled Policies, caches,
 and branches remain private. Public Provenance is redacted and recomputed.
 Match/Corpus dashboards and downloads remain minimized and path-free.
 
-Capture and Corpus bind only to `127.0.0.1`, accept only loopback/localhost Host
+At the Issue #207 audit baseline, Capture and Corpus bind only to `127.0.0.1`,
+accept only loopback/localhost Host
 values for the active port, require an unguessable bootstrap token and
 constant-time cookie comparison, use `HttpOnly; SameSite=Strict` cookies, enforce
 same-origin mutation requests, send no-store/nosniff/no-referrer/frame-denial,
@@ -614,7 +615,7 @@ Release title, theme, date, tag, and publication commit:
 
 ## Post-audit UAT note
 
-This note records later Issue #208 through #213 state without rewriting the Issue
+This note records later Issue #208 through #214 state without rewriting the Issue
 #207 technical conclusion above. Maintainer UAT began after the #207 merge and
 required CI. UAT-01 technically executed but failed user acceptance with one
 accepted blocker and two accepted major findings:
@@ -645,14 +646,30 @@ repeat UAT-01 or resume UAT-02 through UAT-12. Issue #213 implements canonical
 `run`, concise Product help, grouped advanced automation help, and direct Root
 compatibility without closing a finding before repeated UAT.
 
+Repeated UAT-01 after Issue #213 reached authenticated GET navigation but every
+tested Review, Session, Match, and Corpus mutation returned HTTP 403. The accepted
+UAT-FINDING-004 root cause is the combination of
+`Referrer-Policy: no-referrer` and strict concrete-Origin validation: Fetch
+serializes a non-CORS browser request whose method is neither GET nor HEAD with
+`Origin: null` under that policy. Issue #214 changes the unified app, standalone
+Capture, and standalone Corpus to `Referrer-Policy: origin`. This preserves a
+concrete same-origin request Origin while any Referer contains only scheme, host,
+and port, not path or query. Null, missing, duplicate, malformed, forged,
+credential-bearing, path/query/fragment-bearing, wrong-port, and Host-mismatched
+Origins remain rejected. Referer and `Sec-Fetch-Site` remain non-authoritative.
+The unified app now renders a deterministic value-free HTML authorization 403.
+Technical implementation does not close Issue #214 or the finding before
+maintainer Microsoft Edge verification from a fresh normal non-Editable
+installation.
+
 The post-audit Release-process state is:
 
 ```text
 Issue #208:
     open
 
-UAT-01:
-    failed until repeated
+Repeated UAT-01:
+    blocked pending maintainer verification
 
 UAT-02 through UAT-12:
     paused until repeated UAT-01 passes
@@ -675,6 +692,13 @@ UAT-FINDING-003:
     implementation remediation complete under Issue #212
     open pending repeated UAT-01
 
+UAT-FINDING-004:
+    implementation remediation complete under Issue #214
+    open pending maintainer Microsoft Edge verification
+
+Issue #214:
+    open pending maintainer Microsoft Edge verification
+
 Release preparation:
     not ready
 ```
@@ -682,6 +706,7 @@ Release preparation:
 B-06 remains closed. The 53-row ledger remains exactly 19 `satisfied`, 34
 `satisfied_with_approved_bounded_scope`, and zero in each unresolved
 classification. Frontend remediation belongs to B-09 outside that ledger.
-Package version remains `0.17.0`, and Package `1.0.0` remains unprepared.
-The exact next action is to repeat UAT-01 under Issue #208 using a fresh clone
-and normal non-Editable runtime installation.
+Package version remains `0.17.0`, and Package `1.0.0` remains unprepared. The
+exact next action is Issue #214 maintainer verification under Issue #208 in
+Microsoft Edge using a fresh clone and normal non-Editable runtime installation;
+repeated UAT-01 remains blocked pending that verification.

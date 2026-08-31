@@ -326,12 +326,16 @@ class MatchCaptureWebRequestHandlerV1(BaseHTTPRequestHandler):
         )
 
     def _host_is_valid(self) -> bool:
+        if len(self.headers.get_all("Host", [])) != 1:
+            return False
         return validate_match_capture_web_host_v1(
             self.headers.get("Host"),
             self.server.port,
         )
 
     def _cookie_is_valid(self) -> bool:
+        if len(self.headers.get_all("Cookie", [])) != 1:
+            return False
         return has_valid_match_capture_web_cookie_v1(
             self.headers.get("Cookie"),
             self.server.capture_token,
@@ -369,10 +373,12 @@ class MatchCaptureWebRequestHandlerV1(BaseHTTPRequestHandler):
         if not self._host_is_valid() or not self._cookie_is_valid():
             self._send_text(HTTPStatus.FORBIDDEN, "Forbidden")
             return False
-        if not validate_match_capture_web_origin_v1(
-            self.headers.get("Origin"),
-            self.server.port,
-            self.headers.get("Host"),
+        if len(self.headers.get_all("Origin", [])) != 1 or not (
+            validate_match_capture_web_origin_v1(
+                self.headers.get("Origin"),
+                self.server.port,
+                self.headers.get("Host"),
+            )
         ):
             self._send_text(HTTPStatus.FORBIDDEN, "Forbidden")
             return False

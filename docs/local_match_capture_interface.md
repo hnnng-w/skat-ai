@@ -215,14 +215,20 @@ The Standard Library `ThreadingHTTPServer` binds only to `127.0.0.1`. Startup
 creates one cryptographically random token. The initial token URL establishes an
 `HttpOnly`, `SameSite=Strict` cookie and redirects to a token-free URL. Further
 requests require the cookie; mutations also require an exact local same-origin
-`Origin`. Unexpected `Host` values are rejected.
+`Origin` whose hostname and port match Host. Missing, `null`, duplicate, forged,
+malformed, credential-bearing, path/query/fragment-bearing, wrong-port, and
+Host-mismatched Origins are rejected. Unexpected, missing, and duplicate Host or
+Cookie headers are rejected.
 
 The server emits no permissive CORS header, disables default request logging,
 caps request bodies at 1 MiB, rejects transfer encoding and path traversal,
 serves only the allowlisted packaged HTML/CSS/JavaScript resources, and emits
-`no-store`, `nosniff`, no-referrer, frame-denial, restrictive Content Security
-Policy, and restrictive Permissions Policy headers. It makes no external
-network request. The browser uses no Node.js or external front-end dependency;
+`no-store`, `nosniff`, `Referrer-Policy: origin`, frame-denial, restrictive
+Content Security Policy, and restrictive Permissions Policy headers. The former
+`no-referrer` policy made non-CORS browser POST Origin serialization `null` and
+conflicted with the strict validator. `origin` retains a concrete request Origin
+while limiting Referer to scheme, host, and port without path or query. It makes
+no external network request. The browser uses no Node.js or external front-end dependency;
 all assets are packaged local resources.
 
 These controls protect the accidental local transport surface; they are not an

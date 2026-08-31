@@ -256,12 +256,14 @@ Settlement Matrix version `3` with 61 cases, 71 Schemas, six Session examples,
 
 Frontend routes, managed workflows, browser security, persistence, Session,
 Capture, Corpus, Public API, Root semantics, Schemas, example JSON, and generated
-outputs are unchanged.
+outputs are unchanged by Issue #213.
 
 ## UAT state and next action
 
-Issue #213 completes implementation remediation but does not repeat or close
-maintainer UAT:
+Issue #213 completes its implementation remediation but does not close
+maintainer UAT. Repeated UAT-01 then exposes UAT-FINDING-004, and Issue #214
+implements the local browser Origin-policy remediation without closing that
+finding:
 
 ```text
 UAT-FINDING-001:
@@ -276,8 +278,15 @@ UAT-FINDING-003:
     implementation remediation complete
     open pending repeated UAT-01
 
-UAT-01:
-    failed until repeated
+UAT-FINDING-004:
+    implementation remediation complete under Issue #214
+    open pending maintainer Microsoft Edge verification
+
+Issue #214:
+    open pending maintainer Microsoft Edge verification
+
+Repeated UAT-01:
+    blocked pending maintainer verification
 
 UAT-02 through UAT-12:
     paused until repeated UAT-01 passes
@@ -298,8 +307,9 @@ B-06:
 The exact next action is:
 
 ```text
-Repeat UAT-01 under Issue #208 using a fresh clone and normal non-Editable
-runtime installation.
+Verify Issue #214 in Microsoft Edge under Issue #208 using a fresh clone and
+normal non-Editable runtime installation.
 ```
 
-No further implementation Issue is required before that repetition.
+No further implementation is required before that verification. Repeated UAT-01
+remains blocked pending the verification result.

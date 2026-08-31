@@ -1941,7 +1941,16 @@ without product-code change. Issue #202 closes B-02 and makes P-10 and P-13
   Issue #211 adds guided analysis, Historical Review, and readable Results, and
   Issue #212 adds managed Session, Match, and Learning workflows. Issue #213
   adds canonical Root automation and layered CLI onboarding. Implementation
-  remediation is complete, but all findings remain open pending repeated UAT-01.
+  remediation for the first three findings is complete. Repeated UAT-01 then
+  exposes UAT-FINDING-004: browser form POSTs are rejected because
+  `Referrer-Policy: no-referrer` serializes their non-CORS mutation Origin as
+  `null` while the servers correctly require a concrete same-origin value. Issue
+  #214 changes the unified app, standalone Match Capture, and standalone Learning
+  Corpus to `Referrer-Policy: origin`, retains null and forged Origin rejection,
+  and limits Referer information to scheme, host, and port without path or query.
+  The implementation is complete, but Issue #214 and all findings remain open
+  pending maintainer Microsoft Edge verification from a fresh normal
+  non-Editable installation. Repeated UAT-01 is blocked pending that verification.
   B-09 and B-07 remain open, Release
   preparation is not ready, and no v1 Release title, theme, date, tag, or
   publication commit is frozen.

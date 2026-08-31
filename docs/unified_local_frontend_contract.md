@@ -587,6 +587,18 @@ browser boundary. It must:
 * use generic internal errors;
 * expose no private path or token in ordinary page content.
 
+The unified app and both standalone local browser surfaces use
+`Referrer-Policy: origin`. The former `no-referrer` policy conflicted with the
+strict mutation boundary because Fetch serializes the Origin header as `null`
+for a non-CORS request whose method is neither GET nor HEAD under that policy.
+The `origin` policy preserves the concrete request Origin while limiting Referer
+information to scheme, host, and port, without source path or query. Mutation
+authorization still requires exactly one concrete HTTP loopback Origin whose
+hostname and port match the sole Host. Missing, `null`, duplicate, malformed,
+external, credential-bearing, path-bearing, query-bearing, fragment-bearing,
+wrong-port, and Host-mismatched Origins remain rejected. Referer and
+`Sec-Fetch-Site` are not authorization inputs.
+
 After successful automatic browser opening, stdout should contain only a concise
 local-running and shutdown message. A token-bearing fallback URL may be printed
 only when browser opening fails or `--no-open` is explicitly used.
@@ -709,14 +721,19 @@ implemented boundaries.
 
 ## UAT repetition and Release state
 
-The post-Issue-#213 state is:
+Repeated UAT-01 after Issue #213 reached authenticated GET navigation but exposed
+UAT-FINDING-004: Review editor start, Session creation, Match creation, and Corpus
+creation were rejected as Forbidden. Issue #214 implements the browser-policy
+remediation, but technical implementation does not close the issue or finding.
+
+The post-Issue-#214 implementation state is:
 
 ```text
 Issue #208:
     open
 
-UAT-01:
-    failed until repeated
+Repeated UAT-01:
+    blocked pending maintainer verification
 
 UAT-02 through UAT-12:
     paused until repeated UAT-01 passes
@@ -739,11 +756,19 @@ UAT-FINDING-003:
     implementation remediation complete under Issue #212
     open pending repeated UAT-01
 
+UAT-FINDING-004:
+    implementation remediation complete under Issue #214
+    open pending maintainer Microsoft Edge verification
+
+Issue #214:
+    open pending maintainer Microsoft Edge verification
+
 Release preparation:
     not ready
 ```
 
-Issues #210 through #213 are implemented and validated. The maintainer must:
+Issues #210 through #214 are implemented and technically validated. The
+maintainer must:
 
 1. create a fresh clone;
 2. perform a normal non-Editable runtime installation;
@@ -753,14 +778,18 @@ Issues #210 through #213 are implemented and validated. The maintainer must:
 6. verify About/version visibility;
 7. verify normal Create/Open/Resume without raw paths;
 8. verify advanced interfaces remain available;
-9. repeat UAT-01;
-10. record the Result under Issue #208.
+9. verify in Microsoft Edge that Review editor start, Session creation, Match
+   creation, and Corpus creation reach normal operation or validation pages;
+10. verify authorization failures reveal no private or security value;
+11. complete repeated UAT-01;
+12. record the Result under Issue #208.
 
 UAT-02 through UAT-12 must remain paused until repeated UAT-01 passes. Issue
 #209 must not add the final UAT evidence document.
 
-The exact next action is: repeat UAT-01 under Issue #208 using a fresh clone and
-normal non-Editable runtime installation.
+The exact next action is maintainer verification of Issue #214 in Microsoft Edge
+under Issue #208 using a fresh clone and normal non-Editable runtime
+installation. Repeated UAT-01 remains blocked pending that verification.
 
 The completed technical required-row ledger remains:
 

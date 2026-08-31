@@ -20,6 +20,7 @@ from skatmind.app_web.security import (
     APP_WEB_COOKIE_NAME,
     APP_WEB_PERMISSIONS_POLICY,
     has_valid_app_web_cookie_v1,
+    validate_app_web_origin_v1,
 )
 from skatmind.app_web.server import (
     APP_WEB_MAX_REQUEST_BYTES,
@@ -27,8 +28,14 @@ from skatmind.app_web.server import (
     serve_app_web_in_thread_v1,
     start_app_web_server_v1,
 )
-from skatmind.capture_web.security import has_valid_match_capture_web_cookie_v1
-from skatmind.corpus_web.security import has_valid_learning_corpus_web_cookie_v1
+from skatmind.capture_web.security import (
+    has_valid_match_capture_web_cookie_v1,
+    validate_match_capture_web_origin_v1,
+)
+from skatmind.corpus_web.security import (
+    has_valid_learning_corpus_web_cookie_v1,
+    validate_learning_corpus_web_origin_v1,
+)
 
 _TOKEN = "app-test-token"
 
@@ -201,6 +208,31 @@ def test_app_cookie_is_isolated_from_capture_and_corpus(
         f"{app_cookie}; {APP_WEB_COOKIE_NAME}={_TOKEN}",
         _TOKEN,
     )
+    assert not has_valid_app_web_cookie_v1(
+        f"{APP_WEB_COOKIE_NAME}=wrong, {app_cookie}",
+        _TOKEN,
+    )
+
+
+@pytest.mark.parametrize(
+    "validator",
+    (
+        validate_app_web_origin_v1,
+        validate_match_capture_web_origin_v1,
+        validate_learning_corpus_web_origin_v1,
+    ),
+)
+def test_origin_helpers_normalize_default_http_port_and_reject_empty_delimiters(
+    validator,
+) -> None:
+    assert validator("http://127.0.0.1", 80, "127.0.0.1")
+    assert validator("http://127.0.0.1:80", 80, "127.0.0.1:80")
+    assert not validator("http://127.0.0.1", 80, "localhost")
+    assert not validator("http://127.0.0.1:", 80, "127.0.0.1")
+    assert not validator("http://127.0.0.1:080", 80, "127.0.0.1")
+    assert not validator("http://127.0.0.1?", 80, "127.0.0.1")
+    assert not validator("http://127.0.0.1#", 80, "127.0.0.1")
+    assert not validator("http://127.0.0.1?#", 80, "127.0.0.1")
 
 
 def test_all_authenticated_routes_render_shared_navigation_and_one_h1(
@@ -597,7 +629,120 @@ def test_response_security_headers_apply_to_success_redirect_and_errors(
     for _status, headers, _body in responses:
         assert headers["cache-control"] == "no-store"
         assert headers["x-content-type-options"] == "nosniff"
-        assert headers["referrer-policy"] == "no-referrer"
+        assert headers["referrer-policy"] == "origin"
+        assert headers["x-frame-options"] == "DENY"
+        assert headers["content-security-policy"] == APP_WEB_CONTENT_SECURITY_POLICY
+        assert headers["permissions-policy"] == APP_WEB_PERMISSIONS_POLICY
+        assert "access-control-allow-origin" not in headers
+
+
+def test_browser_policy_allows_same_origin_review_session_match_and_corpus_posts(
+    running_app_server: SkatMindAppWebServerV1,
+) -> None:
+    server = running_app_server
+    cookie, mutation_headers = _bootstrap(server)
+    status, headers, _body = _request(
+        server,
+        "GET",
+        "/review",
+        headers={"Cookie": cookie},
+    )
+    assert status == 200
+    assert headers["referrer-policy"] == "origin"
+    assert "access-control-allow-origin" not in headers
+
+    same_origin_actions = (
+        ("/actions/review/start", {"revision": "0"}, "/review"),
+        (
+            "/sessions/create",
+            {
+                "session_id": "policy-session",
+                "capture_mode": "retrospective",
+                "local_player_id": "",
+                "player_1_id": "alice",
+                "player_1_label": "Alice",
+                "player_2_id": "bob",
+                "player_2_label": "Bob",
+                "player_3_id": "carol",
+                "player_3_label": "Carol",
+            },
+            "/sessions/current",
+        ),
+        ("/learning/create", {"corpus_id": "policy-corpus"}, "/learning/current"),
+        (
+            "/matches/api/v1/create",
+            _creation_values(match_id="policy-match"),
+            "/matches/position/1",
+        ),
+    )
+    for route, values, location in same_origin_actions:
+        status, headers, _body = _post_form(
+            server,
+            route,
+            mutation_headers,
+            values,
+        )
+        assert status == 303
+        assert headers["location"] == location
+
+    status, _headers, _body = _post_form(
+        server,
+        "/actions/review/start",
+        {**mutation_headers, "Origin": "null"},
+        {"revision": "1"},
+    )
+    assert status == 403
+
+
+def test_authorization_failures_use_deterministic_value_free_html(
+    running_app_server: SkatMindAppWebServerV1,
+) -> None:
+    server = running_app_server
+    status, first_headers, first_body = _request(
+        server,
+        "GET",
+        "/private-path-marker?private-query-marker=private-value-marker",
+    )
+    assert status == 403
+
+    cookie, mutation_headers = _bootstrap(server)
+    submitted = b"submitted-private-marker=private-product-marker"
+    status, second_headers, second_body = _request(
+        server,
+        "POST",
+        "/sessions/create",
+        headers={
+            "Cookie": cookie,
+            "Origin": "http://external-origin-marker.example:45678",
+            "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body=submitted,
+    )
+    assert status == 403
+    assert first_body == second_body
+    assert first_headers["content-type"] == "text/html; charset=utf-8"
+    assert second_headers["content-type"] == "text/html; charset=utf-8"
+    assert b"This request could not be authorized." in first_body
+    assert b"Return to the current SkatMind tab or restart SkatMind." in first_body
+    assert b"href=" not in first_body and b"src=" not in first_body
+    for private_value in (
+        _TOKEN.encode(),
+        cookie.encode(),
+        server.origin.encode(),
+        str(server.port).encode(),
+        b"private-path-marker",
+        b"private-query-marker",
+        b"private-value-marker",
+        b"external-origin-marker",
+        b"submitted-private-marker",
+        b"private-product-marker",
+    ):
+        assert private_value not in first_body
+        assert private_value not in second_body
+    for headers in (first_headers, second_headers):
+        assert headers["cache-control"] == "no-store"
+        assert headers["x-content-type-options"] == "nosniff"
+        assert headers["referrer-policy"] == "origin"
         assert headers["x-frame-options"] == "DENY"
         assert headers["content-security-policy"] == APP_WEB_CONTENT_SECURITY_POLICY
         assert headers["permissions-policy"] == APP_WEB_PERMISSIONS_POLICY
@@ -651,6 +796,7 @@ def test_mutation_origin_and_duplicate_origin_are_rejected(
     server = running_app_server
     cookie, mutation_headers = _bootstrap(server)
     host = f"127.0.0.1:{server.port}"
+    wrong_port = server.port - 1 if server.port > 1 else server.port + 1
     base = (
         ("Host", host),
         ("Cookie", cookie),
@@ -659,7 +805,16 @@ def test_mutation_origin_and_duplicate_origin_are_rejected(
     )
     for origins in (
         (),
+        (("Origin", "null"),),
+        (("Origin", "not-an-origin"),),
         (("Origin", "http://example.com"),),
+        (("Origin", f"http://127.0.0.1:{wrong_port}"),),
+        (("Origin", f"http://user@127.0.0.1:{server.port}"),),
+        (("Origin", f"http://127.0.0.1:{server.port}/path"),),
+        (("Origin", f"http://127.0.0.1:{server.port}?query=value"),),
+        (("Origin", f"http://127.0.0.1:{server.port}?"),),
+        (("Origin", f"http://127.0.0.1:{server.port}#fragment"),),
+        (("Origin", f"http://127.0.0.1:{server.port}#"),),
         (("Origin", server.origin), ("Origin", server.origin)),
         (("Origin", f"http://localhost:{server.port}"),),
     ):

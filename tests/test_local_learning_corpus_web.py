@@ -18,6 +18,7 @@ from skatmind.corpus_web.downloads import (
     LEARNING_CORPUS_ALL_PREPARED_DOWNLOAD_KINDS,
     build_learning_corpus_prepared_download_v1,
 )
+from skatmind.corpus_web.security import LEARNING_CORPUS_WEB_COOKIE_NAME
 from skatmind.corpus_web.server import (
     serve_learning_corpus_web_in_thread_v1,
     start_learning_corpus_web_server_v1,
@@ -43,6 +44,26 @@ def _request(
     connection = http.client.HTTPConnection("127.0.0.1", server.port, timeout=20)
     request_headers = {"Host": f"127.0.0.1:{server.port}", **(headers or {})}
     connection.request(method, path, body=body, headers=request_headers)
+    response = connection.getresponse()
+    content = response.read()
+    result = response.status, dict(response.getheaders()), content
+    connection.close()
+    return result
+
+
+def _raw_request(
+    server,
+    method: str,
+    path: str,
+    headers: tuple[tuple[str, str], ...],
+    *,
+    body: bytes = b"",
+) -> tuple[int, dict[str, str], bytes]:
+    connection = http.client.HTTPConnection("127.0.0.1", server.port, timeout=20)
+    connection.putrequest(method, path, skip_host=True)
+    for name, value in headers:
+        connection.putheader(name, value)
+    connection.endheaders(body)
     response = connection.getresponse()
     content = response.read()
     result = response.status, dict(response.getheaders()), content
@@ -250,6 +271,94 @@ def test_loopback_bootstrap_host_cookie_origin_headers_assets_and_methods(
         )[0]
         == 403
     )
+
+
+def test_browser_referrer_policy_matches_mutation_origin_contract(running_server) -> None:
+    server = running_server
+    cookie = _bootstrap(server)
+    status, headers, _body = _request(server, "GET", "/", headers={"Cookie": cookie})
+    assert status == 200
+    assert headers["Referrer-Policy"] == "origin"
+    assert "Access-Control-Allow-Origin" not in headers
+
+    values = {"operation": "initialize_corpus", "corpus_id": "policy-corpus"}
+    status, _headers, _body = _post_form(server, cookie, values)
+    assert status == 200
+
+    body = urlencode(values).encode()
+    status, _headers, _body = _request(
+        server,
+        "POST",
+        "/api/v1/operations",
+        headers={
+            "Cookie": cookie,
+            "Origin": "null",
+            "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body=body,
+    )
+    assert status == 403
+
+
+def test_duplicate_corpus_authorization_headers_and_cookie_are_rejected(
+    running_server,
+) -> None:
+    server = running_server
+    cookie = _bootstrap(server)
+    host = f"127.0.0.1:{server.port}"
+    base = (
+        ("Host", host),
+        ("Cookie", cookie),
+        ("Origin", server.origin),
+        ("Content-Length", "0"),
+        ("Content-Type", "application/x-www-form-urlencoded"),
+    )
+    for duplicated_name in ("Host", "Cookie", "Origin"):
+        duplicated_value = {
+            "Host": host,
+            "Cookie": cookie,
+            "Origin": server.origin,
+        }[duplicated_name]
+        status, _headers, _body = _raw_request(
+            server,
+            "POST",
+            "/api/v1/operations",
+            (*base, (duplicated_name, duplicated_value)),
+        )
+        assert status == 403
+
+    for duplicated_cookie in (
+        f"{cookie}; {cookie}",
+        f"{LEARNING_CORPUS_WEB_COOKIE_NAME}=wrong, {cookie}",
+    ):
+        status, _headers, _body = _request(
+            server,
+            "POST",
+            "/api/v1/operations",
+            headers={
+                "Cookie": duplicated_cookie,
+                "Origin": server.origin,
+                "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body=b"",
+        )
+        assert status == 403
+
+
+def test_corpus_access_logging_is_disabled(
+    running_server,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    server = running_server
+    status, _headers, _body = _request(
+        server,
+        "GET",
+        f"/?token={server.corpus_token}",
+    )
+    assert status == 303
+    captured = capsys.readouterr()
+    assert not captured.out
+    assert not captured.err
 
 
 def test_request_limit_required_length_and_validation_errors(running_server) -> None:

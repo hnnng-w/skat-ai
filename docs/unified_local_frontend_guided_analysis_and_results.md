@@ -309,6 +309,11 @@ Issue #211 preserves the Issue #210 loopback token/cookie boundary, exact Host
 and mutation-Origin checks, duplicate-header rejection, bounded reads,
 `Transfer-Encoding` rejection, restrictive CSP, `no-store`, `nosniff`, frame
 denial, no CORS, no access log, and no external resource or runtime request.
+Issue #214 changes the response policy from `no-referrer`, which makes non-CORS
+browser POST Origin serialization `null`, to `Referrer-Policy: origin`. Concrete
+same-origin Review POSTs are accepted; missing, null, forged, malformed, and
+Host-mismatched Origins remain rejected. Any Referer is origin-only and therefore
+contains no source path or query.
 
 Normal workflows use semantic server-rendered forms, visible labels, text status,
 keyboard-operable native Card controls, field-linked error summaries, local error
@@ -325,11 +330,13 @@ and grouped Root automation help. Advanced Root, Session, Capture, Corpus, and
 Public Python API interfaces remain supported.
 
 Issue #211 further partially remediates `UAT-FINDING-001`; Issue #212 adds the
-separate managed stateful remediation. The findings remain open pending repeated
-UAT. UAT-01 remains failed;
+separate managed stateful remediation. Repeated UAT-01 exposes UAT-FINDING-004,
+and Issue #214 implements its browser-Origin policy remediation. All findings and
+Issue #214 remain open pending maintainer Microsoft Edge verification; repeated
+UAT-01 is blocked pending that verification.
 UAT-02 through UAT-12 remain paused. B-09 and B-07 remain open, B-06 remains
 closed, the completed 53-row technical ledger remains unchanged, and Release
 preparation remains not ready.
 
-The exact next action is to repeat UAT-01 under Issue #208 using a fresh clone
-and normal non-Editable runtime installation.
+The exact next action is Issue #214 maintainer verification under Issue #208 in
+Microsoft Edge using a fresh clone and normal non-Editable runtime installation.

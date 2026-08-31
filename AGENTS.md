@@ -579,8 +579,15 @@ further partially remediating UAT-FINDING-001 without closing it. Issue #212 add
 managed Session, Match Capture, Learning Corpus, and explicit Match-to-Corpus
 workflows in the unified local app. UAT-02 through UAT-12 are paused, B-09 and
 B-07 remain open, and `v1.0.0` is not ready. Issue #213 implements canonical
-`run`, Product-oriented top-level help, and advanced Root automation help. All
-findings remain open pending repeated UAT-01, which is the exact next action.
+`run`, Product-oriented top-level help, and advanced Root automation help.
+Repeated UAT-01 then exposes UAT-FINDING-004: the local browser surfaces combine
+`Referrer-Policy: no-referrer` with strict concrete-Origin mutation validation,
+so browser form POSTs serialize `Origin: null` and are rejected. Issue #214
+changes the unified app, standalone Capture, and standalone Corpus to
+`Referrer-Policy: origin`, retains strict null/forged-Origin rejection, and adds
+the unified app's value-free HTML 403 response. Issue #214 and all findings
+remain open pending maintainer Edge verification from a fresh normal non-Editable
+installation. Repeated UAT-01 is blocked pending that verification.
 No v1 Release title, theme, date, tag, publication commit, or production model is
 frozen.
 
@@ -879,7 +886,9 @@ Issue #210 implements the application shell; Issue #211 implements guided
 analysis, Historical Review, JSON transfer, and Result presentation; Issue #212
 implements managed stateful workflows; Issue #213 implements advanced CLI
 automation and onboarding. UAT-02 through UAT-12 and B-07 Release preparation
-remain paused pending repeated UAT-01.
+remain paused. Issue #214 implements the UAT-FINDING-004 browser-Origin policy
+remediation without closing the finding; repeated UAT-01 remains blocked pending
+maintainer Edge verification. Issue #208, B-09, and B-07 remain open.
 End-to-end local Live and Retrospective Session
 capture is implemented through public file Save/Load, automatic Checkpoints,
 accepted-Log actual-card observation, isolated review, explicit analysis, the

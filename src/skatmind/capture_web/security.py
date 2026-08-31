@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import hmac
 import secrets
-from http.cookies import SimpleCookie
+from http.cookies import CookieError, SimpleCookie
 from urllib.parse import urlsplit
 
 from .contracts import MATCH_CAPTURE_WEB_BIND_HOST
@@ -32,12 +32,18 @@ def build_match_capture_web_cookie_v1(token: str) -> str:
 
 
 def has_valid_match_capture_web_cookie_v1(cookie_header: str | None, token: str) -> bool:
-    if cookie_header is None:
+    if cookie_header is None or any(value in cookie_header for value in "\r\n,"):
+        return False
+    capture_cookie_count = sum(
+        item.partition("=")[0].strip() == MATCH_CAPTURE_WEB_COOKIE_NAME
+        for item in cookie_header.split(";")
+    )
+    if capture_cookie_count != 1:
         return False
     cookie = SimpleCookie()
     try:
         cookie.load(cookie_header)
-    except cookie.CookieError:
+    except CookieError:
         return False
     morsel = cookie.get(MATCH_CAPTURE_WEB_COOKIE_NAME)
     return morsel is not None and hmac.compare_digest(morsel.value, token)
@@ -63,27 +69,51 @@ def validate_match_capture_web_origin_v1(
         return False
     try:
         parsed = urlsplit(origin_header)
-        parsed_port = parsed.port
+        parsed_port = parsed.port if parsed.port is not None else 80
     except ValueError:
         return False
+    valid_netlocs = {
+        f"{hostname}:{port}"
+        for hostname in {MATCH_CAPTURE_WEB_BIND_HOST, "localhost"}
+    }
+    if port == 80:
+        valid_netlocs.update({MATCH_CAPTURE_WEB_BIND_HOST, "localhost"})
     valid = (
         parsed.scheme == "http"
         and parsed.username is None
         and parsed.password is None
         and parsed.hostname in {MATCH_CAPTURE_WEB_BIND_HOST, "localhost"}
+        and parsed.netloc in valid_netlocs
         and parsed_port == port
-        and not parsed.path.rstrip("/")
+        and parsed.path == ""
         and not parsed.query
         and not parsed.fragment
+        and "?" not in origin_header
+        and "#" not in origin_header
     )
-    return valid and (host_header is None or parsed.netloc == host_header)
+    if not valid or host_header is None:
+        return valid
+    try:
+        parsed_host = urlsplit(f"http://{host_header}")
+        host_port = parsed_host.port if parsed_host.port is not None else 80
+    except ValueError:
+        return False
+    return (
+        parsed_host.hostname == parsed.hostname
+        and host_port == parsed_port
+        and parsed_host.username is None
+        and parsed_host.password is None
+        and parsed_host.path == ""
+        and not parsed_host.query
+        and not parsed_host.fragment
+    )
 
 
 def match_capture_web_security_headers_v1() -> tuple[tuple[str, str], ...]:
     return (
         ("Cache-Control", "no-store"),
         ("X-Content-Type-Options", "nosniff"),
-        ("Referrer-Policy", "no-referrer"),
+        ("Referrer-Policy", "origin"),
         ("X-Frame-Options", "DENY"),
         ("Content-Security-Policy", MATCH_CAPTURE_WEB_CONTENT_SECURITY_POLICY),
         ("Permissions-Policy", MATCH_CAPTURE_WEB_PERMISSIONS_POLICY),

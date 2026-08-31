@@ -1556,6 +1556,12 @@ standalone advanced interfaces. Issue #213 adds canonical explicit-input `run`,
 concise Product help, grouped Root automation help and examples, lightweight
 help/version imports, and unchanged direct compatibility. Implementation
 remediation is complete, but all findings, B-09, and B-07 remain open, `v1.0.0` is
-unready, and Release preparation remains not ready. No v1 Release title, theme,
-date, tag, or publication commit is frozen. Repeating UAT-01 under Issue #208
-from a fresh non-Editable installation is the exact next action.
+unready, and Release preparation remains not ready. Repeated UAT-01 then exposes
+UAT-FINDING-004: `no-referrer` produces `Origin: null` for browser form POSTs and
+conflicts with strict concrete-Origin validation. Issue #214 changes all three
+local browser surfaces to `Referrer-Policy: origin`, retains null and forged
+Origin rejection and path/query privacy, and adds a value-free unified HTML 403
+page. Its implementation is complete, but Issue #214 and the finding remain open
+pending maintainer Microsoft Edge verification from a fresh non-Editable
+installation. Repeated UAT-01 is blocked pending that verification. No v1
+Release title, theme, date, tag, or publication commit is frozen.

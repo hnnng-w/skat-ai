@@ -240,6 +240,21 @@ _STATEFUL_POST_ROUTES = {
     "/learning/open",
     "/learning/api/v1/operations",
 }
+_AUTHORIZATION_FAILURE_HTML = """<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Request not authorized</title>
+</head>
+<body>
+<main>
+<h1>Request not authorized</h1>
+<p>This request could not be authorized.</p>
+<p>Return to the current SkatMind tab or restart SkatMind.</p>
+</main>
+</body>
+</html>
+"""
 
 
 def _is_stateful_get_route(path: str) -> bool:
@@ -398,9 +413,16 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
             self.server.app_token,
         )
 
+    def _send_authorization_failure(self) -> None:
+        self._send_text(
+            HTTPStatus.FORBIDDEN,
+            _AUTHORIZATION_FAILURE_HTML,
+            content_type="text/html; charset=utf-8",
+        )
+
     def _authorize_get(self, path: str, query: str) -> bool:
         if not self._host_is_valid():
-            self._send_text(HTTPStatus.FORBIDDEN, "Forbidden")
+            self._send_authorization_failure()
             return False
         if path == "/" and query:
             try:
@@ -420,7 +442,7 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
                     self.server.app_token,
                 )
             ):
-                self._send_text(HTTPStatus.FORBIDDEN, "Forbidden")
+                self._send_authorization_failure()
                 return False
             self._send_text(
                 HTTPStatus.SEE_OTHER,
@@ -432,14 +454,14 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
             )
             return False
         if query or not self._cookie_is_valid():
-            self._send_text(HTTPStatus.FORBIDDEN, "Forbidden")
+            self._send_authorization_failure()
             return False
         return True
 
     def _authorize_mutation(self) -> bool:
         if not self._host_is_valid() or not self._cookie_is_valid():
             self._drain_rejected_body()
-            self._send_text(HTTPStatus.FORBIDDEN, "Forbidden")
+            self._send_authorization_failure()
             return False
         if len(self.headers.get_all("Origin", [])) != 1 or not validate_app_web_origin_v1(
             self.headers.get("Origin"),
@@ -447,7 +469,7 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
             self.headers.get("Host"),
         ):
             self._drain_rejected_body()
-            self._send_text(HTTPStatus.FORBIDDEN, "Forbidden")
+            self._send_authorization_failure()
             return False
         return True
 
@@ -1540,7 +1562,7 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
             if not self._authorize_mutation():
                 return
             if parsed.query:
-                self._send_text(HTTPStatus.FORBIDDEN, "Forbidden")
+                self._send_authorization_failure()
                 return
             if parsed.path in _STATEFUL_POST_ROUTES:
                 if parsed.path in {"/sessions/import", "/matches/import"}:
@@ -1806,10 +1828,10 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
                 if not self._authorize_mutation():
                     return
             elif not self._host_is_valid() or not self._cookie_is_valid():
-                self._send_text(HTTPStatus.FORBIDDEN, "Forbidden")
+                self._send_authorization_failure()
                 return
             if parsed.query:
-                self._send_text(HTTPStatus.FORBIDDEN, "Forbidden")
+                self._send_authorization_failure()
                 return
             known_paths = (
                 set(APP_ROUTE_PATHS)

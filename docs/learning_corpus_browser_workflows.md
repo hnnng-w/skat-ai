@@ -473,10 +473,16 @@ All requests require an exact valid `Host` for `127.0.0.1` or `localhost`, with
 the actual port where supplied. Authenticated GETs require the cookie and reject
 queries. Mutating POSTs require the cookie plus an exact `http` loopback
 `Origin` whose host and port equal the request Host. No permissive CORS response
-is emitted.
+is emitted. Missing, `null`, duplicate, forged, malformed, credential-bearing,
+path/query/fragment-bearing, wrong-port, and Host-mismatched Origins remain
+rejected; Referer is not an authorization fallback.
 
-Every response includes `no-store`, `nosniff`, `no-referrer`, frame denial, a
-restrictive Permissions Policy, and this Content Security Policy:
+Every response includes `no-store`, `nosniff`, `Referrer-Policy: origin`, frame
+denial, a restrictive Permissions Policy, and this Content Security Policy. The
+former `no-referrer` policy caused non-CORS browser POSTs to serialize Origin as
+`null` and conflict with strict mutation validation. `origin` retains the
+concrete request Origin while limiting Referer to scheme, host, and port without
+path or query:
 
 ```text
 default-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'; style-src 'self'; script-src 'self'; img-src 'self' data:; connect-src 'self'; font-src 'none'; media-src 'none'; object-src 'none'

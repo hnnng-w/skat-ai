@@ -28,7 +28,7 @@ def build_app_web_cookie_v1(token: str) -> str:
 
 
 def has_valid_app_web_cookie_v1(cookie_header: str | None, token: str) -> bool:
-    if cookie_header is None or "\r" in cookie_header or "\n" in cookie_header:
+    if cookie_header is None or any(value in cookie_header for value in "\r\n,"):
         return False
     app_cookie_count = sum(
         item.partition("=")[0].strip() == APP_WEB_COOKIE_NAME
@@ -65,27 +65,50 @@ def validate_app_web_origin_v1(
         return False
     try:
         parsed = urlsplit(origin_header)
-        parsed_port = parsed.port
+        parsed_port = parsed.port if parsed.port is not None else 80
     except ValueError:
         return False
+    valid_netlocs = {
+        f"{hostname}:{port}" for hostname in {APP_WEB_BIND_HOST, "localhost"}
+    }
+    if port == 80:
+        valid_netlocs.update({APP_WEB_BIND_HOST, "localhost"})
     valid = (
         parsed.scheme == "http"
         and parsed.username is None
         and parsed.password is None
         and parsed.hostname in {APP_WEB_BIND_HOST, "localhost"}
+        and parsed.netloc in valid_netlocs
         and parsed_port == port
         and parsed.path == ""
         and not parsed.query
         and not parsed.fragment
+        and "?" not in origin_header
+        and "#" not in origin_header
     )
-    return valid and (host_header is None or parsed.netloc == host_header)
+    if not valid or host_header is None:
+        return valid
+    try:
+        parsed_host = urlsplit(f"http://{host_header}")
+        host_port = parsed_host.port if parsed_host.port is not None else 80
+    except ValueError:
+        return False
+    return (
+        parsed_host.hostname == parsed.hostname
+        and host_port == parsed_port
+        and parsed_host.username is None
+        and parsed_host.password is None
+        and parsed_host.path == ""
+        and not parsed_host.query
+        and not parsed_host.fragment
+    )
 
 
 def app_web_security_headers_v1() -> tuple[tuple[str, str], ...]:
     return (
         ("Cache-Control", "no-store"),
         ("X-Content-Type-Options", "nosniff"),
-        ("Referrer-Policy", "no-referrer"),
+        ("Referrer-Policy", "origin"),
         ("X-Frame-Options", "DENY"),
         ("Content-Security-Policy", APP_WEB_CONTENT_SECURITY_POLICY),
         ("Permissions-Policy", APP_WEB_PERMISSIONS_POLICY),

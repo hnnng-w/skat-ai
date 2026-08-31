@@ -147,8 +147,11 @@ visible in the refreshed Match page.
 
 `SkatMindAppWebServerV1` remains the sole transport. Stateful routes use the same
 app Host, bootstrap token, `skatmind_app_token` cookie, same-origin mutation
-check, response headers, CSP, and no-external-resource boundary as Analyze and
-Review. The application does not start, proxy, iframe, or authenticate through
+check, `Referrer-Policy: origin`, CSP, and no-external-resource boundary as
+Analyze and Review. The policy keeps a concrete browser POST Origin while
+limiting Referer to scheme, host, and port without path or query. Null, forged,
+and Host-mismatched Origins remain rejected. The application does not start,
+proxy, iframe, or authenticate through
 the standalone Capture or Corpus servers.
 
 The app lock protects only active-adapter and discovery-generation snapshots or
@@ -175,6 +178,9 @@ Issue #212 further remediates `UAT-FINDING-001` and implements the Product work
 owned by `UAT-FINDING-003`; both findings remain open until maintainer UAT is
 repeated. Issue #213 implements `UAT-FINDING-002` remediation through canonical
 `run` and layered CLI help; that finding also remains open pending repeated UAT.
-UAT-01 remains failed, UAT-02 through UAT-12 remain paused, B-09 and B-07 remain
-open, and Release preparation remains not ready. Repeated UAT-01 under Issue #208
-is the exact next action.
+Repeated UAT-01 exposes UAT-FINDING-004 across Session, Match, Learning, and
+Review POSTs. Issue #214 implements the response-policy fix, but Issue #214 and
+all findings remain open pending maintainer Microsoft Edge verification.
+Repeated UAT-01 is blocked pending that verification; UAT-02 through UAT-12
+remain paused, B-09 and B-07 remain open, and Release preparation remains not
+ready.
