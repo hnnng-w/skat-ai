@@ -1753,8 +1753,10 @@ game Review, strict optional JSON transfer, and readable process-local Results.
 Issue #212 adds managed Session, Match Capture, Learning Corpus, and explicit
 cross-area transfer workflows through the same server. UAT-FINDING-001 remains
 open pending repeated UAT, and Issue #212 implements the Product work owned by
-UAT-FINDING-003. UAT-02 through UAT-12 are paused, and Issue #213 is the exact
-next implementation action.
+UAT-FINDING-003. Issue #213 adds canonical `run`, concise Product help, grouped
+advanced automation help, and unchanged direct Root compatibility. Implementation
+remediation for all three findings is complete, but each remains open pending
+repeated UAT-01. UAT-02 through UAT-12 are paused.
 
 Historical published Package milestone: `v0.15.0`, providing usable manual post-
 game capture of one EuroSkat 36er Standard Match from descriptive video evidence.
@@ -2345,13 +2347,14 @@ Completed implementation scope:
 
 ## Next recommended action
 
-Implement Issue #213, **Reframe the CLI as the advanced automation interface**,
-after Issue #212 and its required checks are green. Issues #210 through #212 add
-bare/explicit shell launch, the managed data home, Home, navigation, About,
-secure local serving, guided analysis/Review, strict optional JSON transfer,
-readable Results, and managed Session/Match/Learning workflows. See
+Repeat UAT-01 under Issue #208 using a fresh clone and normal non-Editable
+runtime installation. Issues #210 through #213 implement bare/explicit shell
+launch, the managed data home, Home, navigation, About, secure local serving,
+guided analysis/Review, strict optional JSON transfer, readable Results, managed
+Session/Match/Learning workflows, and advanced CLI onboarding. See
 [Guided analysis and Results](unified_local_frontend_guided_analysis_and_results.md),
-[Managed stateful workflows](unified_local_frontend_stateful_workflows.md), and
+[Managed stateful workflows](unified_local_frontend_stateful_workflows.md),
+[Advanced CLI automation](advanced_cli_automation_interface.md), and
 the authoritative [unified local frontend contract](unified_local_frontend_contract.md).
 
 Issues #201 through #203 close B-01 through B-03. Issue #204 applies the exact
@@ -2360,10 +2363,10 @@ behavior. Issue #205 completes the SkatMind identity and migration boundary,
 makes P-09 `satisfied`, and closes B-08. #206 closes B-05 after its installation/
 platform evidence and merged jobs pass. #207 finds no material technical blocker
 and closes B-06. #208 remains open and owns the separate B-09 maintainer-UAT
-Gate outside the 53-row ledger. Issues #210 through #212 remediate the local
-Product surface; all findings remain open pending repeated UAT. UAT-01
-failed; UAT-02 through
-UAT-12 are paused until #211 through #213 complete and repeated UAT-01 passes. B-07 Release
+Gate outside the 53-row ledger. Issues #210 through #213 complete implementation
+remediation; all findings remain open pending repeated UAT. UAT-01 failed and
+remains failed until repeated; UAT-02 through UAT-12 are paused until repeated
+UAT-01 passes. B-07 Release
 preparation remains open and not ready. The published functional history remains
 Issues #182 through #196;
 Issues #197 through #199 remain audit, Release preparation, and publication

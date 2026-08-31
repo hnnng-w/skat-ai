@@ -51,12 +51,14 @@ with module invocation identity. Repository-root `main.py` remains a thin
 Legacy compatibility facade and is not included in distributions.
 
 `skatmind.cli.__all__` remains exactly `("main",)`. Empty argv and leading `app`
-dispatch to the shell, followed by `corpus`, `capture`, `session`, and the
-existing Root parser. `src/skatmind/cli/entrypoint.py` performs the shell-first
-selection without importing the broad Root facade. Repository-root `main.py`
-uses the same lightweight route before loading its Legacy compatibility exports.
+dispatch to the shell. Leading `run`, `session`, `capture`, and `corpus` select
+their explicit advanced families. Help, version, and unknown non-option commands
+remain lightweight; option-like first tokens select direct Root compatibility.
+`src/skatmind/cli/entrypoint.py` performs this Product-first selection without
+importing the broad Root facade. Repository-root `main.py` uses the same
+lightweight help/version route before loading its Legacy compatibility exports.
 
-## Implemented shell routing and remaining Issue #213 work
+## Implemented Product and automation routing
 
 Issue #210 makes bare `skatmind`, bare `python -m skatmind`, and bare repository-
 root `python main.py` launch the unified local shell. Leading `app` is the
@@ -64,10 +66,13 @@ explicit installed/module/Legacy form. Direct `skatmind --input ...`, `session`,
 `capture`, and `corpus` remain supported advanced interfaces, and Root patch
 seams continue to receive the original `argv` value.
 
-Issue #213 still owns `skatmind run`, concise Product-oriented top-level help,
-and relocation of complete Root help. Current Root `--help` and direct Root
-options remain authoritative until then. See [Application shell](unified_local_frontend_application_shell.md)
-and [Unified local frontend contract](unified_local_frontend_contract.md).
+Issue #213 adds canonical `skatmind run --input ...`, concise Product-oriented
+top-level help, grouped complete Root help at `run --help`, and concise unknown-
+command errors. Direct Root options remain Package-1.x compatible without a
+warning. Both modes use one Root parser inventory and one Root dispatcher. See
+[Advanced CLI automation](advanced_cli_automation_interface.md),
+[Application shell](unified_local_frontend_application_shell.md), and
+[Unified local frontend contract](unified_local_frontend_contract.md).
 
 ## Learning Corpus CLI and browser transport
 
@@ -117,7 +122,10 @@ The focused modules are:
 
 | Module | Responsibility |
 | --- | --- |
-| `root_parser.py` | Root command identity, invocation examples, exact parser construction, and argument parsing. |
+| `onboarding_contracts.py` | Private onboarding versions, policies, Product areas, advanced families, and run-help group order. |
+| `top_level_parser.py` and `top_level_help.py` | Lightweight dispatch classification, concise Product help/version, and unknown-command usage. |
+| `run.py` and `run_help.py` | Canonical advanced Root adapter plus plain-language concepts and task examples. |
+| `root_parser.py` | Shared compatibility/run command identity, one Root option inventory, grouped run-help projection, exact parser construction, and supplied-option parsing. |
 | `root_validation.py` | CLI-only semantic option validation and `CliUsageError` wording. |
 | `root_compatibility.py` | Legacy patch metadata, captured default dependency values, active Root namespace, dependency resolution, and Legacy-compatible Application dependency construction. |
 | `root_application.py` | One internally checkpointed Application invocation, caller-presence metadata, optional unchanged public Root provenance attachment, Result/artifact thawing, external Opponent Statistics adaptation, and retained Legacy Position helper functions. |
@@ -272,4 +280,7 @@ release expectations to `0.16.0`.
 Issue #198 later changes only Package version and matching Release-candidate
 expectations to `0.17.0`. The maintainer published `v0.17.0` on 2026-08-25 at
 `8187fbe`; Issue #199 synchronizes that publication without changing CLI
-architecture or behavior.
+architecture or behavior. Issue #213 extends current Source, Editable, Wheel,
+sdist, and clean-install characterization with concise top-level help, grouped
+`run --help`, explicit-input enforcement, canonical/direct all-seven-workflow
+parity, and unchanged standalone advanced families.

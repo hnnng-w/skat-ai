@@ -189,13 +189,13 @@ signal uses the confidence of its own denominator. See
 Run the public example:
 
 ```powershell
-python main.py --input examples/opponent_statistics.json
+python main.py run --input examples/opponent_statistics.json
 ```
 
 Write only structured successful output:
 
 ```powershell
-python main.py --input examples/opponent_statistics.json --output outputs/opponent-statistics.json --quiet
+python main.py run --input examples/opponent_statistics.json --output outputs/opponent-statistics.json --quiet
 ```
 
 Normal output prints percentages, three scoped confidence levels,

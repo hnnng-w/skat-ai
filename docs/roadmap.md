@@ -1552,8 +1552,10 @@ analysis, completed-game Review, strict optional JSON transfer, and readable
 process-local Results, further partially remediating UAT-FINDING-001 without
 closing it. Issue #212 adds managed Session, Match Capture, Learning Corpus, and
 explicit Match-to-Corpus workflows without changing existing persistence or
-standalone advanced interfaces. Issue #213 is the exact next implementation
-action. All findings,
-B-09, and B-07 remain open, `v1.0.0` is
+standalone advanced interfaces. Issue #213 adds canonical explicit-input `run`,
+concise Product help, grouped Root automation help and examples, lightweight
+help/version imports, and unchanged direct compatibility. Implementation
+remediation is complete, but all findings, B-09, and B-07 remain open, `v1.0.0` is
 unready, and Release preparation remains not ready. No v1 Release title, theme,
-date, tag, or publication commit is frozen.
+date, tag, or publication commit is frozen. Repeating UAT-01 under Issue #208
+from a fresh non-Editable installation is the exact next action.

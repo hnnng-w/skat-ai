@@ -107,7 +107,7 @@ Historical Information-set Search Review is a separate opt-in Historical Game
 mode:
 
 ```powershell
-skatmind --input historical.json --historical-information-set-search-review --search-seed 71
+skatmind run --input historical.json --historical-information-set-search-review --search-seed 71
 ```
 
 It requires `--search-seed`. It reuses `--search-budget-profile`, `--samples`,
@@ -132,7 +132,7 @@ accuracy or ground-truth claim.
 Training Dataset version `1` has a separate evaluation-only mode:
 
 ```powershell
-skatmind --input dataset.json --information-set-search-evaluation --search-seed 71
+skatmind run --input dataset.json --information-set-search-evaluation --search-seed 71
 ```
 
 It defaults to canonical `validation`, then `test`, and to profile

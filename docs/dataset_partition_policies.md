@@ -98,13 +98,13 @@ whole-component move/swap improvement. See
 Run the default audit:
 
 ```powershell
-python main.py --input examples/training_dataset_partition_audit.json --audit-dataset-partitions
+python main.py run --input examples/training_dataset_partition_audit.json --audit-dataset-partitions
 ```
 
 Request explicit semantics:
 
 ```powershell
-python main.py --input examples/training_dataset_partition_audit.json --audit-dataset-partitions --dataset-partition-mode known_opponent
+python main.py run --input examples/training_dataset_partition_audit.json --audit-dataset-partitions --dataset-partition-mode known_opponent
 ```
 
 Mode resolution uses the supplied CLI mode, otherwise the declared policy,
@@ -135,9 +135,9 @@ splitting, model training, and automatic evaluation remain unsupported. See
 Run the mode-derived preparation examples:
 
 ```powershell
-python main.py --input examples/training_dataset_preparation_known_opponent.json
-python main.py --input examples/training_dataset_preparation_unseen_player.json
-python main.py --input examples/training_dataset_preparation_unavailable.json
+python main.py run --input examples/training_dataset_preparation_known_opponent.json
+python main.py run --input examples/training_dataset_preparation_unseen_player.json
+python main.py run --input examples/training_dataset_preparation_unavailable.json
 ```
 
 Preparation is root-selected and accepts only `--input`, `--output`, and

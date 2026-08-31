@@ -8,8 +8,8 @@ Issue #209 froze this contract in response to the accepted Issue #208 UAT
 findings. Issue #210 implements launch routing, the managed home, Home,
 navigation, About, secure serving, packaged assets, and honest placeholders.
 Issue #211 implements guided Analyze/Review and Result presentation. Issue #212
-implements managed stateful workflows. Issue #213 retains its frozen ownership
-below.
+implements managed stateful workflows. Issue #213 implements the final CLI
+onboarding and advanced-automation slice frozen below.
 
 The three states in this document must remain distinct:
 
@@ -18,17 +18,16 @@ Current behavior:
     the behavior implemented by Package 0.17.0
 
 Approved target contract:
-    the complete required behavior frozen by Issue #209, implemented through
-    Issue #212
+    the complete required behavior frozen by Issue #209
 
-Future implementation ownership:
-    the remaining focused work assigned to Issue #213
+Implemented behavior:
+    the complete target implemented through Issues #210 through #213
 ```
 
 Current executable contracts, Public APIs, persistence formats, browser
 protocols, Schemas, and information controls remain authoritative while the
-remaining target is implemented. Issue #209 changed none of them; Issues #210
-through #212 add only their private frontend boundaries.
+implemented target remains in use. Issue #209 changed none of them; Issues #210
+through #213 add only their private frontend and onboarding boundaries.
 
 ## UAT source
 
@@ -94,7 +93,8 @@ Package `0.17.0` currently exposes one Console Script,
 `skatmind = skatmind.cli:main`, and supports installed, module, and repository-
 root Legacy invocation. Empty argv and leading `app` select the unified shell;
 leading `corpus`, `capture`, and `session` retain their separate command families;
-every other invocation enters the Root JSON parser.
+leading `run` selects canonical Root JSON automation; top-level help and version
+remain lightweight; option-like first tokens retain direct Root compatibility.
 
 Consequently, current behavior is:
 
@@ -106,10 +106,16 @@ skatmind app
     explicitly launch the unified local application shell
 
 skatmind --help
-    show the complete flat technical Root option list
+    show concise Product-oriented help
+
+skatmind run --input ...
+    run canonical advanced Root JSON automation
+
+skatmind run --help
+    show the complete grouped Root option interface
 
 skatmind --input ...
-    run Root JSON automation
+    run the Package-1.x direct Root compatibility route
 
 skatmind session ...
     run the direct Session CLI with an explicit Session path
@@ -127,10 +133,10 @@ retain separate advanced server contexts, bootstrap URLs, cookies, navigation,
 and process entries. The unified shell and `app` command now exist with one
 managed root and shared shell navigation. Guided Position/Historical workflows,
 strict optional JSON transfer, readable Results, managed item lifecycles, and
-Session browser operations now exist. The `run` command does not yet exist.
+Session browser operations now exist. Canonical `run`, concise Product help, and
+grouped advanced help are implemented by Issue #213.
 
-These current commands remain the accurate instructions until their owning
-implementation Issues complete.
+These current commands are the implemented Product and automation instructions.
 
 ## Approved launch contract
 
@@ -181,7 +187,7 @@ add no daemon, system service, tray application, or desktop installer.
 
 ## CLI routing and help
 
-The future top-level routing contract is:
+The implemented top-level routing contract is:
 
 ```text
 skatmind
@@ -209,35 +215,36 @@ skatmind --help
     concise Product-oriented help
 ```
 
-The current direct Root syntax:
+The direct Root syntax:
 
 ```text
 skatmind --input ...
 ```
 
-must remain accepted as a Package-1.x compatibility route. It must not remain
-the primary documented user path. The future canonical automation form is:
+remains accepted as a Package-1.x compatibility route. It is not the primary
+documented user path. The canonical automation form is:
 
 ```text
 skatmind run --input ...
 ```
 
-Future top-level `skatmind --help` must explain that bare `skatmind` opens the
+Top-level `skatmind --help` explains that bare `skatmind` opens the
 local application, identify the six primary Product areas, identify
 `skatmind run` as advanced JSON automation, identify `session`, `capture`, and
 `corpus` as advanced direct interfaces, and state where version and licensing
-information are available. It must not enumerate every Search, Dataset, Policy,
+information are available. It does not enumerate every Search, Dataset, Policy,
 seed, sample, Profile, and Provenance option.
 
-The complete technical Root options must move to:
+The complete technical Root options are available at:
 
 ```text
 skatmind run --help
 ```
 
-Issue #209 must not change the current parser or help output. Issue #210 owns
-bare and explicit frontend launch routing. Issue #213 owns `skatmind run`, Root
-compatibility routing, and help implementation.
+Issue #210 owns bare and explicit frontend launch routing. Issue #213 implements
+`skatmind run`, Root compatibility routing, and layered help without changing
+Root Product semantics. See
+[Advanced CLI automation](advanced_cli_automation_interface.md).
 
 ## Application architecture
 
@@ -614,7 +621,10 @@ Public Python API:
     skatmind.api.v1
 
 Advanced CLI:
-    existing Root JSON execution
+    canonical skatmind run Root JSON execution
+
+Direct Root compatibility:
+    existing option-like Root execution
 
 Direct Session CLI:
     skatmind session
@@ -689,49 +699,51 @@ UAT-FINDING-003:
     primary remediation in Issue #212
 ```
 
-Issues #210 through #212 implement their assigned shell, guided-workflow, and
-managed-stateful slices. Issue #213 is the exact next implementation action. See
+Issues #210 through #213 implement their assigned shell, guided-workflow,
+managed-stateful, and advanced-automation slices. See
 [Unified local frontend application shell](unified_local_frontend_application_shell.md)
 and [Guided analysis and Results](unified_local_frontend_guided_analysis_and_results.md),
 and [Managed stateful workflows](unified_local_frontend_stateful_workflows.md)
-for the implemented boundaries.
+and [Advanced CLI automation](advanced_cli_automation_interface.md) for the
+implemented boundaries.
 
 ## UAT repetition and Release state
 
-The post-Issue-#212 state is:
+The post-Issue-#213 state is:
 
 ```text
 Issue #208:
     open
 
 UAT-01:
-    failed
+    failed until repeated
 
 UAT-02 through UAT-12:
-    paused
+    paused until repeated UAT-01 passes
 
 B-09:
-    open and blocked by accepted UAT findings
+    open
 
 B-07:
     open
 
 UAT-FINDING-001:
-    further remediated by managed Session, Match, and Learning workflows
-    remains open
+    implementation remediation complete
+    open pending repeated UAT-01
 
 UAT-FINDING-002:
-    open
+    implementation remediation complete under Issue #213
+    open pending repeated UAT-01
 
 UAT-FINDING-003:
-    implementation complete under Issue #212; remains open pending repeated UAT
+    implementation remediation complete under Issue #212
+    open pending repeated UAT-01
 
 Release preparation:
     not ready
 ```
 
-UAT-01 must be repeated only after Issues #210 through #213 are implemented and
-validated. After Issue #213, the maintainer must:
+Issues #210 through #213 are implemented and validated. The maintainer must:
 
 1. create a fresh clone;
 2. perform a normal non-Editable runtime installation;
@@ -746,6 +758,9 @@ validated. After Issue #213, the maintainer must:
 
 UAT-02 through UAT-12 must remain paused until repeated UAT-01 passes. Issue
 #209 must not add the final UAT evidence document.
+
+The exact next action is: repeat UAT-01 under Issue #208 using a fresh clone and
+normal non-Editable runtime installation.
 
 The completed technical required-row ledger remains:
 

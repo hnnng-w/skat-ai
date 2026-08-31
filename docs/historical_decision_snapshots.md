@@ -21,13 +21,13 @@ The terminal event itself has no snapshot.
 Use the historical-only CLI flag:
 
 ```powershell
-python main.py --input examples/historical_grand_normal_completion.json --historical-decision-snapshots
+python main.py run --input examples/historical_grand_normal_completion.json --historical-decision-snapshots
 ```
 
 For automation-friendly structured output:
 
 ```powershell
-python main.py --input examples/historical_grand_normal_completion.json --historical-decision-snapshots --output outputs/historical-snapshots.json --quiet
+python main.py run --input examples/historical_grand_normal_completion.json --historical-decision-snapshots --output outputs/historical-snapshots.json --quiet
 ```
 
 Without the flag, historical output is unchanged and omits

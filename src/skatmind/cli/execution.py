@@ -44,6 +44,19 @@ from skatmind.cli.root_parser import (  # noqa: F401
 )
 from skatmind.cli.root_transport import *  # noqa: F403
 from skatmind.cli.root_validation import *  # noqa: F403
+from skatmind.cli.top_level_parser import (
+    TOP_LEVEL_DISPATCH_APP,
+    TOP_LEVEL_DISPATCH_CAPTURE,
+    TOP_LEVEL_DISPATCH_CORPUS,
+    TOP_LEVEL_DISPATCH_HELP,
+    TOP_LEVEL_DISPATCH_RUN,
+    TOP_LEVEL_DISPATCH_SESSION,
+    TOP_LEVEL_DISPATCH_UNKNOWN_COMMAND,
+    TOP_LEVEL_DISPATCH_VERSION,
+    classify_top_level_argv,
+    report_unknown_top_level_command,
+    run_top_level_help_or_version,
+)
 
 
 def run_cli(
@@ -55,28 +68,23 @@ def run_cli(
     """Runs one argv-capable CLI invocation using the selected command identity."""
     _invocation_command(invocation_style)
     dispatch_argv = tuple(sys.argv[1:] if argv is None else argv)
-    if not dispatch_argv or dispatch_argv[:1] == ("app",):
+    dispatch = classify_top_level_argv(dispatch_argv)
+    if dispatch == TOP_LEVEL_DISPATCH_APP:
         from skatmind.cli.app import run_app_cli
 
         return run_app_cli(
             dispatch_argv if not dispatch_argv else dispatch_argv[1:],
             invocation_style=invocation_style,
         )
-    if dispatch_argv[:1] == ("corpus",):
-        from skatmind.cli.corpus import run_corpus_cli
+    if dispatch == TOP_LEVEL_DISPATCH_RUN:
+        from skatmind.cli.run import run_root_automation_cli
 
-        return run_corpus_cli(
+        return run_root_automation_cli(
             dispatch_argv[1:],
             invocation_style=invocation_style,
+            legacy_namespace=legacy_namespace,
         )
-    if dispatch_argv[:1] == ("capture",):
-        from skatmind.cli.capture import run_capture_cli
-
-        return run_capture_cli(
-            dispatch_argv[1:],
-            invocation_style=invocation_style,
-        )
-    if dispatch_argv[:1] == ("session",):
+    if dispatch == TOP_LEVEL_DISPATCH_SESSION:
         from skatmind.cli.session import run_session_cli
 
         session_argv = dispatch_argv[1:]
@@ -84,6 +92,30 @@ def run_cli(
             return run_session_cli(session_argv, invocation_style=invocation_style)
         with legacy_patch_namespace(legacy_namespace):  # noqa: F405
             return run_session_cli(session_argv, invocation_style=invocation_style)
+    if dispatch == TOP_LEVEL_DISPATCH_CAPTURE:
+        from skatmind.cli.capture import run_capture_cli
+
+        return run_capture_cli(
+            dispatch_argv[1:],
+            invocation_style=invocation_style,
+        )
+    if dispatch == TOP_LEVEL_DISPATCH_CORPUS:
+        from skatmind.cli.corpus import run_corpus_cli
+
+        return run_corpus_cli(
+            dispatch_argv[1:],
+            invocation_style=invocation_style,
+        )
+    if dispatch in {TOP_LEVEL_DISPATCH_HELP, TOP_LEVEL_DISPATCH_VERSION}:
+        return run_top_level_help_or_version(
+            dispatch_argv,
+            invocation_style=invocation_style,
+        )
+    if dispatch == TOP_LEVEL_DISPATCH_UNKNOWN_COMMAND:
+        return report_unknown_top_level_command(
+            dispatch_argv[0],
+            invocation_style=invocation_style,
+        )
     if legacy_namespace is None:
         return _run_cli(argv, invocation_style)
     with legacy_patch_namespace(legacy_namespace):  # noqa: F405

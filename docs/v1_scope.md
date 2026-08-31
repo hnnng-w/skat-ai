@@ -355,8 +355,10 @@ analysis, completed-game Review, strict optional JSON transfer, and readable
 process-local Results. Issue #212 adds managed Session, Match Capture, and
 Learning Corpus workflows plus explicit Match-to-Corpus transfer. Those Issues
 further remediate UAT-FINDING-001 without closing it. B-09 and B-07 remain open,
-and Issue #213 is the exact next implementation action. The milestone remains
-not ready.
+and Issue #213 completes implementation remediation through canonical `run`,
+concise Product help, grouped advanced automation help, and retained direct Root
+compatibility. All findings remain open pending repeated UAT-01. The milestone
+remains not ready; repeated UAT-01 under Issue #208 is the exact next action.
 
 The November 2022 ISkO and SkWO publication is the normative source for official
 rules and competition behavior. Product capabilities such as simulation,
@@ -959,8 +961,9 @@ records that Issue #208 UAT-01 failed, Issue #209 froze the approved
 implemented the [application shell](unified_local_frontend_application_shell.md),
 Issue #211 implemented [guided analysis and Results](unified_local_frontend_guided_analysis_and_results.md),
 and Issue #212 implemented [managed stateful workflows](unified_local_frontend_stateful_workflows.md).
-Issue #213 is next. UAT-02 through UAT-12, B-09, B-07, and Package `1.0.0`
-preparation remain blocked or open as applicable.
+Issue #213 implemented [advanced CLI automation](advanced_cli_automation_interface.md).
+UAT-02 through UAT-12, B-09, B-07, and Package `1.0.0` preparation remain
+blocked or open as applicable. Repeated UAT-01 is next.
 
 `v1.0.0` is not ready while any required gate lacks evidence, any validation or
 test listed for a v1.0-required traceability row remains incomplete, any such

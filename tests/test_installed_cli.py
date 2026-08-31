@@ -219,15 +219,11 @@ def _collect_wall_clock_elapsed_fields(
                 assert type(child) is int
                 assert child >= 0
                 fields[child_path] = child
-            fields.update(
-                _collect_wall_clock_elapsed_fields(child, path=child_path)
-            )
+            fields.update(_collect_wall_clock_elapsed_fields(child, path=child_path))
     elif isinstance(value, list):
         for index, child in enumerate(value):
             child_path = f"{path}/{index}"
-            fields.update(
-                _collect_wall_clock_elapsed_fields(child, path=child_path)
-            )
+            fields.update(_collect_wall_clock_elapsed_fields(child, path=child_path))
     return fields
 
 
@@ -249,16 +245,12 @@ def _normalize_wall_clock_elapsed_fields(value: object) -> object:
 def _assert_cross_execution_documents_equal_except_wall_clock_elapsed(
     documents: list[dict[str, object]],
 ) -> None:
-    timing_fields = [
-        _collect_wall_clock_elapsed_fields(document) for document in documents
-    ]
+    timing_fields = [_collect_wall_clock_elapsed_fields(document) for document in documents]
     expected_paths = frozenset(timing_fields[0])
     assert expected_paths
     assert all(frozenset(fields) == expected_paths for fields in timing_fields)
 
-    normalized = [
-        _normalize_wall_clock_elapsed_fields(document) for document in documents
-    ]
+    normalized = [_normalize_wall_clock_elapsed_fields(document) for document in documents]
     assert all(document == normalized[0] for document in normalized[1:])
 
 
@@ -416,30 +408,53 @@ def test_all_seven_cli_forms_match_application_and_public_api(
     capsys,
 ) -> None:
     input_path = EXAMPLES / example_name
-    installed_output = tmp_path / "installed.json"
-    module_output = tmp_path / "module.json"
-    legacy_output = tmp_path / "legacy.json"
+    paths = {
+        "installed": tmp_path / "installed.json",
+        "module": tmp_path / "module.json",
+        "legacy": tmp_path / "legacy.json",
+        "installed_run": tmp_path / "installed-run.json",
+        "module_run": tmp_path / "module-run.json",
+        "legacy_run": tmp_path / "legacy-run.json",
+    }
     common = ["--input", str(input_path), *cli_options, "--quiet"]
 
-    assert cli.run_cli(
-        [*common, "--output", str(installed_output)],
-        invocation_style="installed",
-    ) == 0
+    assert (
+        cli.run_cli(
+            [*common, "--output", str(paths["installed"])],
+            invocation_style="installed",
+        )
+        == 0
+    )
+    assert capsys.readouterr().out == ""
+    assert (
+        cli.run_cli(
+            ["run", *common, "--output", str(paths["installed_run"])],
+            invocation_style="installed",
+        )
+        == 0
+    )
     assert capsys.readouterr().out == ""
     module = _run_subprocess(
         [sys.executable, "-m", "skatmind"],
-        [*common, "--output", str(module_output)],
+        [*common, "--output", str(paths["module"])],
+    )
+    module_run = _run_subprocess(
+        [sys.executable, "-m", "skatmind"],
+        ["run", *common, "--output", str(paths["module_run"])],
     )
     legacy = _run_subprocess(
         [sys.executable, str(PROJECT_ROOT / "main.py")],
-        [*common, "--output", str(legacy_output)],
+        [*common, "--output", str(paths["legacy"])],
     )
-    assert module.returncode == legacy.returncode == 0
-    assert module.stdout == module.stderr == legacy.stdout == legacy.stderr == ""
+    legacy_run = _run_subprocess(
+        [sys.executable, str(PROJECT_ROOT / "main.py")],
+        ["run", *common, "--output", str(paths["legacy_run"])],
+    )
+    processes = (module, module_run, legacy, legacy_run)
+    assert all(process.returncode == 0 for process in processes)
+    assert all(process.stdout == process.stderr == "" for process in processes)
 
-    installed_document = json.loads(installed_output.read_text(encoding="utf-8"))
-    module_document = json.loads(module_output.read_text(encoding="utf-8"))
-    legacy_document = json.loads(legacy_output.read_text(encoding="utf-8"))
+    documents = [json.loads(path.read_text(encoding="utf-8")) for path in paths.values()]
     source = _load_example(example_name)
     public_document = execute_document(
         source,
@@ -454,12 +469,12 @@ def test_all_seven_cli_forms_match_application_and_public_api(
         )
     ).result.to_dict()["document"]
 
-    assert installed_document == module_document == legacy_document
-    assert installed_document == application_document == public_document
+    assert all(document == documents[0] for document in documents[1:])
+    assert documents[0] == application_document == public_document
     if workflow == "training_dataset_preparation":
-        assert installed_document["training_dataset_preparation_summary"]["plan"][
-            "status"
-        ] == "unavailable"
+        assert (
+            documents[0]["training_dataset_preparation_summary"]["plan"]["status"] == "unavailable"
+        )
 
 
 @pytest.mark.parametrize(
@@ -479,6 +494,9 @@ def test_all_seven_provenance_outputs_match_public_installed_module_and_legacy(
         "installed": tmp_path / "installed-provenance.json",
         "module": tmp_path / "module-provenance.json",
         "legacy": tmp_path / "legacy-provenance.json",
+        "installed_run": tmp_path / "installed-run-provenance.json",
+        "module_run": tmp_path / "module-run-provenance.json",
+        "legacy_run": tmp_path / "legacy-run-provenance.json",
     }
     common = [
         "--input",
@@ -491,16 +509,27 @@ def test_all_seven_provenance_outputs_match_public_installed_module_and_legacy(
 
     assert cli.run_cli([*common, str(paths["installed"])]) == 0
     assert capsys.readouterr().out == ""
+    assert cli.run_cli(["run", *common, str(paths["installed_run"])]) == 0
+    assert capsys.readouterr().out == ""
     module = _run_subprocess(
         [sys.executable, "-m", "skatmind"],
         [*common, str(paths["module"])],
+    )
+    module_run = _run_subprocess(
+        [sys.executable, "-m", "skatmind"],
+        ["run", *common, str(paths["module_run"])],
     )
     legacy = _run_subprocess(
         [sys.executable, str(PROJECT_ROOT / "main.py")],
         [*common, str(paths["legacy"])],
     )
-    assert module.returncode == legacy.returncode == 0
-    assert module.stdout == module.stderr == legacy.stdout == legacy.stderr == ""
+    legacy_run = _run_subprocess(
+        [sys.executable, str(PROJECT_ROOT / "main.py")],
+        ["run", *common, str(paths["legacy_run"])],
+    )
+    processes = (module, module_run, legacy, legacy_run)
+    assert all(process.returncode == 0 for process in processes)
+    assert all(process.stdout == process.stderr == "" for process in processes)
 
     documents = [json.loads(path.read_text(encoding="utf-8")) for path in paths.values()]
     public = execute_document(
@@ -549,9 +578,7 @@ def test_provenance_summary_is_concise_and_quiet_retains_json(
     )
     assert output.err == ""
     assert output.out.endswith(expected_section)
-    emitted_section = "Field Provenance\n" + output.out.rsplit(
-        "Field Provenance\n", maxsplit=1
-    )[1]
+    emitted_section = "Field Provenance\n" + output.out.rsplit("Field Provenance\n", maxsplit=1)[1]
     assert emitted_section == expected_section
     for forbidden in ("field_path", "reference_id", "player_id", "cards"):
         assert forbidden not in emitted_section
@@ -629,11 +656,33 @@ def test_human_readable_output_and_confirmation_match_module_and_legacy(
 
     assert cli.run_cli(args, invocation_style="installed") == 0
     installed = capsys.readouterr()
+    assert cli.run_cli(["run", *args], invocation_style="installed") == 0
+    installed_run = capsys.readouterr()
     module = _run_subprocess([sys.executable, "-m", "skatmind"], args)
+    module_run = _run_subprocess([sys.executable, "-m", "skatmind"], ["run", *args])
     legacy = _run_subprocess([sys.executable, str(PROJECT_ROOT / "main.py")], args)
+    legacy_run = _run_subprocess(
+        [sys.executable, str(PROJECT_ROOT / "main.py")],
+        ["run", *args],
+    )
 
-    assert installed.err == module.stderr == legacy.stderr == ""
-    assert installed.out == module.stdout == legacy.stdout
+    assert (
+        installed.err
+        == installed_run.err
+        == module.stderr
+        == module_run.stderr
+        == legacy.stderr
+        == legacy_run.stderr
+        == ""
+    )
+    assert (
+        installed.out
+        == installed_run.out
+        == module.stdout
+        == module_run.stdout
+        == legacy.stdout
+        == legacy_run.stdout
+    )
     assert "Opponent statistics summary" in installed.out
     assert f"Output file written: {output_path}" in installed.out
 
@@ -800,9 +849,10 @@ def test_representative_submodes_match_all_execution_boundaries(
     else:
         assert all(document == documents[0] for document in documents[1:])
     if example_name == "fixed_three_player_historical_list_all_passed.json":
-        assert documents[0]["fixed_three_player_historical_list_summary"][
-            "ranking_status"
-        ] == "lot_required"
+        assert (
+            documents[0]["fixed_three_player_historical_list_summary"]["ranking_status"]
+            == "lot_required"
+        )
 
 
 def test_auxiliary_export_matches_all_boundaries(tmp_path: Path, capsys) -> None:
@@ -813,6 +863,12 @@ def test_auxiliary_export_matches_all_boundaries(tmp_path: Path, capsys) -> None
     module_export = tmp_path / "module-export.json"
     legacy_output = tmp_path / "legacy.json"
     legacy_export = tmp_path / "legacy-export.json"
+    installed_run_output = tmp_path / "installed-run.json"
+    installed_run_export = tmp_path / "installed-run-export.json"
+    module_run_output = tmp_path / "module-run.json"
+    module_run_export = tmp_path / "module-run-export.json"
+    legacy_run_output = tmp_path / "legacy-run.json"
+    legacy_run_export = tmp_path / "legacy-run-export.json"
 
     def args(output: Path, export: Path) -> list[str]:
         return [
@@ -828,15 +884,26 @@ def test_auxiliary_export_matches_all_boundaries(tmp_path: Path, capsys) -> None
 
     assert cli.run_cli(args(installed_output, installed_export)) == 0
     assert capsys.readouterr().out == ""
+    assert cli.run_cli(["run", *args(installed_run_output, installed_run_export)]) == 0
+    assert capsys.readouterr().out == ""
     module = _run_subprocess(
         [sys.executable, "-m", "skatmind"],
         args(module_output, module_export),
+    )
+    module_run = _run_subprocess(
+        [sys.executable, "-m", "skatmind"],
+        ["run", *args(module_run_output, module_run_export)],
     )
     legacy = _run_subprocess(
         [sys.executable, str(PROJECT_ROOT / "main.py")],
         args(legacy_output, legacy_export),
     )
-    assert module.returncode == legacy.returncode == 0
+    legacy_run = _run_subprocess(
+        [sys.executable, str(PROJECT_ROOT / "main.py")],
+        ["run", *args(legacy_run_output, legacy_run_export)],
+    )
+    assert module.returncode == module_run.returncode == 0
+    assert legacy.returncode == legacy_run.returncode == 0
 
     public = execute_document(
         _load_example("training_dataset_normal_play.json"),
@@ -862,16 +929,30 @@ def test_auxiliary_export_matches_all_boundaries(tmp_path: Path, capsys) -> None
     )
     cli_outputs = [
         json.loads(path.read_text(encoding="utf-8"))
-        for path in (installed_output, module_output, legacy_output)
+        for path in (
+            installed_output,
+            module_output,
+            legacy_output,
+            installed_run_output,
+            module_run_output,
+            legacy_run_output,
+        )
     ]
     cli_exports = [
         json.loads(path.read_text(encoding="utf-8"))
-        for path in (installed_export, module_export, legacy_export)
+        for path in (
+            installed_export,
+            module_export,
+            legacy_export,
+            installed_run_export,
+            module_run_export,
+            legacy_run_export,
+        )
     ]
-    assert cli_outputs[0] == cli_outputs[1] == cli_outputs[2]
+    assert all(document == cli_outputs[0] for document in cli_outputs[1:])
     assert cli_outputs[0] == public.result.to_dict()["document"]
     assert cli_outputs[0] == application.result.to_dict()["document"]
-    assert cli_exports[0] == cli_exports[1] == cli_exports[2]
+    assert all(document == cli_exports[0] for document in cli_exports[1:])
     assert cli_exports[0] == public.artifacts[0].to_dict()["document"]
     assert cli_exports[0] == application.artifacts[0].to_dict()
 
@@ -910,9 +991,7 @@ def test_usage_expected_failure_and_unexpected_option_exit_codes(
     [
         _run_installed_subprocess,
         lambda args: _run_subprocess([sys.executable, "-m", "skatmind"], args),
-        lambda args: _run_subprocess(
-            [sys.executable, str(PROJECT_ROOT / "main.py")], args
-        ),
+        lambda args: _run_subprocess([sys.executable, str(PROJECT_ROOT / "main.py")], args),
     ],
     ids=("installed", "module", "legacy"),
 )
@@ -974,6 +1053,6 @@ def test_legacy_root_names_signatures_and_patch_points_remain_active(
         output_path=str(output_path),
         quiet=True,
     )
-    assert json.loads(output_path.read_text(encoding="utf-8"))[
-        "training_dataset_summary"
-    ] == expected
+    assert (
+        json.loads(output_path.read_text(encoding="utf-8"))["training_dataset_summary"] == expected
+    )

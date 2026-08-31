@@ -320,8 +320,9 @@ is required or currently shipped.
 
 Analyze and Review are usable and process-local. Session, Match Capture, and
 Learning Corpus lifecycle integration is implemented separately by Issue #212.
-`skatmind run` and concise top-level CLI onboarding remain Issue #213 work. The advanced Root,
-Session, Capture, Corpus, and Public Python API interfaces remain supported.
+Issue #213 implements canonical `skatmind run`, concise top-level Product help,
+and grouped Root automation help. Advanced Root, Session, Capture, Corpus, and
+Public Python API interfaces remain supported.
 
 Issue #211 further partially remediates `UAT-FINDING-001`; Issue #212 adds the
 separate managed stateful remediation. The findings remain open pending repeated
@@ -330,5 +331,5 @@ UAT-02 through UAT-12 remain paused. B-09 and B-07 remain open, B-06 remains
 closed, the completed 53-row technical ledger remains unchanged, and Release
 preparation remains not ready.
 
-The exact next implementation action is Issue #213, **Reframe the CLI as the
-advanced automation interface**.
+The exact next action is to repeat UAT-01 under Issue #208 using a fresh clone
+and normal non-Editable runtime installation.

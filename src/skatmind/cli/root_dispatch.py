@@ -45,13 +45,21 @@ def _invoke_root_wrapper(callback, args, **kwargs):
 def _run_cli(
     argv: list[str] | tuple[str, ...] | None,
     invocation_style: str,
+    *,
+    parser_mode: str = "compatibility",
 ) -> int:
-    if _has_active_legacy_patch_namespace() and argv is None:
+    if _has_active_legacy_patch_namespace() and argv is None and parser_mode == "compatibility":
         args = _legacy_patch_value("parse_arguments")()
     else:
-        args = _facade_value("parse_arguments", parse_arguments)(
-            argv, invocation_style=invocation_style
-        )
+        parser = _facade_value("parse_arguments", parse_arguments)
+        if parser_mode == "compatibility":
+            args = parser(argv, invocation_style=invocation_style)
+        else:
+            args = parser(
+                argv,
+                invocation_style=invocation_style,
+                parser_mode=parser_mode,
+            )
 
     try:
         input_data = _legacy_patch_value("load_json_object")(args.input)
@@ -197,9 +205,7 @@ def _run_cli(
                     args.historical_information_set_replay_coaching
                 ),
                 historical_replay_coaching=args.historical_replay_coaching,
-                historical_tactical_motif_review=(
-                    args.historical_tactical_motif_review
-                ),
+                historical_tactical_motif_review=(args.historical_tactical_motif_review),
                 search_seed=args.search_seed,
                 search_budget_profile=(
                     args.search_budget_profile or HISTORICAL_REVIEW_SEARCH_BUDGET_PROFILE
@@ -230,8 +236,7 @@ def _run_cli(
                 )
             if args.historical_information_set_replay_coaching:
                 raise CliUsageError(
-                    "--historical-information-set-replay-coaching requires "
-                    "historical-game input."
+                    "--historical-information-set-replay-coaching requires historical-game input."
                 )
             if args.historical_replay_coaching:
                 raise CliUsageError("--historical-replay-coaching requires historical-game input.")

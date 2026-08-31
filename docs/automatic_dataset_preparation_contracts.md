@@ -249,9 +249,9 @@ There is no partial or best-effort Plan and no fallback.
 The root-selected CLI accepts only `--input`, `--output`, and `--quiet`:
 
 ```powershell
-python main.py --input examples/training_dataset_preparation_known_opponent.json
-python main.py --input examples/training_dataset_preparation_unseen_player.json
-python main.py --input examples/training_dataset_preparation_unavailable.json
+python main.py run --input examples/training_dataset_preparation_known_opponent.json
+python main.py run --input examples/training_dataset_preparation_unseen_player.json
+python main.py run --input examples/training_dataset_preparation_unavailable.json
 ```
 
 The strict Draft 2020-12 schemas are:

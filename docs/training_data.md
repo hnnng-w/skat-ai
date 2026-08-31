@@ -429,27 +429,27 @@ The stable structures are defined by:
 Convert the public example:
 
 ```powershell
-python main.py --input examples/training_dataset_normal_play.json
+python main.py run --input examples/training_dataset_normal_play.json
 ```
 
 Write only structured output:
 
 ```powershell
-python main.py --input examples/training_dataset_normal_play.json --output outputs/training-dataset.json --quiet
+python main.py run --input examples/training_dataset_normal_play.json --output outputs/training-dataset.json --quiet
 ```
 
 Audit partition membership without generating samples:
 
 ```powershell
-python main.py --input examples/training_dataset_partition_audit.json --audit-dataset-partitions --dataset-partition-mode known_opponent
+python main.py run --input examples/training_dataset_partition_audit.json --audit-dataset-partitions --dataset-partition-mode known_opponent
 ```
 
 Prepare complete datasets or inspect explicit unavailability:
 
 ```powershell
-python main.py --input examples/training_dataset_preparation_known_opponent.json
-python main.py --input examples/training_dataset_preparation_unseen_player.json
-python main.py --input examples/training_dataset_preparation_unavailable.json
+python main.py run --input examples/training_dataset_preparation_known_opponent.json
+python main.py run --input examples/training_dataset_preparation_unseen_player.json
+python main.py run --input examples/training_dataset_preparation_unavailable.json
 ```
 
 Preparation accepts only `--input`, `--output`, and `--quiet`. Every analysis,

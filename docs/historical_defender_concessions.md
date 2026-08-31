@@ -76,9 +76,9 @@ prediction target, or coaching judgment.
 Use the example with:
 
 ```powershell
-python main.py --input examples/historical_grand_defender_concession.json
-python main.py --input examples/historical_grand_defender_concession.json --historical-decision-snapshots
-python main.py --input examples/historical_grand_defender_concession.json --historical-game-review
+python main.py run --input examples/historical_grand_defender_concession.json
+python main.py run --input examples/historical_grand_defender_concession.json --historical-decision-snapshots
+python main.py run --input examples/historical_grand_defender_concession.json --historical-game-review
 ```
 
 Unanimously accepted historical declarer-card exposure is documented separately

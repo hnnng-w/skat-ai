@@ -6,7 +6,14 @@ The canonical implementation is package-owned under :mod:`skatmind.cli`.
 import sys
 from functools import wraps
 
-if __name__ == "__main__" and (len(sys.argv) == 1 or sys.argv[1] == "app"):
+if __name__ == "__main__" and (
+    len(sys.argv) == 1
+    or sys.argv[1] in {"app", "-h", "--help", "--version"}
+    or (
+        not sys.argv[1].startswith("-")
+        and sys.argv[1] not in {"run", "session", "capture", "corpus"}
+    )
+):
     from skatmind.cli.entrypoint import run_cli as _run_lightweight_cli
 
     raise SystemExit(_run_lightweight_cli(invocation_style="legacy"))

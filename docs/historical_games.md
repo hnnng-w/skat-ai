@@ -218,80 +218,80 @@ settlement fields remain beside the review but do not influence it. See
 Print a concise summary:
 
 ```powershell
-python main.py --input examples/historical_grand_normal_completion.json
+python main.py run --input examples/historical_grand_normal_completion.json
 ```
 
 Print a declarer-concession summary:
 
 ```powershell
-python main.py --input examples/historical_grand_declarer_concession.json
+python main.py run --input examples/historical_grand_declarer_concession.json
 ```
 
 Print a defender-concession summary:
 
 ```powershell
-python main.py --input examples/historical_grand_defender_concession.json
+python main.py run --input examples/historical_grand_defender_concession.json
 ```
 
 Print an accepted declarer-card-exposure summary:
 
 ```powershell
-python main.py --input examples/historical_grand_declarer_card_exposure.json
+python main.py run --input examples/historical_grand_declarer_card_exposure.json
 ```
 
 Print an exact defender-open-play summary:
 
 ```powershell
-python main.py --input examples/historical_grand_defender_open_play.json
+python main.py run --input examples/historical_grand_defender_open_play.json
 ```
 
 Print a historical open-card-throw summary:
 
 ```powershell
-python main.py --input examples/historical_grand_open_card_throw.json
+python main.py run --input examples/historical_grand_open_card_throw.json
 ```
 
 Print the timed non-terminal continuation and its snapshot transition:
 
 ```powershell
-python main.py --input examples/historical_grand_defender_open_play_continuation.json --historical-decision-snapshots
+python main.py run --input examples/historical_grand_defender_open_play_continuation.json --historical-decision-snapshots
 ```
 
 Print the timed declarer-card-exposure continuation and its snapshot transition:
 
 ```powershell
-python main.py --input examples/historical_grand_declarer_card_exposure_continuation.json --historical-decision-snapshots
+python main.py run --input examples/historical_grand_declarer_card_exposure_continuation.json --historical-decision-snapshots
 ```
 
 Write structured output without successful stdout:
 
 ```powershell
-python main.py --input examples/historical_grand_normal_completion.json --output outputs/historical.json --quiet
+python main.py run --input examples/historical_grand_normal_completion.json --output outputs/historical.json --quiet
 ```
 
 Generate decision snapshots:
 
 ```powershell
-python main.py --input examples/historical_grand_normal_completion.json --historical-decision-snapshots
+python main.py run --input examples/historical_grand_normal_completion.json --historical-decision-snapshots
 ```
 
 Review every historical decision:
 
 ```powershell
-python main.py --input examples/historical_grand_normal_completion.json --historical-game-review --samples 100 --seed 42
+python main.py run --input examples/historical_grand_normal_completion.json --historical-game-review --samples 100 --seed 42
 ```
 
 Review the complete Grand Ouvert example with public declarer ownership from
 decision 1:
 
 ```powershell
-python main.py --input examples/historical_grand_ouvert_review.json --historical-game-review --samples 20 --seed 42
+python main.py run --input examples/historical_grand_ouvert_review.json --historical-game-review --samples 20 --seed 42
 ```
 
 Apply pre-game external profiles by stable participant ID:
 
 ```powershell
-python main.py --input examples/historical_grand_normal_completion.json --historical-game-review --opponent-statistics-file examples/historical_opponent_statistics.json --use-profile-presets --samples 20 --seed 42
+python main.py run --input examples/historical_grand_normal_completion.json --historical-game-review --opponent-statistics-file examples/historical_opponent_statistics.json --use-profile-presets --samples 20 --seed 42
 ```
 
 Historical games accept `--input`, `--output`, `--quiet`, and the optional

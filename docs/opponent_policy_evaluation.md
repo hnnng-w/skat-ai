@@ -29,19 +29,19 @@ Run the focused example with the default `train` source partition and default
 `validation`, `test` evaluation partitions:
 
 ```powershell
-python main.py --input examples/historical_opponent_policy_evaluation_dataset.json --evaluate-opponent-policy-profiles --output outputs/opponent-policy-evaluation.json
+python main.py run --input examples/historical_opponent_policy_evaluation_dataset.json --evaluate-opponent-policy-profiles --output outputs/opponent-policy-evaluation.json
 ```
 
 The mixed shortened example uses the equivalent public alias:
 
 ```powershell
-python main.py --input examples/training_dataset_shortened_opponent_workflows.json --evaluate-rolling-opponent-policies
+python main.py run --input examples/training_dataset_shortened_opponent_workflows.json --evaluate-rolling-opponent-policies
 ```
 
 Source and evaluation options are repeatable:
 
 ```powershell
-python main.py --input examples/historical_opponent_policy_evaluation_dataset.json --evaluate-opponent-policy-profiles --profile-source-partition train --profile-evaluation-partition validation --quiet
+python main.py run --input examples/historical_opponent_policy_evaluation_dataset.json --evaluate-opponent-policy-profiles --profile-source-partition train --profile-evaluation-partition validation --quiet
 ```
 
 Duplicate partition arguments are de-duplicated and output always uses

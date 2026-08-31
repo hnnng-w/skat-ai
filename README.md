@@ -673,6 +673,8 @@ skatmind app --help
 python -m skatmind app --help
 skatmind --help
 python -m skatmind --help
+skatmind run --help
+python -m skatmind run --help
 skatmind session --help
 python -m skatmind session --help
 skatmind capture --help
@@ -708,6 +710,8 @@ Learning workflows, and explicit Match-to-Corpus transfer are also available
 without normal-user paths or ports. See [Guided analysis and Results](docs/unified_local_frontend_guided_analysis_and_results.md),
 the [managed stateful workflows](docs/unified_local_frontend_stateful_workflows.md),
 and the [application shell](docs/unified_local_frontend_application_shell.md).
+Advanced JSON automation and direct Package-1.x compatibility are documented in
+[Advanced CLI automation](docs/advanced_cli_automation_interface.md).
 
 Parse and execute an already loaded Root JSON document:
 
@@ -732,12 +736,15 @@ See [Public API contracts](docs/public_api_contracts.md) for exports,
 compatibility, errors, and normal Result states, and
 [Public Python API v1](docs/public_python_api_v1.md) for executable facade usage.
 
-Show available CLI options and common command examples:
+Show concise Product help or the complete advanced Root automation interface:
 
 ```powershell
 skatmind --help
 python -m skatmind --help
 python main.py --help
+skatmind run --help
+python -m skatmind run --help
+python main.py run --help
 ```
 
 The first two commands are installed Package interfaces. `python main.py` is the
@@ -773,13 +780,13 @@ Run analysis from the repository root with the root `input_position.json`
 quick-start fixture:
 
 ```powershell
-python main.py --input input_position.json
+python main.py run --input input_position.json
 ```
 
 Run analysis with a specific input file:
 
 ```powershell
-python main.py --input examples/grand_second_position.json
+python main.py run --input examples/grand_second_position.json
 ```
 
 Aggregate one complete fixed-three-player historical list or compare independent
@@ -787,9 +794,9 @@ completed lists. The JSON root selects the workflow; there is no list-specific
 CLI flag:
 
 ```powershell
-python main.py --input examples/fixed_three_player_historical_list_mixed.json
-python main.py --input examples/fixed_three_player_historical_list_all_passed.json
-python main.py --input examples/fixed_three_player_historical_list_comparison.json
+python main.py run --input examples/fixed_three_player_historical_list_mixed.json
+python main.py run --input examples/fixed_three_player_historical_list_all_passed.json
+python main.py run --input examples/fixed_three_player_historical_list_comparison.json
 ```
 
 These workflows accept only `--input`, `--output`, `--quiet`, and
@@ -807,10 +814,10 @@ ongoing `live_decision` positions plus their documented bounded flat
 `post_game_review` positions with `actual_card_played`:
 
 ```powershell
-python main.py --input examples/grand_bounded_search_exhaustive.json
-python main.py --input examples/grand_auto_search_fallback.json
-python main.py --input examples/grand_bounded_search_post_game_review.json
-python main.py --input examples/information_set_search.json
+python main.py run --input examples/grand_bounded_search_exhaustive.json
+python main.py run --input examples/grand_auto_search_fallback.json
+python main.py run --input examples/grand_bounded_search_post_game_review.json
+python main.py run --input examples/information_set_search.json
 ```
 
 Strict Search never falls back. `auto` runs Immediate only when Search returns a
@@ -827,10 +834,10 @@ Search-method mismatch, or a Search card policy without matching JSON settings
 is rejected. Legacy inputs still default to `first_legal`.
 
 ```powershell
-python main.py --input examples/grand_bounded_search_exhaustive.json --multi-step 1
-python main.py --input examples/grand_bounded_search_exhaustive.json --multi-step 1 --compare-policies
-python main.py --input examples/information_set_search_multi_step.json --multi-step 1
-python main.py --input examples/information_set_search_multi_step.json --multi-step 1 --compare-policies
+python main.py run --input examples/grand_bounded_search_exhaustive.json --multi-step 1
+python main.py run --input examples/grand_bounded_search_exhaustive.json --multi-step 1 --compare-policies
+python main.py run --input examples/information_set_search_multi_step.json --multi-step 1
+python main.py run --input examples/information_set_search_multi_step.json --multi-step 1 --compare-policies
 ```
 
 Search is rerun from the prepared public state at every local decision. Each
@@ -846,7 +853,7 @@ Run Historical Search Review with an explicit Search seed. It uses the immutable
 baseline at every decision:
 
 ```powershell
-python main.py --input examples/historical_grand_normal_completion.json --historical-search-review --search-seed 71 --output outputs/historical-search.json
+python main.py run --input examples/historical_grand_normal_completion.json --historical-search-review --search-seed 71 --output outputs/historical-search.json
 ```
 
 Build the complete public Replay Coaching Report from the same information-safe
@@ -854,8 +861,8 @@ decision analysis. Coaching-only output omits the separate Historical Search
 Review summary; supplying both flags emits both summaries from one shared pass:
 
 ```powershell
-python main.py --input examples/historical_grand_normal_completion.json --historical-replay-coaching --search-seed 71 --samples 20 --seed 42 --output outputs/replay-coaching.json
-python main.py --input examples/historical_grand_normal_completion.json --historical-search-review --historical-replay-coaching --search-seed 71 --samples 20 --seed 42
+python main.py run --input examples/historical_grand_normal_completion.json --historical-replay-coaching --search-seed 71 --samples 20 --seed 42 --output outputs/replay-coaching.json
+python main.py run --input examples/historical_grand_normal_completion.json --historical-search-review --historical-replay-coaching --search-seed 71 --samples 20 --seed 42
 ```
 
 Evaluate bounded Search against Immediate on the default `validation` and `test`
@@ -863,7 +870,7 @@ dataset partitions. `evaluation_v1` is the default profile, and the optional cap
 is one stable global decision prefix:
 
 ```powershell
-python main.py --input examples/training_dataset_normal_play.json --evaluate-bounded-search --search-seed 71 --search-evaluation-max-decisions 10 --output outputs/search-evaluation.json
+python main.py run --input examples/training_dataset_normal_play.json --evaluate-bounded-search --search-seed 71 --search-evaluation-max-decisions 10 --output outputs/search-evaluation.json
 ```
 
 `--search-budget-profile` accepts `interactive_v1`, `historical_review_v1`, or
@@ -876,19 +883,19 @@ documented in [Information-set Search performance](docs/information_set_search_p
 Run immediate analysis with a configured opponent response policy:
 
 ```powershell
-python main.py --input examples/grand_second_position.json --opponent-response-policy highest_point
+python main.py run --input examples/grand_second_position.json --opponent-response-policy highest_point
 ```
 
 Run a multi-step analysis:
 
 ```powershell
-python main.py --input examples/grand_second_position.json --multi-step 2
+python main.py run --input examples/grand_second_position.json --multi-step 2
 ```
 
 Run the deterministic hidden-card inference example with two Multi-Step decisions:
 
 ```powershell
-python main.py --input examples/grand_hidden_card_inference.json --multi-step 2
+python main.py run --input examples/grand_hidden_card_inference.json --multi-step 2
 ```
 
 Its attributed public Grand history confirms that `right` failed to follow
@@ -898,20 +905,20 @@ scenario also demonstrates later simulated public-evidence progression.
 Compare all multi-step local card-selection policies:
 
 ```powershell
-python main.py --input examples/grand_second_position.json --multi-step 1 --compare-policies
+python main.py run --input examples/grand_second_position.json --multi-step 1 --compare-policies
 ```
 
 Print only policy-comparison output, suppressing the normal analysis and
 individual multi-step details:
 
 ```powershell
-python main.py --input examples/grand_second_position.json --multi-step 1 --compare-policies --comparison-only
+python main.py run --input examples/grand_second_position.json --multi-step 1 --compare-policies --comparison-only
 ```
 
 Run a multi-step analysis with separate left/right opponent policies:
 
 ```powershell
-python main.py --input examples/grand_left_right_opponent_policies.json --multi-step 2 --left-opponent-lead-policy highest_point --right-opponent-response-policy basic_defender_response
+python main.py run --input examples/grand_left_right_opponent_policies.json --multi-step 2 --left-opponent-lead-policy highest_point --right-opponent-response-policy basic_defender_response
 ```
 
 Global policy presets and policies cascade to both opponents. Side-specific input fields or CLI overrides win for their side.
@@ -919,16 +926,16 @@ Global policy presets and policies cascade to both opponents. Side-specific inpu
 Write output to JSON:
 
 ```powershell
-python main.py --input examples/grand_second_position.json --output outputs/result.json
+python main.py run --input examples/grand_second_position.json --output outputs/result.json
 ```
 
 Add the bounded public-safe field-provenance sidecar through any supported CLI
 form:
 
 ```powershell
-skatmind --input examples/grand_second_position.json --include-provenance --output outputs/result.json
-python -m skatmind --input examples/grand_second_position.json --include-provenance --output outputs/result.json
-python main.py --input examples/grand_second_position.json --include-provenance --output outputs/result.json
+skatmind run --input examples/grand_second_position.json --include-provenance --output outputs/result.json
+python -m skatmind run --input examples/grand_second_position.json --include-provenance --output outputs/result.json
+python main.py run --input examples/grand_second_position.json --include-provenance --output outputs/result.json
 ```
 
 Without `--quiet`, all forms append one concise aggregate Field Provenance
@@ -938,7 +945,7 @@ still written.
 Suppress successful human-readable stdout output for automation-friendly JSON runs:
 
 ```powershell
-python main.py --input examples/grand_second_position.json --output outputs/result.json --quiet
+python main.py run --input examples/grand_second_position.json --output outputs/result.json --quiet
 ```
 
 Without `--quiet`, default CLI behavior is unchanged and successful analysis output is still printed to `stdout`. With `--quiet`, analysis still runs normally and JSON output is still written when `--output` is provided. Expected errors are not suppressed and still go to `stderr`.
@@ -946,88 +953,88 @@ Without `--quiet`, default CLI behavior is unchanged and successful analysis out
 Run an overbid example where the declarer wins card points but loses settlement:
 
 ```powershell
-python main.py --input examples/grand_overbid_declarer_card_points_win.json --output outputs/overbid_test.json
+python main.py run --input examples/grand_overbid_declarer_card_points_win.json --output outputs/overbid_test.json
 ```
 
 Run a structured declarer concession that preserves all unplayed points:
 
 ```powershell
-python main.py --input examples/declarer_concession.json
+python main.py run --input examples/declarer_concession.json
 ```
 
 Run a structured defender concession with joint defender liability and no
 remaining-point assignment:
 
 ```powershell
-python main.py --input examples/defender_concession.json
+python main.py run --input examples/defender_concession.json
 ```
 
 Run a post-game review example with an actual played card:
 
 ```powershell
-python main.py --input examples/spades_post_game_actual_card_played.json
+python main.py run --input examples/spades_post_game_actual_card_played.json
 ```
 
 Validate and summarize a complete normally played historical game:
 
 ```powershell
-python main.py --input examples/historical_grand_normal_completion.json
+python main.py run --input examples/historical_grand_normal_completion.json
 ```
 
 Validate timed continued play after historical defender open play:
 
 ```powershell
-python main.py --input examples/historical_grand_defender_open_play_continuation.json --historical-decision-snapshots
+python main.py run --input examples/historical_grand_defender_open_play_continuation.json --historical-decision-snapshots
 ```
 
 Validate timed continued play after historical declarer-card exposure:
 
 ```powershell
-python main.py --input examples/historical_grand_declarer_card_exposure_continuation.json --historical-decision-snapshots
+python main.py run --input examples/historical_grand_declarer_card_exposure_continuation.json --historical-decision-snapshots
 ```
 
 Validate an exact historical play prefix ending in declarer concession:
 
 ```powershell
-python main.py --input examples/historical_grand_declarer_concession.json
+python main.py run --input examples/historical_grand_declarer_concession.json
 ```
 
 Validate an exact historical prefix ending in joint-liability defender concession:
 
 ```powershell
-python main.py --input examples/historical_grand_defender_concession.json
+python main.py run --input examples/historical_grand_defender_concession.json
 ```
 
 Validate an exact historical prefix ending in unanimously accepted declarer-card
 exposure:
 
 ```powershell
-python main.py --input examples/historical_grand_declarer_card_exposure.json
+python main.py run --input examples/historical_grand_declarer_card_exposure.json
 ```
 
 Add one information-safe snapshot immediately before each actual play:
 
 ```powershell
-python main.py --input examples/historical_grand_normal_completion.json --historical-decision-snapshots
+python main.py run --input examples/historical_grand_normal_completion.json --historical-decision-snapshots
 ```
 
 Review all 30 historical decisions with deterministic immediate analysis:
 
 ```powershell
-python main.py --input examples/historical_grand_normal_completion.json --historical-game-review --samples 100 --seed 42
+python main.py run --input examples/historical_grand_normal_completion.json --historical-game-review --samples 100 --seed 42
 ```
 
 Review a complete Grand Ouvert with the exact shrinking declarer hand from
 decision 1:
 
 ```powershell
-python main.py --input examples/historical_grand_ouvert_review.json --historical-game-review --samples 20 --seed 42
+python main.py run --input examples/historical_grand_ouvert_review.json --historical-game-review --samples 20 --seed 42
 ```
 
 Apply exact stable-ID external profiles captured strictly before the game:
 
 ```powershell
-python main.py --input examples/historical_grand_normal_completion.json --historical-game-review --opponent-statistics-file examples/historical_opponent_statistics.json --use-profile-presets --samples 20 --seed 42
+python main.py run --input examples/historical_grand_normal_completion.json --historical-game-review --opponent-statistics-file examples/historical_opponent_statistics.json --use-profile-presets --samples 20 --seed 42
 ```
 
 Historical-game inputs form a separate workflow. External profile application
@@ -1054,19 +1061,19 @@ Convert a versioned training/evaluation dataset without running
 recommendations or simulation:
 
 ```powershell
-python main.py --input examples/training_dataset_normal_play.json
+python main.py run --input examples/training_dataset_normal_play.json
 ```
 
 The variable-length example produces 14 samples from a concession prefix:
 
 ```powershell
-python main.py --input examples/training_dataset_variable_length.json
+python main.py run --input examples/training_dataset_variable_length.json
 ```
 
 Audit exact stable-player membership without generating samples:
 
 ```powershell
-python main.py --input examples/training_dataset_partition_audit.json --audit-dataset-partitions --dataset-partition-mode known_opponent
+python main.py run --input examples/training_dataset_partition_audit.json --audit-dataset-partitions --dataset-partition-mode known_opponent
 ```
 
 Known-opponent policy permits cross-partition player overlap. Unseen-player
@@ -1078,9 +1085,9 @@ Automatically prepare a reusable partitioned version-1 Training Dataset from
 unpartitioned Records:
 
 ```powershell
-python main.py --input examples/training_dataset_preparation_known_opponent.json
-python main.py --input examples/training_dataset_preparation_unseen_player.json
-python main.py --input examples/training_dataset_preparation_unavailable.json
+python main.py run --input examples/training_dataset_preparation_known_opponent.json
+python main.py run --input examples/training_dataset_preparation_unseen_player.json
+python main.py run --input examples/training_dataset_preparation_unavailable.json
 ```
 
 The root `training_dataset_preparation_input` selects the separate
@@ -1104,7 +1111,7 @@ input can instead act as the versioned multi-game container for exact historical
 opponent-statistics aggregation:
 
 ```powershell
-python main.py --input examples/training_dataset_normal_play.json --aggregate-opponent-statistics --opponent-statistics-partition train --opponent-statistics-partition validation --opponent-statistics-before 2026-07-21T00:00:00Z --output outputs/historical-statistics.json --export-opponent-statistics outputs/opponent-statistics.json
+python main.py run --input examples/training_dataset_normal_play.json --aggregate-opponent-statistics --opponent-statistics-partition train --opponent-statistics-partition validation --opponent-statistics-before 2026-07-21T00:00:00Z --output outputs/historical-statistics.json --export-opponent-statistics outputs/opponent-statistics.json
 ```
 
 Aggregation requires `played_at` on every partition-selected game, uses a strict
@@ -1116,13 +1123,13 @@ The mixed normal/concession example supports aggregation and export with the
 same commands:
 
 ```powershell
-python main.py --input examples/training_dataset_shortened_opponent_workflows.json --aggregate-opponent-statistics
+python main.py run --input examples/training_dataset_shortened_opponent_workflows.json --aggregate-opponent-statistics
 ```
 
 Evaluate rolling game-start profiles against observed known-opponent card choices:
 
 ```powershell
-python main.py --input examples/historical_opponent_policy_evaluation_dataset.json --evaluate-opponent-policy-profiles --output outputs/opponent-policy-evaluation.json
+python main.py run --input examples/historical_opponent_policy_evaluation_dataset.json --evaluate-opponent-policy-profiles --output outputs/opponent-policy-evaluation.json
 ```
 
 Use `--evaluate-rolling-opponent-policies` with
@@ -1138,7 +1145,7 @@ Validate, normalize, and derive an explainable profile from externally supplied
 opponent statistics:
 
 ```powershell
-python main.py --input examples/opponent_statistics.json
+python main.py run --input examples/opponent_statistics.json
 ```
 
 Opponent-statistics inputs form a separate workflow. Only `--input`, `--output`,
@@ -1152,7 +1159,7 @@ Attach the same validated statistics file to a live position with exact,
 case-sensitive left/right player IDs:
 
 ```powershell
-python main.py --input examples/grand_second_position.json --opponent-statistics-file examples/opponent_statistics.json --left-opponent-player-id opponent-123 --right-opponent-player-id opponent-789 --use-profile-presets --samples 20 --seed 42
+python main.py run --input examples/grand_second_position.json --opponent-statistics-file examples/opponent_statistics.json --left-opponent-player-id opponent-123 --right-opponent-player-id opponent-789 --use-profile-presets --samples 20 --seed 42
 ```
 
 Either side may be bound. Only confidence-gated actionable presets affect the
@@ -1804,8 +1811,9 @@ normal-completion Historical editor, strict optional JSON transfer, and readable
 Results without implicit persistence. Issue #212 adds managed Session, Match, and
 Learning lifecycles through the same authenticated server while preserving
 existing persistence and standalone advanced interfaces. `run` and final top-
-level help remain Issue #213 work. See [Guided analysis and Results](docs/unified_local_frontend_guided_analysis_and_results.md)
-and [Managed stateful workflows](docs/unified_local_frontend_stateful_workflows.md).
+level Product help are implemented by Issue #213. See [Guided analysis and Results](docs/unified_local_frontend_guided_analysis_and_results.md),
+[Managed stateful workflows](docs/unified_local_frontend_stateful_workflows.md),
+and [Advanced CLI automation](docs/advanced_cli_automation_interface.md).
 
 Issue #159 synchronized the historical `v0.14.0` publication status. The
 published `v0.15.0` milestone covers usable EuroSkat 36er Standard post-game
@@ -1931,9 +1939,10 @@ without product-code change. Issue #202 closes B-02 and makes P-10 and P-13
   findings, and UAT-02 through UAT-12 are paused. Issue #209 freezes the approved
   unified local frontend contract. Issue #210 implements the application shell,
   Issue #211 adds guided analysis, Historical Review, and readable Results, and
-  Issue #212 adds managed Session, Match, and Learning workflows.
-  UAT-FINDING-001 remains open pending repeated UAT, and Issue #212 implements
-  the Product work owned by UAT-FINDING-003. Issue #213 is next. B-09 and B-07 remain open, Release
+  Issue #212 adds managed Session, Match, and Learning workflows. Issue #213
+  adds canonical Root automation and layered CLI onboarding. Implementation
+  remediation is complete, but all findings remain open pending repeated UAT-01.
+  B-09 and B-07 remain open, Release
   preparation is not ready, and no v1 Release title, theme, date, tag, or
   publication commit is frozen.
 
@@ -1946,7 +1955,8 @@ the [final technical Release-readiness audit](docs/v1_0_final_technical_release_
 The local Product entry is documented in the [application shell](docs/unified_local_frontend_application_shell.md),
 the current Analyze/Review behavior is in [Guided analysis and Results](docs/unified_local_frontend_guided_analysis_and_results.md),
 the managed Session/Match/Learning behavior is in [Managed stateful workflows](docs/unified_local_frontend_stateful_workflows.md),
-and the remaining UAT remediation architecture is in the [unified local frontend contract](docs/unified_local_frontend_contract.md).
+the automation interface is in [Advanced CLI automation](docs/advanced_cli_automation_interface.md),
+and the completed remediation architecture is in the [unified local frontend contract](docs/unified_local_frontend_contract.md).
 The Historical integration is documented in [Historical party-wide
   Claim](docs/historical_party_wide_claim.md). The private boundary is documented in [Party-wide Claim
   contracts](docs/party_wide_claim_contracts.md), the [Party-wide Claim proof

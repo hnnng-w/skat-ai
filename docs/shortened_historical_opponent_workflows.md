@@ -137,14 +137,14 @@ optimal play, expected value, concession quality, or learned behavior.
 The mixed example supports aggregation and export:
 
 ```powershell
-python main.py --input examples/training_dataset_shortened_opponent_workflows.json --aggregate-opponent-statistics
-python main.py --input examples/training_dataset_shortened_opponent_workflows.json --aggregate-opponent-statistics --output outputs/shortened-statistics.json --export-opponent-statistics outputs/shortened-opponent-statistics.json --quiet
+python main.py run --input examples/training_dataset_shortened_opponent_workflows.json --aggregate-opponent-statistics
+python main.py run --input examples/training_dataset_shortened_opponent_workflows.json --aggregate-opponent-statistics --output outputs/shortened-statistics.json --export-opponent-statistics outputs/shortened-opponent-statistics.json --quiet
 ```
 
 It also supports rolling evaluation:
 
 ```powershell
-python main.py --input examples/training_dataset_shortened_opponent_workflows.json --evaluate-rolling-opponent-policies
+python main.py run --input examples/training_dataset_shortened_opponent_workflows.json --evaluate-rolling-opponent-policies
 ```
 
 The existing `--evaluate-opponent-policy-profiles` spelling remains supported.

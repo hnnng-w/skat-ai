@@ -165,7 +165,11 @@ Issue #212 adds direct managed Session, Match, and Corpus adapters, bounded
 direct-child discovery, guided Session entry, namespaced reuse of the existing
 Capture and Corpus bodies, and explicit Match-to-Corpus transfer. The shell still
 does not proxy or iframe standalone servers. Explicit Session, Capture, Corpus,
-and Root paths remain supported. Issue #213 is next; B-09 and B-07 remain open.
+and Root paths remain supported. Issue #213 adds lightweight Product help,
+canonical explicit-input `run`, grouped Root automation help, and unchanged
+Package-1.x direct Root compatibility through one Root implementation. All three
+UAT findings remain open pending repeated UAT-01; B-09 and B-07 remain open. See
+[Advanced CLI automation](advanced_cli_automation_interface.md).
 
 Issues #160 through #168 form the published `v0.15.0` Package baseline, and Issue
 #169 updated only Package/release metadata and documentation to complete Release

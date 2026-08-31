@@ -578,8 +578,9 @@ Review, strict optional JSON transfer, and readable process-local Results,
 further partially remediating UAT-FINDING-001 without closing it. Issue #212 adds
 managed Session, Match Capture, Learning Corpus, and explicit Match-to-Corpus
 workflows in the unified local app. UAT-02 through UAT-12 are paused, B-09 and
-B-07 remain open, and `v1.0.0` is not ready. Issue #213 is the exact next
-implementation action.
+B-07 remain open, and `v1.0.0` is not ready. Issue #213 implements canonical
+`run`, Product-oriented top-level help, and advanced Root automation help. All
+findings remain open pending repeated UAT-01, which is the exact next action.
 No v1 Release title, theme, date, tag, publication commit, or production model is
 frozen.
 
@@ -876,8 +877,9 @@ merged Ubuntu CI passes. Issue #207 closes B-06. Issue #208 remains open after
 UAT-01 fails, and Issue #209 freezes the documentation-only remediation contract.
 Issue #210 implements the application shell; Issue #211 implements guided
 analysis, Historical Review, JSON transfer, and Result presentation; Issue #212
-implements managed stateful workflows; Issue #213 is next. UAT-02 through UAT-12
-and B-07 Release preparation remain paused.
+implements managed stateful workflows; Issue #213 implements advanced CLI
+automation and onboarding. UAT-02 through UAT-12 and B-07 Release preparation
+remain paused pending repeated UAT-01.
 End-to-end local Live and Retrospective Session
 capture is implemented through public file Save/Load, automatic Checkpoints,
 accepted-Log actual-card observation, isolated review, explicit analysis, the

@@ -41,13 +41,13 @@ workflow or public Match contract.
 Use the historical-only flag with an optional sample count and base seed:
 
 ```powershell
-python main.py --input examples/historical_grand_normal_completion.json --historical-game-review --samples 100 --seed 42
+python main.py run --input examples/historical_grand_normal_completion.json --historical-game-review --samples 100 --seed 42
 ```
 
 The complete Grand Ouvert example uses the same reviewed path:
 
 ```powershell
-python main.py --input examples/historical_grand_ouvert_review.json --historical-game-review --samples 20 --seed 42
+python main.py run --input examples/historical_grand_ouvert_review.json --historical-game-review --samples 20 --seed 42
 ```
 
 `--historical-game-review` automatically generates the decision snapshots used

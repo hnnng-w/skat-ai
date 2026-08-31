@@ -9,6 +9,8 @@ Issue #211 now extends this shell with the separately documented
 [guided analysis and Result workflows](unified_local_frontend_guided_analysis_and_results.md).
 Issue #212 extends it with
 [managed stateful workflows](unified_local_frontend_stateful_workflows.md).
+Issue #213 completes the CLI onboarding separation documented in
+[Advanced CLI automation](advanced_cli_automation_interface.md).
 
 The exact internal contract identities are:
 
@@ -52,14 +54,18 @@ Leading dispatch is now:
 ```text
 empty argv        -> app
 app               -> app
-corpus            -> existing Corpus CLI
-capture           -> existing Capture CLI
+run               -> canonical Root JSON automation
 session           -> existing Session CLI
-all other argv    -> existing Root CLI
+capture           -> existing Capture CLI
+corpus            -> existing Corpus CLI
+-h or --help      -> concise Product help
+--version         -> Product version
+other option      -> direct Root compatibility
+other command     -> top-level usage error
 ```
 
-`--version`, current technical Root `--help`, and direct `--input` options remain
-unchanged. `skatmind run` and final top-level help remain Issue #213 work.
+`skatmind run --help` owns the grouped technical Root interface. Direct Root
+options remain unchanged Package-1.x compatibility routes without warnings.
 
 ## Managed local data
 
@@ -185,7 +191,7 @@ Corpora, reuse existing mutations and analyses, prepare existing process-local
 Learning artifacts, and provide canonical downloads. No Result or derived
 Learning artifact gains new persistence. Discovery is explicit and bounded.
 
-`skatmind run` and final top-level help remain Issue #213 work.
+Canonical `skatmind run` and concise top-level Product help are implemented.
 
 Standalone `session`, `capture`, and `corpus` commands remain supported and
 unchanged. The seven Root workflows, Public Python API, Schemas, persistence
@@ -194,13 +200,12 @@ downloads remain unchanged.
 
 ## UAT and next action
 
-Issues #210 through #212 remediate the local Product surface with the shell,
-guided analysis/Review, readable Results, and managed stateful workflows.
-`UAT-FINDING-001` remains open pending repeated UAT; Issue #212 implements the
-Product work owned by `UAT-FINDING-003`, which also remains open pending repeated
-UAT. `UAT-FINDING-002` remains open. UAT-01 remains failed; it is not repeated.
+Issues #210 through #213 complete implementation remediation with the shell,
+guided analysis/Review, readable Results, managed stateful workflows, and
+advanced CLI onboarding. All three findings remain open pending repeated UAT-01.
+UAT-01 remains failed; it is not repeated.
 UAT-02 through UAT-12 remain paused. B-09 and B-07 remain open, B-06 remains
 closed, and the completed 53-row technical ledger is unchanged.
 
-Issue #213, **Reframe the CLI as the advanced automation interface**, is the
-exact next implementation action.
+The exact next action is to repeat UAT-01 under Issue #208 using a fresh clone
+and normal non-Editable runtime installation.

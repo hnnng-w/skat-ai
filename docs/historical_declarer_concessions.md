@@ -95,7 +95,7 @@ historical workflows have the same winner and effective settlement value.
 Run the bounded example with:
 
 ```powershell
-python main.py --input examples/historical_grand_declarer_concession.json
+python main.py run --input examples/historical_grand_declarer_concession.json
 ```
 
 Quiet JSON output is supported with `--output ... --quiet`. Structured output

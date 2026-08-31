@@ -67,9 +67,7 @@ AUTO_SMOKE_EXAMPLE = PROJECT_ROOT / "examples" / "grand_auto_search_fallback.jso
 BOUNDED_MULTI_STEP_SMOKE_EXAMPLE = (
     PROJECT_ROOT / "examples" / "grand_bounded_search_exhaustive.json"
 )
-DEFAULT_POLICY_COMPARISON_SMOKE_EXAMPLE = (
-    PROJECT_ROOT / "examples" / "grand_second_position.json"
-)
+DEFAULT_POLICY_COMPARISON_SMOKE_EXAMPLE = PROJECT_ROOT / "examples" / "grand_second_position.json"
 ROOT_WORKFLOW_SMOKE_EXAMPLES = (
     (
         "position_analysis",
@@ -740,9 +738,7 @@ def _inspect_sdist(
         app_payload = {
             name.removeprefix(app_prefix): _tar_bytes(archive, members[name])
             for name in names
-            if name.startswith(app_prefix)
-            and not name.endswith(".py")
-            and members[name].isfile()
+            if name.startswith(app_prefix) and not name.endswith(".py") and members[name].isfile()
         }
         _require(
             app_payload == expected_app_resources,
@@ -3097,6 +3093,66 @@ def _install_and_smoke(
             "examples/" not in help_result.stdout,
             f"{label} {command_name} --help implies repository examples are installed.",
         )
+        for product_section in (
+            "Product introduction",
+            "Start here",
+            "What the local application includes",
+            "Advanced commands",
+            "Common options",
+            "More help",
+        ):
+            _require(
+                product_section in help_result.stdout,
+                f"{label} {command_name} --help omits {product_section!r}.",
+            )
+        for root_option in ("--input", "--samples", "--multi-step", "--include-provenance"):
+            _require(
+                root_option not in help_result.stdout,
+                f"{label} {command_name} --help exposes Root option {root_option!r}.",
+            )
+        run_help_result = _run_cli_check(
+            [*prefix, "run", "--help"],
+            cwd=consumer_directory,
+            environment=environment,
+            expected_returncode=0,
+        )
+        _require(
+            not run_help_result.stderr,
+            f"{label} {command_name} run --help wrote stderr.",
+        )
+        _require(
+            f"usage: {command_name} run" in run_help_result.stdout,
+            f"{label} {command_name} run --help used the wrong command identity.",
+        )
+        _require(
+            "examples/" not in run_help_result.stdout,
+            f"{label} {command_name} run --help implies repository examples are installed.",
+        )
+        for group in (
+            "Input and output",
+            "Immediate analysis and reproducibility",
+            "Historical review and coaching",
+            "Multi-Step simulation and Policy Comparison",
+            "Opponent behavior and Profiles",
+            "Dataset preparation, evaluation, and statistics",
+            "Technical evidence",
+        ):
+            _require(
+                group in run_help_result.stdout,
+                f"{label} {command_name} run --help omits group {group!r}.",
+            )
+        for concept in (
+            "normal frontend use does not require JSON",
+            "not calibrated probability",
+            "not learned prediction or hidden truth",
+            "not a quality, completeness, or optimality guarantee",
+            "not Confidence, correctness, or proof",
+            "Task-oriented examples",
+        ):
+            _require(
+                concept in " ".join(run_help_result.stdout.split()),
+                f"{label} {command_name} run --help omits concept {concept!r}.",
+            )
         session_help_result = _run_cli_check(
             [*prefix, "session", "--help"],
             cwd=consumer_directory,
@@ -3242,6 +3298,18 @@ def _install_and_smoke(
             option in legacy_app_help.stdout,
             f"{label} Legacy app --help omits {option!r}.",
         )
+    legacy_run_help = _run_cli_check(
+        [str(python), str(legacy_main), "run", "--help"],
+        cwd=legacy_directory,
+        environment=environment,
+        expected_returncode=0,
+    )
+    _require(
+        not legacy_run_help.stderr
+        and "usage: python main.py run" in legacy_run_help.stdout
+        and "examples/grand_second_position.json" in legacy_run_help.stdout,
+        f"{label} Legacy run --help identity or repository examples changed.",
+    )
 
     if full_root_cli_matrix:
         root_cli_prefixes = (
@@ -3252,25 +3320,38 @@ def _install_and_smoke(
         for workflow_name, _source, cli_options, _workflow_options in ROOT_WORKFLOW_SMOKE_EXAMPLES:
             input_name = f"root-{workflow_name}.json"
             for invocation_name, prefix in root_cli_prefixes:
-                output_name = f"root-{invocation_name}-{workflow_name}.json"
-                root_completed = _run_cli_check(
-                    [
-                        *prefix,
-                        "--input",
-                        input_name,
-                        "--output",
-                        output_name,
-                        *cli_options,
-                        "--include-provenance",
-                        "--quiet",
-                    ],
-                    cwd=consumer_directory,
-                    environment=environment,
-                    expected_returncode=0,
-                )
+                output_paths = []
+                for route_name, route_prefix in (
+                    ("compatibility", []),
+                    ("run", ["run"]),
+                ):
+                    output_name = f"root-{invocation_name}-{route_name}-{workflow_name}.json"
+                    output_paths.append(consumer_directory / output_name)
+                    root_completed = _run_cli_check(
+                        [
+                            *prefix,
+                            *route_prefix,
+                            "--input",
+                            input_name,
+                            "--output",
+                            output_name,
+                            *cli_options,
+                            "--include-provenance",
+                            "--quiet",
+                        ],
+                        cwd=consumer_directory,
+                        environment=environment,
+                        expected_returncode=0,
+                    )
+                    _require(
+                        not root_completed.stdout and not root_completed.stderr,
+                        f"{label} {invocation_name} {route_name} {workflow_name} "
+                        "was not a quiet success.",
+                    )
                 _require(
-                    not root_completed.stdout and not root_completed.stderr,
-                    f"{label} {invocation_name} {workflow_name} was not a quiet success.",
+                    output_paths[0].read_bytes() == output_paths[1].read_bytes(),
+                    f"{label} {invocation_name} {workflow_name} run/compatibility "
+                    "output bytes differ.",
                 )
 
     for prefix, default_output_name, provenance_output_name in (
@@ -3285,9 +3366,39 @@ def _install_and_smoke(
             "module-cli-result.json",
         ),
     ):
+        compatibility_default_name = f"compatibility-{default_output_name}"
+        compatibility_provenance_name = f"compatibility-{provenance_output_name}"
+        compatibility_default_completed = _run_cli_check(
+            [
+                *prefix,
+                "--input",
+                "opponent_statistics.json",
+                "--output",
+                compatibility_default_name,
+                "--quiet",
+            ],
+            cwd=consumer_directory,
+            environment=environment,
+            expected_returncode=0,
+        )
+        compatibility_provenance_completed = _run_cli_check(
+            [
+                *prefix,
+                "--input",
+                "opponent_statistics.json",
+                "--output",
+                compatibility_provenance_name,
+                "--include-provenance",
+                "--quiet",
+            ],
+            cwd=consumer_directory,
+            environment=environment,
+            expected_returncode=0,
+        )
         default_completed = _run_cli_check(
             [
                 *prefix,
+                "run",
                 "--input",
                 "opponent_statistics.json",
                 "--output",
@@ -3301,6 +3412,7 @@ def _install_and_smoke(
         provenance_completed = _run_cli_check(
             [
                 *prefix,
+                "run",
                 "--input",
                 "opponent_statistics.json",
                 "--output",
@@ -3318,6 +3430,20 @@ def _install_and_smoke(
             and not provenance_completed.stdout
             and not provenance_completed.stderr,
             f"{label} quiet CLI workflow produced output.",
+        )
+        _require(
+            not compatibility_default_completed.stdout
+            and not compatibility_default_completed.stderr
+            and not compatibility_provenance_completed.stdout
+            and not compatibility_provenance_completed.stderr,
+            f"{label} quiet compatibility CLI workflow produced output.",
+        )
+        _require(
+            (consumer_directory / default_output_name).read_bytes()
+            == (consumer_directory / compatibility_default_name).read_bytes()
+            and (consumer_directory / provenance_output_name).read_bytes()
+            == (consumer_directory / compatibility_provenance_name).read_bytes(),
+            f"{label} canonical run and compatibility output bytes differ.",
         )
 
     quiet_session_commands = (
@@ -3596,8 +3722,10 @@ def _install_and_smoke(
             )
             if output_stem == "information-set-policy-comparison":
                 comparison = simulation_document.get("policy_comparison_result")
-                valid = valid and isinstance(comparison, dict) and (
-                    comparison.get("policies", [])[-1:] == ["information_set_search"]
+                valid = (
+                    valid
+                    and isinstance(comparison, dict)
+                    and (comparison.get("policies", [])[-1:] == ["information_set_search"])
                 )
             _require(
                 valid and "field_provenance" in simulation_document,
@@ -3646,8 +3774,7 @@ def _install_and_smoke(
             (consumer_directory / output_name).read_text(encoding="utf-8")
         )
         _require(
-            compatibility_document["multi_step_result"]["card_selection_policy"]
-            == expected_policy,
+            compatibility_document["multi_step_result"]["card_selection_policy"] == expected_policy,
             f"{label} unchanged {expected_policy} simulation changed policy routing.",
         )
 
@@ -3742,24 +3869,21 @@ def _install_and_smoke(
             elif output_stem == "historical-information-set-search":
                 historical_summary = workflow_document.get("historical_game_summary")
                 valid = isinstance(historical_summary, dict) and (
-                    "historical_information_set_search_review_summary"
-                    in historical_summary
+                    "historical_information_set_search_review_summary" in historical_summary
                 )
             elif output_stem == "historical-information-set-replay-coaching":
                 historical_summary = workflow_document.get("historical_game_summary")
                 valid = isinstance(historical_summary, dict) and (
-                    "historical_information_set_replay_coaching_summary"
-                    in historical_summary
-                    and "historical_information_set_search_review_summary"
-                    not in historical_summary
+                    "historical_information_set_replay_coaching_summary" in historical_summary
+                    and "historical_information_set_search_review_summary" not in historical_summary
                     and "field_provenance" in workflow_document
                 )
             elif output_stem == "historical-tactical-motif-review":
                 historical_summary = workflow_document.get("historical_game_summary")
                 valid = isinstance(historical_summary, dict) and (
-                    historical_summary.get(
-                        "historical_tactical_motif_review_summary", {}
-                    ).get("observation_count")
+                    historical_summary.get("historical_tactical_motif_review_summary", {}).get(
+                        "observation_count"
+                    )
                     == 30
                     and "field_provenance" in workflow_document
                 )
@@ -3901,8 +4025,8 @@ def validate_distribution_artifacts() -> None:
 
     with tempfile.TemporaryDirectory(prefix="skatmind-distribution-") as temporary_name:
         temporary_root = Path(temporary_name).resolve()
-        _source_copy, wheel, sdist, expected_schemas = (
-            _build_and_inspect_distribution_artifacts(temporary_root)
+        _source_copy, wheel, sdist, expected_schemas = _build_and_inspect_distribution_artifacts(
+            temporary_root
         )
 
         wheel_smoke = _install_and_smoke(

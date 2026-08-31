@@ -128,7 +128,7 @@ field, policy, exposure-choice target, or defender-acceptance target is added.
 Run the deterministic example:
 
 ```powershell
-python main.py --input examples/historical_grand_declarer_card_exposure.json
+python main.py run --input examples/historical_grand_declarer_card_exposure.json
 ```
 
 The human-readable summary reports stable IDs, exposure form, card count,

@@ -165,9 +165,9 @@ ineligible for Strategy Teacher source download.
 Installed, module, and Legacy Root forms accept:
 
 ```powershell
-skatmind --input examples/historical_tactical_motif_review.json --historical-tactical-motif-review
-python -m skatmind --input examples/historical_tactical_motif_review.json --historical-tactical-motif-review
-python main.py --input examples/historical_tactical_motif_review.json --historical-tactical-motif-review
+skatmind run --input examples/historical_tactical_motif_review.json --historical-tactical-motif-review
+python -m skatmind run --input examples/historical_tactical_motif_review.json --historical-tactical-motif-review
+python main.py run --input examples/historical_tactical_motif_review.json --historical-tactical-motif-review
 ```
 
 Human-readable output includes source Game, observation/status totals, motif

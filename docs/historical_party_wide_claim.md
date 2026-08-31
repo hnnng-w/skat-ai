@@ -275,9 +275,9 @@ option, or Console Script is added. Existing public error translation and
 For example:
 
 ```powershell
-skatmind --input examples/historical_party_wide_claim.json
-python -m skatmind --input examples/historical_party_wide_claim.json
-python main.py --input examples/historical_party_wide_claim.json
+skatmind run --input examples/historical_party_wide_claim.json
+python -m skatmind run --input examples/historical_party_wide_claim.json
+python main.py run --input examples/historical_party_wide_claim.json
 ```
 
 Concise output identifies the Claim kind, claimant, claiming party, valid exact

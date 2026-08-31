@@ -5,6 +5,8 @@ import sys
 
 from skatmind import __version__
 from skatmind.card_selection import VALID_MULTI_STEP_POLICIES
+from skatmind.cli.onboarding_contracts import RUN_HELP_GROUPS
+from skatmind.cli.run_help import build_run_help_epilog
 from skatmind.opponent_policy import VALID_OPPONENT_CARD_POLICIES
 from skatmind.search_budget_profiles import SEARCH_BUDGET_PROFILE_IDENTIFIERS
 
@@ -13,18 +15,78 @@ INSTALLED_CLI_COMMAND = "skatmind"
 MODULE_CLI_COMMAND = "python -m skatmind"
 LEGACY_CLI_COMMAND = "python main.py"
 CLI_INVOCATION_STYLES = ("installed", "module", "legacy")
+ROOT_PARSER_MODES = ("compatibility", "run")
+
+_RUN_GROUP_DESTINATIONS = (
+    ("input", "output", "quiet"),
+    ("samples", "seed", "opponent_strategy"),
+    (
+        "historical_decision_snapshots",
+        "historical_game_review",
+        "historical_search_review",
+        "historical_information_set_search_review",
+        "historical_information_set_replay_coaching",
+        "historical_replay_coaching",
+        "historical_tactical_motif_review",
+        "search_seed",
+        "search_budget_profile",
+    ),
+    (
+        "multi_step",
+        "card_policy",
+        "expected_value_samples",
+        "strict_context",
+        "compare_policies",
+        "comparison_only",
+    ),
+    (
+        "opponent_lead_policy",
+        "opponent_response_policy",
+        "opponent_policy_preset",
+        "use_profile_presets",
+        "opponent_statistics_file",
+        "left_opponent_player_id",
+        "right_opponent_player_id",
+        "left_opponent_lead_policy",
+        "left_opponent_response_policy",
+        "right_opponent_lead_policy",
+        "right_opponent_response_policy",
+    ),
+    (
+        "audit_dataset_partitions",
+        "dataset_partition_mode",
+        "aggregate_opponent_statistics",
+        "opponent_statistics_partition",
+        "opponent_statistics_before",
+        "export_opponent_statistics",
+        "evaluate_opponent_policy_profiles",
+        "profile_source_partition",
+        "profile_evaluation_partition",
+        "evaluate_bounded_search",
+        "information_set_search_evaluation",
+        "search_evaluation_partition",
+        "search_evaluation_max_decisions",
+    ),
+    ("help", "version", "include_provenance"),
+)
 
 
-def _invocation_command(invocation_style: str) -> str:
+def _invocation_command(
+    invocation_style: str,
+    parser_mode: str = "compatibility",
+) -> str:
     commands = {
         "installed": INSTALLED_CLI_COMMAND,
         "module": MODULE_CLI_COMMAND,
         "legacy": LEGACY_CLI_COMMAND,
     }
     try:
-        return commands[invocation_style]
+        command = commands[invocation_style]
     except KeyError as error:
         raise ValueError(f"invocation_style must be one of {CLI_INVOCATION_STYLES}.") from error
+    if parser_mode not in ROOT_PARSER_MODES:
+        raise ValueError(f"parser_mode must be one of {ROOT_PARSER_MODES}.")
+    return f"{command} run" if parser_mode == "run" else command
 
 
 def _invocation_examples(invocation_style: str) -> str:
@@ -66,18 +128,53 @@ def _invocation_examples(invocation_style: str) -> str:
     )
 
 
+def _configure_run_help(parser: argparse.ArgumentParser) -> None:
+    actions_by_destination = {action.dest: action for action in parser._actions}
+    grouped_destinations = tuple(
+        destination for destinations in _RUN_GROUP_DESTINATIONS for destination in destinations
+    )
+    if set(grouped_destinations) != set(actions_by_destination):
+        raise RuntimeError("Run help grouping must contain every Root parser action exactly once.")
+    parser._optionals._group_actions.clear()
+    for title, destinations in zip(
+        RUN_HELP_GROUPS,
+        _RUN_GROUP_DESTINATIONS,
+        strict=True,
+    ):
+        group = parser.add_argument_group(title)
+        group._group_actions.extend(actions_by_destination[name] for name in destinations)
+
+    input_action = actions_by_destination["input"]
+    input_action.required = True
+    input_action.help = (
+        "Read one explicit position-analysis, historical-game, historical-list, "
+        "historical-list-comparison, training-dataset-preparation, training-dataset, "
+        "or opponent-statistics Root JSON request from this file."
+    )
+
+
 def build_argument_parser(
     invocation_style: str = "installed",
+    *,
+    parser_mode: str = "compatibility",
 ) -> argparse.ArgumentParser:
-    command = _invocation_command(invocation_style)
+    command = _invocation_command(invocation_style, parser_mode)
     parser = argparse.ArgumentParser(
         prog=command,
         description=(
-            "Analyze a Skat position, replay a historical game, expose a complete "
-            "historical 36-position list or independent-list comparison, prepare or "
-            "convert a training dataset, or normalize opponent statistics from JSON."
+            "Run one advanced SkatMind Root JSON automation workflow."
+            if parser_mode == "run"
+            else (
+                "Analyze a Skat position, replay a historical game, expose a complete "
+                "historical 36-position list or independent-list comparison, prepare or "
+                "convert a training dataset, or normalize opponent statistics from JSON."
+            )
         ),
-        epilog=_invocation_examples(invocation_style),
+        epilog=(
+            build_run_help_epilog(command, invocation_style)
+            if parser_mode == "run"
+            else _invocation_examples(invocation_style)
+        ),
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
 
@@ -232,10 +329,7 @@ def build_argument_parser(
     parser.add_argument(
         "--historical-tactical-motif-review",
         action="store_true",
-        help=(
-            "Add deterministic structural observations for every recorded "
-            "historical Card play."
-        ),
+        help=("Add deterministic structural observations for every recorded historical Card play."),
     )
     parser.add_argument(
         "--search-seed",
@@ -417,6 +511,9 @@ def build_argument_parser(
         ),
     )
 
+    if parser_mode == "run":
+        _configure_run_help(parser)
+
     return parser
 
 
@@ -424,8 +521,9 @@ def parse_arguments(
     argv: list[str] | tuple[str, ...] | None = None,
     *,
     invocation_style: str = "installed",
+    parser_mode: str = "compatibility",
 ) -> argparse.Namespace:
-    parser = build_argument_parser(invocation_style)
+    parser = build_argument_parser(invocation_style, parser_mode=parser_mode)
     effective_argv = list(sys.argv[1:] if argv is None else argv)
     namespace = parser.parse_args(effective_argv)
     known_options = parser._option_string_actions

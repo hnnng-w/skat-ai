@@ -32,7 +32,7 @@ manually at commit `d5589f8`. See
 [Public Session API version 1](public_session_api_v1.md)
 and [Session CLI and end-to-end capture](session_cli_and_end_to_end_capture.md).
 
-## Implemented Product entry and remaining routing
+## Product entry and advanced routing
 
 Issue #210 implements bare `skatmind` as the primary local browser application
 entry and `skatmind app` as its explicit form, with equal installed, module, and
@@ -40,10 +40,12 @@ Legacy routing. Direct `skatmind --input ...`, `session`, `capture`, and `corpus
 remain supported advanced interfaces. The shell options are `--data-root PATH`,
 `--port INTEGER`, and `--no-open`.
 
-Issue #213 still owns `skatmind run`, concise Product-oriented top-level help,
-and complete Root options under `run --help`. Current technical Root `--help` and
-direct Root options remain in use. See [Application shell](unified_local_frontend_application_shell.md)
-and [Unified local frontend contract](unified_local_frontend_contract.md).
+Issue #213 implements canonical `skatmind run`, concise Product-oriented top-
+level help, and complete grouped Root options under `run --help`. Direct Root
+options remain Package-1.x compatibility routes. See
+[Advanced CLI automation](advanced_cli_automation_interface.md),
+[Application shell](unified_local_frontend_application_shell.md), and
+[Unified local frontend contract](unified_local_frontend_contract.md).
 
 ## Installation
 
@@ -70,6 +72,8 @@ Use either installed form from any caller working directory:
 ```powershell
 skatmind --help
 python -m skatmind --help
+skatmind run --help
+python -m skatmind run --help
 skatmind --version
 python -m skatmind --version
 ```
@@ -86,11 +90,13 @@ The source-only fallback, when distribution metadata is unavailable, is:
 SkatMind 0+unknown
 ```
 
-Help and version exit with Code `0`, write no error output, read no input or
-Schema Resource, execute no workflow, and write no output file. Installed and
-module help use generic caller paths. Repository examples are not Package Data
-and are not implied to exist in an installation. Legacy help retains repository-
-focused `examples/...` commands.
+Help and version exit with Code `0`, write no error output, execute no workflow,
+and write no output file. Top-level help and version remain independent of app
+server, managed storage, Application handlers, Search, replay, Session, Capture,
+Corpus, Schema, and input loading. Installed and module `run` help uses generic
+caller paths. Repository examples are not Package Data and are not implied to
+exist in an installation. Legacy `run` help may retain repository-focused
+`examples/...` commands.
 
 Session help is available with equal installed, module, and Legacy behavior:
 
@@ -131,12 +137,12 @@ All three forms share canonical parsers and the same option names, aliases,
 destinations, actions, defaults, choices, repeatability, and semantic validation.
 Issue #142 added `--version`; Issue #147 added Root `--include-provenance`;
 Issue #157 delegates a leading `session` token to the separate Session parser.
-Issue #165 adds leading `capture` dispatch before Session. Issue #179 adds leading
-`corpus` dispatch before Capture. Issue #210 routes empty argv and leading `app`
-to the unified shell before those technical families. Every other invocation
-preserves the existing Root parser. The full current option lists are available
-through `app --help`, Root `--help`, `session --help`, `capture --help`, and
-`corpus --help`.
+Issue #165 adds `capture`; Issue #179 adds `corpus`; Issue #210 routes empty argv
+and leading `app` to the unified shell. Issue #213 adds leading `run`, then
+retains `session`, `capture`, and `corpus`; top-level help/version are lightweight,
+option-like first tokens retain Root compatibility, and other non-option tokens
+are unknown commands. Full option lists are available through `app --help`,
+`run --help`, `session --help`, `capture --help`, and `corpus --help`.
 
 The Information-set Search Root additions are:
 
@@ -170,8 +176,8 @@ Immediate fallback and never silently selects Information-set Search.
 The same JSON method and settings now work with existing Multi-Step options:
 
 ```powershell
-skatmind --input position.json --multi-step 1
-skatmind --input position.json --multi-step 1 --compare-policies
+skatmind run --input position.json --multi-step 1
+skatmind run --input position.json --multi-step 1 --compare-policies
 ```
 
 The existing card-policy matching rule applies. Every local decision performs
@@ -225,9 +231,9 @@ Public API, Schema, or derived persistence. See
 Use caller-owned paths with either installed form:
 
 ```powershell
-skatmind --input position.json
-python -m skatmind --input historical-game.json --output result.json --quiet
-skatmind --input position.json --include-provenance --output result.json
+skatmind run --input position.json
+python -m skatmind run --input historical-game.json --output result.json --quiet
+skatmind run --input position.json --include-provenance --output result.json
 ```
 
 Without `--quiet`, successful workflows preserve the existing human-readable
@@ -336,6 +342,19 @@ formatters, Exit Code constants, `CliUsageError` alias, callable signatures, and
 established monkeypatch seams. A patched Root seam affects Legacy execution but
 does not require the installed Package CLI to import Root `main.py`.
 
+Canonical Root JSON automation uses explicit input:
+
+```powershell
+skatmind run --input REQUEST.json
+python -m skatmind run --input REQUEST.json
+python main.py run --input REQUEST.json
+```
+
+Direct `skatmind --input ...`, module, and Legacy equivalents remain accepted
+Package-1.x compatibility routes without warnings. Their input default, stdout,
+stderr, JSON, bytes, quiet behavior, errors, Exit Codes, Provenance, Artifacts,
+and supplied-option tracking remain unchanged.
+
 Issue #162 keeps `skatmind.cli.execution` and `skatmind.cli.session` as explicit
 compatibility facades while focused internal modules own parsing, validation,
 Application adaptation, dispatch, transport, persistence/Checkpoint
@@ -382,6 +401,10 @@ Reports and focused Teacher/Dataset artifacts through their existing operations.
 Issues #195 and #196 extend current Corpus validation to the two Tactical
 downloads and one Coaching download for ten total without adding a Console
 Script.
+Issue #213 additionally verifies concise Product help, grouped advanced help,
+canonical/direct Root parity, explicit input, invocation identity, and unchanged
+Session/Capture/Corpus help across Source, Editable, Wheel, sdist, and clean
+installations.
 
 ## Boundaries
 

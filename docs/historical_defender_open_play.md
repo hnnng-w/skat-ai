@@ -126,7 +126,7 @@ Rolling targets contain only actual historical card decisions.
 ## Example
 
 ```powershell
-python main.py --input examples/historical_grand_defender_open_play.json
+python main.py run --input examples/historical_grand_defender_open_play.json
 ```
 
 The deterministic example has eight completed Grand tricks, a valid two-trick

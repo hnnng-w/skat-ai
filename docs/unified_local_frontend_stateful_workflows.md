@@ -173,6 +173,8 @@ commands remain available and unchanged.
 
 Issue #212 further remediates `UAT-FINDING-001` and implements the Product work
 owned by `UAT-FINDING-003`; both findings remain open until maintainer UAT is
-repeated. `UAT-FINDING-002` and concise top-level CLI onboarding remain Issue
-#213 work. UAT-01 remains failed, UAT-02 through UAT-12 remain paused, B-09 and
-B-07 remain open, and Release preparation remains not ready.
+repeated. Issue #213 implements `UAT-FINDING-002` remediation through canonical
+`run` and layered CLI help; that finding also remains open pending repeated UAT.
+UAT-01 remains failed, UAT-02 through UAT-12 remain paused, B-09 and B-07 remain
+open, and Release preparation remains not ready. Repeated UAT-01 under Issue #208
+is the exact next action.

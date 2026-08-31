@@ -171,7 +171,7 @@ counts, while duplicates are retained and evaluated separately in private order.
 Run the deterministic Grand example from the repository root:
 
 ```powershell
-python main.py --input examples/grand_hidden_card_inference.json --multi-step 2
+python main.py run --input examples/grand_hidden_card_inference.json --multi-step 2
 ```
 
 The root public history confirms that `right` is void in the Grand clubs side

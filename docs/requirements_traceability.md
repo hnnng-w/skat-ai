@@ -381,8 +381,10 @@ Issue #210 implements the shell. Issue #211 adds process-local guided Position
 analysis, completed-game Review, strict optional JSON transfer, and readable
 Results. Issue #212 adds managed Session, Match Capture, and Learning Corpus
 workflows plus explicit Match-to-Corpus transfer. Those Issues further remediate
-UAT-FINDING-001 without closing it. UAT-02 through UAT-12 are paused; Issue #213
-is next; B-09 and B-07 remain open.
+UAT-FINDING-001 without closing it. Issue #213 completes implementation
+remediation with canonical `run`, concise Product help, grouped automation help,
+and unchanged direct Root compatibility. All findings remain open pending
+repeated UAT-01; UAT-02 through UAT-12 are paused; B-09 and B-07 remain open.
 
 ## Status vocabulary
 
@@ -883,4 +885,6 @@ continue to describe implemented Package `0.17.0` behavior. Issue #210 adds the
 [application shell](unified_local_frontend_application_shell.md) outside the
 ledger; Issue #211 adds guided Analyze/Review workflows and readable Results;
 Issue #212 adds [managed stateful workflows](unified_local_frontend_stateful_workflows.md).
-Issue #213 is the exact next implementation action.
+Issue #213 adds [advanced CLI automation](advanced_cli_automation_interface.md).
+The exact next action is repeated UAT-01 under Issue #208 using a fresh clone and
+normal non-Editable runtime installation.

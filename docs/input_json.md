@@ -657,14 +657,14 @@ zero-decision records. Historical-game input can add Search review with the same
 public settings:
 
 ```powershell
-python main.py --input examples/historical_grand_normal_completion.json --historical-search-review --search-seed 71
+python main.py run --input examples/historical_grand_normal_completion.json --historical-search-review --search-seed 71
 ```
 
 The complete public Replay Coaching Report uses the same Search and Immediate
 settings:
 
 ```powershell
-python main.py --input examples/historical_grand_normal_completion.json --historical-replay-coaching --search-seed 71 --samples 20 --seed 42
+python main.py run --input examples/historical_grand_normal_completion.json --historical-replay-coaching --search-seed 71 --samples 20 --seed 42
 ```
 
 Supplying `--historical-search-review` and `--historical-replay-coaching`
@@ -695,7 +695,7 @@ Tactical Motif Review requires only Historical Game input and adds no input JSON
 field. It can run alone or with either Replay Coaching family:
 
 ```powershell
-python main.py --input examples/historical_tactical_motif_review.json --historical-tactical-motif-review
+python main.py run --input examples/historical_tactical_motif_review.json --historical-tactical-motif-review
 ```
 
 The detector derives decision-time facts before attaching the recorded Card and
@@ -721,7 +721,7 @@ are complete.
 ### Bounded-Search dataset evaluation CLI
 
 ```powershell
-python main.py --input examples/training_dataset_normal_play.json --evaluate-bounded-search --search-seed 71 --search-evaluation-max-decisions 10
+python main.py run --input examples/training_dataset_normal_play.json --evaluate-bounded-search --search-seed 71 --search-evaluation-max-decisions 10
 ```
 
 The evaluation-only options are

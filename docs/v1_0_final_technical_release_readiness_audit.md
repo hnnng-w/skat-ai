@@ -614,7 +614,7 @@ Release title, theme, date, tag, and publication commit:
 
 ## Post-audit UAT note
 
-This note records later Issue #208 through #212 state without rewriting the Issue
+This note records later Issue #208 through #213 state without rewriting the Issue
 #207 technical conclusion above. Maintainer UAT began after the #207 merge and
 required CI. UAT-01 technically executed but failed user acceptance with one
 accepted blocker and two accepted major findings:
@@ -641,8 +641,9 @@ and further partially remediates the finding without closing it. Issue #212
 implements [managed stateful workflows](unified_local_frontend_stateful_workflows.md),
 further remediates UAT-FINDING-001, and implements the Product work owned by
 UAT-FINDING-003 without closing either finding before repeated UAT. It does not
-repeat UAT-01 or resume UAT-02 through UAT-12. Issue #213 is the exact next
-implementation action.
+repeat UAT-01 or resume UAT-02 through UAT-12. Issue #213 implements canonical
+`run`, concise Product help, grouped advanced automation help, and direct Root
+compatibility without closing a finding before repeated UAT.
 
 The post-audit Release-process state is:
 
@@ -651,27 +652,28 @@ Issue #208:
     open
 
 UAT-01:
-    failed
+    failed until repeated
 
 UAT-02 through UAT-12:
-    paused
+    paused until repeated UAT-01 passes
 
 B-09:
-    open and blocked by accepted UAT findings
+    open
 
 B-07:
     open
 
 UAT-FINDING-001:
-    partially remediated
-    remains open
+    implementation remediation complete
+    open pending repeated UAT-01
 
 UAT-FINDING-002:
-    open
+    implementation remediation complete under Issue #213
+    open pending repeated UAT-01
 
 UAT-FINDING-003:
-    implementation complete under Issue #212
-    remains open pending repeated UAT
+    implementation remediation complete under Issue #212
+    open pending repeated UAT-01
 
 Release preparation:
     not ready
@@ -681,3 +683,5 @@ B-06 remains closed. The 53-row ledger remains exactly 19 `satisfied`, 34
 `satisfied_with_approved_bounded_scope`, and zero in each unresolved
 classification. Frontend remediation belongs to B-09 outside that ledger.
 Package version remains `0.17.0`, and Package `1.0.0` remains unprepared.
+The exact next action is to repeat UAT-01 under Issue #208 using a fresh clone
+and normal non-Editable runtime installation.

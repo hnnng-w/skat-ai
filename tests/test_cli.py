@@ -116,16 +116,29 @@ def assert_no_success_output(completed_process: subprocess.CompletedProcess[str]
     assert "Output file written:" not in completed_process.stdout
 
 
-def test_cli_help_exits_zero_and_lists_important_options() -> None:
+def test_cli_help_exits_zero_and_discovers_product_without_root_options() -> None:
     completed_process = run_cli("--help")
 
     assert completed_process.returncode == 0
     assert completed_process.stderr == ""
     assert "usage:" in completed_process.stdout
-    assert "Examples:" in completed_process.stdout
+    assert "Product introduction" in completed_process.stdout
+    assert "What the local application includes" in completed_process.stdout
+    assert "python main.py run --help" in completed_process.stdout
+    assert "--version" in completed_process.stdout
+    for option in ("--input", "--output", "--samples", "--multi-step"):
+        assert option not in completed_process.stdout
+    assert_no_success_output(completed_process)
 
-    for option in [
-        "--version",
+
+def test_cli_run_help_lists_complete_advanced_root_options() -> None:
+    completed_process = run_cli("run", "--help")
+
+    assert completed_process.returncode == 0
+    assert completed_process.stderr == ""
+    assert "usage: python main.py run" in completed_process.stdout
+    assert "Task-oriented examples" in completed_process.stdout
+    for option in (
         "--input",
         "--output",
         "--quiet",
@@ -134,32 +147,11 @@ def test_cli_help_exits_zero_and_lists_important_options() -> None:
         "--expected-value-samples",
         "--multi-step",
         "--compare-policies",
-        "--comparison-only",
-        "--card-policy",
-        "--opponent-strategy",
-        "--opponent-policy-preset",
-        "--opponent-lead-policy",
-        "--opponent-response-policy",
-        "--left-opponent-lead-policy",
-        "--left-opponent-response-policy",
-        "--right-opponent-lead-policy",
-        "--right-opponent-response-policy",
-        "--use-profile-presets",
-        "--opponent-statistics-file",
-        "--left-opponent-player-id",
-        "--right-opponent-player-id",
-        "--historical-decision-snapshots",
         "--historical-game-review",
-        "--historical-search-review",
-        "--historical-replay-coaching",
-        "--evaluate-opponent-policy-profiles",
         "--audit-dataset-partitions",
-        "--dataset-partition-mode",
-        "--profile-source-partition",
-        "--profile-evaluation-partition",
-    ]:
+        "--include-provenance",
+    ):
         assert option in completed_process.stdout
-
     assert "Print only policy comparison details" in completed_process.stdout
     assert_no_success_output(completed_process)
 

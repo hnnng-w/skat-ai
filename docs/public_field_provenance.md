@@ -231,9 +231,9 @@ and actual artifacts through the registered schemas by default.
 All three CLI forms accept the same opt-in flag:
 
 ```powershell
-skatmind --input examples/opponent_statistics.json --include-provenance --output outputs/statistics.json
-python -m skatmind --input examples/opponent_statistics.json --include-provenance --output outputs/statistics.json
-python main.py --input examples/opponent_statistics.json --include-provenance --output outputs/statistics.json
+skatmind run --input examples/opponent_statistics.json --include-provenance --output outputs/statistics.json
+python -m skatmind run --input examples/opponent_statistics.json --include-provenance --output outputs/statistics.json
+python main.py run --input examples/opponent_statistics.json --include-provenance --output outputs/statistics.json
 ```
 
 Without `--quiet`, successful output adds one concise aggregate section:
@@ -254,14 +254,14 @@ confirmations while retaining `field_provenance` in JSON written with
 `--output`:
 
 ```powershell
-skatmind --input examples/opponent_statistics.json --include-provenance --output outputs/statistics.json --quiet
+skatmind run --input examples/opponent_statistics.json --include-provenance --output outputs/statistics.json --quiet
 ```
 
 Historical Opponent Statistics aggregation can include Result and actual export
 artifact provenance together:
 
 ```powershell
-skatmind --input examples/training_dataset_variable_length.json --aggregate-opponent-statistics --export-opponent-statistics outputs/opponent-statistics.json --include-provenance --output outputs/aggregation.json --quiet
+skatmind run --input examples/training_dataset_variable_length.json --aggregate-opponent-statistics --export-opponent-statistics outputs/opponent-statistics.json --include-provenance --output outputs/aggregation.json --quiet
 ```
 
 The `aggregation.json` sidecar maps the actual export artifact. The separate

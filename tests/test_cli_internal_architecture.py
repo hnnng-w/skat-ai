@@ -382,11 +382,13 @@ def test_root_and_legacy_compatibility_callable_signatures_are_preserved() -> No
         )
 
     assert str(inspect.signature(root_cli.build_argument_parser)) == (
-        "(invocation_style: str = 'installed') -> argparse.ArgumentParser"
+        "(invocation_style: str = 'installed', *, parser_mode: str = "
+        "'compatibility') -> argparse.ArgumentParser"
     )
     assert str(inspect.signature(root_cli.parse_arguments)) == (
         "(argv: list[str] | tuple[str, ...] | None = None, *, "
-        "invocation_style: str = 'installed') -> argparse.Namespace"
+        "invocation_style: str = 'installed', parser_mode: str = "
+        "'compatibility') -> argparse.Namespace"
     )
     assert str(inspect.signature(root_cli.run_cli)) == (
         "(argv: list[str] | tuple[str, ...] | None = None, *, "
@@ -665,12 +667,8 @@ def test_app_web_layering_and_startup_execution_boundaries() -> None:
             else:
                 continue
             for module_name in imported:
-                if (
-                    path.name in public_api_adapters
-                    and (
-                        module_name == "skatmind.api.v1"
-                        or module_name.startswith("skatmind.api.v1.")
-                    )
+                if path.name in public_api_adapters and (
+                    module_name == "skatmind.api.v1" or module_name.startswith("skatmind.api.v1.")
                 ):
                     continue
                 if any(
@@ -838,9 +836,11 @@ def test_ordinary_session_services_do_not_import_assistant() -> None:
         ),
     ],
 )
+@pytest.mark.parametrize("canonical_run", (False, True), ids=("compatibility", "run"))
 def test_root_dispatch_loads_detects_and_selects_once(
     workflow: str,
     runner_name: str,
+    canonical_run: bool,
     monkeypatch,
 ) -> None:
     calls = {"load": 0, "detect": 0, "run": 0}
@@ -888,7 +888,7 @@ def test_root_dispatch_loads_detects_and_selects_once(
 
     assert (
         root_cli.run_cli(
-            ["--input", "input.json"],
+            [*(["run"] if canonical_run else []), "--input", "input.json"],
             invocation_style="legacy",
             legacy_namespace=legacy_main,
         )
