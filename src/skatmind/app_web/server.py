@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hmac
+import json
 import re
 import threading
 from http import HTTPStatus
@@ -8,10 +9,23 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from importlib.resources import files
 from urllib.parse import parse_qs, quote, urlsplit
 
-from skatmind.errors import SkatMindWorkflowError
+from skatmind.capture_web.contracts import MATCH_CAPTURE_WEB_MAX_REQUEST_BYTES
+from skatmind.capture_web.rendering import render_match_capture_web_body_v1
+from skatmind.corpus_web.contracts import LEARNING_CORPUS_WEB_MAX_REQUEST_BYTES
+from skatmind.corpus_web.downloads import (
+    LearningCorpusPreparedDownloadUnavailableError,
+)
+from skatmind.corpus_web.rendering import render_learning_corpus_web_body_v1
+from skatmind.corpus_web.uploads import parse_learning_corpus_multipart_upload_v1
+from skatmind.errors import SkatMindError, SkatMindInvariantError, SkatMindWorkflowError
+from skatmind.match_workspace_persistence_codec import resume_match_workspace_document_v1
 
 from .context import AppWebContextV1
 from .contracts import APP_ROUTE_PATHS
+from .cross_area_transfer import (
+    transfer_active_match_report_to_corpus_v1,
+    transfer_active_match_workspace_to_corpus_v1,
+)
 from .guided_contracts import (
     ANALYZE_ACTION_ROUTE_PATHS,
     ANALYZE_IMPORT_JSON_ACTION_ROUTE_PATH,
@@ -42,7 +56,46 @@ from .guided_contracts import (
     REVIEW_UPDATE_PLAYERS_ACTION_ROUTE_PATH,
 )
 from .json_transfer import FRONTEND_JSON_MAX_FILE_BYTES, parse_frontend_json_import_v1
-from .rendering import render_app_error_page_v1, render_app_page_v1
+from .learning_frontend import (
+    build_unified_learning_download_v1,
+    build_unified_learning_state_v1,
+    clear_unified_learning_report_sources_v1,
+    create_unified_learning_corpus_v1,
+    import_report_source_bytes_into_unified_learning_v1,
+    import_workspace_bytes_into_unified_learning_v1,
+    open_unified_learning_corpus_v1,
+    prepare_unified_learning_artifacts_v1,
+    reload_unified_learning_corpus_v1,
+    remove_unified_learning_report_source_v1,
+    select_unified_learning_current_snapshot_v1,
+)
+from .managed_item_contracts import MANAGED_ITEM_MAX_IMPORT_BYTES
+from .managed_item_discovery import discover_managed_items_v1
+from .managed_item_import import parse_managed_item_json_upload_v1
+from .managed_item_storage import (
+    build_managed_item_handle_v1,
+    build_managed_item_storage_name_v1,
+)
+from .match_frontend import (
+    apply_unified_match_operation_v1,
+    build_unified_match_creation_state_v1,
+    build_unified_match_export_download_v1,
+    build_unified_match_report_download_v1,
+    build_unified_match_state_v1,
+    build_unified_match_workspace_download_v1,
+    create_unified_match_v1,
+    execute_unified_match_analysis_v1,
+    get_unified_match_report_v1,
+    import_unified_match_v1,
+    open_unified_match_v1,
+    reload_unified_match_v1,
+    select_unified_match_position_v1,
+)
+from .rendering import (
+    render_app_content_page_v1,
+    render_app_error_page_v1,
+    render_app_page_v1,
+)
 from .security import (
     APP_WEB_BIND_HOST,
     app_web_security_headers_v1,
@@ -51,6 +104,30 @@ from .security import (
     has_valid_app_web_cookie_v1,
     validate_app_web_host_v1,
     validate_app_web_origin_v1,
+)
+from .session_form_translation import (
+    build_session_edit_from_form_v1,
+    build_session_historical_execution_options_from_form_v1,
+    build_session_position_options_from_form_v1,
+)
+from .session_frontend import (
+    apply_guided_session_edit_v1,
+    build_guided_session_persistence_download_v1,
+    build_guided_session_players_v1,
+    create_guided_session_v1,
+    default_guided_session_execution_options_v1,
+    execute_guided_session_historical_v1,
+    execute_guided_session_position_v1,
+    get_guided_session_import_product_id_v1,
+    import_guided_session_v1,
+    open_guided_session_v1,
+    reload_guided_session_v1,
+    rewind_guided_session_v1,
+)
+from .stateful_rendering import (
+    render_guided_session_v1,
+    render_managed_category_landing_v1,
+    render_match_to_learning_transfer_v1,
 )
 from .workflow_operations import (
     FrontendWorkflowValidationError,
@@ -70,13 +147,121 @@ from .workflow_state import (
 )
 
 APP_WEB_MAX_REQUEST_BYTES = FRONTEND_JSON_MAX_FILE_BYTES + 4_096
+_MANAGED_IMPORT_MAX_REQUEST_BYTES = MANAGED_ITEM_MAX_IMPORT_BYTES + 4_096
 
 _ASSETS = {
-    "/assets/app.css": ("assets/app.css", "text/css; charset=utf-8"),
+    "/assets/app.css": (
+        "skatmind.app_web",
+        "assets/app.css",
+        "text/css; charset=utf-8",
+    ),
+    "/matches/assets/capture.css": (
+        "skatmind.capture_web",
+        "assets/capture.css",
+        "text/css; charset=utf-8",
+    ),
+    "/matches/assets/capture.js": (
+        "skatmind.capture_web",
+        "assets/capture.js",
+        "text/javascript; charset=utf-8",
+    ),
+    "/learning/assets/corpus.css": (
+        "skatmind.corpus_web",
+        "assets/corpus.css",
+        "text/css; charset=utf-8",
+    ),
+    "/learning/assets/corpus.js": (
+        "skatmind.corpus_web",
+        "assets/corpus.js",
+        "text/javascript; charset=utf-8",
+    ),
 }
 _BODY_METHODS = {"POST", "PUT", "PATCH"}
 _MUTATION_METHODS = _BODY_METHODS | {"DELETE"}
 _PERCENT_ESCAPE = re.compile(r"%(?![0-9A-Fa-f]{2})")
+_MATCH_POSITION_PATTERN = re.compile(r"^/matches/position/([1-9]|[12][0-9]|3[0-6])$")
+_MATCH_REPORT_PATTERN = re.compile(r"^/matches/reports/([0-9a-f]{64})$")
+_MATCH_REPORT_JSON_PATTERN = re.compile(
+    r"^/matches/api/v1/reports/([0-9a-f]{64})\.json$"
+)
+_MATCH_REPORT_SOURCE_PATTERN = re.compile(
+    r"^/matches/api/v1/reports/([0-9a-f]{64})/strategy-source\.json$"
+)
+_MATCH_EXPORT_ROUTES = {
+    "/matches/api/v1/exports/materialization.json": "materialization",
+    "/matches/api/v1/exports/historical-games.json": "historical_games",
+    "/matches/api/v1/exports/training-sources.json": "training_sources",
+    "/matches/api/v1/exports/historical-list-input.json": "historical_list_input",
+    "/matches/api/v1/exports/historical-list-aggregation.json": (
+        "historical_list_aggregation"
+    ),
+}
+_LEARNING_DOWNLOAD_ROUTES = {
+    "/learning/downloads/player-catalog.json": "player_catalog",
+    "/learning/downloads/human-evidence.json": "human_evidence",
+    "/learning/downloads/strategy-teacher-evidence.json": (
+        "strategy_teacher_evidence"
+    ),
+    "/learning/downloads/learning-dataset-v2.json": "learning_dataset_v2",
+    "/learning/downloads/known-player-partitions.json": "known_player_partitions",
+    "/learning/downloads/unseen-player-partitions.json": "unseen_player_partitions",
+    "/learning/downloads/cross-game-summary.json": "cross_game_summary",
+    "/learning/downloads/tactical-motif-evidence.json": "tactical_motif_evidence",
+    "/learning/downloads/tactical-motif-cross-game-summary.json": (
+        "tactical_motif_cross_game_summary"
+    ),
+    "/learning/downloads/tactical-cross-game-coaching.json": (
+        "tactical_cross_game_coaching"
+    ),
+}
+_SESSION_DOWNLOAD_ROUTES = {
+    "/sessions/downloads/session.json",
+    "/sessions/downloads/request.json",
+    "/sessions/downloads/result.json",
+}
+_STATEFUL_POST_ROUTES = {
+    "/sessions/create",
+    "/sessions/import",
+    "/sessions/open",
+    "/sessions/reload",
+    "/sessions/command",
+    "/sessions/undo",
+    "/sessions/analyze",
+    "/sessions/review",
+    "/matches/import",
+    "/matches/open",
+    "/matches/api/v1/create",
+    "/matches/api/v1/reload",
+    "/matches/api/v1/operation",
+    "/matches/api/v1/analysis",
+    "/matches/transfer-workspace",
+    "/matches/transfer-report",
+    "/learning/create",
+    "/learning/open",
+    "/learning/api/v1/operations",
+}
+
+
+def _is_stateful_get_route(path: str) -> bool:
+    return (
+        path
+        in {
+            "/sessions/current",
+            "/matches/new",
+            "/matches/current",
+            "/matches/api/v1/state",
+            "/matches/downloads/workspace.json",
+            "/learning/current",
+            "/learning/api/v1/state",
+        }
+        or path in _SESSION_DOWNLOAD_ROUTES
+        or path in _MATCH_EXPORT_ROUTES
+        or path in _LEARNING_DOWNLOAD_ROUTES
+        or _MATCH_POSITION_PATTERN.fullmatch(path) is not None
+        or _MATCH_REPORT_PATTERN.fullmatch(path) is not None
+        or _MATCH_REPORT_JSON_PATTERN.fullmatch(path) is not None
+        or _MATCH_REPORT_SOURCE_PATTERN.fullmatch(path) is not None
+    )
 
 
 class SkatMindAppWebServerV1(ThreadingHTTPServer):
@@ -253,6 +438,7 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
 
     def _authorize_mutation(self) -> bool:
         if not self._host_is_valid() or not self._cookie_is_valid():
+            self._drain_rejected_body()
             self._send_text(HTTPStatus.FORBIDDEN, "Forbidden")
             return False
         if len(self.headers.get_all("Origin", [])) != 1 or not validate_app_web_origin_v1(
@@ -260,9 +446,25 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
             self.server.port,
             self.headers.get("Host"),
         ):
+            self._drain_rejected_body()
             self._send_text(HTTPStatus.FORBIDDEN, "Forbidden")
             return False
         return True
+
+    def _drain_rejected_body(self) -> None:
+        """Avoids a Windows TCP reset without changing authorization precedence."""
+
+        if self.headers.get_all("Transfer-Encoding", []):
+            return
+        raw_lengths = self.headers.get_all("Content-Length", [])
+        if len(raw_lengths) != 1:
+            return
+        try:
+            length = int(raw_lengths[0])
+        except ValueError:
+            return
+        if 0 <= length <= APP_WEB_MAX_REQUEST_BYTES:
+            self.rfile.read(length)
 
     def _page(self, route: str, *, status: int = HTTPStatus.OK) -> None:
         storage_root = (
@@ -293,7 +495,37 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
             content_type="text/html; charset=utf-8",
         )
 
-    def _read_body(self) -> tuple[bytes, str]:
+    def _content_page(
+        self,
+        route: str,
+        *,
+        title: str,
+        content: str,
+        status: int = HTTPStatus.OK,
+        extra_stylesheets: tuple[str, ...] = (),
+        extra_scripts: tuple[str, ...] = (),
+    ) -> None:
+        with self.server.app_context.lock:
+            state = self.server.app_context.browser_state
+        rendered = render_app_content_page_v1(
+            state,
+            route,
+            title=title,
+            content=content,
+            extra_stylesheets=extra_stylesheets,
+            extra_scripts=extra_scripts,
+        )
+        self._send_text(
+            status,
+            rendered,
+            content_type="text/html; charset=utf-8",
+        )
+
+    def _read_body(
+        self,
+        *,
+        max_bytes: int = APP_WEB_MAX_REQUEST_BYTES,
+    ) -> tuple[bytes, str]:
         if self.headers.get_all("Transfer-Encoding", []):
             raise ValueError("Transfer-Encoding is not supported.")
         raw_lengths = self.headers.get_all("Content-Length", [])
@@ -305,7 +537,7 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
             raise ValueError("Content-Length must be an integer.") from error
         if length < 0:
             raise ValueError("Content-Length must not be negative.")
-        if length > APP_WEB_MAX_REQUEST_BYTES:
+        if length > max_bytes:
             raise OverflowError("Request body is too large.")
         content_types = self.headers.get_all("Content-Type", [])
         if len(content_types) != 1:
@@ -314,6 +546,69 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
         if len(body) != length:
             raise ValueError("Request body ended before Content-Length bytes were read.")
         return body, content_types[0]
+
+    def _flat_form(
+        self,
+        body: bytes,
+        content_type: str,
+        *,
+        repeated_cards: bool = False,
+    ) -> dict[str, str | list[str]]:
+        parsed = self._urlencoded_form(body, content_type)
+        duplicates = sorted(
+            name
+            for name, items in parsed.items()
+            if len(items) != 1 and not (repeated_cards and name == "cards")
+        )
+        if duplicates:
+            raise ValueError(f"Form fields must not repeat: {', '.join(duplicates)}.")
+        return {
+            name: items if repeated_cards and name == "cards" and len(items) > 1 else items[0]
+            for name, items in parsed.items()
+        }
+
+    def _text_form(self, body: bytes, content_type: str) -> dict[str, str]:
+        values = self._flat_form(body, content_type)
+        if any(type(value) is not str for value in values.values()):
+            raise ValueError("Form fields must contain text.")
+        return {name: str(value) for name, value in values.items()}
+
+    def _send_json(self, status: int, value: object) -> None:
+        content = json.dumps(
+            value,
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=True,
+        ).encode("ascii")
+        self._send_bytes(
+            status,
+            content,
+            content_type="application/json; charset=utf-8",
+        )
+
+    @staticmethod
+    def _form_integer(
+        values: dict[str, str],
+        name: str,
+        *,
+        minimum: int | None = None,
+    ) -> int:
+        raw = values.get(name)
+        if raw is None or not re.fullmatch(r"-?[0-9]+", raw):
+            raise ValueError(f"{name} must be an integer.")
+        value = int(raw)
+        if minimum is not None and value < minimum:
+            raise ValueError(f"{name} must be at least {minimum}.")
+        return value
+
+    @staticmethod
+    def _exact_fields(values: dict[str, str], fields: set[str]) -> None:
+        missing = sorted(fields - set(values))
+        unknown = sorted(set(values) - fields)
+        if missing:
+            raise ValueError(f"Form is missing required fields: {missing}.")
+        if unknown:
+            raise ValueError(f"Form has unsupported fields: {unknown}.")
 
     def _read_unsupported_body(self) -> None:
         _body, content_type = self._read_body()
@@ -386,6 +681,798 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
             extra_headers=(("Content-Disposition", f'attachment; filename="{filename}"'),),
         )
 
+    def _send_artifact(self, filename: str, content: bytes) -> None:
+        if (
+            not filename
+            or not filename.isascii()
+            or any(character in filename for character in '/\\"\r\n')
+        ):
+            raise ValueError("Artifact filename must be one safe ASCII basename.")
+        self._send_bytes(
+            HTTPStatus.OK,
+            content,
+            content_type="application/json; charset=utf-8",
+            extra_headers=(
+                ("Content-Disposition", f'attachment; filename="{filename}"'),
+            ),
+        )
+
+    def _refresh_category(self, family: str):
+        context = self.server.app_context
+        with context.lock:
+            root, generation, active_handle = context.managed_stateful.begin_refresh(
+                family
+            )
+        discovery = discover_managed_items_v1(
+            root,
+            family=family,
+            generation=generation,
+            active_handle=active_handle,
+        )
+        with context.lock:
+            if context.managed_stateful.publish_refresh(family, discovery):
+                return discovery
+            current = context.managed_stateful.discoveries.get(family)
+        if current is None:
+            raise RuntimeError("Managed discovery publication was superseded.")
+        return current
+
+    def _activate_session(self, active) -> None:
+        with self.server.app_context.lock:
+            previous = self.server.app_context.managed_stateful.activate_session(active)
+        if previous is not None:
+            with previous.lock:
+                previous.execution = None
+
+    def _activate_match(self, active) -> None:
+        with self.server.app_context.lock:
+            previous = self.server.app_context.managed_stateful.activate_match(active)
+        if previous is not None:
+            with previous.capture.lock:
+                previous.capture.report_store.clear()
+
+    def _activate_learning(self, active) -> None:
+        with self.server.app_context.lock:
+            previous = self.server.app_context.managed_stateful.activate_learning(active)
+        if previous is not None:
+            previous.corpus.shutdown()
+
+    def _active_session(self):
+        with self.server.app_context.lock:
+            active = self.server.app_context.managed_stateful.active_session
+        if active is None:
+            raise KeyError("No managed Session is active.")
+        return active
+
+    def _active_match(self):
+        with self.server.app_context.lock:
+            active = self.server.app_context.managed_stateful.active_match
+        if active is None:
+            raise KeyError("No managed Match is active.")
+        return active
+
+    def _active_learning(self):
+        with self.server.app_context.lock:
+            active = self.server.app_context.managed_stateful.active_learning
+        if active is None:
+            raise KeyError("No managed Learning Corpus is active.")
+        return active
+
+    def _bound_active(self, family: str, values: dict):
+        submitted_handle = values.pop("managed_handle", None)
+        with self.server.app_context.lock:
+            managed = self.server.app_context.managed_stateful
+            if family == "sessions":
+                active = managed.active_session
+            elif family == "matches":
+                active = managed.active_match
+            elif family == "corpora":
+                active = managed.active_learning
+            else:
+                raise ValueError("family must identify one managed item family.")
+            if active is None:
+                raise KeyError("No managed item is active for this form.")
+            if submitted_handle != active.handle:
+                raise StaleFrontendWorkflowRevisionError
+        return active
+
+    def _managed_category_page(self, family: str) -> None:
+        discovery = self._refresh_category(family)
+        route = {
+            "sessions": "/sessions",
+            "matches": "/matches",
+            "corpora": "/learning",
+        }[family]
+        title = {
+            "sessions": "Sessions",
+            "matches": "Match capture",
+            "corpora": "Learning & cross-game insights",
+        }[family]
+        self._content_page(
+            route,
+            title=title,
+            content=render_managed_category_landing_v1(discovery.view),
+        )
+
+    def _session_page(self, *, status: int = HTTPStatus.OK) -> None:
+        active = self._active_session()
+        self._content_page(
+            "/sessions",
+            title="Guided Session",
+            content=render_guided_session_v1(active),
+            status=status,
+        )
+
+    def _match_page(
+        self,
+        active,
+        *,
+        position: int,
+        report_id: str | None = None,
+        status: int = HTTPStatus.OK,
+        error_notice: str | None = None,
+        operation_notice: str | None = None,
+        operation_notice_kind: str = "info",
+    ) -> None:
+        with active.capture.lock:
+            select_unified_match_position_v1(active, position)
+            state = build_unified_match_state_v1(
+                active,
+                selected_report_id=report_id,
+            )
+            result = active.last_result
+            transfer_notice = active.transfer_notice
+            active.transfer_notice = None
+        notice = (
+            operation_notice
+            or transfer_notice
+            or error_notice
+            or (None if result is None else result.message)
+        )
+        notice_kind = (
+            operation_notice_kind
+            if operation_notice is not None
+            else "info"
+            if transfer_notice is not None
+            else "error"
+            if error_notice is not None
+            else "warning"
+            if result is not None and result.http_status == HTTPStatus.CONFLICT
+            else "info"
+        )
+        with self.server.app_context.lock:
+            learning = self.server.app_context.managed_stateful.active_learning
+        learning_state = (
+            None if learning is None else build_unified_learning_state_v1(learning)
+        )
+        transfer = render_match_to_learning_transfer_v1(
+            learning_state,
+            report_id=report_id,
+            target_managed_handle=None if learning is None else learning.handle,
+        )
+        body = render_match_capture_web_body_v1(
+            state,
+            route_prefix="/matches",
+            notice=notice,
+            notice_kind=notice_kind,
+            managed_handle=active.handle,
+            additional_content=transfer,
+        )
+        self._content_page(
+            "/matches",
+            title="Managed Match capture",
+            content=body,
+            status=status,
+            extra_stylesheets=("/matches/assets/capture.css",),
+            extra_scripts=("/matches/assets/capture.js",),
+        )
+
+    def _match_creation_page(self) -> None:
+        body = render_match_capture_web_body_v1(
+            build_unified_match_creation_state_v1(),
+            route_prefix="/matches",
+        )
+        self._content_page(
+            "/matches",
+            title="Create a managed Match",
+            content=body,
+            extra_stylesheets=("/matches/assets/capture.css",),
+            extra_scripts=("/matches/assets/capture.js",),
+        )
+
+    def _learning_page(
+        self,
+        *,
+        status: int = HTTPStatus.OK,
+        error_notice: str | None = None,
+    ) -> None:
+        active = self._active_learning()
+        state = build_unified_learning_state_v1(active)
+        result = active.last_result
+        notice = error_notice or (None if result is None else result.message)
+        notice_kind = (
+            "error"
+            if error_notice is not None
+            else "warning"
+            if result is not None and result.http_status == HTTPStatus.CONFLICT
+            else "info"
+        )
+        body = render_learning_corpus_web_body_v1(
+            state,
+            route_prefix="/learning",
+            notice=notice,
+            notice_kind=notice_kind,
+            managed_handle=active.handle,
+        )
+        self._content_page(
+            "/learning",
+            title="Managed Learning Corpus",
+            content=body,
+            status=status,
+            extra_stylesheets=("/learning/assets/corpus.css",),
+            extra_scripts=("/learning/assets/corpus.js",),
+        )
+
+    def _stateful_download(self, path: str) -> bool:
+        if path in _SESSION_DOWNLOAD_ROUTES:
+            active = self._active_session()
+            with active.lock:
+                if path.endswith("session.json"):
+                    content = build_guided_session_persistence_download_v1(active)
+                    filename = "skatmind-managed-session.json"
+                elif active.execution is None:
+                    raise KeyError("Session execution download is unavailable.")
+                elif path.endswith("request.json"):
+                    content = active.execution.request_json_bytes
+                    filename = "skatmind-session-request.json"
+                else:
+                    content = active.execution.result_json_bytes
+                    filename = "skatmind-session-result.json"
+            self._send_artifact(filename, content)
+            return True
+        report_source = _MATCH_REPORT_SOURCE_PATTERN.fullmatch(path)
+        if report_source is not None:
+            filename, content = build_unified_match_report_download_v1(
+                self._active_match(),
+                report_source.group(1),
+                strategy_source=True,
+            )
+            self._send_artifact(filename, content)
+            return True
+        report_json = _MATCH_REPORT_JSON_PATTERN.fullmatch(path)
+        if report_json is not None:
+            filename, content = build_unified_match_report_download_v1(
+                self._active_match(),
+                report_json.group(1),
+                strategy_source=False,
+            )
+            self._send_artifact(filename, content)
+            return True
+        if path in _MATCH_EXPORT_ROUTES:
+            filename, content = build_unified_match_export_download_v1(
+                self._active_match(),
+                kind=_MATCH_EXPORT_ROUTES[path],
+            )
+            self._send_artifact(filename, content)
+            return True
+        if path == "/matches/downloads/workspace.json":
+            self._send_artifact(
+                "skatmind-managed-match.json",
+                build_unified_match_workspace_download_v1(self._active_match()),
+            )
+            return True
+        if path in _LEARNING_DOWNLOAD_ROUTES:
+            download = build_unified_learning_download_v1(
+                self._active_learning(),
+                kind=_LEARNING_DOWNLOAD_ROUTES[path],
+            )
+            self._send_artifact(download.filename, download.content)
+            return True
+        return False
+
+    def _stateful_get(self, path: str) -> bool:
+        if path == "/sessions":
+            self._managed_category_page("sessions")
+            return True
+        if path == "/matches":
+            self._managed_category_page("matches")
+            return True
+        if path == "/learning":
+            self._managed_category_page("corpora")
+            return True
+        if path == "/sessions/current":
+            self._session_page()
+            return True
+        if path == "/matches/new":
+            self._match_creation_page()
+            return True
+        if path == "/matches/current":
+            active = self._active_match()
+            self._match_page(active, position=active.selected_position)
+            return True
+        if path == "/learning/current":
+            self._learning_page()
+            return True
+        position = _MATCH_POSITION_PATTERN.fullmatch(path)
+        if position is not None:
+            self._match_page(self._active_match(), position=int(position.group(1)))
+            return True
+        report_page = _MATCH_REPORT_PATTERN.fullmatch(path)
+        if report_page is not None:
+            active = self._active_match()
+            report_id = report_page.group(1)
+            report_status, report = get_unified_match_report_v1(active, report_id)
+            if report_status == "missing" or report is None:
+                raise KeyError("Match Report is unavailable.")
+            if report_status == "stale":
+                raise RuntimeError("Match Report revision is stale.")
+            self._match_page(
+                active,
+                position=report.match_position or 1,
+                report_id=report_id,
+            )
+            return True
+        if path == "/matches/api/v1/state":
+            active = self._active_match()
+            self._send_json(HTTPStatus.OK, build_unified_match_state_v1(active))
+            return True
+        if path == "/learning/api/v1/state":
+            self._send_json(
+                HTTPStatus.OK,
+                build_unified_learning_state_v1(self._active_learning()),
+            )
+            return True
+        return self._stateful_download(path)
+
+    def _open_managed_item(self, family: str, values: dict[str, str]) -> None:
+        self._exact_fields(values, {"handle", "generation"})
+        generation = self._form_integer(values, "generation", minimum=1)
+        with self.server.app_context.lock:
+            entry = self.server.app_context.managed_stateful.resolve(
+                family,
+                handle=values["handle"],
+                generation=generation,
+            )
+            root = self.server.app_context.managed_stateful.root(family)
+        if family == "sessions":
+            self._activate_session(open_guided_session_v1(root, entry))
+            location = "/sessions/current"
+        elif family == "matches":
+            self._activate_match(open_unified_match_v1(root, entry))
+            location = "/matches/current"
+        else:
+            self._activate_learning(open_unified_learning_corpus_v1(root, entry))
+            location = "/learning/current"
+        self._refresh_category(family)
+        self._redirect(location)
+
+    def _create_session(self, values: dict[str, str]) -> None:
+        fields = {"session_id", "capture_mode", "local_player_id"}
+        for index in (1, 2, 3):
+            fields.update({f"player_{index}_id", f"player_{index}_label"})
+        self._exact_fields(values, fields)
+        session_id = values["session_id"]
+        storage_name = build_managed_item_storage_name_v1(
+            family="sessions",
+            product_id=session_id,
+        )
+        players = build_guided_session_players_v1(values)
+        with self.server.app_context.lock:
+            root = self.server.app_context.managed_stateful.root("sessions")
+        active = create_guided_session_v1(
+            root,
+            handle=build_managed_item_handle_v1(
+                family="sessions",
+                basename=storage_name,
+            ),
+            session_id=session_id,
+            players=players,
+            capture_mode=values["capture_mode"],
+            local_player_id=values["local_player_id"] or None,
+        )
+        self._activate_session(active)
+        self._refresh_category("sessions")
+        self._redirect("/sessions/current")
+
+    def _import_session(self, body: bytes, content_type: str) -> None:
+        upload = parse_managed_item_json_upload_v1(
+            body,
+            content_type=content_type,
+            expected_file_field="session_file",
+        )
+        session_id = get_guided_session_import_product_id_v1(upload.document)
+        storage_name = build_managed_item_storage_name_v1(
+            family="sessions",
+            product_id=session_id,
+        )
+        with self.server.app_context.lock:
+            root = self.server.app_context.managed_stateful.root("sessions")
+        active = import_guided_session_v1(
+            root,
+            handle=build_managed_item_handle_v1(
+                family="sessions",
+                basename=storage_name,
+            ),
+            document=dict(upload.document),
+        )
+        self._activate_session(active)
+        self._refresh_category("sessions")
+        self._redirect("/sessions/current")
+
+    def _session_operation(self, path: str, values: dict[str, str]) -> None:
+        active = self._bound_active("sessions", values)
+        expected_revision = self._form_integer(
+            values,
+            "expected_revision",
+            minimum=0,
+        )
+        with active.lock:
+            if active.state.revision != expected_revision:
+                raise StaleFrontendWorkflowRevisionError
+        values = dict(values)
+        del values["expected_revision"]
+        if path == "/sessions/command":
+            edit = build_session_edit_from_form_v1(
+                values,
+                current_revision=expected_revision,
+            )
+            apply_guided_session_edit_v1(active, edit)
+        elif path == "/sessions/undo":
+            self._exact_fields(values, {"target_revision"})
+            rewind_guided_session_v1(
+                active,
+                target_revision=self._form_integer(
+                    values,
+                    "target_revision",
+                    minimum=0,
+                ),
+            )
+        elif path == "/sessions/analyze":
+            export_options = build_session_position_options_from_form_v1(values)
+            execute_guided_session_position_v1(
+                active,
+                export_options=export_options,
+                execution_options=default_guided_session_execution_options_v1(),
+            )
+        else:
+            execution_options = build_session_historical_execution_options_from_form_v1(
+                values
+            )
+            execute_guided_session_historical_v1(
+                active,
+                execution_options=execution_options,
+            )
+        self._redirect("/sessions/current")
+
+    def _create_match(self, values: dict[str, str | list[str]]) -> None:
+        match_id = values.get("match_id")
+        if type(match_id) is not str:
+            raise ValueError("match_id is required as form text.")
+        storage_name = build_managed_item_storage_name_v1(
+            family="matches",
+            product_id=match_id,
+        )
+        with self.server.app_context.lock:
+            root = self.server.app_context.managed_stateful.root("matches")
+        active = create_unified_match_v1(
+            root,
+            handle=build_managed_item_handle_v1(
+                family="matches",
+                basename=storage_name,
+            ),
+            values=values,
+        )
+        self._activate_match(active)
+        self._refresh_category("matches")
+        self._redirect("/matches/position/1")
+
+    def _import_match(self, body: bytes, content_type: str) -> None:
+        upload = parse_managed_item_json_upload_v1(
+            body,
+            content_type=content_type,
+            expected_file_field="workspace_file",
+        )
+        resumed = resume_match_workspace_document_v1(upload.document).document
+        match_id = resumed.workspace.match_definition.match_id
+        storage_name = build_managed_item_storage_name_v1(
+            family="matches",
+            product_id=match_id,
+        )
+        with self.server.app_context.lock:
+            root = self.server.app_context.managed_stateful.root("matches")
+        active = import_unified_match_v1(
+            root,
+            handle=build_managed_item_handle_v1(
+                family="matches",
+                basename=storage_name,
+            ),
+            document=upload.document,
+        )
+        self._activate_match(active)
+        self._refresh_category("matches")
+        self._redirect("/matches/current")
+
+    def _match_operation(
+        self,
+        path: str,
+        values: dict[str, str | list[str]],
+    ) -> None:
+        active = self._bound_active("matches", values)
+        if path.endswith("/reload"):
+            if set(values) - {"match_position"}:
+                raise ValueError("Reload accepts only match_position.")
+            position = int(values.get("match_position", "1"))
+            select_unified_match_position_v1(active, position)
+            result = reload_unified_match_v1(active)
+        elif path.endswith("/analysis"):
+            result = execute_unified_match_analysis_v1(active, values)
+        else:
+            result = apply_unified_match_operation_v1(active, values)
+        selected = result.state.get("selected_position", active.selected_position)
+        position = selected if type(selected) is int and 1 <= selected <= 36 else 1
+        if result.http_status == HTTPStatus.OK:
+            if path.endswith("/analysis"):
+                report_id = result.state.get("selected_report_id")
+                if type(report_id) is not str:
+                    raise SkatMindInvariantError("Applied analysis did not retain a Report.")
+                self._redirect(f"/matches/reports/{report_id}")
+            else:
+                self._redirect(f"/matches/position/{position}")
+            return
+        self._match_page(
+            active,
+            position=position,
+            status=result.http_status,
+        )
+
+    def _transfer_match(self, path: str, values: dict[str, str]) -> None:
+        source_handle = values.pop("managed_handle", None)
+        target_handle = values.pop("target_managed_handle", None)
+        with self.server.app_context.lock:
+            source = self.server.app_context.managed_stateful.active_match
+            target = self.server.app_context.managed_stateful.active_learning
+            if source is None or target is None:
+                raise ValueError("Open both a managed Match and Learning Corpus first.")
+            if source_handle != source.handle or target_handle != target.handle:
+                raise StaleFrontendWorkflowRevisionError
+        if path.endswith("transfer-workspace"):
+            self._exact_fields(
+                values,
+                {
+                    "selection_mode",
+                    "same_revision_resolution",
+                    "expected_catalog_revision",
+                },
+            )
+            result = transfer_active_match_workspace_to_corpus_v1(
+                source,
+                target,
+                selection_mode=values["selection_mode"],
+                same_revision_resolution=values["same_revision_resolution"],
+                expected_catalog_revision=self._form_integer(
+                    values,
+                    "expected_catalog_revision",
+                    minimum=0,
+                ),
+            )
+            report_id = None
+        else:
+            self._exact_fields(values, {"report_id", "match_snapshot_id"})
+            result = transfer_active_match_report_to_corpus_v1(
+                source,
+                target,
+                report_id=values["report_id"],
+                match_snapshot_id=values["match_snapshot_id"],
+            )
+            report_id = values["report_id"]
+        target_result = target.last_result
+        status = HTTPStatus.OK if target_result is None else target_result.http_status
+        if status == HTTPStatus.OK:
+            with source.capture.lock:
+                source.transfer_notice = result.message
+            location = (
+                f"/matches/position/{source.selected_position}"
+                if report_id is None
+                else f"/matches/reports/{report_id}"
+            )
+            self._redirect(location)
+            return
+        self._match_page(
+            source,
+            position=source.selected_position,
+            report_id=report_id,
+            status=status,
+            operation_notice=result.message,
+            operation_notice_kind="warning" if status == HTTPStatus.CONFLICT else "info",
+        )
+
+    def _create_learning(self, values: dict[str, str]) -> None:
+        self._exact_fields(values, {"corpus_id"})
+        corpus_id = values["corpus_id"]
+        storage_name = build_managed_item_storage_name_v1(
+            family="corpora",
+            product_id=corpus_id,
+        )
+        with self.server.app_context.lock:
+            root = self.server.app_context.managed_stateful.root("corpora")
+        active = create_unified_learning_corpus_v1(
+            root,
+            handle=build_managed_item_handle_v1(
+                family="corpora",
+                basename=storage_name,
+            ),
+            corpus_id=corpus_id,
+        )
+        self._activate_learning(active)
+        self._refresh_category("corpora")
+        self._redirect("/learning/current")
+
+    def _learning_operation(
+        self,
+        body: bytes,
+        content_type: str,
+    ) -> None:
+        media_type = content_type.split(";", 1)[0].strip().lower()
+        if media_type == "multipart/form-data":
+            upload = parse_learning_corpus_multipart_upload_v1(
+                body,
+                content_type=content_type,
+            )
+            fields = dict(upload.fields)
+            active = self._bound_active("corpora", fields)
+            operation = fields.get("operation")
+            if operation == "import_match_workspace":
+                expected = {
+                    "operation",
+                    "selection_mode",
+                    "same_revision_resolution",
+                    "expected_catalog_revision",
+                }
+                if set(fields) != expected or upload.file_field != "workspace_file":
+                    raise ValueError("Workspace import fields are incomplete or unsupported.")
+                import_workspace_bytes_into_unified_learning_v1(
+                    active,
+                    upload.file_content,
+                    selection_mode=fields["selection_mode"],
+                    same_revision_resolution=fields["same_revision_resolution"],
+                    expected_catalog_revision=int(
+                        fields["expected_catalog_revision"]
+                    ),
+                )
+            elif operation == "import_strategy_teacher_report":
+                expected = {"operation", "match_snapshot_id"}
+                if (
+                    set(fields) != expected
+                    or upload.file_field != "report_source_file"
+                ):
+                    raise ValueError("Report-source import fields are incomplete or unsupported.")
+                import_report_source_bytes_into_unified_learning_v1(
+                    active,
+                    upload.file_content,
+                    match_snapshot_id=fields["match_snapshot_id"],
+                )
+            else:
+                raise ValueError("Multipart operation is not supported.")
+        else:
+            values = self._text_form(body, content_type)
+            active = self._bound_active("corpora", values)
+            operation = values.get("operation")
+            if operation == "reload_corpus":
+                self._exact_fields(values, {"operation"})
+                reload_unified_learning_corpus_v1(active)
+            elif operation == "select_current_snapshot":
+                self._exact_fields(
+                    values,
+                    {
+                        "operation",
+                        "match_id",
+                        "match_snapshot_id",
+                        "expected_catalog_revision",
+                    },
+                )
+                select_unified_learning_current_snapshot_v1(
+                    active,
+                    match_id=values["match_id"],
+                    match_snapshot_id=values["match_snapshot_id"],
+                    expected_catalog_revision=self._form_integer(
+                        values,
+                        "expected_catalog_revision",
+                        minimum=0,
+                    ),
+                )
+            elif operation == "remove_strategy_teacher_report":
+                self._exact_fields(values, {"operation", "source_binding_id"})
+                remove_unified_learning_report_source_v1(
+                    active,
+                    source_binding_id=values["source_binding_id"],
+                )
+            elif operation == "clear_strategy_teacher_reports":
+                self._exact_fields(values, {"operation"})
+                clear_unified_learning_report_sources_v1(active)
+            elif operation == "prepare_learning_artifacts":
+                self._exact_fields(
+                    values,
+                    {
+                        "operation",
+                        "dataset_id",
+                        "known_player_seed",
+                        "unseen_player_seed",
+                        "train_weight",
+                        "validation_weight",
+                        "test_weight",
+                    },
+                )
+                prepare_unified_learning_artifacts_v1(
+                    active,
+                    dataset_id=values["dataset_id"],
+                    known_player_seed=self._form_integer(values, "known_player_seed"),
+                    unseen_player_seed=self._form_integer(values, "unseen_player_seed"),
+                    train_weight=self._form_integer(values, "train_weight", minimum=1),
+                    validation_weight=self._form_integer(
+                        values,
+                        "validation_weight",
+                        minimum=1,
+                    ),
+                    test_weight=self._form_integer(values, "test_weight", minimum=1),
+                )
+            else:
+                raise ValueError("Learning operation is not supported.")
+        result = active.last_result
+        self._learning_page(
+            status=HTTPStatus.OK if result is None else result.http_status,
+        )
+
+    def _stateful_post(
+        self,
+        path: str,
+        body: bytes,
+        content_type: str,
+    ) -> None:
+        if path == "/sessions/import":
+            self._import_session(body, content_type)
+            return
+        if path == "/matches/import":
+            self._import_match(body, content_type)
+            return
+        if path == "/learning/api/v1/operations":
+            self._learning_operation(body, content_type)
+            return
+        if path in {
+            "/matches/api/v1/reload",
+            "/matches/api/v1/operation",
+            "/matches/api/v1/analysis",
+        }:
+            self._match_operation(
+                path,
+                self._flat_form(body, content_type, repeated_cards=True),
+            )
+            return
+        values = self._text_form(body, content_type)
+        if path == "/sessions/create":
+            self._create_session(values)
+        elif path == "/sessions/open":
+            self._open_managed_item("sessions", values)
+        elif path == "/sessions/reload":
+            active = self._bound_active("sessions", values)
+            if values:
+                raise ValueError("Session reload accepts only its managed handle.")
+            reload_guided_session_v1(active)
+            self._redirect("/sessions/current")
+        elif path.startswith("/sessions/"):
+            self._session_operation(path, values)
+        elif path == "/matches/open":
+            self._open_managed_item("matches", values)
+        elif path == "/matches/api/v1/create":
+            self._create_match(values)
+        elif path.startswith("/matches/transfer-"):
+            self._transfer_match(path, values)
+        elif path == "/learning/create":
+            self._create_learning(values)
+        elif path == "/learning/open":
+            self._open_managed_item("corpora", values)
+        else:
+            raise RuntimeError("Stateful POST route dispatch is incomplete.")
+
     def do_GET(self) -> None:
         try:
             try:
@@ -396,11 +1483,20 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
             if not self._authorize_get(parsed.path, parsed.query):
                 return
             if parsed.path in _ASSETS:
-                resource_name, content_type = _ASSETS[parsed.path]
-                content = files("skatmind.app_web").joinpath(resource_name).read_bytes()
+                package, resource_name, content_type = _ASSETS[parsed.path]
+                content = files(package).joinpath(resource_name).read_bytes()
                 self._send_bytes(HTTPStatus.OK, content, content_type=content_type)
                 return
-            if parsed.path.startswith("/assets/"):
+            if parsed.path in _STATEFUL_POST_ROUTES:
+                self._send_text(
+                    HTTPStatus.METHOD_NOT_ALLOWED,
+                    "Method not allowed",
+                    extra_headers=(("Allow", "POST"),),
+                )
+                return
+            if self._stateful_get(parsed.path):
+                return
+            if "/assets/" in parsed.path:
                 self._error_page(HTTPStatus.NOT_FOUND, "Page not found", "Not found.")
                 return
             if parsed.path in GUIDED_DOWNLOAD_ROUTE_PATHS:
@@ -417,6 +1513,24 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
                 self._error_page(HTTPStatus.NOT_FOUND, "Page not found", "Not found.")
                 return
             self._page(parsed.path)
+        except KeyError:
+            self._error_page(HTTPStatus.NOT_FOUND, "Artifact unavailable", "Not found.")
+        except LearningCorpusPreparedDownloadUnavailableError as error:
+            status = (
+                HTTPStatus.NOT_FOUND
+                if error.reason == "missing"
+                else HTTPStatus.CONFLICT
+            )
+            self._error_page(status, "Artifact unavailable", "Prepared sources changed.")
+        except RuntimeError as error:
+            if "stale" in str(error).lower():
+                self._error_page(
+                    HTTPStatus.CONFLICT,
+                    "State changed",
+                    "The selected process-local artifact is stale.",
+                )
+            else:
+                self._send_text(HTTPStatus.INTERNAL_SERVER_ERROR, "Internal server error")
         except Exception:
             self._send_text(HTTPStatus.INTERNAL_SERVER_ERROR, "Internal server error")
 
@@ -428,11 +1542,24 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
             if parsed.query:
                 self._send_text(HTTPStatus.FORBIDDEN, "Forbidden")
                 return
+            if parsed.path in _STATEFUL_POST_ROUTES:
+                if parsed.path in {"/sessions/import", "/matches/import"}:
+                    max_bytes = _MANAGED_IMPORT_MAX_REQUEST_BYTES
+                elif parsed.path == "/learning/api/v1/operations":
+                    max_bytes = LEARNING_CORPUS_WEB_MAX_REQUEST_BYTES
+                elif parsed.path.startswith("/matches/api/v1/"):
+                    max_bytes = MATCH_CAPTURE_WEB_MAX_REQUEST_BYTES
+                else:
+                    max_bytes = APP_WEB_MAX_REQUEST_BYTES
+                body, content_type = self._read_body(max_bytes=max_bytes)
+                self._stateful_post(parsed.path, body, content_type)
+                return
             if parsed.path not in GUIDED_ACTION_ROUTE_PATHS:
                 if (
                     parsed.path in APP_ROUTE_PATHS
                     or parsed.path in _ASSETS
                     or parsed.path in GUIDED_DOWNLOAD_ROUTE_PATHS
+                    or _is_stateful_get_route(parsed.path)
                 ):
                     self._read_unsupported_body()
                     self._send_text(
@@ -601,7 +1728,14 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
                 else "/review"
             )
             self._page(page, status=HTTPStatus.BAD_REQUEST)
-        except SkatMindWorkflowError:
+        except SkatMindWorkflowError as error:
+            if urlsplit(self.path).path in _STATEFUL_POST_ROUTES:
+                self._error_page(
+                    HTTPStatus.BAD_REQUEST,
+                    "Unsupported workflow",
+                    str(error),
+                )
+                return
             self._error_page(
                 HTTPStatus.BAD_REQUEST,
                 "Unsupported workflow",
@@ -619,12 +1753,48 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
                 "Unsupported content type",
                 "Use the form content type shown by this page.",
             )
-        except ValueError:
+        except FileExistsError as error:
+            self._error_page(
+                HTTPStatus.CONFLICT,
+                "Managed item already exists",
+                str(error),
+            )
+        except SkatMindInvariantError:
+            self._send_text(HTTPStatus.INTERNAL_SERVER_ERROR, "Internal server error")
+        except (SkatMindError, ValueError) as error:
+            path = urlsplit(self.path).path
+            if path in _STATEFUL_POST_ROUTES and path.startswith("/matches/"):
+                try:
+                    active = self._active_match()
+                    self._match_page(
+                        active,
+                        position=active.selected_position,
+                        status=HTTPStatus.BAD_REQUEST,
+                        error_notice=str(error),
+                    )
+                    return
+                except KeyError:
+                    pass
+            if path in _STATEFUL_POST_ROUTES and path.startswith("/learning/"):
+                try:
+                    self._learning_page(
+                        status=HTTPStatus.BAD_REQUEST,
+                        error_notice=str(error),
+                    )
+                    return
+                except KeyError:
+                    pass
             self._error_page(
                 HTTPStatus.BAD_REQUEST,
                 "Input validation",
-                "The submitted form could not be validated.",
+                (
+                    str(error)
+                    if path in _STATEFUL_POST_ROUTES
+                    else "The submitted form could not be validated."
+                ),
             )
+        except OSError:
+            self._send_text(HTTPStatus.INTERNAL_SERVER_ERROR, "Filesystem error")
         except Exception:
             self._send_text(HTTPStatus.INTERNAL_SERVER_ERROR, "Internal server error")
 
@@ -646,13 +1816,19 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
                 | set(_ASSETS)
                 | set(GUIDED_ACTION_ROUTE_PATHS)
                 | set(GUIDED_DOWNLOAD_ROUTE_PATHS)
+                | set(_STATEFUL_POST_ROUTES)
             )
-            if parsed.path not in known_paths:
+            if parsed.path not in known_paths and not _is_stateful_get_route(parsed.path):
                 self._error_page(HTTPStatus.NOT_FOUND, "Page not found", "Not found.")
                 return
             if method in _BODY_METHODS:
                 self._read_unsupported_body()
-            allow = "POST" if parsed.path in GUIDED_ACTION_ROUTE_PATHS else "GET"
+            allow = (
+                "POST"
+                if parsed.path in GUIDED_ACTION_ROUTE_PATHS
+                or parsed.path in _STATEFUL_POST_ROUTES
+                else "GET"
+            )
             self._send_text(
                 HTTPStatus.METHOD_NOT_ALLOWED,
                 "Method not allowed",

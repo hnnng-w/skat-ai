@@ -68,30 +68,21 @@ def _placeholder(route: str) -> tuple[str, str]:
         ),
         "/sessions": (
             "Sessions",
-            "Creating, opening, and resuming managed Sessions is not available in this shell "
-            "yet. A later frontend update will add that lifecycle. The existing advanced "
-            "Session CLI "
-            "remains available.",
+            "Managed Session lifecycle content is provided by the authenticated local server.",
         ),
         "/matches": (
             "Match capture",
-            "Managed Match listing and capture are not available in this shell yet. A later "
-            "frontend update will integrate that lifecycle. The standalone advanced Capture "
-            "interface "
-            "remains available.",
+            "Managed Match capture content is provided by the authenticated local server.",
         ),
         "/learning": (
             "Learning & cross-game insights",
-            "Managed Corpus listing and Learning workflows are not available in this shell "
-            "yet. A later frontend update will integrate that lifecycle. The standalone advanced "
-            "Corpus "
-            "interface remains available.",
+            "Managed Learning content is provided by the authenticated local server.",
         ),
     }
     title, description = pages[route]
     return title, (
         '<section class="placeholder" aria-labelledby="placeholder-status">'
-        '<p id="placeholder-status" class="task-status planned">Not yet available</p>'
+        '<p id="placeholder-status" class="task-status available">Available locally</p>'
         f"<p>{escape(description)}</p>"
         '<p><a class="back-link" href="/">Return to Home</a></p>'
         "</section>"
@@ -173,12 +164,50 @@ def render_app_page_v1(
         title, content = _about(state, storage_root)
     else:
         title, content = _placeholder(route)
+    return render_app_content_page_v1(
+        state,
+        route,
+        title=title,
+        content=content,
+    )
+
+
+def render_app_content_page_v1(
+    state: BrowserSafeApplicationStateV1,
+    route: str,
+    *,
+    title: str,
+    content: str,
+    extra_stylesheets: tuple[str, ...] = (),
+    extra_scripts: tuple[str, ...] = (),
+) -> str:
+    """Renders trusted server-built stateful content inside the canonical shell."""
+
+    if type(state) is not BrowserSafeApplicationStateV1:
+        raise ValueError("state must be an exact browser-safe application state.")
+    if route not in APP_ROUTE_PATHS:
+        raise ValueError("route must be a canonical application route.")
+    if type(title) is not str or not title or type(content) is not str:
+        raise ValueError("Stateful shell title and content must be text.")
+    if any(
+        type(path) is not str or not path.startswith("/") or '"' in path
+        for path in (*extra_stylesheets, *extra_scripts)
+    ):
+        raise ValueError("Extra assets must use safe absolute local routes.")
     replacements = {
         "{{PAGE_TITLE}}": escape(title),
         "{{PRODUCT_NAME}}": escape(state.product_name),
         "{{NAVIGATION}}": _navigation(state, route),
         "{{HEADING}}": escape(title),
         "{{CONTENT}}": content,
+        "{{EXTRA_STYLES}}": "".join(
+            f'<link rel="stylesheet" href="{escape(path, quote=True)}">'
+            for path in extra_stylesheets
+        ),
+        "{{EXTRA_SCRIPTS}}": "".join(
+            f'<script src="{escape(path, quote=True)}" defer></script>'
+            for path in extra_scripts
+        ),
     }
     rendered = _template()
     if any(marker not in rendered for marker in replacements):
@@ -206,6 +235,8 @@ def render_app_error_page_v1(
             '<p><a class="back-link" href="/">Return to Home</a></p>'
             "</section>"
         ),
+        "{{EXTRA_STYLES}}": "",
+        "{{EXTRA_SCRIPTS}}": "",
     }
     for marker, value in replacements.items():
         rendered = rendered.replace(marker, value)

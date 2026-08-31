@@ -23,7 +23,7 @@ The implemented browser areas are:
 /sessions
 /matches
 /learning
-    honest placeholders owned by Issue #212
+    managed stateful workflows implemented by Issue #212
 ```
 
 Package version remains `0.17.0`, Public API contract version remains `1`, the
@@ -318,16 +318,17 @@ is required or currently shipped.
 
 ## Current boundary and UAT state
 
-Analyze and Review are now usable and process-local. Session, Match Capture, and
-Learning Corpus lifecycle integration remains Issue #212 work. `skatmind run`
-and concise top-level CLI onboarding remain Issue #213 work. The advanced Root,
+Analyze and Review are usable and process-local. Session, Match Capture, and
+Learning Corpus lifecycle integration is implemented separately by Issue #212.
+`skatmind run` and concise top-level CLI onboarding remain Issue #213 work. The advanced Root,
 Session, Capture, Corpus, and Public Python API interfaces remain supported.
 
-Issue #211 further partially remediates `UAT-FINDING-001` but does not close it.
-`UAT-FINDING-002` and `UAT-FINDING-003` remain open. UAT-01 remains failed;
+Issue #211 further partially remediates `UAT-FINDING-001`; Issue #212 adds the
+separate managed stateful remediation. The findings remain open pending repeated
+UAT. UAT-01 remains failed;
 UAT-02 through UAT-12 remain paused. B-09 and B-07 remain open, B-06 remains
 closed, the completed 53-row technical ledger remains unchanged, and Release
 preparation remains not ready.
 
-The exact next implementation action is Issue #212, **Integrate Session, Match
-Capture, and Learning Corpus into the unified frontend**.
+The exact next implementation action is Issue #213, **Reframe the CLI as the
+advanced automation interface**.

@@ -2,10 +2,14 @@ from __future__ import annotations
 
 import threading
 from dataclasses import dataclass, field
+from typing import TYPE_CHECKING
 
 from .contracts import BrowserSafeApplicationStateV1, ManagedHomeV1
 from .state import build_browser_safe_application_state_v1
 from .workflow_state import ProcessLocalFrontendWorkflowStateV1
+
+if TYPE_CHECKING:
+    from .stateful_context import ManagedStatefulContextV1
 
 
 @dataclass(slots=True)
@@ -14,6 +18,7 @@ class AppWebContextV1:
 
     managed_home: ManagedHomeV1
     browser_state: BrowserSafeApplicationStateV1
+    managed_stateful: ManagedStatefulContextV1 = field(repr=False)
     analyze_state: ProcessLocalFrontendWorkflowStateV1 = field(
         default_factory=ProcessLocalFrontendWorkflowStateV1,
         repr=False,
@@ -25,6 +30,8 @@ class AppWebContextV1:
     lock: threading.RLock = field(default_factory=threading.RLock, repr=False)
 
     def __post_init__(self) -> None:
+        from .stateful_context import ManagedStatefulContextV1
+
         if type(self.managed_home) is not ManagedHomeV1:
             raise ValueError("managed_home must be an exact ManagedHomeV1.")
         if type(self.browser_state) is not BrowserSafeApplicationStateV1:
@@ -33,10 +40,15 @@ class AppWebContextV1:
             raise ValueError("analyze_state must be exact process-local workflow state.")
         if type(self.review_state) is not ProcessLocalFrontendWorkflowStateV1:
             raise ValueError("review_state must be exact process-local workflow state.")
+        if type(self.managed_stateful) is not ManagedStatefulContextV1:
+            raise ValueError("managed_stateful must be exact managed stateful context.")
 
     @classmethod
     def create(cls, managed_home: ManagedHomeV1) -> AppWebContextV1:
+        from .stateful_context import ManagedStatefulContextV1
+
         return cls(
             managed_home=managed_home,
             browser_state=build_browser_safe_application_state_v1(),
+            managed_stateful=ManagedStatefulContextV1(managed_home=managed_home),
         )

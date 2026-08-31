@@ -394,12 +394,13 @@ files and explicit JSON outputs remain private caller-controlled data; concise
 human output does not print complete private hands, full Skat, frozen Requests,
 fingerprints, provenance entries, or file contents by default. The Match and
 Learning Corpus browsers are private loopback-only local transports. The current
-Package includes the unified local application shell and process-local guided
-Analyze/Review workflows, but Session, Match, and Learning lifecycles remain
-Issue #212 placeholders. Hosted or remote
-browser deployment, online-platform integration, cloud synchronization,
-distributed locking, encryption/key management, and automatic backups remain
-open.
+Package includes the unified local application shell, process-local guided
+Analyze/Review workflows, and Issue #212 managed Session, Match, and Learning
+lifecycles over the existing authoritative persistence and operations. The
+standalone `session`, `capture`, and `corpus` commands remain supported advanced
+interfaces. Hosted or remote browser deployment, online-platform integration,
+cloud synchronization, distributed locking, encryption/key management, and
+automatic backups remain open.
 Information-set Search remains bounded to its documented flat, Multi-Step, Policy
 Comparison, Historical Review, Training Dataset evaluation, private one-Decision
 Match/Teacher, Match Historical, and Replay Coaching routes. Issue #193 supplies

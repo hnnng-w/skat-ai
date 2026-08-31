@@ -470,10 +470,10 @@ Implemented by Issue #157:
   generated scenarios for the published `v0.14.0` total of 85
 
 Issue #158 completed Release preparation for the functional `v0.14.0` milestone,
-which the maintainer subsequently published manually at commit `d5589f8`. GUI
-or browser UI, platform adapters,
-cloud synchronization, distributed locking, encryption/key management, and
-automatic backup policy remain open. See
+which the maintainer subsequently published manually at commit `d5589f8`. Issue
+#212 later adds the private unified local Session browser adapter. Platform
+adapters, cloud synchronization, distributed locking, encryption/key management,
+and automatic backup policy remain open. See
 [Interactive session contracts](interactive_session_contracts.md) and
 [Retrospective Session export](retrospective_session_export.md), and
 [Session Position export and Decision checkpoints](live_session_position_export.md),
@@ -1750,8 +1750,11 @@ fails with one accepted blocker and two accepted major findings. Issue #209
 freezes the approved unified local frontend and launch contract. Issue #210
 implements the shell, and Issue #211 adds guided Position analysis, completed-
 game Review, strict optional JSON transfer, and readable process-local Results.
-UAT-FINDING-001 is further partially remediated but remains open. UAT-02 through
-UAT-12 are paused, and Issue #212 is the exact next implementation action.
+Issue #212 adds managed Session, Match Capture, Learning Corpus, and explicit
+cross-area transfer workflows through the same server. UAT-FINDING-001 remains
+open pending repeated UAT, and Issue #212 implements the Product work owned by
+UAT-FINDING-003. UAT-02 through UAT-12 are paused, and Issue #213 is the exact
+next implementation action.
 
 Historical published Package milestone: `v0.15.0`, providing usable manual post-
 game capture of one EuroSkat 36er Standard Match from descriptive video evidence.
@@ -2342,13 +2345,14 @@ Completed implementation scope:
 
 ## Next recommended action
 
-Implement Issue #212, **Integrate Session, Match Capture, and Learning Corpus
-into the unified frontend**, after Issue #211 and its required checks are green.
-Issues #210 and #211 add bare/explicit shell launch, the managed data home, Home,
-navigation, About, secure local serving, guided analysis/Review, strict optional
-JSON transfer, readable Results, packaged assets, and the remaining lifecycle
-placeholders. See [Guided analysis and Results](unified_local_frontend_guided_analysis_and_results.md)
-and the authoritative [unified local frontend contract](unified_local_frontend_contract.md).
+Implement Issue #213, **Reframe the CLI as the advanced automation interface**,
+after Issue #212 and its required checks are green. Issues #210 through #212 add
+bare/explicit shell launch, the managed data home, Home, navigation, About,
+secure local serving, guided analysis/Review, strict optional JSON transfer,
+readable Results, and managed Session/Match/Learning workflows. See
+[Guided analysis and Results](unified_local_frontend_guided_analysis_and_results.md),
+[Managed stateful workflows](unified_local_frontend_stateful_workflows.md), and
+the authoritative [unified local frontend contract](unified_local_frontend_contract.md).
 
 Issues #201 through #203 close B-01 through B-03. Issue #204 applies the exact
 `AGPL-3.0-only` Package boundary and closes B-04 without changing product
@@ -2356,8 +2360,8 @@ behavior. Issue #205 completes the SkatMind identity and migration boundary,
 makes P-09 `satisfied`, and closes B-08. #206 closes B-05 after its installation/
 platform evidence and merged jobs pass. #207 finds no material technical blocker
 and closes B-06. #208 remains open and owns the separate B-09 maintainer-UAT
-Gate outside the 53-row ledger. Issues #210 and #211 partially remediate
-UAT-FINDING-001 without closing it; all three findings remain open. UAT-01
+Gate outside the 53-row ledger. Issues #210 through #212 remediate the local
+Product surface; all findings remain open pending repeated UAT. UAT-01
 failed; UAT-02 through
 UAT-12 are paused until #211 through #213 complete and repeated UAT-01 passes. B-07 Release
 preparation remains open and not ready. The published functional history remains
@@ -2370,7 +2374,7 @@ Keep immutable imported Workspace Snapshots separate from derived artifacts.
 Public Match/Corpus/Dataset-v2 surfaces, derived persistence, broader Player
 Ratings and tactical truth, latency guarantees, database deployment, and
 Historical Teacher import are not v1 requirements. The approved local Session
-browser integration is now owned by #212; broader solver, auction, learned-model,
+browser integration is implemented by #212; broader solver, auction, learned-model,
 and hosted/remote work remains post-v1.
 
 Do not infer automatic newest selection, fuzzy Player merging, cross-revision

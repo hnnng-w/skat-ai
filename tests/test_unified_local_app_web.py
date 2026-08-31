@@ -2,12 +2,15 @@ from __future__ import annotations
 
 import hmac
 import http.client
+import json
 import socket
 from collections.abc import Iterator
 from html import escape
 from pathlib import Path
+from urllib.parse import urlencode
 
 import pytest
+from test_local_match_capture_web import _creation_values
 
 from skatmind.app_web.context import AppWebContextV1
 from skatmind.app_web.contracts import APP_NAVIGATION_LABELS, APP_ROUTE_PATHS
@@ -234,8 +237,8 @@ def test_home_has_exact_tasks_local_no_cloud_copy_and_honest_status(
     assert "SkatMind runs locally on this computer" in html
     assert "stores no data in the cloud" in html
     assert html.count('<article class="task-card">') == 6
-    assert html.count("Available now.") == 3
-    assert html.count("not yet available") == 3
+    assert html.count("Available now.") == 6
+    assert "not yet available" not in html
     assert "Issue #" not in html
     for heading in ("What you need", "Mode", "Stored", "Result"):
         assert html.count(f"<dt>{heading}</dt>") == 6
@@ -250,7 +253,7 @@ def test_home_has_exact_tasks_local_no_cloud_copy_and_honest_status(
         assert forbidden not in html
 
 
-def test_guided_pages_are_available_and_remaining_placeholders_are_accurate(
+def test_guided_and_managed_stateful_pages_are_available(
     running_app_server: SkatMindAppWebServerV1,
 ) -> None:
     server = running_app_server
@@ -264,14 +267,250 @@ def test_guided_pages_are_available_and_remaining_placeholders_are_accurate(
         assert "Not yet available" not in html
         assert "Issue #" not in html
 
-    for route in ("/sessions", "/matches", "/learning"):
+    expected_stateful_text = {
+        "/sessions": "Create a Session",
+        "/matches": "Create a Match",
+        "/learning": "Create a Learning Corpus",
+    }
+    for route, expected in expected_stateful_text.items():
         status, _headers, body = _request(server, "GET", route, headers={"Cookie": cookie})
         assert status == 200
         html = body.decode("utf-8")
-        assert "Not yet available" in html
-        assert "<form" not in html
-        assert "/api/" not in html
+        assert expected in html
+        assert "Not yet available" not in html
         assert "Issue #" not in html
+
+
+def _post_form(
+    server: SkatMindAppWebServerV1,
+    target: str,
+    mutation_headers: dict[str, str],
+    values: dict[str, str],
+) -> tuple[int, dict[str, str], bytes]:
+    body = urlencode(values).encode("ascii")
+    return _request(
+        server,
+        "POST",
+        target,
+        headers={
+            **mutation_headers,
+            "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body=body,
+    )
+
+
+def test_managed_session_http_lifecycle_command_and_download(
+    running_app_server: SkatMindAppWebServerV1,
+) -> None:
+    server = running_app_server
+    cookie, mutation_headers = _bootstrap(server)
+    status, headers, _body = _post_form(
+        server,
+        "/sessions/create",
+        mutation_headers,
+        {
+            "session_id": "web-session",
+            "capture_mode": "retrospective",
+            "local_player_id": "",
+            "player_1_id": "alice",
+            "player_1_label": "Alice",
+            "player_2_id": "bob",
+            "player_2_label": "Bob",
+            "player_3_id": "carol",
+            "player_3_label": "Carol",
+        },
+    )
+    assert status == 303 and headers["location"] == "/sessions/current"
+    active_session = server.app_context.managed_stateful.active_session
+    assert active_session is not None
+
+    status, headers, _body = _post_form(
+        server,
+        "/sessions/command",
+        mutation_headers,
+        {
+            "managed_handle": active_session.handle,
+            "expected_revision": "0",
+            "target_revision": "",
+            "kind": "set_game_metadata",
+            "game_id": "web-game",
+            "played_at": "",
+        },
+    )
+    assert status == 303 and headers["location"] == "/sessions/current"
+    status, _headers, body = _request(
+        server,
+        "GET",
+        "/sessions/current",
+        headers={"Cookie": cookie},
+    )
+    html = body.decode("utf-8")
+    assert status == 200
+    assert "web-session" in html and "web-game" in html
+    assert html.count('action="/sessions/command"') == 10
+
+    status, headers, body = _request(
+        server,
+        "GET",
+        "/sessions/downloads/session.json",
+        headers={"Cookie": cookie},
+    )
+    assert status == 200
+    assert headers["content-disposition"].endswith('"skatmind-managed-session.json"')
+    assert json.loads(body)["state"]["revision"] == 1
+
+
+def test_managed_session_form_is_rejected_after_active_item_switch(
+    running_app_server: SkatMindAppWebServerV1,
+) -> None:
+    server = running_app_server
+    _cookie, mutation_headers = _bootstrap(server)
+    create_values = {
+        "capture_mode": "retrospective",
+        "local_player_id": "",
+        "player_1_id": "alice",
+        "player_1_label": "Alice",
+        "player_2_id": "bob",
+        "player_2_label": "Bob",
+        "player_3_id": "carol",
+        "player_3_label": "Carol",
+    }
+    status, _headers, _body = _post_form(
+        server,
+        "/sessions/create",
+        mutation_headers,
+        {**create_values, "session_id": "first-session"},
+    )
+    assert status == 303
+    first = server.app_context.managed_stateful.active_session
+    assert first is not None
+    status, _headers, _body = _post_form(
+        server,
+        "/sessions/create",
+        mutation_headers,
+        {**create_values, "session_id": "second-session"},
+    )
+    assert status == 303
+    second = server.app_context.managed_stateful.active_session
+    assert second is not None and second.handle != first.handle
+
+    status, _headers, body = _post_form(
+        server,
+        "/sessions/command",
+        mutation_headers,
+        {
+            "managed_handle": first.handle,
+            "expected_revision": "0",
+            "target_revision": "",
+            "kind": "set_game_metadata",
+            "game_id": "must-not-apply",
+            "played_at": "",
+        },
+    )
+    assert status == 409
+    assert b"This form is stale" in body
+    assert second.state.revision == 0
+
+
+def test_managed_match_learning_and_explicit_transfer_http_lifecycle(
+    running_app_server: SkatMindAppWebServerV1,
+) -> None:
+    server = running_app_server
+    cookie, mutation_headers = _bootstrap(server)
+    status, headers, _body = _post_form(
+        server,
+        "/learning/create",
+        mutation_headers,
+        {"corpus_id": "web-corpus"},
+    )
+    assert status == 303 and headers["location"] == "/learning/current"
+    learning = server.app_context.managed_stateful.active_learning
+    assert learning is not None
+
+    status, headers, _body = _post_form(
+        server,
+        "/matches/api/v1/create",
+        mutation_headers,
+        _creation_values(match_id="web-match"),
+    )
+    assert status == 303 and headers["location"] == "/matches/position/1"
+    match = server.app_context.managed_stateful.active_match
+    assert match is not None
+    status, _headers, body = _request(
+        server,
+        "GET",
+        "/matches/position/1",
+        headers={"Cookie": cookie},
+    )
+    html = body.decode("utf-8")
+    assert status == 200
+    assert html.count("<h1>") == 1
+    assert '<div id="capture-app">' in html
+    assert 'action="/matches/api/v1/operation"' in html
+    assert 'action="/matches/transfer-workspace"' in html
+    assert f'name="managed_handle" value="{match.handle}"' in html
+    assert f'name="target_managed_handle" value="{learning.handle}"' in html
+    assert "/matches/assets/capture.js" in html
+
+    status, headers, _body = _post_form(
+        server,
+        "/matches/transfer-workspace",
+        mutation_headers,
+        {
+            "managed_handle": match.handle,
+            "target_managed_handle": learning.handle,
+            "expected_catalog_revision": "0",
+            "selection_mode": "select_imported",
+            "same_revision_resolution": "reject",
+        },
+    )
+    assert status == 303 and headers["location"] == "/matches/position/1"
+    status, _headers, transfer_body = _request(
+        server,
+        "GET",
+        headers["location"],
+        headers={"Cookie": cookie},
+    )
+    assert status == 200
+    assert b"import" in transfer_body.lower()
+    assert b'name="expected_catalog_revision" value="1"' in transfer_body
+    status, _headers, body = _request(
+        server,
+        "GET",
+        "/learning/api/v1/state",
+        headers={"Cookie": cookie},
+    )
+    state = json.loads(body)
+    assert status == 200
+    assert state["corpus"]["logical_match_count"] == 1
+    assert state["current_match_snapshots"][0]["match_id"] == "web-match"
+
+    status, _headers, body = _post_form(
+        server,
+        "/matches/transfer-workspace",
+        mutation_headers,
+        {
+            "managed_handle": match.handle,
+            "target_managed_handle": learning.handle,
+            "expected_catalog_revision": "0",
+            "selection_mode": "select_imported",
+            "same_revision_resolution": "reject",
+        },
+    )
+    assert status == 409
+    assert b"revision" in body.lower()
+    assert b'name="expected_catalog_revision" value="1"' in body
+
+    status, headers, body = _request(
+        server,
+        "GET",
+        "/matches/downloads/workspace.json",
+        headers={"Cookie": cookie},
+    )
+    assert status == 200
+    assert headers["content-disposition"].endswith('"skatmind-managed-match.json"')
+    assert json.loads(body)["workspace"]["match_definition"]["match_id"] == "web-match"
 
 
 def test_about_identity_runtime_local_boundaries_and_closed_storage_disclosure(

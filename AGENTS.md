@@ -575,9 +575,11 @@ accepted blocker and two accepted major findings. Issue #209 freezes the approve
 unified local frontend and launch contract. Issue #210 implements the shell and
 managed data home. Issue #211 adds guided Position analysis, completed-game
 Review, strict optional JSON transfer, and readable process-local Results,
-further partially remediating UAT-FINDING-001 without closing it. UAT-02 through
-UAT-12 are paused, B-09 and B-07 remain open, and `v1.0.0` is not ready. Issue
-#212 is the exact next implementation action.
+further partially remediating UAT-FINDING-001 without closing it. Issue #212 adds
+managed Session, Match Capture, Learning Corpus, and explicit Match-to-Corpus
+workflows in the unified local app. UAT-02 through UAT-12 are paused, B-09 and
+B-07 remain open, and `v1.0.0` is not ready. Issue #213 is the exact next
+implementation action.
 No v1 Release title, theme, date, tag, publication commit, or production model is
 frozen.
 
@@ -874,13 +876,13 @@ merged Ubuntu CI passes. Issue #207 closes B-06. Issue #208 remains open after
 UAT-01 fails, and Issue #209 freezes the documentation-only remediation contract.
 Issue #210 implements the application shell; Issue #211 implements guided
 analysis, Historical Review, JSON transfer, and Result presentation; Issue #212
-is next. UAT-02 through UAT-12 and B-07 Release preparation remain paused.
+implements managed stateful workflows; Issue #213 is next. UAT-02 through UAT-12
+and B-07 Release preparation remain paused.
 End-to-end local Live and Retrospective Session
 capture is implemented through public file Save/Load, automatic Checkpoints,
 accepted-Log actual-card observation, isolated review, explicit analysis, the
-12-subcommand CLI, and Assistant. The unified shell has only a Session
-placeholder; Issue #212 owns Session browser operations without reopening the
-completed technical ledger.
+12-subcommand CLI, and Assistant. Issue #212 adds private unified local Session
+browser operations without reopening the completed technical ledger.
 Online-platform adapters, cloud synchronization, distributed locking,
 encryption/key management, and automatic backup policy remain absent. The
 historical published `v0.14.0` baseline

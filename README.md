@@ -703,8 +703,10 @@ Bare installed, module, and Legacy invocation now open the same private
 loopback-only shell. `skatmind app` is the explicit form. Home and About are
 complete; guided process-local Position analysis, one-Decision Post-game Review,
 normal-completion Historical entry, strict JSON import/download, and readable
-Results are available. Session, Match, and Learning lifecycles remain
-placeholders until Issue #212. See [Guided analysis and Results](docs/unified_local_frontend_guided_analysis_and_results.md)
+Results are available. Managed Session entry and execution, Match Capture,
+Learning workflows, and explicit Match-to-Corpus transfer are also available
+without normal-user paths or ports. See [Guided analysis and Results](docs/unified_local_frontend_guided_analysis_and_results.md),
+the [managed stateful workflows](docs/unified_local_frontend_stateful_workflows.md),
 and the [application shell](docs/unified_local_frontend_application_shell.md).
 
 Parse and execute an already loaded Root JSON document:
@@ -1795,12 +1797,15 @@ the unified frontend B-09 remediation; the other listed layers remain open.
 
 The current working Package `0.17.0` opens the unified local shell for bare
 installed, module, and Legacy invocation and supports explicit `skatmind app`.
-It creates only the managed data root and category directories on startup.
+It creates only the managed data root and category directories on startup;
+managed contents are discovered only when a stateful area is opened.
 Issue #211 adds process-local guided analysis/Review, the bounded
 normal-completion Historical editor, strict optional JSON transfer, and readable
-Results without implicit persistence. Session, Match, and Learning lifecycles
-remain Issue #212 placeholders; `run` and final top-level help remain Issue #213
-work. See [Guided analysis and Results](docs/unified_local_frontend_guided_analysis_and_results.md).
+Results without implicit persistence. Issue #212 adds managed Session, Match, and
+Learning lifecycles through the same authenticated server while preserving
+existing persistence and standalone advanced interfaces. `run` and final top-
+level help remain Issue #213 work. See [Guided analysis and Results](docs/unified_local_frontend_guided_analysis_and_results.md)
+and [Managed stateful workflows](docs/unified_local_frontend_stateful_workflows.md).
 
 Issue #159 synchronized the historical `v0.14.0` publication status. The
 published `v0.15.0` milestone covers usable EuroSkat 36er Standard post-game
@@ -1925,9 +1930,10 @@ without product-code change. Issue #202 closes B-02 and makes P-10 and P-13
   the 53-row ledger. Issue #208 then starts UAT; UAT-01 fails with three accepted
   findings, and UAT-02 through UAT-12 are paused. Issue #209 freezes the approved
   unified local frontend contract. Issue #210 implements the application shell,
-  and Issue #211 adds guided analysis, Historical Review, and readable Results.
-  UAT-FINDING-001 is further partially remediated but remains open. Issue #212 is
-  next. B-09 and B-07 remain open, Release
+  Issue #211 adds guided analysis, Historical Review, and readable Results, and
+  Issue #212 adds managed Session, Match, and Learning workflows.
+  UAT-FINDING-001 remains open pending repeated UAT, and Issue #212 implements
+  the Product work owned by UAT-FINDING-003. Issue #213 is next. B-09 and B-07 remain open, Release
   preparation is not ready, and no v1 Release title, theme, date, tag, or
   publication commit is frozen.
 
@@ -1939,6 +1945,7 @@ audit](docs/v1_0_scope_and_traceability_audit.md); the current conclusion is in
 the [final technical Release-readiness audit](docs/v1_0_final_technical_release_readiness_audit.md).
 The local Product entry is documented in the [application shell](docs/unified_local_frontend_application_shell.md),
 the current Analyze/Review behavior is in [Guided analysis and Results](docs/unified_local_frontend_guided_analysis_and_results.md),
+the managed Session/Match/Learning behavior is in [Managed stateful workflows](docs/unified_local_frontend_stateful_workflows.md),
 and the remaining UAT remediation architecture is in the [unified local frontend contract](docs/unified_local_frontend_contract.md).
 The Historical integration is documented in [Historical party-wide
   Claim](docs/historical_party_wide_claim.md). The private boundary is documented in [Party-wide Claim

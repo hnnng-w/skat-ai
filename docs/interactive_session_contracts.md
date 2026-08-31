@@ -436,9 +436,10 @@ Checkpoints, exports isolated post-game-review Requests, collects exact
 Checkpoints automatically, exposes public Save/Load, and provides explicit
 Session-triggered Position/Historical execution and the Assistant. Issue #158
 completed Release preparation for the functional `v0.14.0` milestone before the
-maintainer's manual publication at commit `d5589f8`. Session GUI or browser UI,
-platform adapters, cloud synchronization, distributed locking,
-encryption/key management, and unrelated pre-v1 gaps remain open. See
+maintainer's manual publication at commit `d5589f8`. Issue #212 later adds the
+private unified local Session browser adapter without changing these contracts.
+Platform adapters, cloud synchronization, distributed locking, encryption/key
+management, and unrelated pre-v1 gaps remain open. See
 [Incremental Session transitions](incremental_session_transitions.md),
 [Session Decision observations](session_decision_observations.md), and
 [Session CLI and end-to-end capture](session_cli_and_end_to_end_capture.md).

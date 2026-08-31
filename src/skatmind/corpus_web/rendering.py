@@ -2,9 +2,13 @@
 
 from __future__ import annotations
 
+import re
 from html import escape
 from importlib.resources import files
 from typing import Any
+
+_LOCAL_ROUTE_ATTRIBUTE = re.compile(r'(?P<attribute>href|action|src)="/')
+_FORM_OPEN = re.compile(r"<form\b[^>]*>")
 
 
 def _e(value: object) -> str:
@@ -318,3 +322,58 @@ def render_learning_corpus_web_page_v1(
         files("skatmind.corpus_web").joinpath("templates/page.html").read_text(encoding="utf-8")
     )
     return template.replace("{{NOTICE}}", notice_html).replace("{{CONTENT}}", body)
+
+
+def render_learning_corpus_web_body_v1(
+    state: dict[str, Any],
+    *,
+    route_prefix: str,
+    notice: str | None = None,
+    notice_kind: str = "info",
+    managed_handle: str | None = None,
+) -> str:
+    """Adapts the existing Corpus dashboard for one namespaced parent shell."""
+
+    if (
+        type(route_prefix) is not str
+        or not route_prefix.startswith("/")
+        or route_prefix.endswith("/")
+        or "?" in route_prefix
+        or "#" in route_prefix
+    ):
+        raise ValueError("route_prefix must be one absolute non-trailing route prefix.")
+    if not isinstance(state, dict):
+        raise ValueError("state must be one browser projection.")
+    if managed_handle is not None and (
+        type(managed_handle) is not str or len(managed_handle) != 64
+    ):
+        raise ValueError("managed_handle must be null or one opaque managed handle.")
+    body = (
+        _initialization()
+        if not state["initialized"]
+        else "".join(
+            (
+                _corpus_summary(state),
+                _workspace_import(state),
+                _matches(state),
+                _strategy_sources(state),
+                _preparation(state),
+            )
+        )
+    )
+    notice_html = (
+        ""
+        if notice is None
+        else f'<div class="notice {_e(notice_kind)}" role="status">{_e(notice)}</div>'
+    )
+    adapted = f'<div id="corpus-app">{notice_html}<div class="dashboard">{body}</div></div>'
+    if managed_handle is not None:
+        hidden = (
+            '<input type="hidden" name="managed_handle" '
+            f'value="{_e(managed_handle)}">'
+        )
+        adapted = _FORM_OPEN.sub(lambda match: match.group(0) + hidden, adapted)
+    return _LOCAL_ROUTE_ATTRIBUTE.sub(
+        lambda match: f'{match.group("attribute")}="{route_prefix}/',
+        adapted,
+    )

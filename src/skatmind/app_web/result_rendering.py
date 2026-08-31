@@ -70,8 +70,13 @@ def _download_links(
     page: str,
     request_download_available: bool,
     result_download_available: bool,
+    request_download_route: str | None = None,
+    result_download_route: str | None = None,
 ) -> str:
-    if page == "analyze":
+    if request_download_route is not None and result_download_route is not None:
+        request_href = request_download_route
+        result_href = result_download_route
+    elif page == "analyze":
         request_href = ANALYZE_REQUEST_DOWNLOAD_ROUTE_PATH
         result_href = ANALYZE_RESULT_DOWNLOAD_ROUTE_PATH
     else:
@@ -99,6 +104,8 @@ def render_result_presentation_v1(
     request_download_available: bool = False,
     result_download_available: bool = False,
     page: str | None = None,
+    request_download_route: str | None = None,
+    result_download_route: str | None = None,
 ) -> str:
     """Renders one browser-safe Result projection as semantic escaped HTML."""
 
@@ -113,6 +120,11 @@ def render_result_presentation_v1(
     )
     if effective_page not in {"analyze", "review"}:
         raise ValueError("page must be 'analyze' or 'review'.")
+    if (request_download_route is None) != (result_download_route is None):
+        raise ValueError("Custom Result download routes must be both present or null.")
+    for route in (request_download_route, result_download_route):
+        if route is not None and (type(route) is not str or not route.startswith("/")):
+            raise ValueError("Custom Result download routes must be absolute local routes.")
 
     rendered = []
     for index, section in enumerate(presentation.sections):
@@ -133,6 +145,8 @@ def render_result_presentation_v1(
                     page=effective_page,
                     request_download_available=request_download_available,
                     result_download_available=result_download_available,
+                    request_download_route=request_download_route,
+                    result_download_route=result_download_route,
                 )
                 + "</details>"
             )

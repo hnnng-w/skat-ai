@@ -7,6 +7,8 @@ Issue #210 implements the first executable slice of the
 is private Package behavior, not a Public API or an eighth Root workflow.
 Issue #211 now extends this shell with the separately documented
 [guided analysis and Result workflows](unified_local_frontend_guided_analysis_and_results.md).
+Issue #212 extends it with
+[managed stateful workflows](unified_local_frontend_stateful_workflows.md).
 
 The exact internal contract identities are:
 
@@ -104,13 +106,14 @@ The exact route and navigation order is:
 | `/` | Home | Complete shell dashboard |
 | `/analyze` | Analyze a position | Usable process-local guided workflow |
 | `/review` | Review a completed game | Usable process-local guided workflow |
-| `/sessions` | Sessions | HTTP-200 placeholder until Issue #212 |
-| `/matches` | Match capture | HTTP-200 placeholder until Issue #212 |
-| `/learning` | Learning & cross-game insights | HTTP-200 placeholder until Issue #212 |
+| `/sessions` | Sessions | Managed listing, lifecycle, entry, and execution |
+| `/matches` | Match capture | Managed listing and existing Capture workflow |
+| `/learning` | Learning & cross-game insights | Managed Corpus lifecycle and workflow |
 | `/about` | About SkatMind | Complete shell page |
 
-`/assets/app.css` remains the only app asset route. Authenticated private action
-and download routes for Analyze and Review are documented in
+`/assets/app.css` remains the shell asset. Existing Capture and Corpus CSS/JS are
+also served from authenticated namespaced Package routes. Authenticated private
+action and download routes for Analyze and Review are documented in
 [Guided analysis and Results](unified_local_frontend_guided_analysis_and_results.md).
 Unknown routes return `404`; unsupported methods on known routes return `405`.
 The routes are private browser transport, not a public JSON API.
@@ -152,8 +155,9 @@ The server validates exact Host and cookie header cardinality for authenticated
 requests. Mutation attempts additionally require one exact same-origin `Origin`.
 Body requests reject duplicate or missing length/type headers, transfer encoding,
 unsupported content types, short bodies, and oversized bodies. Multipart framing
-has a bounded allowance above the exact 1 MiB uploaded-JSON file limit. Token
-comparison is constant-time.
+has a bounded allowance above the exact 1 MiB guided JSON file limit. Managed
+Session/Match JSON content and existing Corpus operations retain their separate
+16 MiB boundaries. Token comparison is constant-time.
 
 All responses apply `no-store`, `nosniff`, `no-referrer`, frame denial,
 restrictive Content Security Policy, and restrictive Permissions Policy headers.
@@ -162,11 +166,12 @@ The server emits no CORS or access log and loads no external resource.
 ## Rendering and accessibility
 
 Pages are deterministic escaped server-rendered HTML with packaged local CSS.
-No JavaScript is required or currently shipped for the app. Every page has a skip
-link, semantic header/navigation/main/footer landmarks, one visible `h1`, current-
+No JavaScript is required for shell navigation or managed lifecycle forms.
+Existing packaged Capture and Corpus JavaScript remains progressive enhancement.
+Every page has a skip link, semantic header/navigation/main/footer landmarks, one visible `h1`, current-
 page indication, keyboard operation, visible focus, text status independent of
 color, and responsive layouts. Home, navigation, About, guided forms, field-linked
-errors, Result tables, downloads, placeholders, and the storage disclosure work
+errors, Result tables, downloads, managed lists, and the storage disclosure work
 without JavaScript. No raw user HTML is rendered.
 
 ## Boundaries
@@ -174,12 +179,13 @@ without JavaScript. No raw user HTML is rendered.
 Opening the app resolves and prepares storage, creates one context and server,
 and optionally opens a browser. Explicit Analyze and Review Run actions can now
 execute existing Position or Historical Application workflows exactly once.
-They retain drafts and Results only in process memory. The app still does not
-create or load Sessions, Match Workspaces, or Corpora; build Datasets; prepare
-Learning artifacts; persist Results; or scan managed contents.
+They retain drafts and Results only in process memory. Explicit managed pages can
+now discover direct children, create/open/reload Sessions, Match Workspaces, and
+Corpora, reuse existing mutations and analyses, prepare existing process-local
+Learning artifacts, and provide canonical downloads. No Result or derived
+Learning artifact gains new persistence. Discovery is explicit and bounded.
 
-Session, Match, and Learning item listing and lifecycles remain Issue #212
-placeholders. `skatmind run` and final top-level help remain Issue #213 work.
+`skatmind run` and final top-level help remain Issue #213 work.
 
 Standalone `session`, `capture`, and `corpus` commands remain supported and
 unchanged. The seven Root workflows, Public Python API, Schemas, persistence
@@ -188,12 +194,13 @@ downloads remain unchanged.
 
 ## UAT and next action
 
-Issues #210 and #211 partially remediate `UAT-FINDING-001` by adding the local
-shell, guided analysis/Review, and readable Results, but the finding remains
-open pending Issue #212. `UAT-FINDING-002` and
-`UAT-FINDING-003` remain open. UAT-01 remains failed; it is not repeated.
+Issues #210 through #212 remediate the local Product surface with the shell,
+guided analysis/Review, readable Results, and managed stateful workflows.
+`UAT-FINDING-001` remains open pending repeated UAT; Issue #212 implements the
+Product work owned by `UAT-FINDING-003`, which also remains open pending repeated
+UAT. `UAT-FINDING-002` remains open. UAT-01 remains failed; it is not repeated.
 UAT-02 through UAT-12 remain paused. B-09 and B-07 remain open, B-06 remains
 closed, and the completed 53-row technical ledger is unchanged.
 
-Issue #212, **Integrate Session, Match Capture, and Learning Corpus into the
-unified frontend**, is the exact next implementation action.
+Issue #213, **Reframe the CLI as the advanced automation interface**, is the
+exact next implementation action.

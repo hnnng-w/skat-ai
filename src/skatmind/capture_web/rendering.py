@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 from html import escape
 from importlib.resources import files
 from string import Template
@@ -10,6 +11,8 @@ from typing import Any
 
 _TEMPLATE_PACKAGE = "skatmind.capture_web"
 _TEMPLATE_NAME = "templates/page.html"
+_LOCAL_ROUTE_ATTRIBUTE = re.compile(r'(?P<attribute>href|action|src)="/')
+_FORM_OPEN = re.compile(r"<form\b[^>]*>")
 
 
 def load_match_capture_web_template_v1() -> str:
@@ -1682,3 +1685,50 @@ def render_match_capture_web_page_v1(
         NOTICE=notice_html,
         BODY=body,
     )
+
+
+def render_match_capture_web_body_v1(
+    state: dict[str, Any],
+    *,
+    route_prefix: str,
+    notice: str | None = None,
+    notice_kind: str = "info",
+    managed_handle: str | None = None,
+    additional_content: str = "",
+) -> str:
+    """Adapts the existing Capture body for one namespaced parent shell."""
+
+    if (
+        type(route_prefix) is not str
+        or not route_prefix.startswith("/")
+        or route_prefix.endswith("/")
+        or "?" in route_prefix
+        or "#" in route_prefix
+    ):
+        raise ValueError("route_prefix must be one absolute non-trailing route prefix.")
+    if managed_handle is not None and (
+        type(managed_handle) is not str or len(managed_handle) != 64
+    ):
+        raise ValueError("managed_handle must be null or one opaque managed handle.")
+    if type(additional_content) is not str:
+        raise ValueError("additional_content must be text.")
+    body = _workspace(state) if state["workspace_exists"] else _creation_form(state)
+    body = body.replace("<main class=", "<div class=", 1).replace("</main>", "</div>", 1)
+    body = body.replace("<h1", "<h2").replace("</h1>", "</h2>")
+    notice_html = (
+        ""
+        if notice is None
+        else f'<div class="notice notice-{_e(notice_kind)}" role="status">{_e(notice)}</div>'
+    )
+    body = _LOCAL_ROUTE_ATTRIBUTE.sub(
+        lambda match: f'{match.group("attribute")}="{route_prefix}/',
+        body,
+    )
+    adapted = f'<div id="capture-app">{notice_html}{body}{additional_content}</div>'
+    if managed_handle is not None:
+        hidden = (
+            '<input type="hidden" name="managed_handle" '
+            f'value="{_e(managed_handle)}">'
+        )
+        adapted = _FORM_OPEN.sub(lambda match: match.group(0) + hidden, adapted)
+    return adapted

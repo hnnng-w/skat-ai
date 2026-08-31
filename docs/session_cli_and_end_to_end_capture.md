@@ -454,6 +454,10 @@ or natural-language rule inference. Broader public provenance, Search, Claim,
 Settlement, and Coaching exposure remains separate. Root load-to-final-
 serialization provenance enforcement is complete under Issue #202.
 
+Issue #212 later adds a separate private managed browser adapter in the unified
+local app without changing this 12-subcommand CLI, Public Session API, or
+persistence format.
+
 Issue #160's internal Match Capture metadata foundation adds no Match subcommand
 and does not alter this 12-subcommand Session CLI. Later Issues #161 through #168
 add separate internal Match persistence, observed Games, private local browser,

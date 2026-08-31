@@ -614,7 +614,7 @@ Release title, theme, date, tag, and publication commit:
 
 ## Post-audit UAT note
 
-This note records later Issue #208 through #211 state without rewriting the Issue
+This note records later Issue #208 through #212 state without rewriting the Issue
 #207 technical conclusion above. Maintainer UAT began after the #207 merge and
 required CI. UAT-01 technically executed but failed user acceptance with one
 accepted blocker and two accepted major findings:
@@ -637,8 +637,11 @@ exact #210 through #213 implementation sequence. Issue #210 implements the
 [application shell](unified_local_frontend_application_shell.md) and partially
 remediates UAT-FINDING-001. Issue #211 implements
 [guided analysis and Results](unified_local_frontend_guided_analysis_and_results.md)
-and further partially remediates the finding without closing it. It does not
-repeat UAT-01 or resume UAT-02 through UAT-12. Issue #212 is the exact next
+and further partially remediates the finding without closing it. Issue #212
+implements [managed stateful workflows](unified_local_frontend_stateful_workflows.md),
+further remediates UAT-FINDING-001, and implements the Product work owned by
+UAT-FINDING-003 without closing either finding before repeated UAT. It does not
+repeat UAT-01 or resume UAT-02 through UAT-12. Issue #213 is the exact next
 implementation action.
 
 The post-audit Release-process state is:
@@ -667,7 +670,8 @@ UAT-FINDING-002:
     open
 
 UAT-FINDING-003:
-    open
+    implementation complete under Issue #212
+    remains open pending repeated UAT
 
 Release preparation:
     not ready

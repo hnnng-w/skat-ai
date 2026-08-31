@@ -176,12 +176,11 @@ and eight append-only scenarios. The `v0.14.0` Package baseline therefore has 63
 Schemas and 85 generated outputs. Issue #158 completed Package version `0.14.0`
 and Release-documentation preparation without changing product behavior. The
 maintainer subsequently published the Release manually at commit `d5589f8`.
-Session GUI/browser UI, online-platform
-adapters, browser
-extensions, website scraping, cloud synchronization, distributed locking,
-encryption/key management, and automatic backup policy remain open.
-Issue #209 later approves the local Session browser integration only as part of
-the unified frontend B-09 remediation; the other listed layers remain open.
+Issue #209 later approves private local Session browser integration as part of
+the unified frontend B-09 remediation, and Issue #212 implements that bounded
+integration. Online-platform adapters, browser extensions, website scraping,
+cloud synchronization, distributed locking, encryption/key management, and
+automatic backup policy remain open.
 
 The published `v0.15.0` milestone provides usable manual
 post-game capture of one EuroSkat 36er Standard Match from descriptive video
@@ -353,9 +352,11 @@ three accepted findings. Issue #209 freezes the approved unified local frontend
 contract as B-09 remediation outside the completed ledger. UAT-02 through UAT-12
 are paused. Issue #210 implements the shell. Issue #211 adds guided Position
 analysis, completed-game Review, strict optional JSON transfer, and readable
-process-local Results, further partially remediating UAT-FINDING-001 without
-closing it. B-09 and B-07 remain open, and Issue #212 is the exact next
-implementation action. The milestone remains not ready.
+process-local Results. Issue #212 adds managed Session, Match Capture, and
+Learning Corpus workflows plus explicit Match-to-Corpus transfer. Those Issues
+further remediate UAT-FINDING-001 without closing it. B-09 and B-07 remain open,
+and Issue #213 is the exact next implementation action. The milestone remains
+not ready.
 
 The November 2022 ISkO and SkWO publication is the normative source for official
 rules and competition behavior. Product capabilities such as simulation,
@@ -380,7 +381,7 @@ must not be presented as official-rule requirements.
 | Public field provenance | Opt-in version-1 provenance for one complete redacted Root Result and artifacts actually returned, with exact declared document scopes and recomputed coverage. | It does not expose consumed inputs, decisions, intermediate stages, unredacted internals, Confidence, or the complete internal Issue #202 lifecycle checkpoint. |
 | Public Session API | Stable `skatmind.api.v1.session` version `1` with exact immutable type identity, twelve one-call operations, strict parsing, typed Results, Decision Observation/review export, in-memory persistence build/resume, and appended stable `files` Save/Load transport. | It adds no Session Root workflow, automatic analysis after every Command, persisted analysis Result, default path, GUI, platform adapter, cloud synchronization, distributed lock, encryption, or automatic backup. |
 | Session Provenance | Default-omitted version-1 complete provenance over exactly one returned Session operation value, with engine-private redaction and recomputed coverage. | It is independent of Root Result provenance and Confidence, does not cover consumed inputs or itself, and does not widen access to private Session values. |
-| Interactive Session capture | Immutable fixed-three-player Live/Retrospective authoring State, accepted typed Log, deterministic replay/transitions, readiness, no-execution Position/Historical export, frozen Checkpoints, accepted-Log observations, isolated review, automatic collection, explicit existing-Application execution, and a phase-aware local Assistant. | Issues #150 through #157 complete the bounded local end-to-end workflow. GUI/browser UI remains absent in current behavior; Issue #209 approves future unified-frontend integration under B-09 without changing this technical row. Platform/cloud/encryption concerns remain separate. |
+| Interactive Session capture | Immutable fixed-three-player Live/Retrospective authoring State, accepted typed Log, deterministic replay/transitions, readiness, no-execution Position/Historical export, frozen Checkpoints, accepted-Log observations, isolated review, automatic collection, explicit existing-Application execution, a phase-aware local Assistant, and a private managed browser adapter. | Issues #150 through #157 complete the bounded local end-to-end contracts. Issue #212 adds unified-frontend integration under B-09 without changing the technical row or Public Session API. Platform/cloud/encryption concerns remain separate. |
 | Match Capture metadata | Internal immutable Match identity, descriptive media/manual source, reusable millisecond bounds, exact named format, three fixed-place participants, optional historical Opponent Statistics snapshots, and one perspective Match Player. | Issues #160 through #167 define, edit, persist, and prepare the value. Issue #168 consumes it for private analysis without changing persistence. Public Match API/Schema/data workflow, public or persisted Player Catalog, YouTube/EuroSkat integration, ranking, qualification, and commercial rules remain absent. |
 | Observed Game capture | Internal immutable Match-linked Game facts, exact historical seats, optional perspective hand/original Skat/Discards, zero through 30 public Plays, free-text commentary on any Player Decision, linked later responses, and deterministic evidence capabilities. | Issue #168 can analyze one safely prepared Decision or one strict Historical Game. The actual Card remains retrospective behavior evidence, not an optimal label; Commentary and Response Links remain outside analysis and Coaching. Public Match API/CLI/Schema and tactical interpretation remain absent. |
 | Private Match Workspace | Internal immutable exact 36-position EuroSkat Workspace with fixed rotation, revisions, Progress, fingerprints, strict Resume, and optimistic atomic local files. | Issue #168 derives max-eight process-local revision-scoped reports without persisting them. Applied mutation, Reload, shutdown, stale revision, and concurrent-change behavior is explicit. No distributed lock, retry/merge, remote/cloud/encryption/backup, public materialization, or Public Match API/Schema exists. |
@@ -555,10 +556,10 @@ The following directions are required for `v1.0.0`:
   transport, actual-card observation and isolated review, automatic Checkpoints,
   all 12 CLI subcommands, explicit analysis/finalization, the Assistant, six
   examples, and eight scenarios. The bounded local end-to-end capture direction
-  is implemented. Session GUI/browser UI remains absent; Issue #209 later makes
-  its unified-frontend integration required B-09 remediation outside the
-  completed 53-row technical ledger. Platform/cloud/encryption integration is
-  not a v1 requirement.
+  is implemented. Issue #209 later makes private local browser integration
+  required B-09 remediation outside the completed 53-row technical ledger, and
+  Issue #212 implements it without widening the Public Session API.
+  Platform/cloud/encryption integration is not a v1 requirement.
 * Support usable manual post-game Match capture for one EuroSkat 36er Standard
   Match from descriptive video evidence. Issue #160 implements internal
   version-1 source, timecode, named-format registry, participant, optional Player
@@ -706,8 +707,9 @@ generated outputs, and 5,892 pytest tests; the historical published `v0.13.0`
 baseline remains 62 Schemas and 77 outputs. Issue #158 completed Release
 preparation before manual maintainer publication.
 That technical ledger did not require GUI/platform/cloud/encryption layers.
-Issue #209 later adds the unified local frontend as required B-09 remediation;
-platform/cloud/encryption layers remain outside that contract.
+Issue #209 later adds the unified local frontend as required B-09 remediation,
+and Issue #212 implements the managed stateful slice; platform/cloud/encryption
+layers remain outside that contract.
 
 | Area | Observable completion condition |
 | --- | --- |
@@ -953,11 +955,12 @@ action are in the [final technical Release-readiness audit](v1_0_final_technical
 
 The historical Issue #207 conclusion remains unchanged. Its post-audit note
 records that Issue #208 UAT-01 failed, Issue #209 froze the approved
-[unified local frontend contract](unified_local_frontend_contract.md), and Issue
-#210 implemented the [application shell](unified_local_frontend_application_shell.md),
-and Issue #211 implemented [guided analysis and Results](unified_local_frontend_guided_analysis_and_results.md).
-Issue #212 is next. UAT-02 through UAT-12, B-09, B-07,
-and Package `1.0.0` preparation remain blocked or open as applicable.
+[unified local frontend contract](unified_local_frontend_contract.md), Issue #210
+implemented the [application shell](unified_local_frontend_application_shell.md),
+Issue #211 implemented [guided analysis and Results](unified_local_frontend_guided_analysis_and_results.md),
+and Issue #212 implemented [managed stateful workflows](unified_local_frontend_stateful_workflows.md).
+Issue #213 is next. UAT-02 through UAT-12, B-09, B-07, and Package `1.0.0`
+preparation remain blocked or open as applicable.
 
 `v1.0.0` is not ready while any required gate lacks evidence, any validation or
 test listed for a v1.0-required traceability row remains incomplete, any such

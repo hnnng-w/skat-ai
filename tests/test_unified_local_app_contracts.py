@@ -214,9 +214,9 @@ def test_browser_state_is_immutable_canonical_and_contains_no_private_values() -
     assert tuple(task.available for task in state.home_tasks) == (
         True,
         True,
-        False,
-        False,
-        False,
+        True,
+        True,
+        True,
         True,
     )
     document = asdict(state)
