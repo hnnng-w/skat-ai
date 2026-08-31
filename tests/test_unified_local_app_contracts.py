@@ -212,8 +212,8 @@ def test_browser_state_is_immutable_canonical_and_contains_no_private_values() -
     assert tuple(item.label for item in state.navigation) == APP_NAVIGATION_LABELS
     assert tuple(task.title for task in state.home_tasks) == APP_HOME_TASK_TITLES
     assert tuple(task.available for task in state.home_tasks) == (
-        False,
-        False,
+        True,
+        True,
         False,
         False,
         False,

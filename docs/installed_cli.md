@@ -394,8 +394,9 @@ files and explicit JSON outputs remain private caller-controlled data; concise
 human output does not print complete private hands, full Skat, frozen Requests,
 fingerprints, provenance entries, or file contents by default. The Match and
 Learning Corpus browsers are private loopback-only local transports. The current
-Package includes the unified local application shell, but Session,
-Match, and Learning lifecycles remain Issue #212 placeholders. Hosted or remote
+Package includes the unified local application shell and process-local guided
+Analyze/Review workflows, but Session, Match, and Learning lifecycles remain
+Issue #212 placeholders. Hosted or remote
 browser deployment, online-platform integration, cloud synchronization,
 distributed locking, encryption/key management, and automatic backups remain
 open.

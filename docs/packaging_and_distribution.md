@@ -285,7 +285,9 @@ verifies:
   launch options and invocation identities;
 * packaged app resources load byte-for-byte, and one isolated in-process app
   server creates only the three managed categories, authenticates all seven
-  routes, serves local CSS, exposes no Product operation endpoint, and shuts down;
+  navigation routes, serves local CSS, executes one guided Analyze action,
+  downloads its retained Request/Result bytes, enters guided Review, and shuts
+  down;
 * Session `new`, `apply`, and `show` operate through a caller-selected file;
 * Session-triggered Position analysis, Checkpoint observation/review, and
   Retrospective finalization reuse the existing Application workflows;

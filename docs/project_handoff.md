@@ -1745,7 +1745,13 @@ ledger. Issue #206 adds exact direct dependency floors, resolved source/Editable
 Wheel/sdist evidence, minimum Wheel/sdist evidence, and separate Windows/Ubuntu
 matrix execution. It makes P-34 `satisfied` and closes B-05 after both merged
 Ubuntu jobs pass. Issue #207 closes B-06 with no material technical blocker.
-B-09 and B-07 remain. Issue #208 then starts maintainer UAT; UAT-01 fails with one accepted blocker and two accepted major findings. Issue #209 freezes the approved unified local frontend and launch contract. Issue #210 implements the shell and partially remediates UAT-FINDING-001 without closing it. UAT-02 through UAT-12 are paused, and Issue #211 is the exact next implementation action.
+B-09 and B-07 remain. Issue #208 then starts maintainer UAT; UAT-01
+fails with one accepted blocker and two accepted major findings. Issue #209
+freezes the approved unified local frontend and launch contract. Issue #210
+implements the shell, and Issue #211 adds guided Position analysis, completed-
+game Review, strict optional JSON transfer, and readable process-local Results.
+UAT-FINDING-001 is further partially remediated but remains open. UAT-02 through
+UAT-12 are paused, and Issue #212 is the exact next implementation action.
 
 Historical published Package milestone: `v0.15.0`, providing usable manual post-
 game capture of one EuroSkat 36er Standard Match from descriptive video evidence.
@@ -2336,12 +2342,13 @@ Completed implementation scope:
 
 ## Next recommended action
 
-Implement Issue #211, **Add guided position analysis, completed-game review, and
-Result presentation**, after Issue #210 and its required checks are green. Issue
-#210 adds bare/explicit shell launch, the managed data home, Home, navigation,
-About, secure local serving, packaged assets, and placeholders. See the
-[application shell](unified_local_frontend_application_shell.md) and authoritative
-[unified local frontend contract](unified_local_frontend_contract.md).
+Implement Issue #212, **Integrate Session, Match Capture, and Learning Corpus
+into the unified frontend**, after Issue #211 and its required checks are green.
+Issues #210 and #211 add bare/explicit shell launch, the managed data home, Home,
+navigation, About, secure local serving, guided analysis/Review, strict optional
+JSON transfer, readable Results, packaged assets, and the remaining lifecycle
+placeholders. See [Guided analysis and Results](unified_local_frontend_guided_analysis_and_results.md)
+and the authoritative [unified local frontend contract](unified_local_frontend_contract.md).
 
 Issues #201 through #203 close B-01 through B-03. Issue #204 applies the exact
 `AGPL-3.0-only` Package boundary and closes B-04 without changing product
@@ -2349,8 +2356,9 @@ behavior. Issue #205 completes the SkatMind identity and migration boundary,
 makes P-09 `satisfied`, and closes B-08. #206 closes B-05 after its installation/
 platform evidence and merged jobs pass. #207 finds no material technical blocker
 and closes B-06. #208 remains open and owns the separate B-09 maintainer-UAT
-Gate outside the 53-row ledger. Issue #210 partially remediates UAT-FINDING-001
-without closing it; all three findings remain open. UAT-01 failed; UAT-02 through
+Gate outside the 53-row ledger. Issues #210 and #211 partially remediate
+UAT-FINDING-001 without closing it; all three findings remain open. UAT-01
+failed; UAT-02 through
 UAT-12 are paused until #211 through #213 complete and repeated UAT-01 passes. B-07 Release
 preparation remains open and not ready. The published functional history remains
 Issues #182 through #196;

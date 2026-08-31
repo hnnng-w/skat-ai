@@ -351,9 +351,11 @@ B-05 after both merged Ubuntu jobs pass. Issue #207 finds no material technical
 blocker and closes B-06. Issue #208 then begins maintainer UAT; UAT-01 fails with
 three accepted findings. Issue #209 freezes the approved unified local frontend
 contract as B-09 remediation outside the completed ledger. UAT-02 through UAT-12
-are paused. Issue #210 implements the shell and partially remediates
-UAT-FINDING-001 without closing it. B-09 and B-07 remain open, and Issue #211 is
-the exact next implementation action. The milestone remains not ready.
+are paused. Issue #210 implements the shell. Issue #211 adds guided Position
+analysis, completed-game Review, strict optional JSON transfer, and readable
+process-local Results, further partially remediating UAT-FINDING-001 without
+closing it. B-09 and B-07 remain open, and Issue #212 is the exact next
+implementation action. The milestone remains not ready.
 
 The November 2022 ISkO and SkWO publication is the normative source for official
 rules and competition behavior. Product capabilities such as simulation,
@@ -952,8 +954,9 @@ action are in the [final technical Release-readiness audit](v1_0_final_technical
 The historical Issue #207 conclusion remains unchanged. Its post-audit note
 records that Issue #208 UAT-01 failed, Issue #209 froze the approved
 [unified local frontend contract](unified_local_frontend_contract.md), and Issue
-#210 implemented the [application shell](unified_local_frontend_application_shell.md).
-Issue #211 is next. UAT-02 through UAT-12, B-09, B-07,
+#210 implemented the [application shell](unified_local_frontend_application_shell.md),
+and Issue #211 implemented [guided analysis and Results](unified_local_frontend_guided_analysis_and_results.md).
+Issue #212 is next. UAT-02 through UAT-12, B-09, B-07,
 and Package `1.0.0` preparation remain blocked or open as applicable.
 
 `v1.0.0` is not ready while any required gate lacks evidence, any validation or

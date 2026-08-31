@@ -701,9 +701,11 @@ skatmind
 
 Bare installed, module, and Legacy invocation now open the same private
 loopback-only shell. `skatmind app` is the explicit form. Home and About are
-complete; guided analysis and Review remain placeholders until Issue #211, and
-Session, Match, and Learning lifecycles remain placeholders until Issue #212.
-See [Unified local frontend application shell](docs/unified_local_frontend_application_shell.md).
+complete; guided process-local Position analysis, one-Decision Post-game Review,
+normal-completion Historical entry, strict JSON import/download, and readable
+Results are available. Session, Match, and Learning lifecycles remain
+placeholders until Issue #212. See [Guided analysis and Results](docs/unified_local_frontend_guided_analysis_and_results.md)
+and the [application shell](docs/unified_local_frontend_application_shell.md).
 
 Parse and execute an already loaded Root JSON document:
 
@@ -1794,9 +1796,11 @@ the unified frontend B-09 remediation; the other listed layers remain open.
 The current working Package `0.17.0` opens the unified local shell for bare
 installed, module, and Legacy invocation and supports explicit `skatmind app`.
 It creates only the managed data root and category directories on startup.
-Guided analysis/Review remain Issue #211 placeholders; Session, Match, and
-Learning lifecycles remain Issue #212 placeholders; `run` and final top-level
-help remain Issue #213 work. See the [application shell](docs/unified_local_frontend_application_shell.md).
+Issue #211 adds process-local guided analysis/Review, the bounded
+normal-completion Historical editor, strict optional JSON transfer, and readable
+Results without implicit persistence. Session, Match, and Learning lifecycles
+remain Issue #212 placeholders; `run` and final top-level help remain Issue #213
+work. See [Guided analysis and Results](docs/unified_local_frontend_guided_analysis_and_results.md).
 
 Issue #159 synchronized the historical `v0.14.0` publication status. The
 published `v0.15.0` milestone covers usable EuroSkat 36er Standard post-game
@@ -1920,8 +1924,10 @@ without product-code change. Issue #202 closes B-02 and makes P-10 and P-13
   blocker, and closes B-06. The separate B-09 maintainer-UAT Gate sits outside
   the 53-row ledger. Issue #208 then starts UAT; UAT-01 fails with three accepted
   findings, and UAT-02 through UAT-12 are paused. Issue #209 freezes the approved
-  unified local frontend contract. Issue #210 implements the application shell
-  and partially remediates UAT-FINDING-001 without closing it. Issue #211 is next. B-09 and B-07 remain open, Release
+  unified local frontend contract. Issue #210 implements the application shell,
+  and Issue #211 adds guided analysis, Historical Review, and readable Results.
+  UAT-FINDING-001 is further partially remediated but remains open. Issue #212 is
+  next. B-09 and B-07 remain open, Release
   preparation is not ready, and no v1 Release title, theme, date, tag, or
   publication commit is frozen.
 
@@ -1932,6 +1938,7 @@ The required-row classifications are in the [scope and traceability
 audit](docs/v1_0_scope_and_traceability_audit.md); the current conclusion is in
 the [final technical Release-readiness audit](docs/v1_0_final_technical_release_readiness_audit.md).
 The local Product entry is documented in the [application shell](docs/unified_local_frontend_application_shell.md),
+the current Analyze/Review behavior is in [Guided analysis and Results](docs/unified_local_frontend_guided_analysis_and_results.md),
 and the remaining UAT remediation architecture is in the [unified local frontend contract](docs/unified_local_frontend_contract.md).
 The Historical integration is documented in [Historical party-wide
   Claim](docs/historical_party_wide_claim.md). The private boundary is documented in [Party-wide Claim

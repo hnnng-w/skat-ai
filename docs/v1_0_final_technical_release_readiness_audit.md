@@ -614,7 +614,7 @@ Release title, theme, date, tag, and publication commit:
 
 ## Post-audit UAT note
 
-This note records later Issue #208 through #210 state without rewriting the Issue
+This note records later Issue #208 through #211 state without rewriting the Issue
 #207 technical conclusion above. Maintainer UAT began after the #207 merge and
 required CI. UAT-01 technically executed but failed user acceptance with one
 accepted blocker and two accepted major findings:
@@ -635,8 +635,11 @@ Issue #209 freezes the approved
 [unified local frontend contract](unified_local_frontend_contract.md) and the
 exact #210 through #213 implementation sequence. Issue #210 implements the
 [application shell](unified_local_frontend_application_shell.md) and partially
-remediates UAT-FINDING-001 without closing it. It does not repeat UAT-01 or resume
-UAT-02 through UAT-12. Issue #211 is the exact next implementation action.
+remediates UAT-FINDING-001. Issue #211 implements
+[guided analysis and Results](unified_local_frontend_guided_analysis_and_results.md)
+and further partially remediates the finding without closing it. It does not
+repeat UAT-01 or resume UAT-02 through UAT-12. Issue #212 is the exact next
+implementation action.
 
 The post-audit Release-process state is:
 

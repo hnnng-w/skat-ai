@@ -5,6 +5,8 @@
 Issue #210 implements the first executable slice of the
 [unified local frontend contract](unified_local_frontend_contract.md). The shell
 is private Package behavior, not a Public API or an eighth Root workflow.
+Issue #211 now extends this shell with the separately documented
+[guided analysis and Result workflows](unified_local_frontend_guided_analysis_and_results.md).
 
 The exact internal contract identities are:
 
@@ -97,19 +99,21 @@ Capture or Corpus servers.
 
 The exact route and navigation order is:
 
-| Route | Label | Issue #210 state |
+| Route | Label | Current state |
 | --- | --- | --- |
 | `/` | Home | Complete shell dashboard |
-| `/analyze` | Analyze a position | HTTP-200 placeholder until Issue #211 |
-| `/review` | Review a completed game | HTTP-200 placeholder until Issue #211 |
+| `/analyze` | Analyze a position | Usable process-local guided workflow |
+| `/review` | Review a completed game | Usable process-local guided workflow |
 | `/sessions` | Sessions | HTTP-200 placeholder until Issue #212 |
 | `/matches` | Match capture | HTTP-200 placeholder until Issue #212 |
 | `/learning` | Learning & cross-game insights | HTTP-200 placeholder until Issue #212 |
 | `/about` | About SkatMind | Complete shell page |
 
-`/assets/app.css` is the only current app asset route. Unknown routes return
-`404`; unsupported methods on known routes return `405`. There is no Product
-operation endpoint.
+`/assets/app.css` remains the only app asset route. Authenticated private action
+and download routes for Analyze and Review are documented in
+[Guided analysis and Results](unified_local_frontend_guided_analysis_and_results.md).
+Unknown routes return `404`; unsupported methods on known routes return `405`.
+The routes are private browser transport, not a public JSON API.
 
 The Home dashboard contains the exact ordered tasks:
 
@@ -147,8 +151,9 @@ either standalone server.
 The server validates exact Host and cookie header cardinality for authenticated
 requests. Mutation attempts additionally require one exact same-origin `Origin`.
 Body requests reject duplicate or missing length/type headers, transfer encoding,
-unsupported content types, short bodies, and bodies over 1 MiB. Token comparison
-is constant-time.
+unsupported content types, short bodies, and oversized bodies. Multipart framing
+has a bounded allowance above the exact 1 MiB uploaded-JSON file limit. Token
+comparison is constant-time.
 
 All responses apply `no-store`, `nosniff`, `no-referrer`, frame denial,
 restrictive Content Security Policy, and restrictive Permissions Policy headers.
@@ -160,21 +165,21 @@ Pages are deterministic escaped server-rendered HTML with packaged local CSS.
 No JavaScript is required or currently shipped for the app. Every page has a skip
 link, semantic header/navigation/main/footer landmarks, one visible `h1`, current-
 page indication, keyboard operation, visible focus, text status independent of
-color, and responsive layouts. Home, navigation, About, placeholders, errors,
-and the storage disclosure work without JavaScript. No raw user HTML is rendered.
+color, and responsive layouts. Home, navigation, About, guided forms, field-linked
+errors, Result tables, downloads, placeholders, and the storage disclosure work
+without JavaScript. No raw user HTML is rendered.
 
 ## Boundaries
 
-Opening the app only resolves and prepares storage, creates one context and
-server, optionally opens a browser, and serves shell pages. It does not execute
-Application workflows; create or load Sessions, Match Workspaces, or Corpora; run
-Search; build Datasets; prepare Learning artifacts; persist Results; generate
-Product IDs; or scan managed contents.
+Opening the app resolves and prepares storage, creates one context and server,
+and optionally opens a browser. Explicit Analyze and Review Run actions can now
+execute existing Position or Historical Application workflows exactly once.
+They retain drafts and Results only in process memory. The app still does not
+create or load Sessions, Match Workspaces, or Corpora; build Datasets; prepare
+Learning artifacts; persist Results; or scan managed contents.
 
-Guided analysis, completed-game Review, and Result presentation remain Issue #211
-placeholders. Session, Match, and Learning item listing and lifecycles remain
-Issue #212 placeholders. JSON import/export, Advanced Settings, `skatmind run`,
-and final top-level help are not implemented by Issue #210.
+Session, Match, and Learning item listing and lifecycles remain Issue #212
+placeholders. `skatmind run` and final top-level help remain Issue #213 work.
 
 Standalone `session`, `capture`, and `corpus` commands remain supported and
 unchanged. The seven Root workflows, Public Python API, Schemas, persistence
@@ -183,11 +188,12 @@ downloads remain unchanged.
 
 ## UAT and next action
 
-Issue #210 partially remediates `UAT-FINDING-001` by adding the actual local
-application shell, but the finding remains open. `UAT-FINDING-002` and
+Issues #210 and #211 partially remediate `UAT-FINDING-001` by adding the local
+shell, guided analysis/Review, and readable Results, but the finding remains
+open pending Issue #212. `UAT-FINDING-002` and
 `UAT-FINDING-003` remain open. UAT-01 remains failed; it is not repeated.
 UAT-02 through UAT-12 remain paused. B-09 and B-07 remain open, B-06 remains
 closed, and the completed 53-row technical ledger is unchanged.
 
-Issue #211, **Add guided position analysis, completed-game review, and Result
-presentation**, is the exact next implementation action.
+Issue #212, **Integrate Session, Match Capture, and Learning Corpus into the
+unified frontend**, is the exact next implementation action.

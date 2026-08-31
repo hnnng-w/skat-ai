@@ -980,7 +980,16 @@ from urllib.parse import urlencode
 import skatmind
 import skatmind.errors as public_errors
 from skatmind.app_web.context import AppWebContextV1
+from skatmind.app_web.guided_contracts import GUIDED_ANALYSIS_FRONTEND_VERSION
+from skatmind.app_web.json_transfer import (
+    build_frontend_request_json_bytes_v1,
+    build_frontend_result_json_bytes_v1,
+)
 from skatmind.app_web.managed_data import prepare_managed_home_v1
+from skatmind.app_web.position_form import (
+    build_guided_position_execution_v1,
+    parse_position_form_v1,
+)
 from skatmind.app_web.server import start_app_web_server_v1
 from skatmind.api.v1 import (
     ExecutionOptionsV1,
@@ -1175,6 +1184,11 @@ try:
     assert status == 303 and content == b"" and headers["Location"] == "/"
     app_cookie = headers["Set-Cookie"].split(";", 1)[0]
     app_get_headers = {"Host": app_host, "Cookie": app_cookie}
+    app_post_headers = {
+        **app_get_headers,
+        "Origin": f"http://{app_host}",
+        "Content-Type": "application/x-www-form-urlencoded",
+    }
     for app_route in (
         "/",
         "/analyze",
@@ -1192,6 +1206,74 @@ try:
         assert status == 200 and b"<h1>" in content
         assert response_headers["Cache-Control"] == "no-store"
         assert b"app-distribution-token" not in content
+    assert GUIDED_ANALYSIS_FRONTEND_VERSION == 1
+    guided_draft = parse_position_form_v1(
+        {
+            "game_type": ["grand"],
+            "player_role": ["declarer"],
+            "player_position": ["forehand"],
+            "trick_leader": ["me"],
+            "hand": ["CJ", "CA", "C10", "CK", "CQ", "C9", "C8", "C7", "SA", "S10"],
+            "sample_count": ["1"],
+        }
+    )
+    guided_request, guided_options = build_guided_position_execution_v1(guided_draft)
+    assert guided_request.workflow is WorkflowV1.POSITION_ANALYSIS
+    assert guided_options.validate_output is True
+    guided_result = execute_document(
+        guided_request.to_dict()["document"],
+        options=guided_options,
+        input_reference="memory://skatmind/app/analyze",
+    )
+    expected_guided_downloads = (
+        (
+            "/downloads/analyze/request.json",
+            build_frontend_request_json_bytes_v1(guided_request),
+        ),
+        (
+            "/downloads/analyze/result.json",
+            build_frontend_result_json_bytes_v1(guided_result),
+        ),
+    )
+    guided_run_body = urlencode(
+        {
+            "revision": "0",
+            "game_type": "grand",
+            "player_role": "declarer",
+            "player_position": "forehand",
+            "declarer_player": "me",
+            "trick_leader": "me",
+            "hand": ["CJ", "CA", "C10", "CK", "CQ", "C9", "C8", "C7", "SA", "S10"],
+            "sample_count": "1",
+        },
+        doseq=True,
+    ).encode("ascii")
+    status, headers, content = app_request(
+        "POST",
+        "/actions/analyze/run-guided",
+        headers=app_post_headers,
+        body=guided_run_body,
+    )
+    assert status == 303 and headers["Location"] == "/analyze" and content == b""
+    for path, expected_content in expected_guided_downloads:
+        status, response_headers, content = app_request(
+            "GET",
+            path,
+            headers=app_get_headers,
+        )
+        assert status == 200
+        assert response_headers["Content-Type"] == "application/json; charset=utf-8"
+        assert content == expected_content
+    review_start_body = urlencode({"revision": 0}).encode("ascii")
+    status, headers, content = app_request(
+        "POST",
+        "/actions/review/start",
+        headers=app_post_headers,
+        body=review_start_body,
+    )
+    assert status == 303 and headers["Location"] == "/review" and content == b""
+    status, _, content = app_request("GET", "/review", headers=app_get_headers)
+    assert status == 200 and b"Step 1 of 7" in content
     status, _, content = app_request(
         "GET",
         "/assets/app.css",

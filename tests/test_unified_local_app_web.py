@@ -234,9 +234,9 @@ def test_home_has_exact_tasks_local_no_cloud_copy_and_honest_status(
     assert "SkatMind runs locally on this computer" in html
     assert "stores no data in the cloud" in html
     assert html.count('<article class="task-card">') == 6
-    assert html.count("Guided workflow not yet available") == 2
-    assert html.count("Planned for Issue #212") == 3
-    assert "Available now." in html
+    assert html.count("Available now.") == 3
+    assert html.count("not yet available") == 3
+    assert "Issue #" not in html
     for heading in ("What you need", "Mode", "Stored", "Result"):
         assert html.count(f"<dt>{heading}</dt>") == 6
     for forbidden in (
@@ -250,26 +250,28 @@ def test_home_has_exact_tasks_local_no_cloud_copy_and_honest_status(
         assert forbidden not in html
 
 
-def test_placeholders_are_http_200_accurate_and_have_no_operation_controls(
+def test_guided_pages_are_available_and_remaining_placeholders_are_accurate(
     running_app_server: SkatMindAppWebServerV1,
 ) -> None:
     server = running_app_server
     cookie, _mutation_headers = _bootstrap(server)
-    expected_issue = {
-        "/analyze": "Issue #211",
-        "/review": "Issue #211",
-        "/sessions": "Issue #212",
-        "/matches": "Issue #212",
-        "/learning": "Issue #212",
-    }
-    for route, issue in expected_issue.items():
+    for route in ("/analyze", "/review"):
+        status, _headers, body = _request(server, "GET", route, headers={"Cookie": cookie})
+        assert status == 200
+        html = body.decode("utf-8")
+        assert "Process-local only" in html
+        assert "<form" in html
+        assert "Not yet available" not in html
+        assert "Issue #" not in html
+
+    for route in ("/sessions", "/matches", "/learning"):
         status, _headers, body = _request(server, "GET", route, headers={"Cookie": cookie})
         assert status == 200
         html = body.decode("utf-8")
         assert "Not yet available" in html
-        assert issue in html
         assert "<form" not in html
         assert "/api/" not in html
+        assert "Issue #" not in html
 
 
 def test_about_identity_runtime_local_boundaries_and_closed_storage_disclosure(
@@ -500,6 +502,8 @@ def test_body_header_cardinality_transfer_encoding_type_and_size_limits(
     for headers, expected_status in cases:
         status, _response_headers, _body = _raw_request(server, "POST", "/", headers)
         assert status == expected_status
+
+    assert APP_WEB_MAX_REQUEST_BYTES > 1_048_576
 
 
 def test_short_request_body_is_rejected(

@@ -632,6 +632,14 @@ def test_corpus_web_layering_and_execution_boundaries() -> None:
 
 def test_app_web_layering_and_startup_execution_boundaries() -> None:
     app_root = SOURCE_ROOT / "app_web"
+    public_api_adapters = {
+        "execution.py",
+        "historical_form.py",
+        "json_transfer.py",
+        "position_form.py",
+        "result_presentation.py",
+        "workflow_state.py",
+    }
     forbidden = (
         "skatmind.application",
         "skatmind.api",
@@ -654,6 +662,14 @@ def test_app_web_layering_and_startup_execution_boundaries() -> None:
             else:
                 continue
             for module_name in imported:
+                if (
+                    path.name in public_api_adapters
+                    and (
+                        module_name == "skatmind.api.v1"
+                        or module_name.startswith("skatmind.api.v1.")
+                    )
+                ):
+                    continue
                 if any(
                     module_name == blocked or module_name.startswith(f"{blocked}.")
                     for blocked in forbidden

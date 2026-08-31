@@ -5,9 +5,10 @@
 This document is the authoritative version-1 Product and architecture contract
 for the unified local SkatMind frontend and its application-launch boundary.
 Issue #209 froze this contract in response to the accepted Issue #208 UAT
-findings. Issue #210 now implements launch routing, the managed home, Home,
+findings. Issue #210 implements launch routing, the managed home, Home,
 navigation, About, secure serving, packaged assets, and honest placeholders.
-Issues #211 through #213 retain their frozen ownership below.
+Issue #211 implements guided Analyze/Review and Result presentation. Issues #212
+and #213 retain their frozen ownership below.
 
 The three states in this document must remain distinct:
 
@@ -19,13 +20,13 @@ Approved target contract:
     the complete required behavior frozen by Issue #209, partly implemented
 
 Future implementation ownership:
-    the remaining focused work assigned to Issues #211 through #213
+    the remaining focused work assigned to Issues #212 and #213
 ```
 
 Current executable contracts, Public APIs, persistence formats, browser
 protocols, Schemas, and information controls remain authoritative while the
-remaining target is implemented. Issue #209 changed none of them; Issue #210
-adds only its private shell boundary.
+remaining target is implemented. Issue #209 changed none of them; Issues #210
+and #211 add only their private frontend boundaries.
 
 ## UAT source
 
@@ -122,8 +123,9 @@ skatmind corpus --corpus PATH ...
 `python main.py` remains the Legacy facade. Match Capture and Learning Corpus
 retain separate advanced server contexts, bootstrap URLs, cookies, navigation,
 and process entries. The unified shell and `app` command now exist with one
-managed root and shared shell navigation. The `run` command, guided Product
-workflows, managed item lifecycles, and Session browser operations do not yet exist.
+managed root and shared shell navigation. Guided Position/Historical workflows,
+strict optional JSON transfer, and readable Results now exist. The `run` command,
+managed item lifecycles, and Session browser operations do not yet exist.
 
 These current commands remain the accurate instructions until their owning
 implementation Issues complete.
@@ -685,13 +687,15 @@ UAT-FINDING-003:
     primary remediation in Issue #212
 ```
 
-Issue #210 implements its assigned shell slice. Issue #211 is the exact next
-implementation action. See [Unified local frontend application shell](unified_local_frontend_application_shell.md)
-for the implemented boundary and validation evidence.
+Issues #210 and #211 implement their assigned shell and guided-workflow slices.
+Issue #212 is the exact next implementation action. See
+[Unified local frontend application shell](unified_local_frontend_application_shell.md)
+and [Guided analysis and Results](unified_local_frontend_guided_analysis_and_results.md)
+for the implemented boundaries.
 
 ## UAT repetition and Release state
 
-The post-Issue-#210 state is:
+The post-Issue-#211 state is:
 
 ```text
 Issue #208:
@@ -710,7 +714,7 @@ B-07:
     open
 
 UAT-FINDING-001:
-    partially remediated by the application shell
+    further partially remediated by guided analysis, Review, and Results
     remains open
 
 UAT-FINDING-002:

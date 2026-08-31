@@ -5,6 +5,8 @@ from importlib.resources import files
 from pathlib import Path
 
 from .contracts import APP_ROUTE_PATHS, BrowserSafeApplicationStateV1
+from .guided_rendering import render_analyze_workflow_v1, render_review_workflow_v1
+from .workflow_state import ProcessLocalFrontendWorkflowStateV1
 
 
 def _template() -> str:
@@ -58,32 +60,31 @@ def _placeholder(route: str) -> tuple[str, str]:
     pages = {
         "/analyze": (
             "Analyze a position",
-            "Guided position analysis is not available in this shell yet. Issue #211 will "
-            "add the guided inputs and readable Result presentation. The advanced Root CLI "
-            "and Public Python API remain available.",
+            "Guided position analysis is available from the Analyze page.",
         ),
         "/review": (
             "Review a completed game",
-            "Guided completed-game Review is not available in this shell yet. Issue #211 "
-            "will add the guided retrospective workflow and readable Results. The advanced "
-            "Root CLI and Public Python API remain available.",
+            "Guided completed-game Review is available from the Review page.",
         ),
         "/sessions": (
             "Sessions",
             "Creating, opening, and resuming managed Sessions is not available in this shell "
-            "yet. Issue #212 will add that lifecycle. The existing advanced Session CLI "
+            "yet. A later frontend update will add that lifecycle. The existing advanced "
+            "Session CLI "
             "remains available.",
         ),
         "/matches": (
             "Match capture",
-            "Managed Match listing and capture are not available in this shell yet. Issue "
-            "#212 will integrate that lifecycle. The standalone advanced Capture interface "
+            "Managed Match listing and capture are not available in this shell yet. A later "
+            "frontend update will integrate that lifecycle. The standalone advanced Capture "
+            "interface "
             "remains available.",
         ),
         "/learning": (
             "Learning & cross-game insights",
             "Managed Corpus listing and Learning workflows are not available in this shell "
-            "yet. Issue #212 will integrate that lifecycle. The standalone advanced Corpus "
+            "yet. A later frontend update will integrate that lifecycle. The standalone advanced "
+            "Corpus "
             "interface remains available.",
         ),
     }
@@ -141,6 +142,8 @@ def render_app_page_v1(
     route: str,
     *,
     storage_root: Path | None = None,
+    analyze_state: ProcessLocalFrontendWorkflowStateV1 | None = None,
+    review_state: ProcessLocalFrontendWorkflowStateV1 | None = None,
 ) -> str:
     if type(state) is not BrowserSafeApplicationStateV1:
         raise ValueError("state must be an exact browser-safe application state.")
@@ -148,8 +151,22 @@ def render_app_page_v1(
         raise ValueError("route must be a canonical application route.")
     if route != "/about" and storage_root is not None:
         raise ValueError("Private storage Path is allowed only on About.")
+    if analyze_state is not None and type(analyze_state) is not ProcessLocalFrontendWorkflowStateV1:
+        raise ValueError("analyze_state must be exact process-local workflow state.")
+    if review_state is not None and type(review_state) is not ProcessLocalFrontendWorkflowStateV1:
+        raise ValueError("review_state must be exact process-local workflow state.")
     if route == "/":
         title, content = _home(state)
+    elif route == "/analyze":
+        title = "Analyze a position"
+        content = render_analyze_workflow_v1(
+            analyze_state or ProcessLocalFrontendWorkflowStateV1()
+        )
+    elif route == "/review":
+        title = "Review a completed game"
+        content = render_review_workflow_v1(
+            review_state or ProcessLocalFrontendWorkflowStateV1()
+        )
     elif route == "/about":
         if not isinstance(storage_root, Path):
             raise ValueError("About rendering requires one private storage Path.")
@@ -164,10 +181,10 @@ def render_app_page_v1(
         "{{CONTENT}}": content,
     }
     rendered = _template()
+    if any(marker not in rendered for marker in replacements):
+        raise RuntimeError("Application template is missing a required marker.")
     for marker, value in replacements.items():
         rendered = rendered.replace(marker, value)
-    if "{{" in rendered or "}}" in rendered:
-        raise RuntimeError("Application template contains unresolved markers.")
     return rendered
 
 

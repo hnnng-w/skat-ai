@@ -157,11 +157,13 @@ with three accepted findings, and UAT-02 through UAT-12 are paused.
 Issue #210 implements the first [unified local frontend](unified_local_frontend_application_shell.md)
 slice: one foreground process, one `127.0.0.1` server on an operating-system-
 selected port, one authenticated browser session, one navigation, and one
-managed data root. It does not yet call the transport-free Application, Session,
-Match, or Corpus operations and does not proxy or iframe standalone servers.
-Bare installed/module/Legacy dispatch and explicit `app` now launch the shell;
-explicit Session, Capture, Corpus, and Root paths remain supported. Issue #211 is
-next; B-09 and B-07 remain open.
+managed data root. Issue #211 adds private process-local guided Position and
+Historical form translation, strict in-memory JSON transfer, one-call Public
+Application execution, retained immutable Results, and public-Result-only
+presentation. It is documented in [Guided analysis and Results](unified_local_frontend_guided_analysis_and_results.md).
+The shell still does not call Session, Match, or Corpus operations and does not
+proxy or iframe standalone servers. Explicit Session, Capture, Corpus, and Root
+paths remain supported. Issue #212 is next; B-09 and B-07 remain open.
 
 Issues #160 through #168 form the published `v0.15.0` Package baseline, and Issue
 #169 updated only Package/release metadata and documentation to complete Release
