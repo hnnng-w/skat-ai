@@ -222,6 +222,7 @@ Before larger changes, read the relevant documentation:
 * `docs/schema_validation.md`
 * `docs/requirements_traceability.md`
 * `docs/v1_scope.md`
+* `docs/bilingual_profile_driven_frontend_ux_contract.md`
 
 Do not assume old behavior if documentation or tests say otherwise.
 
@@ -580,16 +581,19 @@ managed Session, Match Capture, Learning Corpus, and explicit Match-to-Corpus
 workflows in the unified local app. UAT-02 through UAT-12 are paused, B-09 and
 B-07 remain open, and `v1.0.0` is not ready. Issue #213 implements canonical
 `run`, Product-oriented top-level help, and advanced Root automation help.
-Repeated UAT-01 then exposes UAT-FINDING-004: the local browser surfaces combine
+Repeated UAT-01 then exposed UAT-FINDING-004: the local browser surfaces combined
 `Referrer-Policy: no-referrer` with strict concrete-Origin mutation validation,
-so browser form POSTs serialize `Origin: null` and are rejected. Issue #214
-changes the unified app, standalone Capture, and standalone Corpus to
-`Referrer-Policy: origin`, retains strict null/forged-Origin rejection, and adds
-the unified app's value-free HTML 403 response. Issue #214 and all findings
-remain open pending maintainer Edge verification from a fresh normal non-Editable
-installation. Repeated UAT-01 is blocked pending that verification.
-No v1 Release title, theme, date, tag, publication commit, or production model is
-frozen.
+so browser form POSTs serialized `Origin: null` and were rejected. Issue #214
+changed the unified app, standalone Capture, and standalone Corpus to
+`Referrer-Policy: origin`, retained strict null/forged-Origin rejection, and
+added the unified app's value-free HTML 403 response. Maintainer Microsoft Edge
+verification subsequently resolved Issue #214 and UAT-FINDING-004. Repeated
+UAT-01 nevertheless failed. Issue #215 freezes the authoritative future
+[`bilingual profile-driven frontend UX contract`](docs/bilingual_profile_driven_frontend_ux_contract.md);
+Issue #216 is the exact next action. Issue #208 remains open, UAT-02 through
+UAT-12 remain paused, B-09 and B-07 remain open, B-06 remains closed, and
+Package `1.0.0` and Release preparation are not ready. No v1 Release title,
+theme, date, tag, publication commit, or production model is frozen.
 
 Major completed areas include:
 
@@ -881,14 +885,16 @@ Issue #204 closes the Package-license decision with exact `AGPL-3.0-only` legal
 files and PEP 639 metadata. Issue #205 completes the SkatMind rename and closes
 B-08. Issue #206 completes the technical platform matrix and closes B-05 after
 merged Ubuntu CI passes. Issue #207 closes B-06. Issue #208 remains open after
-UAT-01 fails, and Issue #209 freezes the documentation-only remediation contract.
-Issue #210 implements the application shell; Issue #211 implements guided
-analysis, Historical Review, JSON transfer, and Result presentation; Issue #212
-implements managed stateful workflows; Issue #213 implements advanced CLI
-automation and onboarding. UAT-02 through UAT-12 and B-07 Release preparation
-remain paused. Issue #214 implements the UAT-FINDING-004 browser-Origin policy
-remediation without closing the finding; repeated UAT-01 remains blocked pending
-maintainer Edge verification. Issue #208, B-09, and B-07 remain open.
+the original and repeated UAT-01 failures. Issue #209 freezes the initial
+documentation-only remediation contract. Issue #210 implements the application
+shell; Issue #211 implements guided analysis, Historical Review, JSON transfer,
+and Result presentation; Issue #212 implements managed stateful workflows; Issue
+#213 implements advanced CLI automation and onboarding. Maintainer Microsoft
+Edge verification resolved Issue #214 and UAT-FINDING-004, but repeated UAT-01
+did not pass. Issue #215 freezes the authoritative future bilingual profile-
+driven frontend UX contract, and Issue #216 is the exact next action. UAT-02
+through UAT-12 remain paused, B-09 and B-07 remain open, B-06 remains closed,
+and Package `1.0.0` and Release preparation are not ready.
 End-to-end local Live and Retrospective Session
 capture is implemented through public file Save/Load, automatic Checkpoints,
 accepted-Log actual-card observation, isolated review, explicit analysis, the
@@ -965,12 +971,14 @@ requirements and completion gates for `v1.0.0` are in
 [`docs/v1_scope.md`](docs/v1_scope.md). The historical technical conclusion and
 its post-audit UAT note are in
 [`docs/v1_0_final_technical_release_readiness_audit.md`](docs/v1_0_final_technical_release_readiness_audit.md).
-The frontend boundary is authoritative in
+The implemented frontend boundary is authoritative in
 [`docs/unified_local_frontend_contract.md`](docs/unified_local_frontend_contract.md),
 and the implemented shell is documented in
 [`docs/unified_local_frontend_application_shell.md`](docs/unified_local_frontend_application_shell.md).
 The guided Analyze/Review implementation is documented in
 [`docs/unified_local_frontend_guided_analysis_and_results.md`](docs/unified_local_frontend_guided_analysis_and_results.md).
+The authoritative future bilingual, profile-driven frontend UX boundary is in
+[`docs/bilingual_profile_driven_frontend_ux_contract.md`](docs/bilingual_profile_driven_frontend_ux_contract.md).
 
 Do not describe undecided future areas as permanently out of scope. Four-player
 tables are the only unconditional exclusion; other candidate areas use the

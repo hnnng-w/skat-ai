@@ -11,6 +11,11 @@ Issue #211 implements guided Analyze/Review and Result presentation. Issue #212
 implements managed stateful workflows. Issue #213 implements the final CLI
 onboarding and advanced-automation slice frozen below.
 
+This document remains authoritative for the implemented version-1 frontend.
+The authoritative future bilingual, profile-driven UX boundary is frozen
+separately in the
+[bilingual profile-driven frontend UX contract](bilingual_profile_driven_frontend_ux_contract.md).
+
 The three states in this document must remain distinct:
 
 ```text
@@ -721,22 +726,22 @@ implemented boundaries.
 
 ## UAT repetition and Release state
 
-Repeated UAT-01 after Issue #213 reached authenticated GET navigation but exposed
-UAT-FINDING-004: Review editor start, Session creation, Match creation, and Corpus
-creation were rejected as Forbidden. Issue #214 implements the browser-policy
-remediation, but technical implementation does not close the issue or finding.
+Repeated UAT-01 after Issue #213 exposed UAT-FINDING-004. Issue #214 implemented
+the browser-Origin policy remediation. Maintainer Microsoft Edge verification
+subsequently resolved Issue #214 and UAT-FINDING-004. Repeated UAT-01
+nevertheless failed.
 
-The post-Issue-#214 implementation state is:
+The current Release-process state is:
 
 ```text
 Issue #208:
     open
 
 Repeated UAT-01:
-    blocked pending maintainer verification
+    failed
 
 UAT-02 through UAT-12:
-    paused until repeated UAT-01 passes
+    paused
 
 B-09:
     open
@@ -744,52 +749,29 @@ B-09:
 B-07:
     open
 
-UAT-FINDING-001:
-    implementation remediation complete
-    open pending repeated UAT-01
-
-UAT-FINDING-002:
-    implementation remediation complete under Issue #213
-    open pending repeated UAT-01
-
-UAT-FINDING-003:
-    implementation remediation complete under Issue #212
-    open pending repeated UAT-01
+B-06:
+    closed
 
 UAT-FINDING-004:
-    implementation remediation complete under Issue #214
-    open pending maintainer Microsoft Edge verification
+    resolved
 
 Issue #214:
-    open pending maintainer Microsoft Edge verification
+    resolved
+
+Package 1.0.0:
+    not ready
 
 Release preparation:
     not ready
 ```
 
-Issues #210 through #214 are implemented and technically validated. The
-maintainer must:
+Issue #215 freezes the authoritative future
+[bilingual profile-driven frontend UX contract](bilingual_profile_driven_frontend_ux_contract.md)
+without changing the implemented current frontend or the completed 53-row
+technical ledger. The exact next action is Issue #216.
 
-1. create a fresh clone;
-2. perform a normal non-Editable runtime installation;
-3. run bare `skatmind`;
-4. verify browser launch and the complete Home dashboard;
-5. verify concise `skatmind --help`;
-6. verify About/version visibility;
-7. verify normal Create/Open/Resume without raw paths;
-8. verify advanced interfaces remain available;
-9. verify in Microsoft Edge that Review editor start, Session creation, Match
-   creation, and Corpus creation reach normal operation or validation pages;
-10. verify authorization failures reveal no private or security value;
-11. complete repeated UAT-01;
-12. record the Result under Issue #208.
-
-UAT-02 through UAT-12 must remain paused until repeated UAT-01 passes. Issue
-#209 must not add the final UAT evidence document.
-
-The exact next action is maintainer verification of Issue #214 in Microsoft Edge
-under Issue #208 using a fresh clone and normal non-Editable runtime
-installation. Repeated UAT-01 remains blocked pending that verification.
+UAT-02 through UAT-12 remain paused. Frontend work remains part of B-09 outside
+the technical ledger and must not reopen B-06. B-07 remains open.
 
 The completed technical required-row ledger remains:
 

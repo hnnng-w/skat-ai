@@ -260,39 +260,26 @@ outputs are unchanged by Issue #213.
 
 ## UAT state and next action
 
-Issue #213 completes its implementation remediation but does not close
-maintainer UAT. Repeated UAT-01 then exposes UAT-FINDING-004, and Issue #214
-implements the local browser Origin-policy remediation without closing that
-finding:
+Issue #213 completes the current CLI onboarding implementation. Repeated UAT-01
+then exposed UAT-FINDING-004, and Issue #214 implemented the local browser
+Origin-policy remediation. Maintainer Microsoft Edge verification resolved
+Issue #214 and UAT-FINDING-004. Repeated UAT-01 nevertheless failed.
 
 ```text
-UAT-FINDING-001:
-    implementation remediation complete
-    open pending repeated UAT-01
-
-UAT-FINDING-002:
-    implementation remediation complete
-    open pending repeated UAT-01
-
-UAT-FINDING-003:
-    implementation remediation complete
-    open pending repeated UAT-01
-
-UAT-FINDING-004:
-    implementation remediation complete under Issue #214
-    open pending maintainer Microsoft Edge verification
-
-Issue #214:
-    open pending maintainer Microsoft Edge verification
-
-Repeated UAT-01:
-    blocked pending maintainer verification
-
-UAT-02 through UAT-12:
-    paused until repeated UAT-01 passes
-
 Issue #208:
     open
+
+Issue #214:
+    resolved
+
+UAT-FINDING-004:
+    resolved
+
+Repeated UAT-01:
+    failed
+
+UAT-02 through UAT-12:
+    paused
 
 B-09:
     open
@@ -302,14 +289,12 @@ B-07:
 
 B-06:
     closed
+
+Package 1.0.0:
+    not ready
 ```
 
-The exact next action is:
-
-```text
-Verify Issue #214 in Microsoft Edge under Issue #208 using a fresh clone and
-normal non-Editable runtime installation.
-```
-
-No further implementation is required before that verification. Repeated UAT-01
-remains blocked pending the verification result.
+Issue #215 freezes the authoritative future
+[bilingual profile-driven frontend UX contract](bilingual_profile_driven_frontend_ux_contract.md).
+The exact next action is Issue #216. Existing advanced CLI contracts remain
+English and unchanged.

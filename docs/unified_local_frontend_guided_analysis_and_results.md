@@ -323,20 +323,16 @@ is required or currently shipped.
 
 ## Current boundary and UAT state
 
-Analyze and Review are usable and process-local. Session, Match Capture, and
-Learning Corpus lifecycle integration is implemented separately by Issue #212.
-Issue #213 implements canonical `skatmind run`, concise top-level Product help,
-and grouped Root automation help. Advanced Root, Session, Capture, Corpus, and
-Public Python API interfaces remain supported.
+Analyze and Review remain usable and process-local. Session, Match Capture, and
+Learning Corpus lifecycle integration is implemented by Issue #212, and Issue
+#213 provides canonical `skatmind run` and layered CLI help.
 
-Issue #211 further partially remediates `UAT-FINDING-001`; Issue #212 adds the
-separate managed stateful remediation. Repeated UAT-01 exposes UAT-FINDING-004,
-and Issue #214 implements its browser-Origin policy remediation. All findings and
-Issue #214 remain open pending maintainer Microsoft Edge verification; repeated
-UAT-01 is blocked pending that verification.
-UAT-02 through UAT-12 remain paused. B-09 and B-07 remain open, B-06 remains
-closed, the completed 53-row technical ledger remains unchanged, and Release
-preparation remains not ready.
+Repeated UAT-01 exposed UAT-FINDING-004. Issue #214 implemented the browser-
+Origin correction, and maintainer Microsoft Edge verification resolved both
+Issue #214 and UAT-FINDING-004. Repeated UAT-01 nevertheless failed. Issue #208
+remains open; UAT-02 through UAT-12 remain paused; B-09 and B-07 remain open;
+B-06 remains closed; and Package `1.0.0` and Release preparation are not ready.
 
-The exact next action is Issue #214 maintainer verification under Issue #208 in
-Microsoft Edge using a fresh clone and normal non-Editable runtime installation.
+Issue #215 freezes the authoritative future
+[bilingual profile-driven frontend UX contract](bilingual_profile_driven_frontend_ux_contract.md).
+The exact next action is Issue #216.

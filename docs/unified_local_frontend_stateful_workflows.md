@@ -174,13 +174,11 @@ edit, analyze, transfer, and download managed stateful Product data without a
 typed filesystem path or port. Advanced `session`, `capture`, and `corpus`
 commands remain available and unchanged.
 
-Issue #212 further remediates `UAT-FINDING-001` and implements the Product work
-owned by `UAT-FINDING-003`; both findings remain open until maintainer UAT is
-repeated. Issue #213 implements `UAT-FINDING-002` remediation through canonical
-`run` and layered CLI help; that finding also remains open pending repeated UAT.
-Repeated UAT-01 exposes UAT-FINDING-004 across Session, Match, Learning, and
-Review POSTs. Issue #214 implements the response-policy fix, but Issue #214 and
-all findings remain open pending maintainer Microsoft Edge verification.
-Repeated UAT-01 is blocked pending that verification; UAT-02 through UAT-12
-remain paused, B-09 and B-07 remain open, and Release preparation remains not
-ready.
+Issue #214 and UAT-FINDING-004 are resolved after maintainer Microsoft Edge
+verification. Repeated UAT-01 nevertheless failed. Issue #208 remains open;
+UAT-02 through UAT-12 remain paused; B-09 and B-07 remain open; B-06 remains
+closed; and Package `1.0.0` and Release preparation are not ready.
+
+Issue #215 freezes the authoritative future
+[bilingual profile-driven frontend UX contract](bilingual_profile_driven_frontend_ux_contract.md).
+The exact next action is Issue #216.

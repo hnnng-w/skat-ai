@@ -1542,26 +1542,16 @@ legacy persisted-input support, and historical-evidence boundary, makes P-09
 Issue #206 adds exact direct dependency floors and the supported installation/
 platform matrix, makes P-34 `satisfied`, and closes B-05 after both merged Ubuntu
 jobs pass. Issue #207 closes B-06 with no material technical blocker. B-09 and
-B-07 remain. Issue #208 starts maintainer UAT, but UAT-01 fails with one accepted
-blocker and two accepted major findings; UAT-02 through UAT-12 are paused. Issue
-#209 freezes the approved documentation-only
-[unified local frontend contract](unified_local_frontend_contract.md) and exact
-#210 through #213 remediation sequence without changing Product behavior. Issue
-#210 implements the shell and managed data home. Issue #211 adds guided Position
-analysis, completed-game Review, strict optional JSON transfer, and readable
-process-local Results, further partially remediating UAT-FINDING-001 without
-closing it. Issue #212 adds managed Session, Match Capture, Learning Corpus, and
-explicit Match-to-Corpus workflows without changing existing persistence or
-standalone advanced interfaces. Issue #213 adds canonical explicit-input `run`,
-concise Product help, grouped Root automation help and examples, lightweight
-help/version imports, and unchanged direct compatibility. Implementation
-remediation is complete, but all findings, B-09, and B-07 remain open, `v1.0.0` is
-unready, and Release preparation remains not ready. Repeated UAT-01 then exposes
-UAT-FINDING-004: `no-referrer` produces `Origin: null` for browser form POSTs and
-conflicts with strict concrete-Origin validation. Issue #214 changes all three
-local browser surfaces to `Referrer-Policy: origin`, retains null and forged
-Origin rejection and path/query privacy, and adds a value-free unified HTML 403
-page. Its implementation is complete, but Issue #214 and the finding remain open
-pending maintainer Microsoft Edge verification from a fresh non-Editable
-installation. Repeated UAT-01 is blocked pending that verification. No v1
-Release title, theme, date, tag, or publication commit is frozen.
+B-07 remain open. Issue #208 starts maintainer UAT, and UAT-01 fails. Issues #209
+through #213 freeze and implement the initial unified frontend remediation.
+Repeated UAT-01 then exposes UAT-FINDING-004; Issue #214 changes all three local
+browser surfaces to `Referrer-Policy: origin` while retaining strict null and
+forged-Origin rejection. Maintainer Microsoft Edge verification resolves Issue
+#214 and UAT-FINDING-004. Repeated UAT-01 nevertheless fails.
+
+Issue #215 freezes the authoritative future
+[bilingual profile-driven frontend UX contract](bilingual_profile_driven_frontend_ux_contract.md).
+The exact next action is Issue #216. Issue #208 remains open; UAT-02 through
+UAT-12 remain paused; B-09 and B-07 remain open; B-06 remains closed; and
+Package `1.0.0` and Release preparation are not ready. No v1 Release title,
+theme, date, tag, or publication commit is frozen.

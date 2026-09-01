@@ -615,7 +615,7 @@ Release title, theme, date, tag, and publication commit:
 
 ## Post-audit UAT note
 
-This note records later Issue #208 through #214 state without rewriting the Issue
+This note records later Issue #208 through #215 state without rewriting the Issue
 #207 technical conclusion above. Maintainer UAT began after the #207 merge and
 required CI. UAT-01 technically executed but failed user acceptance with one
 accepted blocker and two accepted major findings:
@@ -647,20 +647,23 @@ repeat UAT-01 or resume UAT-02 through UAT-12. Issue #213 implements canonical
 compatibility without closing a finding before repeated UAT.
 
 Repeated UAT-01 after Issue #213 reached authenticated GET navigation but every
-tested Review, Session, Match, and Corpus mutation returned HTTP 403. The accepted
-UAT-FINDING-004 root cause is the combination of
+tested Review, Session, Match, and Corpus mutation returned HTTP 403. The
+accepted UAT-FINDING-004 root cause was the combination of
 `Referrer-Policy: no-referrer` and strict concrete-Origin validation: Fetch
-serializes a non-CORS browser request whose method is neither GET nor HEAD with
-`Origin: null` under that policy. Issue #214 changes the unified app, standalone
+serialized a non-CORS browser request whose method was neither GET nor HEAD with
+`Origin: null` under that policy. Issue #214 changed the unified app, standalone
 Capture, and standalone Corpus to `Referrer-Policy: origin`. This preserves a
 concrete same-origin request Origin while any Referer contains only scheme, host,
 and port, not path or query. Null, missing, duplicate, malformed, forged,
 credential-bearing, path/query/fragment-bearing, wrong-port, and Host-mismatched
-Origins remain rejected. Referer and `Sec-Fetch-Site` remain non-authoritative.
-The unified app now renders a deterministic value-free HTML authorization 403.
-Technical implementation does not close Issue #214 or the finding before
-maintainer Microsoft Edge verification from a fresh normal non-Editable
-installation.
+Origins remain rejected. Referer and `Sec-Fetch-Site` remain non-authoritative,
+and the unified app renders a deterministic value-free HTML authorization 403.
+
+Maintainer Microsoft Edge verification subsequently resolved Issue #214 and
+UAT-FINDING-004. Repeated UAT-01 nevertheless failed. Issue #215 freezes the
+authoritative future
+[bilingual profile-driven frontend UX contract](bilingual_profile_driven_frontend_ux_contract.md)
+without rewriting the Issue #207 technical conclusion.
 
 The post-audit Release-process state is:
 
@@ -669,10 +672,10 @@ Issue #208:
     open
 
 Repeated UAT-01:
-    blocked pending maintainer verification
+    failed
 
 UAT-02 through UAT-12:
-    paused until repeated UAT-01 passes
+    paused
 
 B-09:
     open
@@ -680,33 +683,23 @@ B-09:
 B-07:
     open
 
-UAT-FINDING-001:
-    implementation remediation complete
-    open pending repeated UAT-01
-
-UAT-FINDING-002:
-    implementation remediation complete under Issue #213
-    open pending repeated UAT-01
-
-UAT-FINDING-003:
-    implementation remediation complete under Issue #212
-    open pending repeated UAT-01
-
 UAT-FINDING-004:
-    implementation remediation complete under Issue #214
-    open pending maintainer Microsoft Edge verification
+    resolved
 
 Issue #214:
-    open pending maintainer Microsoft Edge verification
+    resolved
+
+Package version:
+    0.17.0
+
+Package 1.0.0:
+    not ready
 
 Release preparation:
     not ready
 ```
 
-B-06 remains closed. The 53-row ledger remains exactly 19 `satisfied`, 34
+The 53-row ledger remains exactly 19 `satisfied`, 34
 `satisfied_with_approved_bounded_scope`, and zero in each unresolved
-classification. Frontend remediation belongs to B-09 outside that ledger.
-Package version remains `0.17.0`, and Package `1.0.0` remains unprepared. The
-exact next action is Issue #214 maintainer verification under Issue #208 in
-Microsoft Edge using a fresh clone and normal non-Editable runtime installation;
-repeated UAT-01 remains blocked pending that verification.
+classification. Frontend and UAT work remains under B-09 outside that ledger and
+does not reopen B-06. The exact next action is Issue #216.

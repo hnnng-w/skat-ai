@@ -1336,6 +1336,7 @@ Detailed documentation is split into topic-specific files:
 * [Requirements traceability](docs/requirements_traceability.md)
 * [v1.0 scope](docs/v1_scope.md)
 * [v1.0 scope and traceability audit](docs/v1_0_scope_and_traceability_audit.md)
+* [Bilingual profile-driven frontend UX contract](docs/bilingual_profile_driven_frontend_ux_contract.md)
 * [Roadmap](docs/roadmap.md)
 * [Project handoff](docs/project_handoff.md)
 
@@ -1940,20 +1941,21 @@ without product-code change. Issue #202 closes B-02 and makes P-10 and P-13
   unified local frontend contract. Issue #210 implements the application shell,
   Issue #211 adds guided analysis, Historical Review, and readable Results, and
   Issue #212 adds managed Session, Match, and Learning workflows. Issue #213
-  adds canonical Root automation and layered CLI onboarding. Implementation
-  remediation for the first three findings is complete. Repeated UAT-01 then
-  exposes UAT-FINDING-004: browser form POSTs are rejected because
-  `Referrer-Policy: no-referrer` serializes their non-CORS mutation Origin as
-  `null` while the servers correctly require a concrete same-origin value. Issue
-  #214 changes the unified app, standalone Match Capture, and standalone Learning
-  Corpus to `Referrer-Policy: origin`, retains null and forged Origin rejection,
-  and limits Referer information to scheme, host, and port without path or query.
-  The implementation is complete, but Issue #214 and all findings remain open
-  pending maintainer Microsoft Edge verification from a fresh normal
-  non-Editable installation. Repeated UAT-01 is blocked pending that verification.
-  B-09 and B-07 remain open, Release
-  preparation is not ready, and no v1 Release title, theme, date, tag, or
-  publication commit is frozen.
+  adds canonical Root automation and layered CLI onboarding. Repeated UAT-01 then
+  exposed UAT-FINDING-004: browser form POSTs were rejected because
+  `Referrer-Policy: no-referrer` serialized their non-CORS mutation Origin as
+  `null` while the servers correctly required a concrete same-origin value.
+  Issue #214 changed the unified app, standalone Match Capture, and standalone
+  Learning Corpus to `Referrer-Policy: origin`, retained null and forged Origin
+  rejection, and limited Referer information to scheme, host, and port without
+  path or query. Maintainer Microsoft Edge verification resolved Issue #214 and
+  UAT-FINDING-004. Repeated UAT-01 nevertheless failed. Issue #215 freezes the
+  authoritative future [bilingual profile-driven frontend UX
+  contract](docs/bilingual_profile_driven_frontend_ux_contract.md), and Issue
+  #216 is the exact next action. Issue #208 remains open; UAT-02 through UAT-12
+  remain paused; B-09 and B-07 remain open; B-06 remains closed; and Package
+  `1.0.0` and Release preparation are not ready. No v1 Release title, theme,
+  date, tag, or publication commit is frozen.
 
 Current support and known limitations are tracked in the
 [requirements traceability matrix](docs/requirements_traceability.md). Product
@@ -1961,11 +1963,14 @@ scope and completion gates are defined in the [v1.0 scope](docs/v1_scope.md).
 The required-row classifications are in the [scope and traceability
 audit](docs/v1_0_scope_and_traceability_audit.md); the current conclusion is in
 the [final technical Release-readiness audit](docs/v1_0_final_technical_release_readiness_audit.md).
-The local Product entry is documented in the [application shell](docs/unified_local_frontend_application_shell.md),
-the current Analyze/Review behavior is in [Guided analysis and Results](docs/unified_local_frontend_guided_analysis_and_results.md),
-the managed Session/Match/Learning behavior is in [Managed stateful workflows](docs/unified_local_frontend_stateful_workflows.md),
-the automation interface is in [Advanced CLI automation](docs/advanced_cli_automation_interface.md),
-and the completed remediation architecture is in the [unified local frontend contract](docs/unified_local_frontend_contract.md).
+The implemented local Product entry and current frontend architecture are
+documented in the [application shell](docs/unified_local_frontend_application_shell.md),
+[Guided analysis and Results](docs/unified_local_frontend_guided_analysis_and_results.md),
+[Managed stateful workflows](docs/unified_local_frontend_stateful_workflows.md),
+[Advanced CLI automation](docs/advanced_cli_automation_interface.md), and the
+[unified local frontend contract](docs/unified_local_frontend_contract.md). The
+authoritative future UX boundary is the [bilingual profile-driven frontend UX
+contract](docs/bilingual_profile_driven_frontend_ux_contract.md).
 The Historical integration is documented in [Historical party-wide
   Claim](docs/historical_party_wide_claim.md). The private boundary is documented in [Party-wide Claim
   contracts](docs/party_wide_claim_contracts.md), the [Party-wide Claim proof

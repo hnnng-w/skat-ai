@@ -347,21 +347,18 @@ persisted-input migration boundary, makes P-09 `satisfied`, and closes B-08.
 Issue #206 adds exact direct dependency floors and the validation-only source/
 Editable/Wheel/sdist Windows/Ubuntu matrix, makes P-34 `satisfied`, and closes
 B-05 after both merged Ubuntu jobs pass. Issue #207 finds no material technical
-blocker and closes B-06. Issue #208 then begins maintainer UAT; UAT-01 fails with
-three accepted findings. Issue #209 freezes the approved unified local frontend
-contract as B-09 remediation outside the completed ledger. UAT-02 through UAT-12
-are paused. Issue #210 implements the shell. Issue #211 adds guided Position
-analysis, completed-game Review, strict optional JSON transfer, and readable
-process-local Results. Issue #212 adds managed Session, Match Capture, and
-Learning Corpus workflows plus explicit Match-to-Corpus transfer. Those Issues
-further remediate UAT-FINDING-001 without closing it. B-09 and B-07 remain open,
-and Issue #213 completes implementation remediation through canonical `run`,
-concise Product help, grouped advanced automation help, and retained direct Root
-compatibility. Repeated UAT-01 then exposes UAT-FINDING-004, and Issue #214
-implements the local browser Origin-policy remediation without closing the
-finding before maintainer Microsoft Edge verification. All findings remain open,
-and repeated UAT-01 is blocked pending that verification. The milestone remains
-not ready.
+blocker and closes B-06. Issue #208 then begins maintainer UAT, and UAT-01 fails.
+Issue #209 freezes the initial unified local frontend contract, and Issues
+#210 through #213 implement its shell, guided workflows, managed stateful
+workflows, and advanced CLI onboarding. Repeated UAT-01 exposes
+UAT-FINDING-004; Issue #214 implements the browser-Origin policy correction.
+Maintainer Microsoft Edge verification resolves Issue #214 and
+UAT-FINDING-004. Repeated UAT-01 nevertheless fails. Issue #215 freezes the
+authoritative future
+[bilingual profile-driven frontend UX contract](bilingual_profile_driven_frontend_ux_contract.md),
+and Issue #216 is the exact next action. Issue #208 remains open; UAT-02 through
+UAT-12 remain paused; B-09 and B-07 remain open; B-06 remains closed; and
+Package `1.0.0` and Release preparation are not ready.
 
 The November 2022 ISkO and SkWO publication is the normative source for official
 rules and competition behavior. Product capabilities such as simulation,
@@ -959,20 +956,19 @@ B-01 through B-06 and B-08, remaining B-09 and B-07 blockers, and exact next
 action are in the [final technical Release-readiness audit](v1_0_final_technical_release_readiness_audit.md).
 
 The historical Issue #207 conclusion remains unchanged. Its post-audit note
-records that Issue #208 UAT-01 failed, Issue #209 froze the approved
-[unified local frontend contract](unified_local_frontend_contract.md), Issue #210
-implemented the [application shell](unified_local_frontend_application_shell.md),
-Issue #211 implemented [guided analysis and Results](unified_local_frontend_guided_analysis_and_results.md),
-and Issue #212 implemented [managed stateful workflows](unified_local_frontend_stateful_workflows.md).
-Issue #213 implemented [advanced CLI automation](advanced_cli_automation_interface.md).
-Repeated UAT-01 then exposes UAT-FINDING-004. Issue #214 implements the exact
-`Referrer-Policy: origin` remediation for the unified app, standalone Match
-Capture, and standalone Learning Corpus while retaining strict null/forged-Origin
-rejection and origin-only Referer privacy. Issue #214 remains open pending
-maintainer Microsoft Edge verification from a fresh normal non-Editable
-installation, and repeated UAT-01 is blocked pending that verification. UAT-02
-through UAT-12, B-09, B-07, and Package `1.0.0` preparation remain blocked or
-open as applicable.
+records the failed Issue #208 UAT-01 and the implemented Issue #209 through #213
+frontend remediation. Repeated UAT-01 exposed UAT-FINDING-004; Issue #214
+implemented its Origin-policy correction, and maintainer Microsoft Edge
+verification resolved both Issue #214 and the finding. Repeated UAT-01
+nevertheless failed.
+
+The implemented current frontend remains governed by the
+[unified local frontend contract](unified_local_frontend_contract.md). Issue
+#215 freezes the authoritative future
+[bilingual profile-driven frontend UX contract](bilingual_profile_driven_frontend_ux_contract.md).
+The exact next action is Issue #216. Issue #208 remains open; UAT-02 through
+UAT-12 remain paused; B-09 and B-07 remain open; B-06 remains closed; and
+Package `1.0.0` and Release preparation are not ready.
 
 `v1.0.0` is not ready while any required gate lacks evidence, any validation or
 test listed for a v1.0-required traceability row remains incomplete, any such

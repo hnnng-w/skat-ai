@@ -167,12 +167,16 @@ Capture and Corpus bodies, and explicit Match-to-Corpus transfer. The shell stil
 does not proxy or iframe standalone servers. Explicit Session, Capture, Corpus,
 and Root paths remain supported. Issue #213 adds lightweight Product help,
 canonical explicit-input `run`, grouped Root automation help, and unchanged
-Package-1.x direct Root compatibility through one Root implementation. All three
-initial UAT findings remain open. Repeated UAT-01 then exposes
-UAT-FINDING-004, and Issue #214 implements `Referrer-Policy: origin` across the
-three local browser surfaces without closing the finding before maintainer Edge
-verification. Repeated UAT-01 is blocked pending that verification; B-09 and B-07
-remain open. See [Advanced CLI automation](advanced_cli_automation_interface.md).
+Package-1.x direct Root compatibility through one Root implementation. Repeated
+UAT-01 then exposed UAT-FINDING-004, and Issue #214 implemented
+`Referrer-Policy: origin` across the three local browser surfaces. Maintainer
+Microsoft Edge verification resolved Issue #214 and UAT-FINDING-004. Repeated
+UAT-01 nevertheless failed. Issue #215 freezes the authoritative future
+[bilingual profile-driven frontend UX contract](bilingual_profile_driven_frontend_ux_contract.md),
+and Issue #216 is the exact next action. Issue #208 remains open; UAT-02 through
+UAT-12 remain paused; B-09 and B-07 remain open; B-06 remains closed; and
+Package `1.0.0` and Release preparation are not ready. See
+[Advanced CLI automation](advanced_cli_automation_interface.md).
 
 Issues #160 through #168 form the published `v0.15.0` Package baseline, and Issue
 #169 updated only Package/release metadata and documentation to complete Release
@@ -1268,3 +1272,7 @@ Requirements and rule-source ownership are mapped in
 boundary is defined in [v1.0 scope](v1_scope.md), and the authoritative bounded
 classifications and blockers are frozen in the
 [v1.0 scope and traceability audit](v1_0_scope_and_traceability_audit.md).
+The [Unified local frontend contract](unified_local_frontend_contract.md)
+governs the implemented current frontend. Future bilingual, profile-driven UX is
+governed by the
+[Bilingual profile-driven frontend UX contract](bilingual_profile_driven_frontend_ux_contract.md).

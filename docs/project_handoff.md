@@ -1546,6 +1546,7 @@ Main documentation files:
 * `docs/v0_17_release_readiness_audit.md`
 * `docs/v1_scope.md`
 * `docs/v1_0_scope_and_traceability_audit.md`
+* `docs/bilingual_profile_driven_frontend_ux_contract.md`
 * `docs/roadmap.md`
 * `docs/project_handoff.md`
 
@@ -1745,21 +1746,19 @@ ledger. Issue #206 adds exact direct dependency floors, resolved source/Editable
 Wheel/sdist evidence, minimum Wheel/sdist evidence, and separate Windows/Ubuntu
 matrix execution. It makes P-34 `satisfied` and closes B-05 after both merged
 Ubuntu jobs pass. Issue #207 closes B-06 with no material technical blocker.
-B-09 and B-07 remain. Issue #208 then starts maintainer UAT; UAT-01
-fails with one accepted blocker and two accepted major findings. Issue #209
-freezes the approved unified local frontend and launch contract. Issue #210
-implements the shell, and Issue #211 adds guided Position analysis, completed-
-game Review, strict optional JSON transfer, and readable process-local Results.
-Issue #212 adds managed Session, Match Capture, Learning Corpus, and explicit
-cross-area transfer workflows through the same server. UAT-FINDING-001 remains
-open pending repeated UAT, and Issue #212 implements the Product work owned by
-UAT-FINDING-003. Issue #213 adds canonical `run`, concise Product help, grouped
-advanced automation help, and unchanged direct Root compatibility. Implementation
-remediation for all three initial findings is complete. Repeated UAT-01 then
-exposes UAT-FINDING-004. Issue #214 implements its browser-Origin policy
-remediation, but the issue and all findings remain open pending maintainer
-Microsoft Edge verification. Repeated UAT-01 is blocked pending that verification,
-and UAT-02 through UAT-12 are paused.
+B-09 and B-07 remain. Issue #208 then starts maintainer UAT; UAT-01 fails with
+one accepted blocker and two accepted major findings. Issue #209 freezes the
+initial unified local frontend and launch contract. Issues #210 through #213
+implement the shell, guided Analyze and Review, managed Session, Match, and
+Learning workflows, and advanced CLI onboarding. Repeated UAT-01 then exposes
+UAT-FINDING-004, and Issue #214 implements its browser-Origin policy correction.
+Maintainer Microsoft Edge verification resolves Issue #214 and
+UAT-FINDING-004. Repeated UAT-01 nevertheless fails. Issue #215 freezes the
+authoritative future
+[bilingual profile-driven frontend UX contract](bilingual_profile_driven_frontend_ux_contract.md),
+and Issue #216 is the exact next action. Issue #208 remains open, UAT-02 through
+UAT-12 remain paused, B-09 and B-07 remain open, B-06 remains closed, and
+Package `1.0.0` and Release preparation are not ready.
 
 Historical published Package milestone: `v0.15.0`, providing usable manual post-
 game capture of one EuroSkat 36er Standard Match from descriptive video evidence.
@@ -2350,36 +2349,21 @@ Completed implementation scope:
 
 ## Next recommended action
 
-Verify Issue #214 under Issue #208 in Microsoft Edge using a fresh clone and
-normal non-Editable runtime installation. Issues #210 through #213 implement bare/explicit shell
-launch, the managed data home, Home, navigation, About, secure local serving,
-guided analysis/Review, strict optional JSON transfer, readable Results, managed
-Session/Match/Learning workflows, and advanced CLI onboarding. See
-[Guided analysis and Results](unified_local_frontend_guided_analysis_and_results.md),
-[Managed stateful workflows](unified_local_frontend_stateful_workflows.md),
-[Advanced CLI automation](advanced_cli_automation_interface.md), and
-the authoritative [unified local frontend contract](unified_local_frontend_contract.md).
+Issue #215 freezes the authoritative future
+[bilingual profile-driven frontend UX contract](bilingual_profile_driven_frontend_ux_contract.md).
+The exact next action is Issue #216.
 
-Issues #201 through #203 close B-01 through B-03. Issue #204 applies the exact
-`AGPL-3.0-only` Package boundary and closes B-04 without changing product
-behavior. Issue #205 completes the SkatMind identity and migration boundary,
-makes P-09 `satisfied`, and closes B-08. #206 closes B-05 after its installation/
-platform evidence and merged jobs pass. #207 finds no material technical blocker
-and closes B-06. #208 remains open and owns the separate B-09 maintainer-UAT
-Gate outside the 53-row ledger. Issues #210 through #213 complete implementation
-remediation. Repeated UAT-01 then exposes UAT-FINDING-004 because `no-referrer`
-makes browser POST Origin serialization `null` while all local browser surfaces
-require a concrete same-origin value. Issue #214 changes the unified app,
-standalone Capture, and standalone Corpus to `Referrer-Policy: origin`, retains
-null/forged-Origin rejection and origin-only Referer privacy, and adds a
-value-free unified HTML 403 page. Issue #214 and all findings remain open pending
-maintainer Edge verification. Repeated UAT-01 is blocked pending that
-verification; UAT-02 through UAT-12 remain paused. B-07 Release
-preparation remains open and not ready. The published functional history remains
-Issues #182 through #196;
-Issues #197 through #199 remain audit, Release preparation, and publication
-synchronization only. `v1.0.0` is not ready, and no Release title, theme, date,
-tag, or publication commit is frozen.
+Maintainer Microsoft Edge verification resolved Issue #214 and
+UAT-FINDING-004. Repeated UAT-01 nevertheless failed. Issue #208 remains open;
+UAT-02 through UAT-12 remain paused; B-09 and B-07 remain open; B-06 remains
+closed; and Package `1.0.0` and Release preparation are not ready. No v1 Release
+title, theme, date, tag, or publication commit is frozen.
+
+The implemented current frontend remains documented in
+[Unified local frontend contract](unified_local_frontend_contract.md),
+[Guided analysis and Results](unified_local_frontend_guided_analysis_and_results.md),
+[Managed stateful workflows](unified_local_frontend_stateful_workflows.md), and
+[Advanced CLI automation](advanced_cli_automation_interface.md).
 
 Keep immutable imported Workspace Snapshots separate from derived artifacts.
 Public Match/Corpus/Dataset-v2 surfaces, derived persistence, broader Player
