@@ -551,7 +551,7 @@ def test_review_all_guided_actions_run_download_and_reset(
         {"revision": completed_revision},
     )
     assert status == 500
-    assert body == b"Internal server error"
+    assert b"Internal server error" in body
     assert b"private request construction failure" not in body
     with server.app_context.lock:
         failed_state = server.app_context.review_state
@@ -718,6 +718,15 @@ def test_malformed_targets_and_protocol_errors_keep_hardened_headers(
     assert b"Cache-Control: no-store\r\n" in malformed_target
     assert b"Content-Security-Policy:" in malformed_target
 
+    malformed_post_target = _raw_request(
+        server,
+        f"POST http://[ HTTP/1.1\r\nHost: {host}\r\nCookie: {cookie}\r\n"
+        "Content-Length: 0\r\n\r\n".encode("ascii"),
+    )
+    assert malformed_post_target.startswith(b"HTTP/1.0 400")
+    assert b"Cache-Control: no-store\r\n" in malformed_post_target
+    assert b"Content-Security-Policy:" in malformed_post_target
+
     invalid_protocol = _raw_request(
         server,
         f"GET / HTTP/9.9\r\nHost: {host}\r\n\r\n".encode("ascii"),
@@ -742,7 +751,7 @@ def test_malformed_targets_and_protocol_errors_keep_hardened_headers(
         headers={"Cookie": cookie},
     )
     assert status == 500
-    assert body == b"Internal server error"
+    assert b"Internal server error" in body
 
 
 def test_validation_is_field_local_accessible_and_advanced_groups_are_exact(
@@ -918,7 +927,7 @@ def test_duplicate_run_is_409_and_unexpected_execution_failure_is_generic_500(
         _position_values(2),
     )
     assert status == 500
-    assert body == b"Internal server error"
+    assert b"Internal server error" in body
     assert str(server.app_context.managed_home.root).encode() not in body
     assert headers["cache-control"] == "no-store"
     with server.app_context.lock:

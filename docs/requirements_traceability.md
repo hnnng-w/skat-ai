@@ -382,9 +382,11 @@ implements `Referrer-Policy: origin` across the unified app, standalone Capture,
 and standalone Corpus while retaining strict null/forged-Origin rejection.
 Maintainer Microsoft Edge verification resolves Issue #214 and
 UAT-FINDING-004. Repeated UAT-01 nevertheless fails. Issue #215 freezes the
-authoritative future
+authoritative
 [bilingual profile-driven frontend UX contract](bilingual_profile_driven_frontend_ux_contract.md),
-and Issue #216 is the exact next action. Issue #208 remains open; UAT-02 through
+and Issue #216 implements its private profile/localization foundation and
+bilingual common shell without changing the 53-row ledger. Issue #217 is the
+exact next action. Issue #208 remains open; UAT-02 through
 UAT-12 remain paused; B-09 and B-07 remain open; B-06 remains closed; and
 Package `1.0.0` and Release preparation are not ready.
 
@@ -887,8 +889,10 @@ guided workflows, managed stateful workflows, and advanced CLI automation.
 Maintainer Microsoft Edge verification resolved Issue #214 and
 UAT-FINDING-004, but repeated UAT-01 nevertheless failed.
 
-The authoritative future UX boundary is the
+The authoritative implemented-foundation and remaining UX boundary is the
 [bilingual profile-driven frontend UX contract](bilingual_profile_driven_frontend_ux_contract.md),
-frozen by Issue #215. The exact next action is Issue #216. Issue #208 remains
+frozen by Issue #215. Issue #216 implements the private profile/localization and
+bilingual common-shell subset and changes no traceability classification. The
+exact next action is Issue #217. Issue #208 remains
 open; UAT-02 through UAT-12 remain paused; B-09 and B-07 remain open; B-06
 remains closed; and Package `1.0.0` and Release preparation are not ready.

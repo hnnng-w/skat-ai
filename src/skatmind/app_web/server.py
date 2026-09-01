@@ -26,6 +26,20 @@ from .cross_area_transfer import (
     transfer_active_match_report_to_corpus_v1,
     transfer_active_match_workspace_to_corpus_v1,
 )
+from .frontend_profile_operations import (
+    FRONTEND_LANGUAGE_ACTION_ROUTE,
+    FRONTEND_PROFILE_ACTION_ROUTES,
+    FRONTEND_PROFILE_RESET_ACTION_ROUTE,
+    FrontendProfilePersistenceConflictError,
+    InvalidFrontendProfileResetRequiredError,
+    StaleFrontendProfileGenerationError,
+    is_safe_frontend_return_path_v1,
+    reset_frontend_profile_v1,
+    set_frontend_language_v1,
+)
+from .frontend_profile_state import (
+    project_browser_safe_frontend_profile_state_v1,
+)
 from .guided_contracts import (
     ANALYZE_ACTION_ROUTE_PATHS,
     ANALYZE_IMPORT_JSON_ACTION_ROUTE_PATH,
@@ -95,6 +109,7 @@ from .rendering import (
     render_app_content_page_v1,
     render_app_error_page_v1,
     render_app_page_v1,
+    render_authorization_failure_v1,
 )
 from .security import (
     APP_WEB_BIND_HOST,
@@ -240,21 +255,38 @@ _STATEFUL_POST_ROUTES = {
     "/learning/open",
     "/learning/api/v1/operations",
 }
-_AUTHORIZATION_FAILURE_HTML = """<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<title>Request not authorized</title>
-</head>
-<body>
-<main>
-<h1>Request not authorized</h1>
-<p>This request could not be authorized.</p>
-<p>Return to the current SkatMind tab or restart SkatMind.</p>
-</main>
-</body>
-</html>
-"""
+_CONTENT_TITLE_KEYS = {
+    "Sessions": "page.sessions.title",
+    "Match capture": "page.matches.title",
+    "Learning & cross-game insights": "page.learning.title",
+    "Guided Session": "page.session_current.title",
+    "Managed Match capture": "page.match_current.title",
+    "Create a managed Match": "page.match_create.title",
+    "Managed Learning Corpus": "page.learning.title",
+}
+_COMMON_ERROR_MESSAGE_KEYS = {
+    "A local filesystem operation failed.": "error.filesystem.message",
+    "An internal server error occurred.": "error.internal.message",
+    "The request could not be validated.": "error.bad_request.message",
+    "This method is not available for the requested page.": (
+        "error.method_not_allowed.message"
+    ),
+    "Not found.": "error.not_found.message",
+    "Prepared sources changed.": "error.conflict.message",
+    "The selected process-local artifact is stale.": "error.conflict.message",
+    "This form is stale. Reload the page and try again.": "error.stale_form.message",
+    "The imported SkatMind workflow is not supported on this page.": (
+        "error.bad_request.message"
+    ),
+    "The submitted request is too large.": "error.request_too_large.message",
+    "Use the form content type shown by this page.": (
+        "error.unsupported_content_type.message"
+    ),
+    "The submitted form could not be validated.": "error.bad_request.message",
+    "Reset the invalid local profile from About before saving a language preference.": (
+        "error.profile_invalid.message"
+    ),
+}
 
 
 def _is_stateful_get_route(path: str) -> bool:
@@ -350,7 +382,7 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
         del message, explain
         if self.request_version == "HTTP/0.9":
             self.request_version = self.protocol_version
-        self._send_text(code, "Invalid request")
+        self._send_common_error(code)
 
     def _headers(
         self,
@@ -416,9 +448,36 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
     def _send_authorization_failure(self) -> None:
         self._send_text(
             HTTPStatus.FORBIDDEN,
-            _AUTHORIZATION_FAILURE_HTML,
+            render_authorization_failure_v1(self._frontend_state()),
             content_type="text/html; charset=utf-8",
         )
+
+    def _frontend_state(self):
+        request_headers = getattr(self, "headers", None)
+        accept_language_values = (
+            []
+            if request_headers is None
+            else request_headers.get_all("Accept-Language", [])
+        )
+        accept_language = (
+            accept_language_values[0] if len(accept_language_values) == 1 else None
+        )
+        with self.server.app_context.lock:
+            profile_state = self.server.app_context.frontend_profile
+        return project_browser_safe_frontend_profile_state_v1(
+            profile_state,
+            accept_language=accept_language,
+        )
+
+    def _safe_current_return_path(self) -> str:
+        raw_path = getattr(self, "path", None)
+        if type(raw_path) is not str:
+            return "/"
+        try:
+            path = urlsplit(raw_path).path
+        except ValueError:
+            return "/"
+        return path if is_safe_frontend_return_path_v1(path) else "/"
 
     def _authorize_get(self, path: str, query: str) -> bool:
         if not self._host_is_valid():
@@ -493,12 +552,15 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
             self.server.app_context.managed_home.root if route == "/about" else None
         )
         with self.server.app_context.lock:
+            frontend = self._frontend_state()
             rendered = render_app_page_v1(
                 self.server.app_context.browser_state,
                 route,
                 storage_root=storage_root,
                 analyze_state=self.server.app_context.analyze_state,
                 review_state=self.server.app_context.review_state,
+                frontend=frontend,
+                return_to=self._safe_current_return_path(),
             )
         self._send_text(
             status,
@@ -506,16 +568,93 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
             content_type="text/html; charset=utf-8",
         )
 
-    def _error_page(self, status: int, title: str, message: str) -> None:
+    def _error_page(
+        self,
+        status: int,
+        title: str,
+        message: str,
+        *,
+        extra_headers: tuple[tuple[str, str], ...] = (),
+    ) -> None:
+        exact_title_key = {
+            "Input validation": "error.bad_request.title",
+            "Unsupported workflow": "error.unsupported_workflow.title",
+        }.get(title)
+        if exact_title_key is not None:
+            title_key = exact_title_key
+        elif title == "Filesystem error":
+            title_key = "error.filesystem.title"
+        elif status == HTTPStatus.NOT_FOUND:
+            title_key = (
+                "error.artifact_unavailable.title"
+                if title in {"Artifact unavailable", "Download unavailable"}
+                else "error.not_found.title"
+            )
+        elif status == HTTPStatus.CONFLICT:
+            title_key = "error.conflict.title"
+        elif status == HTTPStatus.REQUEST_ENTITY_TOO_LARGE:
+            title_key = "error.request_too_large.title"
+        elif status == HTTPStatus.UNSUPPORTED_MEDIA_TYPE:
+            title_key = "error.unsupported_content_type.title"
+        elif status == HTTPStatus.METHOD_NOT_ALLOWED:
+            title_key = "error.method_not_allowed.title"
+        elif status >= HTTPStatus.INTERNAL_SERVER_ERROR:
+            title_key = "error.internal.title"
+        else:
+            title_key = "error.bad_request.title"
+        message_key = _COMMON_ERROR_MESSAGE_KEYS.get(message)
+        if status == HTTPStatus.NOT_FOUND and title in {
+            "Artifact unavailable",
+            "Download unavailable",
+        }:
+            message_key = "error.artifact_unavailable.message"
         self._send_text(
             status,
             render_app_error_page_v1(
                 self.server.app_context.browser_state,
-                title=title,
-                message=message,
+                title_key=title_key,
+                message=None if message_key is not None else message,
+                message_key=message_key,
+                frontend=self._frontend_state(),
+                return_to=getattr(
+                    self,
+                    "_profile_action_return_to",
+                    self._safe_current_return_path(),
+                ),
+                untranslated_message=message_key is None,
             ),
             content_type="text/html; charset=utf-8",
+            extra_headers=extra_headers,
         )
+
+    def _send_common_error(
+        self,
+        status: int,
+        *,
+        extra_headers: tuple[tuple[str, str], ...] = (),
+    ) -> None:
+        title, message = {
+            HTTPStatus.BAD_REQUEST: ("Invalid request", "The request could not be validated."),
+            HTTPStatus.NOT_FOUND: ("Page not found", "Not found."),
+            HTTPStatus.METHOD_NOT_ALLOWED: (
+                "Method not allowed",
+                "This method is not available for the requested page.",
+            ),
+            HTTPStatus.CONFLICT: ("State changed", "Prepared sources changed."),
+            HTTPStatus.REQUEST_ENTITY_TOO_LARGE: (
+                "Upload too large",
+                "The submitted request is too large.",
+            ),
+            HTTPStatus.UNSUPPORTED_MEDIA_TYPE: (
+                "Unsupported content type",
+                "Use the form content type shown by this page.",
+            ),
+            HTTPStatus.INTERNAL_SERVER_ERROR: (
+                "Internal server error",
+                "An internal server error occurred.",
+            ),
+        }.get(int(status), ("Invalid request", "The request could not be validated."))
+        self._error_page(status, title, message, extra_headers=extra_headers)
 
     def _content_page(
         self,
@@ -529,11 +668,16 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
     ) -> None:
         with self.server.app_context.lock:
             state = self.server.app_context.browser_state
+            frontend = self._frontend_state()
+        title_key = _CONTENT_TITLE_KEYS.get(title)
         rendered = render_app_content_page_v1(
             state,
             route,
-            title=title,
+            title=None if title_key is not None else title,
+            title_key=title_key,
             content=content,
+            frontend=frontend,
+            return_to=self._safe_current_return_path(),
             extra_stylesheets=extra_stylesheets,
             extra_scripts=extra_scripts,
         )
@@ -679,6 +823,50 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
             extra_headers=(("Location", location),),
         )
 
+    def _profile_operation(self, path: str, body: bytes, content_type: str) -> None:
+        values = self._text_form(body, content_type)
+        if path == FRONTEND_LANGUAGE_ACTION_ROUTE:
+            self._exact_fields(
+                values,
+                {"language", "profile_generation", "return_to"},
+            )
+        else:
+            self._exact_fields(
+                values,
+                {"confirm_reset", "profile_generation", "return_to"},
+            )
+        return_to = values["return_to"]
+        if not is_safe_frontend_return_path_v1(return_to):
+            raise ValueError("return_to must identify one safe rendered HTML path.")
+        self._profile_action_return_to = return_to
+        if path == FRONTEND_PROFILE_RESET_ACTION_ROUTE:
+            if values["confirm_reset"] != "on":
+                raise ValueError("Profile reset requires explicit confirmation.")
+        raw_generation = values["profile_generation"]
+        if (
+            not raw_generation.isascii()
+            or not raw_generation.isdecimal()
+            or (len(raw_generation) > 1 and raw_generation.startswith("0"))
+        ):
+            raise ValueError("profile_generation must be a non-negative integer.")
+        generation = int(raw_generation)
+        if path == FRONTEND_LANGUAGE_ACTION_ROUTE:
+            set_frontend_language_v1(
+                self.server.app_context,
+                language=values["language"],
+                expected_generation=generation,
+            )
+        elif path == FRONTEND_PROFILE_RESET_ACTION_ROUTE:
+            reset_frontend_profile_v1(
+                self.server.app_context,
+                expected_generation=generation,
+            )
+        else:
+            raise RuntimeError("Profile action route dispatch is incomplete.")
+        with self.server.app_context.profile_lock:
+            self.server.app_context.profile_redirect_return_to = return_to
+        self._redirect(return_to)
+
     def _download(self, path: str) -> None:
         with self.server.app_context.lock:
             if path == ANALYZE_REQUEST_DOWNLOAD_ROUTE_PATH:
@@ -799,12 +987,17 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
         return active
 
     def _managed_category_page(self, family: str) -> None:
-        discovery = self._refresh_category(family)
         route = {
             "sessions": "/sessions",
             "matches": "/matches",
             "corpora": "/learning",
         }[family]
+        discovery = None
+        if getattr(self, "_profile_return_without_refresh", False):
+            with self.server.app_context.lock:
+                discovery = self.server.app_context.managed_stateful.discoveries.get(family)
+        if discovery is None:
+            discovery = self._refresh_category(family)
         title = {
             "sessions": "Sessions",
             "matches": "Match capture",
@@ -1045,6 +1238,16 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
             )
             return True
         return self._stateful_download(path)
+
+    def _consume_profile_redirect_return(self, path: str) -> None:
+        self._profile_return_without_refresh = False
+        if not is_safe_frontend_return_path_v1(path):
+            return
+        with self.server.app_context.profile_lock:
+            return_to = self.server.app_context.profile_redirect_return_to
+            if return_to == path:
+                self.server.app_context.profile_redirect_return_to = None
+                self._profile_return_without_refresh = True
 
     def _open_managed_item(self, family: str, values: dict[str, str]) -> None:
         self._exact_fields(values, {"handle", "generation"})
@@ -1500,7 +1703,7 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
             try:
                 parsed = urlsplit(self.path)
             except ValueError:
-                self._send_text(HTTPStatus.BAD_REQUEST, "Invalid request")
+                self._send_common_error(HTTPStatus.BAD_REQUEST)
                 return
             if not self._authorize_get(parsed.path, parsed.query):
                 return
@@ -1510,12 +1713,18 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
                 self._send_bytes(HTTPStatus.OK, content, content_type=content_type)
                 return
             if parsed.path in _STATEFUL_POST_ROUTES:
-                self._send_text(
+                self._send_common_error(
                     HTTPStatus.METHOD_NOT_ALLOWED,
-                    "Method not allowed",
                     extra_headers=(("Allow", "POST"),),
                 )
                 return
+            if parsed.path in FRONTEND_PROFILE_ACTION_ROUTES:
+                self._send_common_error(
+                    HTTPStatus.METHOD_NOT_ALLOWED,
+                    extra_headers=(("Allow", "POST"),),
+                )
+                return
+            self._consume_profile_redirect_return(parsed.path)
             if self._stateful_get(parsed.path):
                 return
             if "/assets/" in parsed.path:
@@ -1525,9 +1734,8 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
                 self._download(parsed.path)
                 return
             if parsed.path in GUIDED_ACTION_ROUTE_PATHS:
-                self._send_text(
+                self._send_common_error(
                     HTTPStatus.METHOD_NOT_ALLOWED,
-                    "Method not allowed",
                     extra_headers=(("Allow", "POST"),),
                 )
                 return
@@ -1552,17 +1760,25 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
                     "The selected process-local artifact is stale.",
                 )
             else:
-                self._send_text(HTTPStatus.INTERNAL_SERVER_ERROR, "Internal server error")
+                self._send_common_error(HTTPStatus.INTERNAL_SERVER_ERROR)
         except Exception:
-            self._send_text(HTTPStatus.INTERNAL_SERVER_ERROR, "Internal server error")
+            self._send_common_error(HTTPStatus.INTERNAL_SERVER_ERROR)
 
     def do_POST(self) -> None:
         try:
-            parsed = urlsplit(self.path)
+            try:
+                parsed = urlsplit(self.path)
+            except ValueError:
+                self._send_common_error(HTTPStatus.BAD_REQUEST)
+                return
             if not self._authorize_mutation():
                 return
             if parsed.query:
                 self._send_authorization_failure()
+                return
+            if parsed.path in FRONTEND_PROFILE_ACTION_ROUTES:
+                body, content_type = self._read_body()
+                self._profile_operation(parsed.path, body, content_type)
                 return
             if parsed.path in _STATEFUL_POST_ROUTES:
                 if parsed.path in {"/sessions/import", "/matches/import"}:
@@ -1584,9 +1800,8 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
                     or _is_stateful_get_route(parsed.path)
                 ):
                     self._read_unsupported_body()
-                    self._send_text(
+                    self._send_common_error(
                         HTTPStatus.METHOD_NOT_ALLOWED,
-                        "Method not allowed",
                         extra_headers=(("Allow", "GET"),),
                     )
                 else:
@@ -1737,11 +1952,19 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
         except (
             FrontendWorkflowExecutionConflictError,
             StaleFrontendWorkflowRevisionError,
+            StaleFrontendProfileGenerationError,
+            FrontendProfilePersistenceConflictError,
         ):
             self._error_page(
                 HTTPStatus.CONFLICT,
                 "Form conflict",
                 "This form is stale. Reload the page and try again.",
+            )
+        except InvalidFrontendProfileResetRequiredError:
+            self._error_page(
+                HTTPStatus.CONFLICT,
+                "State changed",
+                "Reset the invalid local profile from About before saving a language preference.",
             )
         except FrontendWorkflowValidationError:
             page = (
@@ -1782,7 +2005,7 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
                 str(error),
             )
         except SkatMindInvariantError:
-            self._send_text(HTTPStatus.INTERNAL_SERVER_ERROR, "Internal server error")
+            self._send_common_error(HTTPStatus.INTERNAL_SERVER_ERROR)
         except (SkatMindError, ValueError) as error:
             path = urlsplit(self.path).path
             if path in _STATEFUL_POST_ROUTES and path.startswith("/matches/"):
@@ -1816,9 +2039,13 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
                 ),
             )
         except OSError:
-            self._send_text(HTTPStatus.INTERNAL_SERVER_ERROR, "Filesystem error")
+            self._error_page(
+                HTTPStatus.INTERNAL_SERVER_ERROR,
+                "Filesystem error",
+                "A local filesystem operation failed.",
+            )
         except Exception:
-            self._send_text(HTTPStatus.INTERNAL_SERVER_ERROR, "Internal server error")
+            self._send_common_error(HTTPStatus.INTERNAL_SERVER_ERROR)
 
     def _unsupported_method(self) -> None:
         try:
@@ -1839,6 +2066,7 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
                 | set(GUIDED_ACTION_ROUTE_PATHS)
                 | set(GUIDED_DOWNLOAD_ROUTE_PATHS)
                 | set(_STATEFUL_POST_ROUTES)
+                | set(FRONTEND_PROFILE_ACTION_ROUTES)
             )
             if parsed.path not in known_paths and not _is_stateful_get_route(parsed.path):
                 self._error_page(HTTPStatus.NOT_FOUND, "Page not found", "Not found.")
@@ -1849,21 +2077,21 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
                 "POST"
                 if parsed.path in GUIDED_ACTION_ROUTE_PATHS
                 or parsed.path in _STATEFUL_POST_ROUTES
+                or parsed.path in FRONTEND_PROFILE_ACTION_ROUTES
                 else "GET"
             )
-            self._send_text(
+            self._send_common_error(
                 HTTPStatus.METHOD_NOT_ALLOWED,
-                "Method not allowed",
                 extra_headers=(("Allow", allow),),
             )
         except OverflowError:
-            self._send_text(HTTPStatus.REQUEST_ENTITY_TOO_LARGE, "Request body is too large")
+            self._send_common_error(HTTPStatus.REQUEST_ENTITY_TOO_LARGE)
         except TypeError:
-            self._send_text(HTTPStatus.UNSUPPORTED_MEDIA_TYPE, "Unsupported content type")
+            self._send_common_error(HTTPStatus.UNSUPPORTED_MEDIA_TYPE)
         except ValueError:
-            self._send_text(HTTPStatus.BAD_REQUEST, "Invalid request")
+            self._send_common_error(HTTPStatus.BAD_REQUEST)
         except Exception:
-            self._send_text(HTTPStatus.INTERNAL_SERVER_ERROR, "Internal server error")
+            self._send_common_error(HTTPStatus.INTERNAL_SERVER_ERROR)
 
     do_CONNECT = _unsupported_method
     do_DELETE = _unsupported_method

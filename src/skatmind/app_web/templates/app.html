@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="{{HTML_LANG}}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -8,17 +8,19 @@
   {{EXTRA_STYLES}}
 </head>
 <body>
-  <a class="skip-link" href="#main-content">Skip to main content</a>
+  <a class="skip-link" href="#main-content">{{SKIP_LINK}}</a>
   <header class="site-header">
-    <a class="brand" href="/" aria-label="SkatMind Home">{{PRODUCT_NAME}}</a>
-    <nav aria-label="Primary navigation">{{NAVIGATION}}</nav>
+    <a class="brand" href="/" aria-label="{{BRAND_LABEL}}">{{PRODUCT_NAME}}</a>
+    <nav aria-label="{{NAVIGATION_LABEL}}">{{NAVIGATION}}</nav>
+    {{LANGUAGE_SELECTOR}}
   </header>
   <main id="main-content" tabindex="-1">
     <h1>{{HEADING}}</h1>
+    {{PROFILE_WARNING}}
     {{CONTENT}}
   </main>
   <footer>
-    <p>Local Skat analysis. No cloud service.</p>
+    <p>{{FOOTER}}</p>
   </footer>
   {{EXTRA_SCRIPTS}}
 </body>

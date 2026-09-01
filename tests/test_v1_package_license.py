@@ -131,7 +131,12 @@ def test_pep_639_source_metadata_preserves_the_package_baseline() -> None:
         "skatmind.schema_resources": ["*.schema.json"],
         "skatmind.capture_web": ["templates/*.html", "assets/*.css", "assets/*.js"],
         "skatmind.corpus_web": ["templates/*.html", "assets/*.css", "assets/*.js"],
-        "skatmind.app_web": ["templates/*.html", "assets/*.css", "assets/*.js"],
+        "skatmind.app_web": [
+            "templates/*.html",
+            "assets/*.css",
+            "assets/*.js",
+            "locales/*.json",
+        ],
     }
     assert project["scripts"] == {"skatmind": "skatmind.cli:main"}
 
@@ -255,7 +260,7 @@ def test_documented_dependency_and_bundled_asset_audit_is_complete() -> None:
         "JSON Schemas",
         "Capture HTML/CSS/JavaScript",
         "Corpus HTML/CSS/JavaScript",
-        "Application-shell HTML/CSS",
+        "Application-shell HTML/CSS/locale JSON",
         "benchmark fixtures",
         "examples",
         "documentation assets",

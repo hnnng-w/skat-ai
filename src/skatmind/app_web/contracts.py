@@ -46,6 +46,23 @@ APP_HOME_TASK_TITLES = (
     "Open Learning & cross-game insights",
     "About SkatMind",
 )
+APP_NAVIGATION_MESSAGE_KEYS = (
+    "navigation.home",
+    "navigation.analyze",
+    "navigation.review",
+    "navigation.sessions",
+    "navigation.matches",
+    "navigation.learning",
+    "navigation.about",
+)
+APP_HOME_TASK_MESSAGE_KEY_PREFIXES = (
+    "home.tasks.analyze",
+    "home.tasks.review",
+    "home.tasks.sessions",
+    "home.tasks.matches",
+    "home.tasks.learning",
+    "home.tasks.about",
+)
 MANAGED_LOCAL_DATA_CATEGORIES = (
     "sessions",
     "matches",
@@ -146,35 +163,35 @@ class ManagedHomeV1:
 @dataclass(frozen=True, slots=True)
 class NavigationItemV1:
     route: str
-    label: str
+    message_key: str
 
     def __post_init__(self) -> None:
         _require_text(self.route, "Navigation route")
-        _require_text(self.label, "Navigation label")
+        _require_text(self.message_key, "Navigation message key")
 
 
 @dataclass(frozen=True, slots=True)
 class HomeTaskV1:
     route: str
-    title: str
-    description: str
-    required_information: str
-    storage: str
-    mode: str
-    expected_result: str
+    title_message_key: str
+    description_message_key: str
+    required_information_message_key: str
+    storage_message_key: str
+    mode_message_key: str
+    expected_result_message_key: str
     available: bool
-    availability: str
+    availability_message_key: str
 
     def __post_init__(self) -> None:
         for name in (
             "route",
-            "title",
-            "description",
-            "required_information",
-            "storage",
-            "mode",
-            "expected_result",
-            "availability",
+            "title_message_key",
+            "description_message_key",
+            "required_information_message_key",
+            "storage_message_key",
+            "mode_message_key",
+            "expected_result_message_key",
+            "availability_message_key",
         ):
             _require_text(getattr(self, name), f"Home task {name}")
         if type(self.available) is not bool:
@@ -202,9 +219,11 @@ class BrowserSafeApplicationStateV1:
             raise ValueError("home_tasks must contain exact Home tasks.")
         if tuple(item.route for item in navigation) != APP_ROUTE_PATHS:
             raise ValueError("Navigation routes must use canonical order.")
-        if tuple(item.label for item in navigation) != APP_NAVIGATION_LABELS:
-            raise ValueError("Navigation labels must use canonical order.")
-        if tuple(item.title for item in home_tasks) != APP_HOME_TASK_TITLES:
-            raise ValueError("Home tasks must use canonical order.")
+        if tuple(item.message_key for item in navigation) != APP_NAVIGATION_MESSAGE_KEYS:
+            raise ValueError("Navigation message keys must use canonical order.")
+        if tuple(item.title_message_key for item in home_tasks) != tuple(
+            f"{prefix}.title" for prefix in APP_HOME_TASK_MESSAGE_KEY_PREFIXES
+        ):
+            raise ValueError("Home tasks must use canonical message-key order.")
         if tuple(item.route for item in home_tasks) != APP_ROUTE_PATHS[1:]:
             raise ValueError("Home tasks must target the six canonical task routes.")

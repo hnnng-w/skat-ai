@@ -11,6 +11,8 @@ Issue #212 extends it with
 [managed stateful workflows](unified_local_frontend_stateful_workflows.md).
 Issue #213 completes the CLI onboarding separation documented in
 [Advanced CLI automation](advanced_cli_automation_interface.md).
+Issue #216 adds the private profile/localization foundation and bilingual common
+shell documented in [Local frontend profile and localization](local_frontend_profile_and_localization.md).
 
 The exact internal contract identities are:
 
@@ -220,6 +222,8 @@ UAT-FINDING-004. Repeated UAT-01 nevertheless failed.
 
 Issue #208 remains open; UAT-02 through UAT-12 remain paused; B-09 and B-07
 remain open; B-06 remains closed; and Package `1.0.0` and Release preparation
-are not ready. Issue #215 freezes the authoritative future
+are not ready. Issue #215 freezes the authoritative
 [bilingual profile-driven frontend UX contract](bilingual_profile_driven_frontend_ux_contract.md).
-The exact next action is Issue #216.
+Issue #216 implements its private profile, locale, catalog, language-selector,
+and bilingual common-shell subset without translating all workflow bodies. The
+exact next action is Issue #217.

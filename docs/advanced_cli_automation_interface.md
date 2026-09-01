@@ -294,7 +294,8 @@ Package 1.0.0:
     not ready
 ```
 
-Issue #215 freezes the authoritative future
+Issue #215 freezes the authoritative
 [bilingual profile-driven frontend UX contract](bilingual_profile_driven_frontend_ux_contract.md).
-The exact next action is Issue #216. Existing advanced CLI contracts remain
-English and unchanged.
+Issue #216 implements the separate private unified-browser profile/localization
+foundation. Existing advanced CLI contracts remain English and unchanged. The
+exact next action is Issue #217.

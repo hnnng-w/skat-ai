@@ -112,7 +112,7 @@ The current bundled and repository evidence families were reviewed as follows:
 | JSON Schemas | The 71 authoritative files under `schemas/` and their byte-identical Package Resource mirrors are project schemas; no third-party metaschema is bundled. |
 | Capture HTML/CSS/JavaScript | The template, stylesheet, and vanilla JavaScript are first-party Package Data with no framework, CDN, font, image, or copied library. |
 | Corpus HTML/CSS/JavaScript | The template, stylesheet, and vanilla JavaScript are first-party Package Data with no framework, CDN, font, image, or copied library. |
-| Application-shell HTML/CSS | The unified shell template and stylesheet are first-party Package Data with no framework, script, CDN, font, image, or copied library. |
+| Application-shell HTML/CSS/locale JSON | The unified shell template, stylesheet, and German and English translation catalogs are first-party Package Data with no framework, script, CDN, font, image, or copied library. |
 | benchmark fixtures | The two repository-local JSON corpora are deterministic project evidence, not third-party source or data. |
 | examples | Repository-authored JSON requests and Session records; no third-party asset was identified. |
 | documentation assets | Repository-authored Markdown only; no bundled font, image, PDF, or copied documentation package was identified. |

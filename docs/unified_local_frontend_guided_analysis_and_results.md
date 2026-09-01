@@ -333,6 +333,8 @@ Issue #214 and UAT-FINDING-004. Repeated UAT-01 nevertheless failed. Issue #208
 remains open; UAT-02 through UAT-12 remain paused; B-09 and B-07 remain open;
 B-06 remains closed; and Package `1.0.0` and Release preparation are not ready.
 
-Issue #215 freezes the authoritative future
+Issue #215 freezes the authoritative
 [bilingual profile-driven frontend UX contract](bilingual_profile_driven_frontend_ux_contract.md).
-The exact next action is Issue #216.
+Issue #216 implements the shared private profile/localization foundation. When
+German is active, future-owned Analyze and Review bodies remain explicitly
+marked English pending Issue #220. The exact next action is Issue #217.

@@ -25,7 +25,7 @@ Package Data is declared for:
 * every `skatmind.schema_resources/*.schema.json` resource;
 * `skatmind.capture_web` HTML, CSS, and JavaScript resources;
 * `skatmind.corpus_web` HTML, CSS, and JavaScript resources;
-* `skatmind.app_web` HTML, CSS, and optional JavaScript resources.
+* `skatmind.app_web` HTML, CSS, optional JavaScript, and German/English locale JSON resources.
 
 The Package name remains `skatmind`, the Package version is `0.17.0`, and the
 Python requirement remains `>=3.13`. The exact ordered direct runtime
@@ -196,11 +196,12 @@ The registry:
 No schema-loading helper is exported publicly.
 
 The private app, Capture Web, and Learning Corpus transports load HTML templates,
-CSS, and optional vanilla JavaScript through `importlib.resources`. Assets are
-lazy, current-working-directory independent, locally packaged, and contain no
-external dependency, CDN, font, image, or build-system requirement.
-Issue #210 adds the app template and CSS; Issues #168 and #179 retain the Capture
-and Corpus assets. Match reports, Corpus Report sources, and
+CSS, optional vanilla JavaScript, and unified-app translation catalogs through
+`importlib.resources`. Assets are lazy, current-working-directory independent,
+locally packaged, and contain no external dependency, CDN, font, image, or
+build-system requirement. Issue #210 adds the app template and CSS; Issue #216
+adds strict German and English catalog resources; Issues #168 and #179 retain the
+Capture and Corpus assets. Match reports, Corpus Report sources, and
 prepared values remain process memory, and downloads are HTTP responses rather
 than Package Data or installed writable files.
 
@@ -239,6 +240,8 @@ Wheel inspection verifies:
 * exact Capture Web template, CSS, and JavaScript resource bytes;
 * exact Corpus Web template, CSS, and JavaScript resource bytes;
 * exact unified-app template and CSS resource bytes;
+* exact unified-app German and English catalog bytes plus strict key and
+  interpolation-placeholder parity;
 * a valid pure-Python Wheel and RECORD;
 * exact `skatmind = skatmind.cli:main` Console Script metadata and
   `skatmind/__main__.py`;
@@ -283,11 +286,13 @@ verifies:
   `python -m skatmind corpus --help` succeed with exact options and default port;
 * installed/module `app --help` and repository Legacy `app --help` preserve exact
   launch options and invocation identities;
-* packaged app resources load byte-for-byte, and one isolated in-process app
-  server creates only the three managed categories, authenticates all seven
-  navigation routes, serves local CSS, executes one guided Analyze action,
-  downloads its retained Request/Result bytes, enters guided Review, and shuts
-  down;
+* packaged app resources load byte-for-byte, strict German and English catalogs
+  have exact parity, and one isolated in-process app server creates only the
+  three managed categories without creating a profile, authenticates all seven
+  navigation routes, serves local CSS, resolves browser-derived German, saves an
+  explicit language with saved-language precedence, reloads the profile,
+  executes one guided Analyze action, downloads its retained Request/Result
+  bytes, enters guided Review, and shuts down;
 * Session `new`, `apply`, and `show` operate through a caller-selected file;
 * Session-triggered Position analysis, Checkpoint observation/review, and
   Retrospective finalization reuse the existing Application workflows;

@@ -10,9 +10,13 @@ navigation, About, secure serving, packaged assets, and honest placeholders.
 Issue #211 implements guided Analyze/Review and Result presentation. Issue #212
 implements managed stateful workflows. Issue #213 implements the final CLI
 onboarding and advanced-automation slice frozen below.
+Issue #216 implements the private profile/localization foundation and bilingual
+common-shell slice documented in
+[Local frontend profile and localization](local_frontend_profile_and_localization.md).
 
 This document remains authoritative for the implemented version-1 frontend.
-The authoritative future bilingual, profile-driven UX boundary is frozen
+The authoritative implemented-foundation and remaining bilingual, profile-driven
+UX boundary is frozen
 separately in the
 [bilingual profile-driven frontend UX contract](bilingual_profile_driven_frontend_ux_contract.md).
 
@@ -26,13 +30,13 @@ Approved target contract:
     the complete required behavior frozen by Issue #209
 
 Implemented behavior:
-    the complete target implemented through Issues #210 through #213
+    the Issue #209 target plus the Issue #216 profile/localization foundation
 ```
 
 Current executable contracts, Public APIs, persistence formats, browser
 protocols, Schemas, and information controls remain authoritative while the
 implemented target remains in use. Issue #209 changed none of them; Issues #210
-through #213 add only their private frontend and onboarding boundaries.
+through #216 add only their assigned private frontend and onboarding boundaries.
 
 ## UAT source
 
@@ -765,10 +769,14 @@ Release preparation:
     not ready
 ```
 
-Issue #215 freezes the authoritative future
+Issue #215 freezes the authoritative
 [bilingual profile-driven frontend UX contract](bilingual_profile_driven_frontend_ux_contract.md)
-without changing the implemented current frontend or the completed 53-row
-technical ledger. The exact next action is Issue #216.
+without changing the completed 53-row technical ledger. Issue #216 implements
+its private profile/localization and bilingual common-shell foundation while
+full workflow translation remains incomplete. UAT-FINDING-001 is further
+partially remediated and open; UAT-FINDING-007 has its foundation implemented
+and remains open; UAT-FINDING-008 has its foundation/common coverage implemented
+and remains open pending Issue #220. The exact next action is Issue #217.
 
 UAT-02 through UAT-12 remain paused. Frontend work remains part of B-09 outside
 the technical ledger and must not reopen B-06. B-07 remains open.

@@ -8,8 +8,10 @@ import pytest
 
 from skatmind.app_web.context import AppWebContextV1
 from skatmind.app_web.contracts import (
+    APP_HOME_TASK_MESSAGE_KEY_PREFIXES,
     APP_HOME_TASK_TITLES,
     APP_NAVIGATION_LABELS,
+    APP_NAVIGATION_MESSAGE_KEYS,
     APP_ROUTE_PATHS,
     LOCAL_FRONTEND_LAUNCH_CONTRACT_VERSION,
     MANAGED_LOCAL_DATA_CATEGORIES,
@@ -209,8 +211,10 @@ def test_browser_state_is_immutable_canonical_and_contains_no_private_values() -
     state = build_browser_safe_application_state_v1()
     assert type(state) is BrowserSafeApplicationStateV1
     assert tuple(item.route for item in state.navigation) == APP_ROUTE_PATHS
-    assert tuple(item.label for item in state.navigation) == APP_NAVIGATION_LABELS
-    assert tuple(task.title for task in state.home_tasks) == APP_HOME_TASK_TITLES
+    assert tuple(item.message_key for item in state.navigation) == APP_NAVIGATION_MESSAGE_KEYS
+    assert tuple(task.title_message_key for task in state.home_tasks) == tuple(
+        f"{prefix}.title" for prefix in APP_HOME_TASK_MESSAGE_KEY_PREFIXES
+    )
     assert tuple(task.available for task in state.home_tasks) == (
         True,
         True,
@@ -297,16 +301,16 @@ def test_rendering_escapes_storage_disclosure_and_rejects_path_on_other_pages() 
 
 def test_contract_types_reject_noncanonical_nested_values() -> None:
     with pytest.raises(ValueError, match="Navigation route"):
-        NavigationItemV1(route="", label="Home")
+        NavigationItemV1(route="", message_key="navigation.home")
     with pytest.raises(ValueError, match="available"):
         HomeTaskV1(
             route="/about",
-            title="About SkatMind",
-            description="About",
-            required_information="None",
-            storage="None",
-            mode="Reference",
-            expected_result="Information",
+            title_message_key="home.tasks.about.title",
+            description_message_key="home.tasks.about.description",
+            required_information_message_key="home.tasks.about.required",
+            storage_message_key="home.tasks.about.storage",
+            mode_message_key="home.tasks.about.mode",
+            expected_result_message_key="home.tasks.about.result",
             available=1,  # type: ignore[arg-type]
-            availability="Available",
+            availability_message_key="home.tasks.about.availability",
         )

@@ -173,7 +173,11 @@ UAT-01 then exposed UAT-FINDING-004, and Issue #214 implemented
 Microsoft Edge verification resolved Issue #214 and UAT-FINDING-004. Repeated
 UAT-01 nevertheless failed. Issue #215 freezes the authoritative future
 [bilingual profile-driven frontend UX contract](bilingual_profile_driven_frontend_ux_contract.md),
-and Issue #216 is the exact next action. Issue #208 remains open; UAT-02 through
+and Issue #216 implements its private profile persistence, strict German/English
+catalogs, locale resolution, authenticated language selection, bilingual common
+shell, and explicit English workflow-body boundary. The implementation is
+documented in [Local frontend profile and localization](local_frontend_profile_and_localization.md).
+Issue #217 is the exact next action. Issue #208 remains open; UAT-02 through
 UAT-12 remain paused; B-09 and B-07 remain open; B-06 remains closed; and
 Package `1.0.0` and Release preparation are not ready. See
 [Advanced CLI automation](advanced_cli_automation_interface.md).
@@ -414,7 +418,7 @@ canonical Root execution before that optional public conversion.
 | `src/skatmind/cli/entrypoint.py` | Lightweight Package entry with shell-first bare/leading-`app` dispatch before broad Root imports. |
 | `src/skatmind/cli/execution.py` | Package-owned compatibility facade with `app`, `corpus`, `capture`, `session`, and Root dispatch. |
 | `src/skatmind/cli/app.py` | Unified shell managed-home preparation, browser opening, foreground lifecycle, and Exit Code transport. |
-| `src/skatmind/app_web/` | Private managed-data contracts, bounded discovery, Session/Match/Learning adapters, cross-area transfer, browser-safe rendering, security, one Standard Library server, template, and packaged assets. |
+| `src/skatmind/app_web/` | Private managed-data contracts, bounded discovery, Session/Match/Learning adapters, cross-area transfer, strict local profile persistence, locale resolution, German/English catalogs, browser-safe rendering, security, one Standard Library server, template, and packaged assets. |
 | `src/skatmind/cli/corpus.py` | Private local Learning Corpus CLI startup, browser opening, shutdown, and Exit Code transport. |
 | `src/skatmind/cli/capture.py` | Private local Capture CLI startup and Exit Code transport. |
 | `src/skatmind/cli/session.py` | Session compatibility facade over focused parser and orchestration services. |
@@ -1264,7 +1268,8 @@ Current design principles:
 * Keep JSON output explicit and regression-friendly.
 * Keep CLI output human-readable but secondary to structured JSON.
 * Keep live-decision mode separate from post-game-review mode.
-* Keep code and program output in English.
+* Keep code, technical contracts, and non-browser program output in English;
+  unified browser presentation supports German and English.
 * Preserve the fixed three-player table; four-player support is unconditionally out of scope.
 
 Requirements and rule-source ownership are mapped in
@@ -1273,6 +1278,7 @@ boundary is defined in [v1.0 scope](v1_scope.md), and the authoritative bounded
 classifications and blockers are frozen in the
 [v1.0 scope and traceability audit](v1_0_scope_and_traceability_audit.md).
 The [Unified local frontend contract](unified_local_frontend_contract.md)
-governs the implemented current frontend. Future bilingual, profile-driven UX is
-governed by the
-[Bilingual profile-driven frontend UX contract](bilingual_profile_driven_frontend_ux_contract.md).
+governs the implemented current frontend. Its private profile and localization
+foundation is documented in [Local frontend profile and localization](local_frontend_profile_and_localization.md).
+The implemented foundation and remaining bilingual, profile-driven UX are
+governed by the [Bilingual profile-driven frontend UX contract](bilingual_profile_driven_frontend_ux_contract.md).

@@ -1549,9 +1549,14 @@ browser surfaces to `Referrer-Policy: origin` while retaining strict null and
 forged-Origin rejection. Maintainer Microsoft Edge verification resolves Issue
 #214 and UAT-FINDING-004. Repeated UAT-01 nevertheless fails.
 
-Issue #215 freezes the authoritative future
+Issue #215 freezes the authoritative
 [bilingual profile-driven frontend UX contract](bilingual_profile_driven_frontend_ux_contract.md).
-The exact next action is Issue #216. Issue #208 remains open; UAT-02 through
+Issue #216 implements its private profile persistence, locale resolution,
+packaged German/English catalogs, global language selection, bilingual common
+shell, and explicit English workflow-body boundary. It further partially
+remediates UAT-FINDING-001; UAT-FINDING-007 and UAT-FINDING-008 remain open after
+their foundation/common coverage. The exact next action is Issue #217. Issue
+#208 remains open; UAT-02 through
 UAT-12 remain paused; B-09 and B-07 remain open; B-06 remains closed; and
 Package `1.0.0` and Release preparation are not ready. No v1 Release title,
 theme, date, tag, or publication commit is frozen.

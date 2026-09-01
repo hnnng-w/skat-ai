@@ -833,7 +833,8 @@ def test_mutation_origin_and_duplicate_origin_are_rejected(
     )
     assert status == 405
     assert headers["allow"] == "GET"
-    assert body == b"Method not allowed"
+    assert b"Method not allowed" in body
+    assert b'<html lang="en">' in body
 
 
 def test_body_header_cardinality_transfer_encoding_type_and_size_limits(

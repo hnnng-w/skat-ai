@@ -87,6 +87,24 @@ textarea:focus-visible {
   list-style: none;
 }
 
+.language-selector {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 0.55rem;
+  color: white;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.language-selector label {
+  gap: 0.15rem;
+}
+
+.language-selector select,
+.language-selector button {
+  min-height: 2.35rem;
+}
+
 .site-nav a {
   display: inline-block;
   padding: 0.3rem 0;
@@ -156,10 +174,22 @@ h1 {
 }
 
 .local-notice,
-.scope-note {
+.scope-note,
+.translation-status,
+.profile-warning {
   max-width: 64rem;
   margin: 1rem 0;
   border-left: 0.35rem solid var(--gold);
+}
+
+.translation-status,
+.profile-warning {
+  max-width: 64rem;
+  margin: 1rem 0;
+  padding: 1rem;
+  background: #fff8dc;
+  border: 1px solid var(--gold);
+  border-left-width: 0.35rem;
 }
 
 .workflow-form,
@@ -401,10 +431,6 @@ thead {
   text-transform: uppercase;
 }
 
-.task-status::before {
-  content: "Status: ";
-}
-
 .task-status.available {
   color: var(--green);
 }
@@ -491,6 +517,11 @@ footer p {
   }
 
   .site-nav {
+    justify-content: flex-end;
+  }
+
+  .language-selector {
+    grid-column: 1 / -1;
     justify-content: flex-end;
   }
 

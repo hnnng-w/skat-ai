@@ -661,9 +661,20 @@ and the unified app renders a deterministic value-free HTML authorization 403.
 
 Maintainer Microsoft Edge verification subsequently resolved Issue #214 and
 UAT-FINDING-004. Repeated UAT-01 nevertheless failed. Issue #215 freezes the
-authoritative future
+authoritative
 [bilingual profile-driven frontend UX contract](bilingual_profile_driven_frontend_ux_contract.md)
 without rewriting the Issue #207 technical conclusion.
+
+Issue #216 implements the private local frontend profile, strict German/English
+catalogs, locale resolution, global language selection, bilingual shared shell,
+current flat Home, About, authorization, generic common errors, and explicit
+English workflow-body boundary. It further partially remediates
+UAT-FINDING-001, implements the foundation for UAT-FINDING-007, and implements
+foundation/common coverage for UAT-FINDING-008. Those three findings remain
+open; UAT-FINDING-003, UAT-FINDING-005, and UAT-FINDING-006 remain open;
+UAT-FINDING-002 and UAT-FINDING-004 remain resolved. Issue #216 does not repeat
+UAT-01, resume UAT-02 through UAT-12, reopen B-06, or change the Issue #207
+technical conclusion.
 
 The post-audit Release-process state is:
 
@@ -686,6 +697,30 @@ B-07:
 UAT-FINDING-004:
     resolved
 
+UAT-FINDING-001:
+    further partially remediated
+    open
+
+UAT-FINDING-002:
+    resolved
+
+UAT-FINDING-003:
+    open
+
+UAT-FINDING-005:
+    open
+
+UAT-FINDING-006:
+    open
+
+UAT-FINDING-007:
+    foundation implemented
+    open
+
+UAT-FINDING-008:
+    foundation and common coverage implemented
+    open pending Issue #220
+
 Issue #214:
     resolved
 
@@ -702,4 +737,4 @@ Release preparation:
 The 53-row ledger remains exactly 19 `satisfied`, 34
 `satisfied_with_approved_bounded_scope`, and zero in each unresolved
 classification. Frontend and UAT work remains under B-09 outside that ledger and
-does not reopen B-06. The exact next action is Issue #216.
+does not reopen B-06. The exact next action is Issue #217.

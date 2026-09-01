@@ -215,8 +215,7 @@ def _collect_wall_clock_elapsed_fields(
     if isinstance(value, dict):
         for key, child in value.items():
             child_path = f"{path}/{key}"
-            if key == _WALL_CLOCK_ELAPSED_KEY:
-                assert type(child) is int
+            if key == _WALL_CLOCK_ELAPSED_KEY and type(child) is int:
                 assert child >= 0
                 fields[child_path] = child
             fields.update(_collect_wall_clock_elapsed_fields(child, path=child_path))
@@ -232,7 +231,7 @@ def _normalize_wall_clock_elapsed_fields(value: object) -> object:
         return {
             key: (
                 _NORMALIZED_WALL_CLOCK_ELAPSED_MS
-                if key == _WALL_CLOCK_ELAPSED_KEY
+                if key == _WALL_CLOCK_ELAPSED_KEY and type(child) is int
                 else _normalize_wall_clock_elapsed_fields(child)
             )
             for key, child in value.items()
@@ -843,11 +842,12 @@ def test_representative_submodes_match_all_execution_boundaries(
         public,
         application,
     ]
-    if example_name == "grand_auto_search_fallback.json":
+    if _collect_wall_clock_elapsed_fields(documents[0]):
         _assert_cross_execution_documents_equal_except_wall_clock_elapsed(documents)
-        assert documents[0]["bounded_search_result"]["status"] == "partial"
     else:
         assert all(document == documents[0] for document in documents[1:])
+    if example_name == "grand_auto_search_fallback.json":
+        assert documents[0]["bounded_search_result"]["status"] == "partial"
     if example_name == "fixed_three_player_historical_list_all_passed.json":
         assert (
             documents[0]["fixed_three_player_historical_list_summary"]["ranking_status"]

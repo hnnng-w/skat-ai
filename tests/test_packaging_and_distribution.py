@@ -60,6 +60,7 @@ def test_build_metadata_package_discovery_and_package_data_are_explicit() -> Non
             "templates/*.html",
             "assets/*.css",
             "assets/*.js",
+            "locales/*.json",
         ],
     }
     assert not (PROJECT_ROOT / "src" / ("skat" + "_ai")).exists()
@@ -159,6 +160,8 @@ def test_app_web_resources_are_local_package_data() -> None:
     expected = {
         "templates/app.html",
         "assets/app.css",
+        "locales/de.json",
+        "locales/en.json",
     }
     for name in expected:
         resource = resources.joinpath(name)

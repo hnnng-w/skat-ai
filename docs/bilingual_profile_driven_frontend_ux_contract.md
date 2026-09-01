@@ -3,15 +3,17 @@
 ## Authority and status
 
 This document is the authoritative Product and architecture contract for the
-remaining v1 unified-frontend UX remediation frozen by Issue #215. It governs
-the future bilingual, profile-driven, task-first frontend work assigned to
-Issues #216 through #220.
+remaining v1 unified-frontend UX remediation frozen by Issue #215. Issue #216
+implements its private profile/localization and common-shell foundation. Issues
+#217 through #220 retain the remaining information-architecture, validation,
+profile-driven form, task-first, and complete-translation ownership.
 
 This document must keep three states distinct:
 
 ```text
 Current behavior:
-    the English-only unified frontend implemented through Issue #214
+    the bilingual common-shell and private-profile foundation implemented
+    through Issue #216, with explicitly marked English workflow bodies
 
 Approved target contract:
     the future behavior frozen by Issue #215 in this document
@@ -20,10 +22,11 @@ Future implementation ownership:
     the focused implementation sequence in Issues #216 through #220
 ```
 
-Issue #215 is documentation-only. The approved target is not implemented by
-Issue #215. Product code, browser assets, tests, Package metadata, Schemas,
-examples, generated outputs, CLI behavior, persistence behavior, Product
-semantics, and Package version remain unchanged.
+Issue #215 is documentation-only. Issue #216 implements only its assigned subset
+without changing Product semantics, CLI/API/JSON/Schema behavior, Package
+version, examples, generated outputs, or the future ownership of Issues #217
+through #220. The exact implementation is documented in
+[Local frontend profile and localization](local_frontend_profile_and_localization.md).
 
 The implemented version-1 launch and frontend boundary remains authoritative in
 [Unified local frontend contract](unified_local_frontend_contract.md). This
@@ -50,7 +53,7 @@ UAT-FINDING-001:
     A primary frontend exists, but normal stateful Product workflows are not yet
     acceptable.
     Severity: blocker
-    Disposition: accepted_for_remediation
+    Status: further partially remediated by Issue #216, open
 
 UAT-FINDING-002:
     CLI onboarding was an unstructured expert interface.
@@ -59,7 +62,7 @@ UAT-FINDING-002:
 UAT-FINDING-003:
     Session, Match, Review, and Learning are not sufficiently distinguished.
     Severity: major
-    Disposition: accepted_for_remediation
+    Status: open
 
 UAT-FINDING-004:
     Valid browser form submissions were rejected as Forbidden.
@@ -69,27 +72,31 @@ UAT-FINDING-005:
     Normal forms expose internal identifiers, enums, timestamps, and technical
     metadata.
     Severity: major
-    Disposition: accepted_for_remediation
+    Status: open
 
 UAT-FINDING-006:
     Validation failures can discard entered values and break the current
     workflow.
     Severity: major
-    Disposition: accepted_for_remediation
+    Status: open
 
 UAT-FINDING-007:
     Stateful workflows expose too many fields and advanced concepts before the
     next normal Skat task is clear.
     Severity: major
-    Disposition: accepted_for_remediation
+    Status: foundation implemented by Issue #216, open
 
 UAT-FINDING-008:
-    The unified frontend is available only in English.
+    Complete German and English workflow coverage is unavailable.
     Severity: major
-    Disposition: accepted_for_remediation
+    Status: foundation and common coverage implemented by Issue #216, open
+    pending Issue #220
 ```
 
-Issue #215 closes none of the remaining findings.
+Issue #216 further partially remediates UAT-FINDING-001, implements the
+foundation for UAT-FINDING-007, and implements foundation/common coverage for
+UAT-FINDING-008. All remain open pending the assigned follow-up work and repeated
+UAT.
 
 ## Maintainer decisions
 
@@ -123,7 +130,7 @@ import must remain available but secondary and advanced.
 
 ## Contract identity
 
-The future private contract versions are frozen as:
+The private contract versions are frozen as:
 
 ```text
 BILINGUAL_FRONTEND_CONTRACT_VERSION = 1
@@ -134,10 +141,11 @@ PROFILE_DRIVEN_FORM_DEFAULTS_VERSION = 1
 FRONTEND_VALIDATION_PRESERVATION_VERSION = 1
 ```
 
-They remain independent from Package version, Public API version, Root
+Issue #216 implements the first three versions. The information-architecture,
+profile-driven-form-default, and validation-preservation versions remain
+future-owned and unimplemented. All remain independent from Package version, Public API version, Root
 workflows, Session version, Match Workspace version, Corpus version, Schema
-versions, Dataset versions, and browser protocol versions. Issue #215 adds no
-Production constants.
+versions, Dataset versions, and browser protocol versions.
 
 The exact future private policies are:
 
@@ -156,24 +164,31 @@ language_and_profile_never_change_product_semantics
 no_external_translation_profile_sync_or_cloud_service
 ```
 
-These policies remain internal and must not become Public API exports.
+These policies remain internal and must not become Public API exports. Issue
+#216 implements exactly the seven-policy subset listed in
+[Local frontend profile and localization](local_frontend_profile_and_localization.md);
+the other five remain future-owned.
 
 ## Current behavior
 
-Package `0.17.0` currently provides an English-only unified frontend. Browser
-labels, normal validation text, authorization text, status text, and the HTML
-`lang` attribute are English. Machine Routes and identifiers are English.
+Package `0.17.0` currently provides a German/English common shell, current flat
+Home, About, authorization, and generic common-error presentation. Exact HTML
+`lang`, global language selection, saved/browser/fallback resolution, strict
+catalogs, and private profile persistence are implemented. Workflow-specific
+Analyze, Review, Session, Match, and Learning bodies remain explicitly marked
+English when the German shell is selected. Machine Routes and identifiers remain
+English and locale-neutral.
 
 Home currently presents one flat task sequence: Analyze, Review, Session,
 Match, Learning, and About. It does not provide the approved grouped hierarchy.
 Normal stateful creation forms still expose technical identifiers and metadata.
-There is no locale resolver, language selector, translation catalog, private
-frontend-profile persistence, or known-Player directory.
+There is no known-Player directory, profile-driven form behavior, grouped Home,
+validation-preservation redesign, or complete workflow translation.
 
-The managed data root currently contains exactly `sessions`, `matches`, and
-`corpora`. Startup creates those missing managed directories but no profile,
-manifest, Product object, or Result. This behavior remains current until the
-focused implementation Issues change it.
+The managed data root retains exactly the managed categories `sessions`,
+`matches`, and `corpora`. An optional private `frontend-profile.json` is a direct
+root child, not a fourth category. Startup creates missing managed directories
+but does not create the profile, manifest, Product object, or Result.
 
 The current Package baseline remains:
 
@@ -781,7 +796,7 @@ focused sequence and ownership.
 Add the private local frontend profile and localization foundation
 ```
 
-Issue #216 owns private profile persistence; locale resolution; the global
+Issue #216 owns and implements private profile persistence; locale resolution; the global
 language selector; translation catalogs and validation; shell, navigation,
 About, common status, authorization, and common-error localization; and
 separation of machine keys from presentation text.
@@ -831,11 +846,12 @@ all remaining German and English frontend catalog coverage.
 
 ## Finding ownership
 
-The exact remaining finding ownership is:
+The exact remaining finding state and ownership is:
 
 ```text
 UAT-FINDING-001:
-    remaining remediation across Issues #216 through #220
+    further partially remediated by Issue #216
+    open across Issues #217 through #220
 
 UAT-FINDING-003:
     Issues #217 and #220
@@ -847,10 +863,12 @@ UAT-FINDING-006:
     Issue #218
 
 UAT-FINDING-007:
-    Issues #216, #219, and #220
+    foundation implemented by Issue #216
+    open for Issues #219 and #220
 
 UAT-FINDING-008:
-    Issues #216 through #220
+    foundation and common coverage implemented by Issue #216
+    open pending complete coverage through Issue #220
 ```
 
 The resolved finding state remains:
@@ -866,7 +884,7 @@ UAT-FINDING-004:
 ## UAT repetition and gate state
 
 Repeated UAT-01 remains failed. UAT-01 may be repeated again only after Issues
-#216 through #220 are implemented and validated. UAT-02 through UAT-12 must
+#217 through #220 are implemented and validated. UAT-02 through UAT-12 must
 remain paused until that repeated UAT-01 passes.
 
 The next repeated UAT-01 must verify at least:
@@ -914,21 +932,17 @@ The completed 53-row technical ledger must not be reopened. The exact next
 implementation action is:
 
 ```text
-Issue #216 — Add the private local frontend profile and localization foundation
+Issue #217 — Reorganize the Home dashboard and clarify Product concepts in
+German and English
 ```
 
 ## Non-goals and accepted limitations
 
-Issue #215 must not implement translation catalogs, profile persistence,
-language switching, German Production text, Home reordering, form
-simplification, validation preservation, generated IDs, Player-directory
-behavior, or task-first stateful workflows. Those changes belong only to Issues
-#216 through #220.
-
-Issue #215 must not modify `src/`, `tests/`, `schemas/`, `examples/`,
-`benchmarks/`, `scripts/`, `.github/`, browser assets, `pyproject.toml`,
-`LICENSE`, `COPYRIGHT`, `CHANGELOG.md`, or generated outputs. It must not create
-a tag or Release.
+Issue #216 does not implement Home reordering, form simplification, validation
+preservation, generated IDs, Player-directory behavior, profile-driven workflow
+defaults, task-first stateful layouts, or complete workflow translation. Those
+changes remain owned by Issues #217 through #220. It does not create a tag or
+Release.
 
 Issue #215 must not translate or change the CLI, Public Python API, JSON,
 Schemas, IDs, Enums, Routes, errors, persistence, hashes, generated outputs, or

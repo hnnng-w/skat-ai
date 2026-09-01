@@ -105,9 +105,14 @@ official Skat solver. Future product scope is defined in
 
 ## Language rules
 
-Repository code, tests, comments, docstrings, JSON keys, CLI output, and program output must remain in English.
+Repository code, tests, comments, docstrings, documentation, JSON keys, CLI
+output, Public API values, Routes, machine identifiers, persistence, and
+generated outputs must remain in English and locale-neutral. The explicit
+exception is German user-visible text in the unified frontend translation
+catalog.
 
-Planning conversation may be in German, but all repository changes must be written in English.
+Planning conversation may be in German, but technical repository changes remain
+English. Unified browser presentation supports German and English.
 
 ## Table assumption
 
@@ -223,6 +228,7 @@ Before larger changes, read the relevant documentation:
 * `docs/requirements_traceability.md`
 * `docs/v1_scope.md`
 * `docs/bilingual_profile_driven_frontend_ux_contract.md`
+* `docs/local_frontend_profile_and_localization.md`
 
 Do not assume old behavior if documentation or tests say otherwise.
 
@@ -589,8 +595,11 @@ changed the unified app, standalone Capture, and standalone Corpus to
 added the unified app's value-free HTML 403 response. Maintainer Microsoft Edge
 verification subsequently resolved Issue #214 and UAT-FINDING-004. Repeated
 UAT-01 nevertheless failed. Issue #215 freezes the authoritative future
-[`bilingual profile-driven frontend UX contract`](docs/bilingual_profile_driven_frontend_ux_contract.md);
-Issue #216 is the exact next action. Issue #208 remains open, UAT-02 through
+[`bilingual profile-driven frontend UX contract`](docs/bilingual_profile_driven_frontend_ux_contract.md).
+Issue #216 implements its private profile persistence, locale resolution,
+strict German/English catalogs, global language selection, and bilingual common
+shell foundation without completing future-owned workflow translation. Issue
+#217 is the exact next action. Issue #208 remains open, UAT-02 through
 UAT-12 remain paused, B-09 and B-07 remain open, B-06 remains closed, and
 Package `1.0.0` and Release preparation are not ready. No v1 Release title,
 theme, date, tag, publication commit, or production model is frozen.
@@ -891,8 +900,10 @@ shell; Issue #211 implements guided analysis, Historical Review, JSON transfer,
 and Result presentation; Issue #212 implements managed stateful workflows; Issue
 #213 implements advanced CLI automation and onboarding. Maintainer Microsoft
 Edge verification resolved Issue #214 and UAT-FINDING-004, but repeated UAT-01
-did not pass. Issue #215 freezes the authoritative future bilingual profile-
-driven frontend UX contract, and Issue #216 is the exact next action. UAT-02
+did not pass. Issue #215 freezes the authoritative bilingual profile-driven
+frontend UX contract. Issue #216 implements the private local frontend profile,
+locale foundation, and bilingual common shell while full workflow translation
+remains incomplete through Issue #220. Issue #217 is the exact next action. UAT-02
 through UAT-12 remain paused, B-09 and B-07 remain open, B-06 remains closed,
 and Package `1.0.0` and Release preparation are not ready.
 End-to-end local Live and Retrospective Session
@@ -977,7 +988,10 @@ and the implemented shell is documented in
 [`docs/unified_local_frontend_application_shell.md`](docs/unified_local_frontend_application_shell.md).
 The guided Analyze/Review implementation is documented in
 [`docs/unified_local_frontend_guided_analysis_and_results.md`](docs/unified_local_frontend_guided_analysis_and_results.md).
-The authoritative future bilingual, profile-driven frontend UX boundary is in
+The private profile/localization foundation is documented in
+[`docs/local_frontend_profile_and_localization.md`](docs/local_frontend_profile_and_localization.md).
+The authoritative implemented-foundation and remaining bilingual,
+profile-driven frontend UX boundary is in
 [`docs/bilingual_profile_driven_frontend_ux_contract.md`](docs/bilingual_profile_driven_frontend_ux_contract.md).
 
 Do not describe undecided future areas as permanently out of scope. Four-player

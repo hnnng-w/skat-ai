@@ -144,6 +144,8 @@ APP_RESOURCE_PREFIX = "skatmind/app_web/"
 APP_RESOURCE_NAMES = (
     "templates/app.html",
     "assets/app.css",
+    "locales/de.json",
+    "locales/en.json",
 )
 CONSOLE_SCRIPT_NAME = "skatmind"
 CONSOLE_SCRIPT_TARGET = "skatmind.cli:main"
@@ -976,17 +978,24 @@ from urllib.parse import urlencode
 import skatmind
 import skatmind.errors as public_errors
 from skatmind.app_web.context import AppWebContextV1
+from skatmind.app_web.frontend_profile_contracts import LOCAL_FRONTEND_PROFILE_VERSION
+from skatmind.app_web.frontend_profile_persistence import load_frontend_profile_file_v1
 from skatmind.app_web.guided_contracts import GUIDED_ANALYSIS_FRONTEND_VERSION
 from skatmind.app_web.json_transfer import (
     build_frontend_request_json_bytes_v1,
     build_frontend_result_json_bytes_v1,
 )
 from skatmind.app_web.managed_data import prepare_managed_home_v1
+from skatmind.app_web.localization_contracts import (
+    BILINGUAL_FRONTEND_CONTRACT_VERSION,
+    FRONTEND_TRANSLATION_CATALOG_VERSION,
+)
 from skatmind.app_web.position_form import (
     build_guided_position_execution_v1,
     parse_position_form_v1,
 )
 from skatmind.app_web.server import start_app_web_server_v1
+from skatmind.app_web.translation_catalog import load_frontend_translation_catalogs_v1
 from skatmind.api.v1 import (
     ExecutionOptionsV1,
     WorkflowV1,
@@ -1132,6 +1141,8 @@ app_resource_root = importlib.resources.files("skatmind.app_web")
 app_resource_names = (
     "templates/app.html",
     "assets/app.css",
+    "locales/de.json",
+    "locales/en.json",
 )
 app_digest = hashlib.sha256()
 for name in app_resource_names:
@@ -1155,6 +1166,12 @@ assert sorted(path.relative_to(app_home.root).as_posix() for path in app_home.ro
     "sessions",
 ]
 app_context = AppWebContextV1.create(app_home)
+assert BILINGUAL_FRONTEND_CONTRACT_VERSION == 1
+assert FRONTEND_TRANSLATION_CATALOG_VERSION == 1
+assert LOCAL_FRONTEND_PROFILE_VERSION == 1
+assert tuple(load_frontend_translation_catalogs_v1()) == ("de", "en")
+assert load_frontend_profile_file_v1(app_home.root).status == "absent"
+assert not (app_home.root / "frontend-profile.json").exists()
 app_server = start_app_web_server_v1(app_context, port=0, token="app-distribution-token")
 app_thread = threading.Thread(target=app_server.serve_forever, daemon=True)
 app_thread.start()
@@ -1185,6 +1202,11 @@ try:
         "Origin": f"http://{app_host}",
         "Content-Type": "application/x-www-form-urlencoded",
     }
+    german_headers = {**app_get_headers, "Accept-Language": "de-DE,de;q=0.9"}
+    status, _, content = app_request("GET", "/", headers=german_headers)
+    assert status == 200 and b'<html lang="de">' in content
+    assert "Startseite".encode("utf-8") in content
+    assert not (app_home.root / "frontend-profile.json").exists()
     for app_route in (
         "/",
         "/analyze",
@@ -1278,11 +1300,34 @@ try:
     assert status == 200 and b"focus-visible" in content
     status, _, _ = app_request("GET", "/api/v1/operations", headers=app_get_headers)
     assert status == 404
+    language_body = urlencode(
+        {
+            "language": "en",
+            "profile_generation": "0",
+            "return_to": "/about",
+        }
+    ).encode("ascii")
+    status, headers, content = app_request(
+        "POST",
+        "/actions/profile/language",
+        headers=app_post_headers,
+        body=language_body,
+    )
+    assert status == 303 and headers["Location"] == "/about" and content == b""
+    saved_profile = load_frontend_profile_file_v1(app_home.root)
+    assert saved_profile.status == "available"
+    assert saved_profile.document is not None and saved_profile.document.language == "en"
+    status, _, content = app_request("GET", "/", headers=german_headers)
+    assert status == 200 and b'<html lang="en">' in content
 finally:
     app_server.shutdown()
     app_server.server_close()
     app_thread.join(timeout=5)
     assert not app_thread.is_alive()
+
+reloaded_app_context = AppWebContextV1.create(app_home)
+assert reloaded_app_context.frontend_profile.document is not None
+assert reloaded_app_context.frontend_profile.document.language == "en"
 
 capture_path = cwd / "capture-workspace.json"
 capture_context = MatchCaptureWebContextV1.open(capture_path)
