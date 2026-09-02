@@ -266,13 +266,25 @@ def test_home_has_exact_tasks_local_no_cloud_copy_and_honest_status(
     status, _headers, body = _request(server, "GET", "/", headers={"Cookie": cookie})
     assert status == 200
     html = body.decode("utf-8")
+    main = html[html.index("<main") : html.index("</main>")]
+    groups_html = main[main.index('<section class="home-group"') :]
     assert "SkatMind runs locally on this computer" in html
     assert "stores no data in the cloud" in html
     assert html.count('<article class="task-card">') == 6
-    assert html.count("Available now.") == 6
+    assert html.count('<section class="home-group"') == 4
+    assert html.count('<details class="task-disclosure">') == 6
+    assert '<details class="task-disclosure" open' not in html
+    assert "Which area do I need?" in html
+    assert groups_html.index("Record a complete 36-game Match") < groups_html.index(
+        "Record or continue one individual game"
+    )
+    assert groups_html.index("Record or continue one individual game") < groups_html.index(
+        "Analyze one decision"
+    )
+    assert "Available now." not in html
     assert "not yet available" not in html
     assert "Issue #" not in html
-    for heading in ("What you need", "Mode", "Stored", "Result"):
+    for heading in ("When to use it", "What you need", "Stored", "Result"):
         assert html.count(f"<dt>{heading}</dt>") == 6
     for forbidden in (
         "type=\"file\"",
@@ -311,6 +323,73 @@ def test_guided_and_managed_stateful_pages_are_available(
         assert expected in html
         assert "Not yet available" not in html
         assert "Issue #" not in html
+
+
+def test_stateful_landing_empty_states_explain_scope_prerequisite_and_next_action(
+    running_app_server: SkatMindAppWebServerV1,
+) -> None:
+    server = running_app_server
+    cookie, _mutation_headers = _bootstrap(server)
+    expected = {
+        "/sessions": (
+            "No recorded individual games yet",
+            "One Session is a resumable record of one standalone individual Game",
+            "Use the creation form below",
+        ),
+        "/matches": (
+            "No recorded Matches yet",
+            "same three participants across all 36 authoritative positions",
+            "Use Create Match below",
+        ),
+        "/learning": (
+            "No learning collections yet",
+            "selected evidence from recorded Matches",
+            "First record one or more complete Matches",
+        ),
+    }
+    for route, values in expected.items():
+        status, _headers, body = _request(
+            server,
+            "GET",
+            route,
+            headers={"Cookie": cookie},
+        )
+        html = body.decode("utf-8")
+        assert status == 200
+        assert '<section class="guided-empty-state"' in html
+        for value in values:
+            assert value in html
+
+
+def test_home_rendering_executes_no_product_work(
+    running_app_server: SkatMindAppWebServerV1,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    server = running_app_server
+    cookie, _mutation_headers = _bootstrap(server)
+
+    def unexpected_product_work(*_args: object, **_kwargs: object) -> None:
+        raise AssertionError("Home rendering executed Product work.")
+
+    for name in (
+        "run_guided_analyze_v1",
+        "run_guided_review_v1",
+        "execute_guided_session_position_v1",
+        "execute_unified_match_analysis_v1",
+        "prepare_unified_learning_artifacts_v1",
+    ):
+        monkeypatch.setattr(f"skatmind.app_web.server.{name}", unexpected_product_work)
+    before_discoveries = dict(server.app_context.managed_stateful.discoveries)
+    before_generations = dict(server.app_context.managed_stateful.generations)
+    status, _headers, body = _request(
+        server,
+        "GET",
+        "/",
+        headers={"Cookie": cookie},
+    )
+    assert status == 200 and b"Which area do I need?" in body
+    assert server.app_context.managed_stateful.discoveries == before_discoveries
+    assert server.app_context.managed_stateful.generations == before_generations
 
 
 def _post_form(
@@ -459,6 +538,17 @@ def test_managed_match_learning_and_explicit_transfer_http_lifecycle(
     assert status == 303 and headers["location"] == "/learning/current"
     learning = server.app_context.managed_stateful.active_learning
     assert learning is not None
+    status, _headers, body = _request(
+        server,
+        "GET",
+        "/learning/current",
+        headers={"Cookie": cookie},
+    )
+    assert status == 200
+    learning_html = body.decode("utf-8")
+    assert "This learning collection has no Match data" in learning_html
+    assert "explicitly add it here" in learning_html
+    assert "Nothing is imported, selected, analyzed, or built automatically" in learning_html
 
     status, headers, _body = _post_form(
         server,

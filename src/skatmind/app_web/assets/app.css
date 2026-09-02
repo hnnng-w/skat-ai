@@ -152,7 +152,7 @@ h1 {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr));
   gap: 1rem;
-  margin-top: 2.5rem;
+  margin-top: 1rem;
 }
 
 .task-card,
@@ -171,6 +171,126 @@ h1 {
   border: 1px solid var(--line);
   border-radius: 0.25rem;
   box-shadow: 0.3rem 0.35rem 0 rgb(11 63 45 / 9%);
+}
+
+.scope-guide,
+.concept-guide,
+.guided-empty-state,
+.related-areas {
+  max-width: 64rem;
+  margin-top: 1.5rem;
+  padding: clamp(1.1rem, 3vw, 1.8rem);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 0.25rem;
+}
+
+.scope-guide {
+  border-left: 0.35rem solid var(--gold);
+}
+
+.scope-guide h2,
+.concept-guide h2,
+.guided-empty-state h2,
+.related-areas h2,
+.home-group h2 {
+  margin-top: 0;
+}
+
+.scope-guide-list,
+.task-scope {
+  display: grid;
+  grid-template-columns: minmax(9rem, max-content) minmax(0, 1fr);
+  gap: 0.45rem 1rem;
+}
+
+.scope-guide-list dt,
+.task-scope dt {
+  font-weight: 700;
+}
+
+.scope-guide-list dd,
+.task-scope dd {
+  margin: 0;
+}
+
+.scope-distinction,
+.concept-timing {
+  font-weight: 700;
+}
+
+.home-group {
+  margin-top: clamp(2rem, 5vw, 3.5rem);
+}
+
+.home-group > p {
+  max-width: 48rem;
+  color: var(--muted);
+}
+
+.task-card {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+}
+
+.task-card h3 {
+  margin: 0;
+  overflow-wrap: anywhere;
+  font-size: 1.35rem;
+  line-height: 1.2;
+}
+
+.task-summary {
+  flex-grow: 1;
+}
+
+.task-scope {
+  margin: 0.4rem 0 1rem;
+  padding-top: 0.8rem;
+  border-top: 1px solid var(--line);
+  font-size: 0.94rem;
+}
+
+.task-disclosure {
+  padding: 0.75rem;
+  background: #fbf8f0;
+  border: 1px solid var(--line);
+}
+
+.task-action {
+  margin: 1rem 0 0;
+}
+
+.button-link {
+  display: inline-block;
+  padding: 0.55rem 0.8rem;
+  color: white;
+  background: var(--green);
+  border: 1px solid var(--green-dark);
+  border-radius: 0.18rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.button-link:hover {
+  background: var(--green-dark);
+}
+
+.guided-empty-state {
+  border-left: 0.35rem solid var(--gold);
+}
+
+.learning-steps {
+  max-width: 48rem;
+  padding-left: 1.4rem;
+}
+
+.related-areas ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  margin-bottom: 0;
 }
 
 .local-notice,
@@ -535,6 +655,8 @@ footer p {
 }
 
 @media (max-width: 31rem) {
+  .scope-guide-list,
+  .task-scope,
   .task-details,
   .about-list,
   .result-details {

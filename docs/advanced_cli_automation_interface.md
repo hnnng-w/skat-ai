@@ -298,5 +298,6 @@ Issue #215 freezes the authoritative
 [bilingual profile-driven frontend UX contract](bilingual_profile_driven_frontend_ux_contract.md).
 Issue #216 implements the separate private unified-browser profile/localization
 foundation. Existing advanced CLI contracts remain English and unchanged. The
-reopened Issue #216 follow-up remains pending both required Ubuntu jobs; Issue
-#217 is blocked until they pass.
+Issue #216 follow-up and both required Ubuntu jobs passed. Issue #217 implements
+the separate grouped bilingual Home and Product-concept presentation without
+changing this CLI. Issue #218 is the exact next action.

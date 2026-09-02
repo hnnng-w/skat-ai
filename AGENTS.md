@@ -229,6 +229,7 @@ Before larger changes, read the relevant documentation:
 * `docs/v1_scope.md`
 * `docs/bilingual_profile_driven_frontend_ux_contract.md`
 * `docs/local_frontend_profile_and_localization.md`
+* `docs/bilingual_home_information_architecture.md`
 
 Do not assume old behavior if documentation or tests say otherwise.
 
@@ -601,8 +602,13 @@ strict German/English catalogs, global language selection, and bilingual common
 shell foundation without completing future-owned workflow translation. Post-
 merge Ubuntu CI at `087f497` reopened Issue #216 for its CPython-3.13.15 parser-
 header compatibility defect and a separate stale matrix-smoke filename
-expectation. The follow-up correction remains pending both required Ubuntu jobs,
-and Issue #217 is blocked until they pass. Issue #208 remains open, UAT-02 through
+expectation. The correction and both required Ubuntu jobs passed, completing
+Issue #216. Issue #217 implements the grouped bilingual Home, clarified Product
+concepts, related links, and stateful empty-state guidance. UAT-FINDING-001 is
+further partially remediated/open; UAT-FINDING-003 has its Home and concept
+remediation implemented/open pending Issue #220 and repeated UAT-01; and UAT-
+FINDING-008 has bilingual Home and concept coverage implemented/open pending
+Issue #220. Issue #218 is the exact next action. Issue #208 remains open, UAT-02 through
 UAT-12 remain paused, B-09 and B-07 remain open, B-06 remains closed, and
 Package `1.0.0` and Release preparation are not ready. No v1 Release title,
 theme, date, tag, publication commit, or production model is frozen.
@@ -905,10 +911,10 @@ and Result presentation; Issue #212 implements managed stateful workflows; Issue
 Edge verification resolved Issue #214 and UAT-FINDING-004, but repeated UAT-01
 did not pass. Issue #215 freezes the authoritative bilingual profile-driven
 frontend UX contract. Issue #216 implements the private local frontend profile,
-locale foundation, and bilingual common shell while full workflow translation
-remains incomplete through Issue #220. Issue #216 is reopened pending its Ubuntu
-compatibility correction and both required post-merge Ubuntu jobs; Issue #217 is
-blocked until they pass. UAT-02 through UAT-12 remain paused, B-09 and B-07
+locale foundation, and bilingual common shell. Issue #217 implements the private
+grouped bilingual Home information architecture, Product concepts, related links,
+and useful empty states while full workflow translation remains incomplete
+through Issue #220. Issue #218 is the exact next action. UAT-02 through UAT-12 remain paused, B-09 and B-07
 remain open, B-06 remains closed,
 and Package `1.0.0` and Release preparation are not ready.
 End-to-end local Live and Retrospective Session
@@ -995,6 +1001,8 @@ The guided Analyze/Review implementation is documented in
 [`docs/unified_local_frontend_guided_analysis_and_results.md`](docs/unified_local_frontend_guided_analysis_and_results.md).
 The private profile/localization foundation is documented in
 [`docs/local_frontend_profile_and_localization.md`](docs/local_frontend_profile_and_localization.md).
+The grouped Home and Product concepts are documented in
+[`docs/bilingual_home_information_architecture.md`](docs/bilingual_home_information_architecture.md).
 The authoritative implemented-foundation and remaining bilingual,
 profile-driven frontend UX boundary is in
 [`docs/bilingual_profile_driven_frontend_ux_contract.md`](docs/bilingual_profile_driven_frontend_ux_contract.md).

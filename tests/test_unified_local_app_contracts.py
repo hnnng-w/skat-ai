@@ -64,19 +64,19 @@ def test_routes_navigation_home_tasks_and_categories_are_exact_and_ordered() -> 
     )
     assert APP_NAVIGATION_LABELS == (
         "Home",
-        "Analyze a position",
-        "Review a completed game",
-        "Sessions",
-        "Match capture",
-        "Learning & cross-game insights",
+        "Analyze one decision",
+        "Review one completed game",
+        "Record one game",
+        "Record a 36-game Match",
+        "Learn across Matches",
         "About SkatMind",
     )
     assert APP_HOME_TASK_TITLES == (
-        "Analyze a position",
-        "Review a completed game",
-        "Create or resume a Session",
-        "Capture a 36-game Match",
-        "Open Learning & cross-game insights",
+        "Analyze one decision",
+        "Review one completed individual game",
+        "Record or continue one individual game",
+        "Record a complete 36-game Match",
+        "Explore patterns across recorded Matches",
         "About SkatMind",
     )
     assert MANAGED_LOCAL_DATA_CATEGORIES == ("sessions", "matches", "corpora")

@@ -672,6 +672,7 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
         status: int = HTTPStatus.OK,
         extra_stylesheets: tuple[str, ...] = (),
         extra_scripts: tuple[str, ...] = (),
+        empty_state_key: str | None = None,
     ) -> None:
         with self.server.app_context.lock:
             state = self.server.app_context.browser_state
@@ -685,6 +686,7 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
             content=content,
             frontend=frontend,
             return_to=self._safe_current_return_path(),
+            empty_state_key=empty_state_key,
             extra_stylesheets=extra_stylesheets,
             extra_scripts=extra_scripts,
         )
@@ -1014,6 +1016,15 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
             route,
             title=title,
             content=render_managed_category_landing_v1(discovery.view),
+            empty_state_key=(
+                {
+                    "sessions": "sessions",
+                    "matches": "matches",
+                    "corpora": "learning_collections",
+                }[family]
+                if not discovery.view.items
+                else None
+            ),
         )
 
     def _session_page(self, *, status: int = HTTPStatus.OK) -> None:
@@ -1131,6 +1142,11 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
             title="Managed Learning Corpus",
             content=body,
             status=status,
+            empty_state_key=(
+                "learning_data"
+                if isinstance(state.get("matches"), list) and not state["matches"]
+                else None
+            ),
             extra_stylesheets=("/learning/assets/corpus.css",),
             extra_scripts=("/learning/assets/corpus.js",),
         )

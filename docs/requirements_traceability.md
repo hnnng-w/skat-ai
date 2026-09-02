@@ -385,10 +385,10 @@ UAT-FINDING-004. Repeated UAT-01 nevertheless fails. Issue #215 freezes the
 authoritative
 [bilingual profile-driven frontend UX contract](bilingual_profile_driven_frontend_ux_contract.md),
 and Issue #216 implements its private profile/localization foundation and
-bilingual common shell without changing the 53-row ledger. Post-merge Ubuntu CI
-at `087f497` reopened Issue #216 for narrow parser and matrix-smoke compatibility
-corrections without changing any row classification. Issue #217 is blocked until
-both required Ubuntu jobs pass. Issue #208 remains open; UAT-02 through
+bilingual common shell without changing the 53-row ledger. Its narrow parser and
+matrix-smoke corrections passed both required Ubuntu jobs. Issue #217 implements
+the grouped bilingual Home and Product concepts without changing any row
+classification. Issue #218 is the exact next action. Issue #208 remains open; UAT-02 through
 UAT-12 remain paused; B-09 and B-07 remain open; B-06 remains closed; and
 Package `1.0.0` and Release preparation are not ready.
 
@@ -894,8 +894,8 @@ UAT-FINDING-004, but repeated UAT-01 nevertheless failed.
 The authoritative implemented-foundation and remaining UX boundary is the
 [bilingual profile-driven frontend UX contract](bilingual_profile_driven_frontend_ux_contract.md),
 frozen by Issue #215. Issue #216 implements the private profile/localization and
-bilingual common-shell subset and changes no traceability classification. The
-reopened follow-up changes no classification and remains pending both required
-Ubuntu jobs; Issue #217 is blocked until they pass. Issue #208 remains
+bilingual common-shell subset and changes no traceability classification. Its
+follow-up passed. Issue #217 implements the private information-architecture
+subset and likewise changes no classification. Issue #218 is next. Issue #208 remains
 open; UAT-02 through UAT-12 remain paused; B-09 and B-07 remain open; B-06
 remains closed; and Package `1.0.0` and Release preparation are not ready.

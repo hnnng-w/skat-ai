@@ -710,12 +710,14 @@ Learning workflows, and explicit Match-to-Corpus transfer are also available
 without normal-user paths or ports. See [Guided analysis and Results](docs/unified_local_frontend_guided_analysis_and_results.md),
 the [managed stateful workflows](docs/unified_local_frontend_stateful_workflows.md),
 and the [application shell](docs/unified_local_frontend_application_shell.md).
-The shared shell, current flat Home, About, authorization, and common errors now
-support German and English. Browser language is used only when no explicit
+The shared shell, grouped Home, Product-concept and empty-state guidance, About,
+authorization, and common errors now support German and English. Browser
+language is used only when no explicit
 language is saved in the private managed-root profile; the global selector saves
 an explicit preference. Workflow-specific bodies remain explicitly marked
 English where Issue #220 translation is still pending. See [Local frontend
-profile and localization](docs/local_frontend_profile_and_localization.md).
+profile and localization](docs/local_frontend_profile_and_localization.md) and
+[Bilingual Home information architecture](docs/bilingual_home_information_architecture.md).
 Advanced JSON automation and direct Package-1.x compatibility are documented in
 [Advanced CLI automation](docs/advanced_cli_automation_interface.md).
 
@@ -1343,6 +1345,7 @@ Detailed documentation is split into topic-specific files:
 * [v1.0 scope](docs/v1_scope.md)
 * [v1.0 scope and traceability audit](docs/v1_0_scope_and_traceability_audit.md)
 * [Bilingual profile-driven frontend UX contract](docs/bilingual_profile_driven_frontend_ux_contract.md)
+* [Bilingual Home information architecture](docs/bilingual_home_information_architecture.md)
 * [Roadmap](docs/roadmap.md)
 * [Project handoff](docs/project_handoff.md)
 
@@ -1964,9 +1967,15 @@ without product-code change. Issue #202 closes B-02 and makes P-10 and P-13
   implements the private profile/localization foundation and bilingual common
   shell; full workflow translation remains incomplete. Post-merge Ubuntu CI at
   `087f497` reopened Issue #216 for a CPython-3.13.15 parser-header compatibility
-  defect and a separate stale matrix-smoke filename expectation. The correction
-  remains pending both required Ubuntu jobs, and Issue #217 is blocked until they
-  pass. Issue #208 remains open; UAT-02 through UAT-12
+  defect and a separate stale matrix-smoke filename expectation. The follow-up
+  correction and both required Ubuntu jobs passed, completing Issue #216. Issue
+  #217 then adds the private grouped bilingual Home, Decision/Game/Match concepts,
+  localized workflow guidance, related-area links, and useful stateful empty
+  states. It further partially remediates UAT-FINDING-001; implements the Home
+  and concept remediation for UAT-FINDING-003; and implements bilingual Home and
+  concept coverage for UAT-FINDING-008. All three remain open pending their
+  assigned follow-up and repeated UAT-01. Issue #218 is the exact next action.
+  Issue #208 remains open; UAT-02 through UAT-12
   remain paused; B-09 and B-07 remain open; B-06 remains closed; and Package
   `1.0.0` and Release preparation are not ready. No v1 Release title, theme,
   date, tag, or publication commit is frozen.
@@ -1982,6 +1991,7 @@ documented in the [application shell](docs/unified_local_frontend_application_sh
 [Guided analysis and Results](docs/unified_local_frontend_guided_analysis_and_results.md),
 [Managed stateful workflows](docs/unified_local_frontend_stateful_workflows.md),
 [Local frontend profile and localization](docs/local_frontend_profile_and_localization.md),
+[Bilingual Home information architecture](docs/bilingual_home_information_architecture.md),
 [Advanced CLI automation](docs/advanced_cli_automation_interface.md), and the
 [unified local frontend contract](docs/unified_local_frontend_contract.md). The
 authoritative remaining UX boundary is the [bilingual profile-driven frontend UX

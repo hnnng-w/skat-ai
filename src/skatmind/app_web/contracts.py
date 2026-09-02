@@ -31,19 +31,19 @@ APP_ROUTE_PATHS = (
 )
 APP_NAVIGATION_LABELS = (
     "Home",
-    "Analyze a position",
-    "Review a completed game",
-    "Sessions",
-    "Match capture",
-    "Learning & cross-game insights",
+    "Analyze one decision",
+    "Review one completed game",
+    "Record one game",
+    "Record a 36-game Match",
+    "Learn across Matches",
     "About SkatMind",
 )
 APP_HOME_TASK_TITLES = (
-    "Analyze a position",
-    "Review a completed game",
-    "Create or resume a Session",
-    "Capture a 36-game Match",
-    "Open Learning & cross-game insights",
+    "Analyze one decision",
+    "Review one completed individual game",
+    "Record or continue one individual game",
+    "Record a complete 36-game Match",
+    "Explore patterns across recorded Matches",
     "About SkatMind",
 )
 APP_NAVIGATION_MESSAGE_KEYS = (

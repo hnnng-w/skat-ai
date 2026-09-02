@@ -4,16 +4,18 @@
 
 This document is the authoritative Product and architecture contract for the
 remaining v1 unified-frontend UX remediation frozen by Issue #215. Issue #216
-implements its private profile/localization and common-shell foundation. Issues
-#217 through #220 retain the remaining information-architecture, validation,
-profile-driven form, task-first, and complete-translation ownership.
+implements its private profile/localization and common-shell foundation. Issue
+#217 implements the information-architecture and Product-concept slice. Issues
+#218 through #220 retain the remaining validation, profile-driven form, task-
+first, and complete-translation ownership.
 
 This document must keep three states distinct:
 
 ```text
 Current behavior:
-    the bilingual common-shell and private-profile foundation implemented
-    through Issue #216, with explicitly marked English workflow bodies
+    the bilingual common shell, private profile, grouped Home, Product concepts,
+    related links, and empty-state guidance implemented through Issue #217, with
+    explicitly marked English workflow bodies
 
 Approved target contract:
     the future behavior frozen by Issue #215 in this document
@@ -22,11 +24,12 @@ Future implementation ownership:
     the focused implementation sequence in Issues #216 through #220
 ```
 
-Issue #215 is documentation-only. Issue #216 implements only its assigned subset
-without changing Product semantics, CLI/API/JSON/Schema behavior, Package
-version, examples, generated outputs, or the future ownership of Issues #217
-through #220. The exact implementation is documented in
-[Local frontend profile and localization](local_frontend_profile_and_localization.md).
+Issue #215 is documentation-only. Issues #216 and #217 implement their assigned
+subsets without changing Product semantics, CLI/API/JSON/Schema behavior, Package
+version, examples, generated outputs, or the future ownership of Issues #218
+through #220. The exact implementations are documented in
+[Local frontend profile and localization](local_frontend_profile_and_localization.md)
+and [Bilingual Home information architecture](bilingual_home_information_architecture.md).
 
 The implemented version-1 launch and frontend boundary remains authoritative in
 [Unified local frontend contract](unified_local_frontend_contract.md). This
@@ -53,7 +56,7 @@ UAT-FINDING-001:
     A primary frontend exists, but normal stateful Product workflows are not yet
     acceptable.
     Severity: blocker
-    Status: further partially remediated by Issue #216, open
+    Status: further partially remediated by Issues #216 and #217, open
 
 UAT-FINDING-002:
     CLI onboarding was an unstructured expert interface.
@@ -62,7 +65,8 @@ UAT-FINDING-002:
 UAT-FINDING-003:
     Session, Match, Review, and Learning are not sufficiently distinguished.
     Severity: major
-    Status: open
+    Status: Home and concept remediation implemented by Issue #217, open pending
+    Issue #220 and repeated UAT-01
 
 UAT-FINDING-004:
     Valid browser form submissions were rejected as Forbidden.
@@ -78,7 +82,7 @@ UAT-FINDING-006:
     Validation failures can discard entered values and break the current
     workflow.
     Severity: major
-    Status: open
+    Status: open, owned by Issue #218
 
 UAT-FINDING-007:
     Stateful workflows expose too many fields and advanced concepts before the
@@ -89,13 +93,14 @@ UAT-FINDING-007:
 UAT-FINDING-008:
     Complete German and English workflow coverage is unavailable.
     Severity: major
-    Status: foundation and common coverage implemented by Issue #216, open
+    Status: bilingual Home and concept coverage implemented through Issue #217, open
     pending Issue #220
 ```
 
-Issue #216 further partially remediates UAT-FINDING-001, implements the
-foundation for UAT-FINDING-007, and implements foundation/common coverage for
-UAT-FINDING-008. All remain open pending the assigned follow-up work and repeated
+Issues #216 and #217 further partially remediate UAT-FINDING-001. Issue #216
+implements the foundation for UAT-FINDING-007; Issue #217 implements the Home
+and concept part of UAT-FINDING-003 and bilingual Home/concept coverage for UAT-
+FINDING-008. All remain open pending the assigned follow-up work and repeated
 UAT.
 
 ## Maintainer decisions
@@ -141,9 +146,10 @@ PROFILE_DRIVEN_FORM_DEFAULTS_VERSION = 1
 FRONTEND_VALIDATION_PRESERVATION_VERSION = 1
 ```
 
-Issue #216 implements the first three versions. The information-architecture,
-profile-driven-form-default, and validation-preservation versions remain
-future-owned and unimplemented. All remain independent from Package version, Public API version, Root
+Issue #216 implements the first three versions, and Issue #217 implements the
+information-architecture version. The profile-driven-form-default and
+validation-preservation versions remain future-owned and unimplemented. All
+remain independent from Package version, Public API version, Root
 workflows, Session version, Match Workspace version, Corpus version, Schema
 versions, Dataset versions, and browser protocol versions.
 
@@ -165,25 +171,25 @@ no_external_translation_profile_sync_or_cloud_service
 ```
 
 These policies remain internal and must not become Public API exports. Issue
-#216 implements exactly the seven-policy subset listed in
+#217 implements exactly the eight-policy subset listed in
 [Local frontend profile and localization](local_frontend_profile_and_localization.md);
-the other five remain future-owned.
+the other four remain future-owned.
 
 ## Current behavior
 
-Package `0.17.0` currently provides a German/English common shell, current flat
-Home, About, authorization, and generic common-error presentation. Exact HTML
+Package `0.17.0` currently provides a German/English common shell, grouped Home,
+Product-concept and empty-state guidance, About, authorization, and generic common-error presentation. Exact HTML
 `lang`, global language selection, saved/browser/fallback resolution, strict
 catalogs, and private profile persistence are implemented. Workflow-specific
 Analyze, Review, Session, Match, and Learning bodies remain explicitly marked
 English when the German shell is selected. Machine Routes and identifiers remain
 English and locale-neutral.
 
-Home currently presents one flat task sequence: Analyze, Review, Session,
-Match, Learning, and About. It does not provide the approved grouped hierarchy.
-Normal stateful creation forms still expose technical identifiers and metadata.
-There is no known-Player directory, profile-driven form behavior, grouped Home,
-validation-preservation redesign, or complete workflow translation.
+Home presents the approved Record, Analyze and review, Learn, and Product-
+information hierarchy with Match Capture first. Normal stateful creation forms
+still expose technical identifiers and metadata. There is no known-Player
+directory, profile-driven form behavior, validation-preservation redesign, or
+complete workflow translation.
 
 The managed data root retains exactly the managed categories `sessions`,
 `matches`, and `corpora`. An optional private `frontend-profile.json` is a direct
@@ -850,25 +856,27 @@ The exact remaining finding state and ownership is:
 
 ```text
 UAT-FINDING-001:
-    further partially remediated by Issue #216
-    open across Issues #217 through #220
+    further partially remediated by Issues #216 and #217
+    open across Issues #218 through #220
 
 UAT-FINDING-003:
-    Issues #217 and #220
+    Home and concept remediation implemented by Issue #217
+    open pending Issue #220 and repeated UAT-01
 
 UAT-FINDING-005:
     Issue #219 and relevant Issue #220 views
 
 UAT-FINDING-006:
-    Issue #218
+    open
+    owned by Issue #218
 
 UAT-FINDING-007:
     foundation implemented by Issue #216
     open for Issues #219 and #220
 
 UAT-FINDING-008:
-    foundation and common coverage implemented by Issue #216
-    open pending complete coverage through Issue #220
+    bilingual Home and concept coverage implemented by Issues #216 and #217
+    open pending Issue #220
 ```
 
 The resolved finding state remains:
@@ -884,7 +892,7 @@ UAT-FINDING-004:
 ## UAT repetition and gate state
 
 Repeated UAT-01 remains failed. UAT-01 may be repeated again only after Issues
-#217 through #220 are implemented and validated. UAT-02 through UAT-12 must
+#218 through #220 are implemented and validated. UAT-02 through UAT-12 must
 remain paused until that repeated UAT-01 passes.
 
 The next repeated UAT-01 must verify at least:
@@ -928,20 +936,20 @@ Package 1.0.0 preparation:
     not ready
 ```
 
-The completed 53-row technical ledger must not be reopened. The exact next
+The completed 53-row technical ledger must not be reopened. Issue #217
+implements the grouped bilingual Home and Product-concept slice. The exact next
 implementation action is:
 
 ```text
-Issue #217 — Reorganize the Home dashboard and clarify Product concepts in
-German and English
+Issue #218 — Preserve frontend form state and localize validation feedback
 ```
 
 ## Non-goals and accepted limitations
 
-Issue #216 does not implement Home reordering, form simplification, validation
+Issues #216 and #217 do not implement form simplification, validation
 preservation, generated IDs, Player-directory behavior, profile-driven workflow
 defaults, task-first stateful layouts, or complete workflow translation. Those
-changes remain owned by Issues #217 through #220. It does not create a tag or
+changes remain owned by Issues #218 through #220. Neither creates a tag or
 Release.
 
 Issue #215 must not translate or change the CLI, Public Python API, JSON,

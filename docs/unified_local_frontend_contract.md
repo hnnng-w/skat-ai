@@ -304,19 +304,19 @@ Every page must present this exact route, label, and order:
     Home
 
 /analyze
-    Analyze a position
+    Analyze one decision
 
 /review
-    Review a completed game
+    Review one completed game
 
 /sessions
-    Sessions
+    Record one game
 
 /matches
-    Match capture
+    Record a 36-game Match
 
 /learning
-    Learning & cross-game insights
+    Learn across Matches
 
 /about
     About SkatMind
@@ -324,25 +324,30 @@ Every page must present this exact route, label, and order:
 
 Internal Root workflow identifiers must not be primary navigation labels.
 
-The Home dashboard must present these exact tasks:
+The Home dashboard presents these exact groups and tasks:
 
 ```text
-Analyze a position
+Record games
+    Record a complete 36-game Match
+    Record or continue one individual game
 
-Review a completed game
+Analyze and review
+    Analyze one decision
+    Review one completed individual game
 
-Create or resume a Session
+Learn across Matches
+    Explore patterns across recorded Matches
 
-Capture a 36-game Match
-
-Open Learning & cross-game insights
-
-About SkatMind
+Product information
+    About SkatMind
 ```
 
-Each Home task must explain what it does, what information the user needs, what
-SkatMind stores, whether the task is Live or Retrospective, and what Result the
-user can expect. Home must not begin with a JSON-file selector.
+Each compact Home task states its purpose, unit, and timing, with required
+information, storage, use case, and Result in a native closed disclosure. The
+scope guide distinguishes one Decision, one resumable Game, one completed Game,
+one complete 36-position Match, and multiple Matches. Home must not begin with a
+JSON-file selector. See
+[Bilingual Home information architecture](bilingual_home_information_architecture.md).
 
 ## Plain-language Product concepts
 
@@ -350,8 +355,8 @@ Normal Product presentation must use these frozen definitions.
 
 ### Position analysis
 
-> Enter the information currently visible for one decision and receive a bounded
-> Card recommendation with alternatives and limitations.
+> Enter the information visible now, or reconstruct one retrospective decision,
+> and receive a bounded Card recommendation with alternatives and limitations.
 
 ### Completed-game review
 
@@ -369,7 +374,7 @@ Normal Product presentation must use these frozen definitions.
 
 ### Learning Corpus
 
-The normal navigation label must be `Learning & cross-game insights`.
+The normal navigation label is `Learn across Matches`.
 Explanatory text may retain the technical term Learning Corpus and must define
 it as:
 
@@ -773,11 +778,13 @@ Issue #215 freezes the authoritative
 [bilingual profile-driven frontend UX contract](bilingual_profile_driven_frontend_ux_contract.md)
 without changing the completed 53-row technical ledger. Issue #216 implements
 its private profile/localization and bilingual common-shell foundation while
-full workflow translation remains incomplete. UAT-FINDING-001 is further
-partially remediated and open; UAT-FINDING-007 has its foundation implemented
-and remains open; UAT-FINDING-008 has its foundation/common coverage implemented
-and remains open pending Issue #220. The reopened Issue #216 follow-up remains
-pending both required Ubuntu jobs; Issue #217 is blocked until they pass.
+full workflow translation remains incomplete, and its Ubuntu follow-up passed.
+Issue #217 implements the grouped bilingual Home and Product-concept slice.
+UAT-FINDING-001 is further partially remediated and open; UAT-FINDING-003 has its
+Home/concept remediation implemented and remains open pending Issue #220 and
+repeated UAT-01; UAT-FINDING-007 remains open; and UAT-FINDING-008 has bilingual
+Home/concept coverage and remains open pending Issue #220. Issue #218 is the
+exact next action.
 
 UAT-02 through UAT-12 remain paused. Frontend work remains part of B-09 outside
 the technical ledger and must not reopen B-06. B-07 remains open.

@@ -112,11 +112,11 @@ The exact route and navigation order is:
 | Route | Label | Current state |
 | --- | --- | --- |
 | `/` | Home | Complete shell dashboard |
-| `/analyze` | Analyze a position | Usable process-local guided workflow |
-| `/review` | Review a completed game | Usable process-local guided workflow |
-| `/sessions` | Sessions | Managed listing, lifecycle, entry, and execution |
-| `/matches` | Match capture | Managed listing and existing Capture workflow |
-| `/learning` | Learning & cross-game insights | Managed Corpus lifecycle and workflow |
+| `/analyze` | Analyze one decision | Usable process-local guided workflow |
+| `/review` | Review one completed game | Usable process-local guided workflow |
+| `/sessions` | Record one game | Managed listing, lifecycle, entry, and execution |
+| `/matches` | Record a 36-game Match | Managed listing and existing Capture workflow |
+| `/learning` | Learn across Matches | Managed Corpus lifecycle and workflow |
 | `/about` | About SkatMind | Complete shell page |
 
 `/assets/app.css` remains the shell asset. Existing Capture and Corpus CSS/JS are
@@ -126,21 +126,22 @@ action and download routes for Analyze and Review are documented in
 Unknown routes return `404`; unsupported methods on known routes return `405`.
 The routes are private browser transport, not a public JSON API.
 
-The Home dashboard contains the exact ordered tasks:
+The Home dashboard contains the exact grouped presentation order:
 
 ```text
-Analyze a position
-Review a completed game
-Create or resume a Session
-Capture a 36-game Match
-Open Learning & cross-game insights
-About SkatMind
+Record games: Match, Session
+Analyze and review: Analyze, Review
+Learn across Matches: Learning
+Product information: About SkatMind
 ```
 
-Each task states what it does, required information, storage behavior, Live or
-Retrospective status, expected Result, and current availability. Home states that
-SkatMind runs locally and stores no cloud data. It exposes no JSON, path, port,
-token, seed, sample, Search, Policy, Dataset, or Provenance controls.
+Match Capture is first. Each compact task states its purpose, unit, timing, and
+one action; secondary use, input, storage, and Result guidance remains in a native
+closed disclosure. A scope guide distinguishes Decision, individual Game,
+completed Game, complete Match, and multiple Matches. Home states that SkatMind
+runs locally and stores no cloud data. It exposes no JSON, path, port, token,
+seed, sample, Search, Policy, Dataset, or Provenance controls. See
+[Bilingual Home information architecture](bilingual_home_information_architecture.md).
 
 ## About
 
@@ -225,6 +226,7 @@ remain open; B-06 remains closed; and Package `1.0.0` and Release preparation
 are not ready. Issue #215 freezes the authoritative
 [bilingual profile-driven frontend UX contract](bilingual_profile_driven_frontend_ux_contract.md).
 Issue #216 implements its private profile, locale, catalog, language-selector,
-and bilingual common-shell subset without translating all workflow bodies. The
-reopened Issue #216 follow-up remains pending both required Ubuntu jobs; Issue
-#217 is blocked until they pass.
+and bilingual common-shell subset, and its Ubuntu follow-up passed. Issue #217
+implements the grouped bilingual Home, Product concepts, related links, and
+stateful empty-state guidance without translating all workflow bodies. Issue
+#218 is the exact next action.

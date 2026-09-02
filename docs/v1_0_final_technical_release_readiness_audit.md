@@ -615,7 +615,7 @@ Release title, theme, date, tag, and publication commit:
 
 ## Post-audit UAT note
 
-This note records later Issue #208 through #215 state without rewriting the Issue
+This note records later Issue #208 through #217 state without rewriting the Issue
 #207 technical conclusion above. Maintainer UAT began after the #207 merge and
 required CI. UAT-01 technically executed but failed user acceptance with one
 accepted blocker and two accepted major findings:
@@ -688,16 +688,30 @@ mismatch between older unsuffixed expectations and the emitted `compatibility`
 and canonical `run` files, not the localization defect. The smoke now validates
 both files, and bounded sanitized matrix diagnostics retain the failed cell,
 child exception category, command, stdout, and stderr. Both required post-merge
-Ubuntu jobs remain pending.
+Ubuntu jobs passed, completing Issue #216.
+
+Issue #217 implements the private
+[grouped bilingual Home information architecture](bilingual_home_information_architecture.md),
+clarifies the Decision, individual-Game, complete-Match, and multiple-Matches
+units, changes Analyze from Live-only wording to current or retrospective,
+defines Review as one completed individual Game, explains Session versus Match,
+describes Learning prerequisites and explicit steps, adds safe related-area GET
+links, and adds useful bilingual stateful empty states. Existing future-owned
+workflow forms remain explicitly marked English on German pages. No Product
+operation, persistence, machine Route, Public API, Schema, example, generated
+output, Package version, dependency, or technical-ledger classification changes.
 
 The post-audit Release-process state is:
 
 ```text
 Issue #216:
-    reopened pending Ubuntu correction and post-merge CI
+    completed after both required Ubuntu jobs passed
 
 Issue #217:
-    blocked
+    Home and Product-concept scope implemented
+
+Issue #218:
+    exact next action
 
 Issue #208:
     open
@@ -725,20 +739,21 @@ UAT-FINDING-002:
     resolved
 
 UAT-FINDING-003:
-    open
+    Home and concept remediation implemented
+    open pending Issue #220 and repeated UAT-01
 
 UAT-FINDING-005:
     open
 
 UAT-FINDING-006:
     open
+    owned by Issue #218
 
 UAT-FINDING-007:
-    foundation implemented
     open
 
 UAT-FINDING-008:
-    foundation and common coverage implemented
+    bilingual Home and concept coverage implemented
     open pending Issue #220
 
 Issue #214:
@@ -752,10 +767,13 @@ Package 1.0.0:
 
 Release preparation:
     not ready
+
+B-06:
+    closed
 ```
 
 The 53-row ledger remains exactly 19 `satisfied`, 34
 `satisfied_with_approved_bounded_scope`, and zero in each unresolved
 classification. Frontend and UAT work remains under B-09 outside that ledger and
-does not reopen B-06. Issue #217 remains blocked until both required Ubuntu jobs
-pass for the reopened Issue #216 follow-up.
+does not reopen B-06. Issue #218, "Preserve frontend form state and localize
+validation feedback," is the exact next action.

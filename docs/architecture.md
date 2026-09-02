@@ -179,8 +179,10 @@ shell, and explicit English workflow-body boundary. The implementation is
 documented in [Local frontend profile and localization](local_frontend_profile_and_localization.md).
 Post-merge Ubuntu CI at `087f497` reopened Issue #216 for its CPython-3.13.15
 parser-header compatibility correction and a separate stale matrix-smoke
-filename correction. Both required Ubuntu jobs remain pending, and Issue #217 is
-blocked until they pass. Issue #208 remains open; UAT-02 through
+filename correction. The correction and both required Ubuntu jobs passed,
+completing Issue #216. Issue #217 adds the grouped bilingual Home, clarified
+Product concepts, safe related links, and useful stateful empty states. Issue
+#218 is the exact next action. Issue #208 remains open; UAT-02 through
 UAT-12 remain paused; B-09 and B-07 remain open; B-06 remains closed; and
 Package `1.0.0` and Release preparation are not ready. See
 [Advanced CLI automation](advanced_cli_automation_interface.md).
@@ -421,7 +423,7 @@ canonical Root execution before that optional public conversion.
 | `src/skatmind/cli/entrypoint.py` | Lightweight Package entry with shell-first bare/leading-`app` dispatch before broad Root imports. |
 | `src/skatmind/cli/execution.py` | Package-owned compatibility facade with `app`, `corpus`, `capture`, `session`, and Root dispatch. |
 | `src/skatmind/cli/app.py` | Unified shell managed-home preparation, browser opening, foreground lifecycle, and Exit Code transport. |
-| `src/skatmind/app_web/` | Private managed-data contracts, bounded discovery, Session/Match/Learning adapters, cross-area transfer, strict local profile persistence, locale resolution, German/English catalogs, browser-safe rendering, security, one Standard Library server, template, and packaged assets. |
+| `src/skatmind/app_web/` | Private managed-data and information-architecture contracts, bounded discovery, Session/Match/Learning adapters, cross-area transfer, strict local profile persistence, locale resolution, German/English catalogs, browser-safe rendering, security, one Standard Library server, template, and packaged assets. |
 | `src/skatmind/cli/corpus.py` | Private local Learning Corpus CLI startup, browser opening, shutdown, and Exit Code transport. |
 | `src/skatmind/cli/capture.py` | Private local Capture CLI startup and Exit Code transport. |
 | `src/skatmind/cli/session.py` | Session compatibility facade over focused parser and orchestration services. |
@@ -1283,5 +1285,7 @@ classifications and blockers are frozen in the
 The [Unified local frontend contract](unified_local_frontend_contract.md)
 governs the implemented current frontend. Its private profile and localization
 foundation is documented in [Local frontend profile and localization](local_frontend_profile_and_localization.md).
+The grouped Home and Product-concept presentation is documented in
+[Bilingual Home information architecture](bilingual_home_information_architecture.md).
 The implemented foundation and remaining bilingual, profile-driven UX are
 governed by the [Bilingual profile-driven frontend UX contract](bilingual_profile_driven_frontend_ux_contract.md).

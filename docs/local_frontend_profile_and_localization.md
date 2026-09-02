@@ -16,7 +16,7 @@ FRONTEND_TRANSLATION_CATALOG_VERSION = 1
 LOCAL_FRONTEND_PROFILE_VERSION = 1
 ```
 
-Issue #216 retains the complete frozen policy vocabulary but implements only:
+Issues #216 and #217 retain the complete frozen policy vocabulary and implement:
 
 ```text
 technical_contracts_and_machine_values_remain_english
@@ -24,14 +24,16 @@ unified_frontend_visible_content_supports_german_and_english
 one_private_local_frontend_profile_per_managed_data_root
 saved_language_overrides_browser_language
 browser_language_bootstraps_only_without_saved_preference
+home_separates_record_analyze_learn_and_product_information
 language_and_profile_never_change_product_semantics
 no_external_translation_profile_sync_or_cloud_service
 ```
 
 The policies for user-facing Player names, task-first profile-driven workflows,
-secondary Advanced Settings, validation preservation, and grouped Home
-information architecture remain frozen but future-owned by Issues #217 through
-#220.
+secondary Advanced Settings, and validation preservation remain frozen but
+future-owned by Issues #218 through #220. The grouped Home policy is implemented
+by Issue #217 and documented in
+[Bilingual Home information architecture](bilingual_home_information_architecture.md).
 
 ## Language boundary
 
@@ -265,8 +267,8 @@ Issue #216 provides German and English presentation for:
 
 * the shared shell, skip link, Product accessibility label, navigation, footer,
   global language selector, and exact HTML `lang`;
-* all current flat Home cards, task descriptions, details, modes, storage text,
-  Results, and availability text without reorganizing Home;
+* the grouped Home, scope guide, compact task cards, Product concepts, related
+  links, and useful stateful empty states through Issue #217;
 * About, managed-storage explanation, local/private and no-cloud statements,
   language source, profile status, future-work notice, and reset;
 * authorization and generic common HTTP error wrappers;
@@ -334,8 +336,8 @@ downloads.
 
 ## Remaining work and UAT
 
-Home grouping and final Product terminology remain Issue #217. Validation and
-safe submitted-value preservation remain Issue #218. Known Players,
+Home grouping and Product terminology are implemented by Issue #217. Validation
+and safe submitted-value preservation remain Issue #218. Known Players,
 profile-driven Player/default behavior, generated IDs, and simplified creation
 forms remain Issue #219. Task-first stateful layouts and complete bilingual
 workflow coverage remain Issue #220.
@@ -351,7 +353,8 @@ UAT-FINDING-002:
     resolved by Issue #213
 
 UAT-FINDING-003:
-    open
+    Home and concept remediation implemented
+    open pending Issue #220 and repeated UAT-01
 
 UAT-FINDING-004:
     resolved by Issue #214
@@ -361,14 +364,15 @@ UAT-FINDING-005:
 
 UAT-FINDING-006:
     open
+    owned by Issue #218
 
 UAT-FINDING-007:
     foundation implemented
     open
 
 UAT-FINDING-008:
-    foundation and common coverage implemented
-    open pending complete coverage through Issue #220
+    bilingual Home and concept coverage implemented
+    open pending Issue #220
 
 Repeated UAT-01:
     failed
@@ -386,7 +390,7 @@ B-07:
     open
 ```
 
-Package `1.0.0` and Release preparation remain not ready. Issue #216 is reopened
-pending both required post-merge Ubuntu jobs. Issue #217, "Reorganize the Home
-dashboard and clarify Product concepts in German and English," remains blocked
-until those jobs pass.
+Package `1.0.0` and Release preparation remain not ready. The Issue #216
+correction and both required post-merge Ubuntu jobs passed. Issue #217 implements
+its assigned Home and concept scope. Issue #218, "Preserve frontend form state
+and localize validation feedback," is the exact next action.

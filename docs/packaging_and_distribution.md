@@ -342,7 +342,7 @@ repository mutation, and successful JSON retains no path, credential, machine-
 identity, timestamp, or elapsed-time field. See
 [v1 installation and supported-platform matrix](v1_installation_and_supported_platform_matrix.md).
 
-The reopened Issue #216 follow-up corrects a separate installed-smoke contract
+The completed Issue #216 follow-up corrects a separate installed-smoke contract
 gap exposed by the post-merge Ubuntu `source-resolved` cell. Issue #213 split
 each full Root CLI output into explicit `compatibility` and canonical `run`
 files, while the nested installed smoke still read the older unsuffixed name.

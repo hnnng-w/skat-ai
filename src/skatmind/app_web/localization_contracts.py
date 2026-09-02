@@ -26,6 +26,7 @@ IMPLEMENTED_BILINGUAL_FRONTEND_POLICIES = (
     "one_private_local_frontend_profile_per_managed_data_root",
     "saved_language_overrides_browser_language",
     "browser_language_bootstraps_only_without_saved_preference",
+    "home_separates_record_analyze_learn_and_product_information",
     "language_and_profile_never_change_product_semantics",
     "no_external_translation_profile_sync_or_cloud_service",
 )

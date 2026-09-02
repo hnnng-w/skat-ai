@@ -143,10 +143,18 @@ def test_browser_german_does_not_write_and_localizes_shell_home_about_and_errors
     status, _headers, home = _request(server, "GET", "/", headers=german)
     assert status == 200
     home_html = home.decode()
+    home_main = home_html[home_html.index("<main") : home_html.index("</main>")]
+    home_groups = home_main[home_main.index('<section class="home-group"') :]
     assert "SkatMind läuft lokal auf diesem Computer" in home_html
     assert home_html.count('<article class="task-card">') == 6
+    assert home_html.count('<section class="home-group"') == 4
+    assert "Welchen Bereich brauche ich?" in home_html
     assert "Benötigte Angaben" in home_html
-    assert "Position analysieren" in home_html
+    assert "Eine Entscheidung analysieren" in home_html
+    assert home_groups.index("Ein vollständiges 36er-Match erfassen") < home_groups.index(
+        "Ein einzelnes Spiel erfassen oder fortsetzen"
+    )
+    assert "Aktuell oder nachträglich" in home_html
 
     status, _headers, about = _request(server, "GET", "/about", headers=german)
     assert status == 200
@@ -175,6 +183,20 @@ def test_german_workflow_bodies_are_explicitly_marked_as_transitional_english(
         assert status == 200
         assert "vorübergehend auf Englisch verfügbar" in html
         assert '<div class="english-workflow-body" lang="en">' in html
+        assert html.index('class="concept-guide"') < html.index(
+            '<div class="english-workflow-body" lang="en">'
+        )
+    status, _headers, sessions = _request(server, "GET", "/sessions", headers=german)
+    assert status == 200
+    sessions_html = sessions.decode()
+    assert "Noch keine erfassten einzelnen Spiele" in sessions_html
+    assert sessions_html.index("Noch keine erfassten einzelnen Spiele") < sessions_html.index(
+        '<div class="english-workflow-body" lang="en">'
+    )
+    status, _headers, matches = _request(server, "GET", "/matches", headers=german)
+    assert status == 200 and "Noch keine erfassten Matches" in matches.decode()
+    status, _headers, learning = _request(server, "GET", "/learning", headers=german)
+    assert status == 200 and "Noch keine Lernsammlungen" in learning.decode()
     status, _headers, home = _request(server, "GET", "/", headers=german)
     assert status == 200
     assert "english-workflow-body" not in home.decode()

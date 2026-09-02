@@ -981,6 +981,7 @@ from skatmind.app_web.context import AppWebContextV1
 from skatmind.app_web.frontend_profile_contracts import LOCAL_FRONTEND_PROFILE_VERSION
 from skatmind.app_web.frontend_profile_persistence import load_frontend_profile_file_v1
 from skatmind.app_web.guided_contracts import GUIDED_ANALYSIS_FRONTEND_VERSION
+from skatmind.app_web.information_architecture import FRONTEND_INFORMATION_ARCHITECTURE_VERSION
 from skatmind.app_web.json_transfer import (
     build_frontend_request_json_bytes_v1,
     build_frontend_result_json_bytes_v1,
@@ -1169,6 +1170,7 @@ app_context = AppWebContextV1.create(app_home)
 assert BILINGUAL_FRONTEND_CONTRACT_VERSION == 1
 assert FRONTEND_TRANSLATION_CATALOG_VERSION == 1
 assert LOCAL_FRONTEND_PROFILE_VERSION == 1
+assert FRONTEND_INFORMATION_ARCHITECTURE_VERSION == 1
 assert tuple(load_frontend_translation_catalogs_v1()) == ("de", "en")
 assert load_frontend_profile_file_v1(app_home.root).status == "absent"
 assert not (app_home.root / "frontend-profile.json").exists()
@@ -1206,6 +1208,8 @@ try:
     status, _, content = app_request("GET", "/", headers=german_headers)
     assert status == 200 and b'<html lang="de">' in content
     assert "Startseite".encode("utf-8") in content
+    assert "Spiele erfassen".encode("utf-8") in content
+    assert "Welchen Bereich brauche ich?".encode("utf-8") in content
     assert not (app_home.root / "frontend-profile.json").exists()
     for app_route in (
         "/",

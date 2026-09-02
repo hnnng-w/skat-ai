@@ -12,7 +12,7 @@ The implemented browser areas are:
 
 ```text
 /analyze
-    guided current-Position analysis
+    guided current or retrospective one-Decision analysis
     guided one-Decision Post-game Review
     strict Position JSON import
 
@@ -337,5 +337,7 @@ Issue #215 freezes the authoritative
 [bilingual profile-driven frontend UX contract](bilingual_profile_driven_frontend_ux_contract.md).
 Issue #216 implements the shared private profile/localization foundation. When
 German is active, future-owned Analyze and Review bodies remain explicitly
-marked English pending Issue #220. The reopened Issue #216 follow-up remains
-pending both required Ubuntu jobs; Issue #217 is blocked until they pass.
+marked English pending Issue #220. Issue #217 adds localized one-Decision
+current/retrospective and one-completed-Game guidance plus safe related links
+outside that English region without changing either workflow. Issue #218 is the
+exact next action.

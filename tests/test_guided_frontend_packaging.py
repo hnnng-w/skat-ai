@@ -16,6 +16,7 @@ _GUIDED_MODULES = (
     "guided_rendering",
     "historical_form",
     "historical_form_parsing",
+    "information_architecture",
     "json_transfer",
     "position_form",
     "result_presentation",
@@ -40,6 +41,7 @@ def test_guided_frontend_modules_are_private_package_discovered_modules() -> Non
             "FRONTEND_RESULT_PRESENTATION_VERSION",
             "FRONTEND_JSON_TRANSFER_VERSION",
             "PROCESS_LOCAL_FRONTEND_WORKFLOW_STATE_VERSION",
+            "FRONTEND_INFORMATION_ARCHITECTURE_VERSION",
         }
     )
 
@@ -53,6 +55,9 @@ def test_existing_local_app_resources_contain_guided_no_javascript_styles() -> N
     css_bytes = css.read_bytes()
     combined = css_bytes + template.read_bytes()
     for required in (
+        b".home-group",
+        b".scope-guide",
+        b".task-disclosure",
         b".workflow-form",
         b".card-grid",
         b".error-summary",
