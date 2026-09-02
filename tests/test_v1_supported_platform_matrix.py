@@ -1,5 +1,6 @@
 import copy
 import json
+import re
 import tomllib
 from pathlib import Path
 
@@ -230,6 +231,70 @@ def test_matrix_result_validation_and_json_are_deterministic() -> None:
     assert first.endswith("\n")
     assert "NaN" not in first and "Infinity" not in first
     assert json.loads(first)["status"] == "passed"
+
+
+def test_full_root_cli_smoke_reads_both_emitted_route_outputs() -> None:
+    smoke = distribution_validation.SMOKE_PROGRAM
+
+    assert 'for route_name in ("compatibility", "run"):' in smoke
+    assert 'f"root-{invocation}-{route_name}-{workflow_name}.json"' in smoke
+    assert 'f"root-{invocation}-{workflow_name}.json"' not in smoke
+
+
+def test_matrix_cell_failure_diagnostic_is_bounded_actionable_and_sanitized(
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    matrix_root = tmp_path / "matrix"
+    private_document = '{"private":"' + ("x" * 8_000) + '"}'
+    error = distribution_validation.DistributionValidationError(
+        "Command failed with exit code 1: "
+        f"{matrix_root / 'venv-source-resolved' / 'bin' / 'python'} -I "
+        f"{matrix_root / 'consumer-source-resolved' / 'installed-smoke.py'} "
+        "?token=private-token\n"
+        "ACCESS_TOKEN=private-environment-token\n"
+        f"stdout:\n{private_document}\n"
+        "stderr:\nTraceback (most recent call last):\n"
+        f'  File "{matrix_root / "consumer-source-resolved" / "installed-smoke.py"}", '
+        "line 1, in <module>\n"
+        "Cookie: skatmind_capture_token=private-cookie\n"
+        "    raise AssertionError('app-distribution-token')\n"
+        "AssertionError: app-distribution-token"
+    )
+    message = matrix._matrix_cell_failure_message(
+        error,
+        installation_form="source",
+        dependency_lane="resolved",
+        temporary_root=matrix_root,
+    )
+    monkeypatch.setattr(
+        matrix,
+        "validate_v1_supported_platform_matrix",
+        lambda **_kwargs: (_ for _ in ()).throw(
+            matrix.V1SupportedPlatformMatrixError(message)
+        ),
+    )
+
+    assert matrix.main([]) == 1
+    captured = capsys.readouterr()
+
+    assert captured.out == ""
+    assert "installation_form=source; dependency_lane=resolved" in captured.err
+    assert "DistributionValidationError: Command failed with exit code 1:" in captured.err
+    assert "<matrix-root>" in captured.err
+    assert "installed-smoke.py" in captured.err
+    assert "child stdout excerpt:" in captured.err
+    assert "<structured child output redacted>" in captured.err
+    assert "child stderr excerpt:" in captured.err
+    assert "AssertionError: <redacted>" in captured.err
+    assert str(matrix_root) not in captured.err
+    assert "private-token" not in captured.err
+    assert "private-environment-token" not in captured.err
+    assert "private-cookie" not in captured.err
+    assert "app-distribution-token" not in captured.err
+    assert len(captured.err) < 9_000
+    assert re.search(r"V1 supported-platform matrix validation failed:", captured.err)
 
 
 @pytest.mark.parametrize(

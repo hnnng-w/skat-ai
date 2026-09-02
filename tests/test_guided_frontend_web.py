@@ -5,6 +5,7 @@ import json
 import socket
 from collections.abc import Iterator
 from dataclasses import replace
+from email.message import Message
 from pathlib import Path
 from urllib.parse import urlencode
 
@@ -64,7 +65,7 @@ from skatmind.app_web.json_transfer import (
 from skatmind.app_web.managed_data import prepare_managed_home_v1
 from skatmind.app_web.position_form import parse_position_form_v1
 from skatmind.app_web.rendering import render_app_page_v1
-from skatmind.app_web.security import APP_WEB_COOKIE_NAME
+from skatmind.app_web.security import APP_WEB_COOKIE_NAME, app_web_security_headers_v1
 from skatmind.app_web.server import (
     SkatMindAppWebServerV1,
     serve_app_web_in_thread_v1,
@@ -74,6 +75,16 @@ from skatmind.errors import SkatMindValidationError
 
 ROOT = Path(__file__).resolve().parents[1]
 _TOKEN = "guided-web-test-token"
+_MISSING_HEADERS = object()
+
+
+class _PartialHeaderContainer:
+    pass
+
+
+class _IncompleteMultiValueHeaders(Message):
+    def get_all(self, *_args: object, **_kwargs: object):
+        raise RuntimeError("incomplete parser headers")
 
 
 def _request(
@@ -101,6 +112,23 @@ def _raw_request(server: SkatMindAppWebServerV1, request: bytes) -> bytes:
         while chunk := connection.recv(4096):
             response.extend(chunk)
     return bytes(response)
+
+
+def _assert_hardened_raw_response(response: bytes, status: int) -> None:
+    assert response.startswith(f"HTTP/1.0 {status}".encode("ascii"))
+    for name, value in app_web_security_headers_v1():
+        assert f"{name}: {value}\r\n".encode("ascii") in response
+
+
+def _project_frontend_state_with_headers(
+    server: SkatMindAppWebServerV1,
+    headers: object = _MISSING_HEADERS,
+):
+    handler = object.__new__(server_module.SkatMindAppWebRequestHandlerV1)
+    handler.server = server
+    if headers is not _MISSING_HEADERS:
+        handler.headers = headers
+    return handler._frontend_state()
 
 
 @pytest.fixture
@@ -700,9 +728,85 @@ def test_route_methods_authentication_missing_downloads_and_status_mapping(
     assert status == 415
 
 
+@pytest.mark.parametrize(
+    "headers",
+    [
+        pytest.param(_MISSING_HEADERS, id="missing"),
+        pytest.param(None, id="none"),
+        pytest.param({}, id="plain-dictionary"),
+        pytest.param(_PartialHeaderContainer(), id="partial-without-get-all"),
+        pytest.param(_IncompleteMultiValueHeaders(), id="incomplete-multi-value"),
+    ],
+)
+def test_parser_level_frontend_state_ignores_incomplete_header_containers(
+    guided_server: SkatMindAppWebServerV1,
+    headers: object,
+) -> None:
+    frontend = _project_frontend_state_with_headers(guided_server, headers)
+
+    assert frontend.locale == "en"
+    assert frontend.resolution_source == "fallback"
+
+
+def test_parser_level_frontend_state_retains_saved_profile_precedence(
+    guided_server: SkatMindAppWebServerV1,
+) -> None:
+    from skatmind.app_web.frontend_profile_operations import set_frontend_language_v1
+
+    set_frontend_language_v1(
+        guided_server.app_context,
+        language="de",
+        expected_generation=0,
+    )
+
+    for headers in (_MISSING_HEADERS, None, {}, _PartialHeaderContainer()):
+        frontend = _project_frontend_state_with_headers(guided_server, headers)
+        assert frontend.locale == "de"
+        assert frontend.resolution_source == "saved_profile"
+
+
+def test_parser_level_frontend_state_uses_complete_multi_value_headers(
+    guided_server: SkatMindAppWebServerV1,
+) -> None:
+    headers = Message()
+    headers.add_header("Accept-Language", "de-DE,de;q=0.9")
+
+    frontend = _project_frontend_state_with_headers(guided_server, headers)
+
+    assert frontend.locale == "de"
+    assert frontend.resolution_source == "browser"
+
+    headers.add_header("Accept-Language", "en")
+    duplicate_frontend = _project_frontend_state_with_headers(guided_server, headers)
+    assert duplicate_frontend.locale == "en"
+    assert duplicate_frontend.resolution_source == "fallback"
+
+
+def test_http_09_common_error_retains_saved_profile_language(
+    guided_server: SkatMindAppWebServerV1,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    from skatmind.app_web.frontend_profile_operations import set_frontend_language_v1
+
+    set_frontend_language_v1(
+        guided_server.app_context,
+        language="de",
+        expected_generation=0,
+    )
+
+    response = _raw_request(guided_server, b"GET /\r\n")
+
+    _assert_hardened_raw_response(response, 505)
+    assert b"Interner Serverfehler" in response
+    captured = capsys.readouterr()
+    assert captured.out == ""
+    assert captured.err == ""
+
+
 def test_malformed_targets_and_protocol_errors_keep_hardened_headers(
     guided_server: SkatMindAppWebServerV1,
     monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
 ) -> None:
     server = guided_server
     cookie, _mutation_headers = _bootstrap(server)
@@ -714,37 +818,29 @@ def test_malformed_targets_and_protocol_errors_keep_hardened_headers(
             "ascii"
         ),
     )
-    assert malformed_target.startswith(b"HTTP/1.0 400")
-    assert b"Cache-Control: no-store\r\n" in malformed_target
-    assert b"Content-Security-Policy:" in malformed_target
+    _assert_hardened_raw_response(malformed_target, 400)
 
     malformed_post_target = _raw_request(
         server,
         f"POST http://[ HTTP/1.1\r\nHost: {host}\r\nCookie: {cookie}\r\n"
         "Content-Length: 0\r\n\r\n".encode("ascii"),
     )
-    assert malformed_post_target.startswith(b"HTTP/1.0 400")
-    assert b"Cache-Control: no-store\r\n" in malformed_post_target
-    assert b"Content-Security-Policy:" in malformed_post_target
+    _assert_hardened_raw_response(malformed_post_target, 400)
 
     invalid_protocol = _raw_request(
         server,
         f"GET / HTTP/9.9\r\nHost: {host}\r\n\r\n".encode("ascii"),
     )
-    assert invalid_protocol.startswith(b"HTTP/1.0 505")
-    assert b"Cache-Control: no-store\r\n" in invalid_protocol
-    assert b"Content-Security-Policy:" in invalid_protocol
+    _assert_hardened_raw_response(invalid_protocol, 505)
 
     http_09 = _raw_request(server, b"GET /\r\n")
-    assert http_09.startswith(b"HTTP/1.0 505")
-    assert b"Cache-Control: no-store\r\n" in http_09
-    assert b"Content-Security-Policy:" in http_09
+    _assert_hardened_raw_response(http_09, 505)
 
     def fail_render(*_args: object, **_kwargs: object) -> str:
         raise ValueError("private rendering invariant")
 
     monkeypatch.setattr(server_module, "render_app_page_v1", fail_render)
-    status, _headers, body = _request(
+    status, response_headers, body = _request(
         server,
         "GET",
         "/",
@@ -752,6 +848,12 @@ def test_malformed_targets_and_protocol_errors_keep_hardened_headers(
     )
     assert status == 500
     assert b"Internal server error" in body
+    for name, value in app_web_security_headers_v1():
+        assert response_headers[name.lower()] == value
+    captured = capsys.readouterr()
+    assert captured.out == ""
+    assert captured.err == ""
+    assert "Traceback" not in captured.err
 
 
 def test_validation_is_field_local_accessible_and_advanced_groups_are_exact(

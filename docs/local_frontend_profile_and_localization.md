@@ -296,6 +296,18 @@ cookie, exact Host and Origin validation, `Referrer-Policy: origin`, CSP,
 resource, and value-free authorization failures. Profile and locale values never
 change Product semantics or information-use controls.
 
+The reopened Issue #216 follow-up also keeps localized parser-level common
+errors safe across CPython 3.13 patch releases. CPython 3.13.15 on Ubuntu left
+`BaseHTTPRequestHandler.headers` as a plain empty dictionary for the rejected
+two-token HTTP/0.9 request, while the Windows CPython 3.13.7 run exposed a
+complete multi-value header object. Browser-language evidence is now accepted
+only from the expected complete `email.message.Message` interface. Missing,
+`None`, mapping, and partial containers are treated as absent browser evidence,
+while saved-profile precedence and deterministic English fallback remain intact.
+Malformed GET and POST targets still return hardened HTTP `400`; invalid HTTP
+versions and HTTP/0.9 still return hardened HTTP `505`; every path retains all
+security headers without access logging or a request-thread traceback.
+
 ## Packaging and compatibility
 
 The two locale JSON files are `skatmind.app_web` Package Data. Source, Editable,
@@ -304,6 +316,15 @@ bytes, strict catalog loading, no startup profile write, browser-derived German,
 explicit language persistence, saved-language precedence, and restart loading
 inside isolated temporary managed roots. Distribution tests use no real user
 profile or browser.
+
+The separate failed `source-resolved` matrix smoke was not caused by locale
+handling, Linux, Package Resources, or a CPython patch difference. The outer
+validator emitted distinct `compatibility` and canonical `run` Root output
+files, but the installed smoke still requested the older unsuffixed filenames.
+The smoke now validates both emitted files against the same Public API document.
+Matrix child failures retain the installation form, dependency lane, exception
+category, sanitized command, and bounded stdout/stderr excerpts with repository
+and matrix roots replaced by stable placeholders.
 
 Issue #216 preserves Package `0.17.0`, Python `>=3.13`, `AGPL-3.0-only`, the two
 unchanged runtime dependencies, Public API contract `1`, seven Root workflows,
@@ -365,6 +386,7 @@ B-07:
     open
 ```
 
-Package `1.0.0` and Release preparation remain not ready. The exact next action
-is Issue #217, "Reorganize the Home dashboard and clarify Product concepts in
-German and English."
+Package `1.0.0` and Release preparation remain not ready. Issue #216 is reopened
+pending both required post-merge Ubuntu jobs. Issue #217, "Reorganize the Home
+dashboard and clarify Product concepts in German and English," remains blocked
+until those jobs pass.

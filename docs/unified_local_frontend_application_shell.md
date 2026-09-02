@@ -226,4 +226,5 @@ are not ready. Issue #215 freezes the authoritative
 [bilingual profile-driven frontend UX contract](bilingual_profile_driven_frontend_ux_contract.md).
 Issue #216 implements its private profile, locale, catalog, language-selector,
 and bilingual common-shell subset without translating all workflow bodies. The
-exact next action is Issue #217.
+reopened Issue #216 follow-up remains pending both required Ubuntu jobs; Issue
+#217 is blocked until they pass.

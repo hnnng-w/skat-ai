@@ -177,7 +177,10 @@ and Issue #216 implements its private profile persistence, strict German/English
 catalogs, locale resolution, authenticated language selection, bilingual common
 shell, and explicit English workflow-body boundary. The implementation is
 documented in [Local frontend profile and localization](local_frontend_profile_and_localization.md).
-Issue #217 is the exact next action. Issue #208 remains open; UAT-02 through
+Post-merge Ubuntu CI at `087f497` reopened Issue #216 for its CPython-3.13.15
+parser-header compatibility correction and a separate stale matrix-smoke
+filename correction. Both required Ubuntu jobs remain pending, and Issue #217 is
+blocked until they pass. Issue #208 remains open; UAT-02 through
 UAT-12 remain paused; B-09 and B-07 remain open; B-06 remains closed; and
 Package `1.0.0` and Release preparation are not ready. See
 [Advanced CLI automation](advanced_cli_automation_interface.md).

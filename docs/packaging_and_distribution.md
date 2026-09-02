@@ -342,6 +342,18 @@ repository mutation, and successful JSON retains no path, credential, machine-
 identity, timestamp, or elapsed-time field. See
 [v1 installation and supported-platform matrix](v1_installation_and_supported_platform_matrix.md).
 
+The reopened Issue #216 follow-up corrects a separate installed-smoke contract
+gap exposed by the post-merge Ubuntu `source-resolved` cell. Issue #213 split
+each full Root CLI output into explicit `compatibility` and canonical `run`
+files, while the nested installed smoke still read the older unsuffixed name.
+The smoke now validates both emitted files against its Public API Result. This
+was not a locale, Linux, path, newline, temporary-directory, Package Resource, or
+CPython patch-level semantic difference. Failed cells now report their exact
+installation form and dependency lane plus a sanitized command and bounded
+stdout/stderr excerpts; repository and matrix roots use stable placeholders,
+tokens, cookies, and structured Product output are not retained, successful JSON
+is unchanged, and failure still returns Code `1`.
+
 ## Local and CI gates
 
 The complete local check runs, in fail-fast order:

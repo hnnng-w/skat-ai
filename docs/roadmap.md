@@ -1555,8 +1555,10 @@ Issue #216 implements its private profile persistence, locale resolution,
 packaged German/English catalogs, global language selection, bilingual common
 shell, and explicit English workflow-body boundary. It further partially
 remediates UAT-FINDING-001; UAT-FINDING-007 and UAT-FINDING-008 remain open after
-their foundation/common coverage. The exact next action is Issue #217. Issue
-#208 remains open; UAT-02 through
+their foundation/common coverage. Post-merge Ubuntu CI at `087f497` reopened
+Issue #216 for narrow parser-header and separate matrix-smoke corrections. Both
+required Ubuntu jobs remain pending, and Issue #217 is blocked until they pass.
+Issue #208 remains open; UAT-02 through
 UAT-12 remain paused; B-09 and B-07 remain open; B-06 remains closed; and
 Package `1.0.0` and Release preparation are not ready. No v1 Release title,
 theme, date, tag, or publication commit is frozen.

@@ -183,5 +183,5 @@ Issue #215 freezes the authoritative
 [bilingual profile-driven frontend UX contract](bilingual_profile_driven_frontend_ux_contract.md).
 Issue #216 implements the shared private profile/localization foundation. When
 German is active, the future-owned Session, Match, and Learning bodies remain
-explicitly marked English pending Issue #220. The exact next action is Issue
-#217.
+explicitly marked English pending Issue #220. The reopened Issue #216 follow-up
+remains pending both required Ubuntu jobs; Issue #217 is blocked until they pass.

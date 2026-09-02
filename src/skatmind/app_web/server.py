@@ -4,6 +4,7 @@ import hmac
 import json
 import re
 import threading
+from email.message import Message
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from importlib.resources import files
@@ -454,11 +455,17 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
 
     def _frontend_state(self):
         request_headers = getattr(self, "headers", None)
-        accept_language_values = (
-            []
-            if request_headers is None
-            else request_headers.get_all("Accept-Language", [])
-        )
+        accept_language_values: list[str] = []
+        if isinstance(request_headers, Message):
+            try:
+                candidate_values = request_headers.get_all("Accept-Language", [])
+            except Exception:
+                # Parser errors may leave an incomplete optional-locale container.
+                candidate_values = []
+            if type(candidate_values) is list and all(
+                type(value) is str for value in candidate_values
+            ):
+                accept_language_values = candidate_values
         accept_language = (
             accept_language_values[0] if len(accept_language_values) == 1 else None
         )

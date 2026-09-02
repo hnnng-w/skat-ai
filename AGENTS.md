@@ -598,8 +598,11 @@ UAT-01 nevertheless failed. Issue #215 freezes the authoritative future
 [`bilingual profile-driven frontend UX contract`](docs/bilingual_profile_driven_frontend_ux_contract.md).
 Issue #216 implements its private profile persistence, locale resolution,
 strict German/English catalogs, global language selection, and bilingual common
-shell foundation without completing future-owned workflow translation. Issue
-#217 is the exact next action. Issue #208 remains open, UAT-02 through
+shell foundation without completing future-owned workflow translation. Post-
+merge Ubuntu CI at `087f497` reopened Issue #216 for its CPython-3.13.15 parser-
+header compatibility defect and a separate stale matrix-smoke filename
+expectation. The follow-up correction remains pending both required Ubuntu jobs,
+and Issue #217 is blocked until they pass. Issue #208 remains open, UAT-02 through
 UAT-12 remain paused, B-09 and B-07 remain open, B-06 remains closed, and
 Package `1.0.0` and Release preparation are not ready. No v1 Release title,
 theme, date, tag, publication commit, or production model is frozen.
@@ -903,8 +906,10 @@ Edge verification resolved Issue #214 and UAT-FINDING-004, but repeated UAT-01
 did not pass. Issue #215 freezes the authoritative bilingual profile-driven
 frontend UX contract. Issue #216 implements the private local frontend profile,
 locale foundation, and bilingual common shell while full workflow translation
-remains incomplete through Issue #220. Issue #217 is the exact next action. UAT-02
-through UAT-12 remain paused, B-09 and B-07 remain open, B-06 remains closed,
+remains incomplete through Issue #220. Issue #216 is reopened pending its Ubuntu
+compatibility correction and both required post-merge Ubuntu jobs; Issue #217 is
+blocked until they pass. UAT-02 through UAT-12 remain paused, B-09 and B-07
+remain open, B-06 remains closed,
 and Package `1.0.0` and Release preparation are not ready.
 End-to-end local Live and Retrospective Session
 capture is implemented through public file Save/Load, automatic Checkpoints,

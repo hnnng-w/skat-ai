@@ -2344,12 +2344,13 @@ if os.environ.get("SKATMIND_FULL_ROOT_CLI_MATRIX") == "1":
     for workflow_name, _input_name, _workflow_options in root_workflow_specs:
         expected_document = root_workflow_results[workflow_name]["provenance"]["document"]
         for invocation in ("installed", "module", "legacy"):
-            cli_document = json.loads(
-                (cwd / f"root-{invocation}-{workflow_name}.json").read_text(
-                    encoding="utf-8"
+            for route_name in ("compatibility", "run"):
+                cli_document = json.loads(
+                    (cwd / f"root-{invocation}-{route_name}-{workflow_name}.json").read_text(
+                        encoding="utf-8"
+                    )
                 )
-            )
-            assert cli_document == expected_document
+                assert cli_document == expected_document
 
 assert public_errors.CLI_EXIT_CODE_SUCCESS == 0
 assert public_errors.CLI_EXIT_CODE_FAILURE == 1

@@ -676,9 +676,29 @@ UAT-FINDING-002 and UAT-FINDING-004 remain resolved. Issue #216 does not repeat
 UAT-01, resume UAT-02 through UAT-12, reopen B-06, or change the Issue #207
 technical conclusion.
 
+Post-merge Ubuntu CI at `087f497` then reopened Issue #216. The `check` job on
+CPython 3.13.15 exposed a parser-level compatibility defect: rejected HTTP/0.9
+left a plain empty dictionary in `BaseHTTPRequestHandler.headers`, while the
+localized common-error path expected `get_all()`. The correction treats absent,
+`None`, mapping, and partial header containers as no browser-language evidence,
+retains saved-profile precedence and English fallback, and still returns
+hardened HTTP `400` and `505` responses without a request-thread traceback. The
+separate `source-resolved` matrix failure was an installed-smoke filename
+mismatch between older unsuffixed expectations and the emitted `compatibility`
+and canonical `run` files, not the localization defect. The smoke now validates
+both files, and bounded sanitized matrix diagnostics retain the failed cell,
+child exception category, command, stdout, and stderr. Both required post-merge
+Ubuntu jobs remain pending.
+
 The post-audit Release-process state is:
 
 ```text
+Issue #216:
+    reopened pending Ubuntu correction and post-merge CI
+
+Issue #217:
+    blocked
+
 Issue #208:
     open
 
@@ -737,4 +757,5 @@ Release preparation:
 The 53-row ledger remains exactly 19 `satisfied`, 34
 `satisfied_with_approved_bounded_scope`, and zero in each unresolved
 classification. Frontend and UAT work remains under B-09 outside that ledger and
-does not reopen B-06. The exact next action is Issue #217.
+does not reopen B-06. Issue #217 remains blocked until both required Ubuntu jobs
+pass for the reopened Issue #216 follow-up.

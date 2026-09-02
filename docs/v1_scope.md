@@ -357,7 +357,9 @@ UAT-FINDING-004. Repeated UAT-01 nevertheless fails. Issue #215 freezes the
 authoritative
 [bilingual profile-driven frontend UX contract](bilingual_profile_driven_frontend_ux_contract.md),
 and Issue #216 implements its private profile/localization foundation and
-bilingual common shell. Issue #217 is the exact next action. Issue #208 remains
+bilingual common shell. Post-merge Ubuntu CI reopened Issue #216 for narrow
+parser and matrix-smoke compatibility corrections; Issue #217 is blocked until
+both required Ubuntu jobs pass. Issue #208 remains
 open; UAT-02 through
 UAT-12 remain paused; B-09 and B-07 remain open; B-06 remains closed; and
 Package `1.0.0` and Release preparation are not ready.
@@ -969,8 +971,9 @@ The implemented current frontend remains governed by the
 #215 freezes the authoritative
 [bilingual profile-driven frontend UX contract](bilingual_profile_driven_frontend_ux_contract.md).
 Issue #216 implements its private profile/localization and common-shell subset
-without changing the Release decision rule or technical ledger. The exact next
-action is Issue #217. Issue #208 remains open; UAT-02 through
+without changing the Release decision rule or technical ledger. Its reopened
+post-merge Ubuntu follow-up remains pending both required Ubuntu jobs; Issue #217
+is blocked until they pass. Issue #208 remains open; UAT-02 through
 UAT-12 remain paused; B-09 and B-07 remain open; B-06 remains closed; and
 Package `1.0.0` and Release preparation are not ready.
 

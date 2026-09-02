@@ -112,6 +112,7 @@ _SNAPSHOT_EXCLUDED_DIRECTORY_NAMES = {
     "env",
     "venv",
 }
+_MAX_DIAGNOSTIC_EXCERPT_CHARS = 4_000
 
 
 class V1SupportedPlatformMatrixError(RuntimeError):
@@ -121,6 +122,92 @@ class V1SupportedPlatformMatrixError(RuntimeError):
 def _require(condition: bool, message: str) -> None:
     if not condition:
         raise V1SupportedPlatformMatrixError(message)
+
+
+def _sanitize_diagnostic_text(value: str, *, temporary_root: Path) -> str:
+    replacements = (
+        (str(temporary_root), "<matrix-root>"),
+        (str(PROJECT_ROOT), "<repository>"),
+        (str(Path(sys.base_prefix).resolve()), "<python>"),
+        (str(Path.home().resolve()), "<home>"),
+    )
+    sanitized = value
+    for private, placeholder in sorted(replacements, key=lambda item: -len(item[0])):
+        sanitized = sanitized.replace(private, placeholder)
+    sanitized = re.sub(r"(?i)(token=)[^&\s'\"]+", r"\1<redacted>", sanitized)
+    sanitized = re.sub(
+        r"(?i)(skatmind_(?:app|capture|corpus)_token=)[^;\s'\"]+",
+        r"\1<redacted>",
+        sanitized,
+    )
+    sanitized = re.sub(
+        r"(?im)^(\s*(?:set-)?cookie\s*:\s*).*$",
+        r"\1<redacted>",
+        sanitized,
+    )
+    sanitized = re.sub(
+        r"(?i)(\b[A-Za-z0-9_.-]*(?:token|cookie)\b\s*[:=]\s*)"
+        r"(?:'[^']*'|\"[^\"]*\"|[^\s,;]+)",
+        r"\1<redacted>",
+        sanitized,
+    )
+    for retained_token in (
+        "app-distribution-token",
+        "distribution-corpus-token",
+        "distribution-token",
+    ):
+        sanitized = sanitized.replace(retained_token, "<redacted>")
+    return sanitized
+
+
+def _bounded_diagnostic_excerpt(value: str) -> str:
+    content = value.strip()
+    if not content:
+        return "<empty>"
+    if content.startswith(("{", "[")):
+        return "<structured child output redacted>"
+    if len(content) <= _MAX_DIAGNOSTIC_EXCERPT_CHARS:
+        return content
+    half = _MAX_DIAGNOSTIC_EXCERPT_CHARS // 2
+    return (
+        content[:half]
+        + "\n... <bounded diagnostic excerpt truncated> ...\n"
+        + content[-half:]
+    )
+
+
+def _bounded_failure_details(
+    error: Exception,
+    *,
+    temporary_root: Path,
+) -> str:
+    diagnostic = _sanitize_diagnostic_text(str(error), temporary_root=temporary_root)
+    summary, stdout_marker, child_output = diagnostic.partition("\nstdout:\n")
+    child_stdout, stderr_marker, child_stderr = child_output.partition("\nstderr:\n")
+    if not stdout_marker or not stderr_marker:
+        child_stdout = ""
+        child_stderr = diagnostic[len(summary) :]
+    return (
+        f"{type(error).__name__}: {_bounded_diagnostic_excerpt(summary)}\n"
+        "child stdout excerpt:\n"
+        f"{_bounded_diagnostic_excerpt(child_stdout)}\n"
+        "child stderr excerpt:\n"
+        f"{_bounded_diagnostic_excerpt(child_stderr)}"
+    )
+
+
+def _matrix_cell_failure_message(
+    error: Exception,
+    *,
+    installation_form: str,
+    dependency_lane: str,
+    temporary_root: Path,
+) -> str:
+    return (
+        "Matrix cell failed: "
+        f"installation_form={installation_form}; dependency_lane={dependency_lane}\n"
+        + _bounded_failure_details(error, temporary_root=temporary_root)
+    )
 
 
 def _distribution_name(requirement: str) -> str:
@@ -543,11 +630,17 @@ def validate_v1_supported_platform_matrix(
             not temporary_root.is_relative_to(PROJECT_ROOT),
             "Matrix temporary work must remain outside the repository.",
         )
-        source_copy, wheel, sdist, expected_schemas = (
-            distribution_validation._build_and_inspect_distribution_artifacts(
-                temporary_root
+        try:
+            source_copy, wheel, sdist, expected_schemas = (
+                distribution_validation._build_and_inspect_distribution_artifacts(
+                    temporary_root
+                )
             )
-        )
+        except distribution_validation.DistributionValidationError as error:
+            raise V1SupportedPlatformMatrixError(
+                "Matrix distribution build failed.\n"
+                + _bounded_failure_details(error, temporary_root=temporary_root)
+            ) from error
         targets = {
             "source": source_copy,
             "editable": source_copy,
@@ -560,17 +653,29 @@ def validate_v1_supported_platform_matrix(
                 if dependency_lane == "minimum_supported"
                 else None
             )
-            smoke = distribution_validation._install_and_smoke(
-                targets[installation_form],
-                label=f"{installation_form}-{dependency_lane}",
-                temporary_root=temporary_root,
-                expected_schemas=expected_schemas,
-                installation_form=installation_form,
-                editable=installation_form == "editable",
-                minimum_dependencies=minimum_dependencies,
-                external_source_root=(source_copy if installation_form == "editable" else None),
-                full_root_cli_matrix=dependency_lane == "resolved",
-            )
+            try:
+                smoke = distribution_validation._install_and_smoke(
+                    targets[installation_form],
+                    label=f"{installation_form}-{dependency_lane}",
+                    temporary_root=temporary_root,
+                    expected_schemas=expected_schemas,
+                    installation_form=installation_form,
+                    editable=installation_form == "editable",
+                    minimum_dependencies=minimum_dependencies,
+                    external_source_root=(
+                        source_copy if installation_form == "editable" else None
+                    ),
+                    full_root_cli_matrix=dependency_lane == "resolved",
+                )
+            except distribution_validation.DistributionValidationError as error:
+                raise V1SupportedPlatformMatrixError(
+                    _matrix_cell_failure_message(
+                        error,
+                        installation_form=installation_form,
+                        dependency_lane=dependency_lane,
+                        temporary_root=temporary_root,
+                    )
+                ) from error
             normalized_smokes.append(normalize_semantic_output(smoke))
             cells.append(_cell_result(installation_form, dependency_lane, smoke))
     _require(
@@ -622,9 +727,7 @@ def main(argv: list[str] | None = None) -> int:
         distribution_validation.DistributionValidationError,
         OSError,
     ) as error:
-        message = str(error).splitlines()[0]
-        message = message.replace(str(PROJECT_ROOT), "<repository>")
-        print(f"V1 supported-platform matrix validation failed: {message}", file=sys.stderr)
+        print(f"V1 supported-platform matrix validation failed: {error}", file=sys.stderr)
         return 1
     return 0
 

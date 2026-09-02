@@ -776,7 +776,8 @@ its private profile/localization and bilingual common-shell foundation while
 full workflow translation remains incomplete. UAT-FINDING-001 is further
 partially remediated and open; UAT-FINDING-007 has its foundation implemented
 and remains open; UAT-FINDING-008 has its foundation/common coverage implemented
-and remains open pending Issue #220. The exact next action is Issue #217.
+and remains open pending Issue #220. The reopened Issue #216 follow-up remains
+pending both required Ubuntu jobs; Issue #217 is blocked until they pass.
 
 UAT-02 through UAT-12 remain paused. Frontend work remains part of B-09 outside
 the technical ledger and must not reopen B-06. B-07 remains open.
