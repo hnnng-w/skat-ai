@@ -1765,8 +1765,10 @@ related links, and useful stateful empty states. UAT-FINDING-001 is further
 partially remediated/open; UAT-FINDING-003 has its Home and concept remediation
 implemented/open pending Issue #220 and repeated UAT-01; and UAT-FINDING-008 has
 bilingual Home and concept coverage implemented/open pending Issue #220. Issue
-#218 is the exact next action.
-Issue #208 remains open, UAT-02 through
+#218 implements private safe form-state preservation and localized accessible
+validation feedback. UAT-FINDING-006 has its implementation complete but remains
+open pending repeated UAT-01. Issue #219 is the exact next action. Issue #208
+remains open, UAT-02 through
 UAT-12 remain paused, B-09 and B-07 remain open, B-06 remains closed, and
 Package `1.0.0` and Release preparation are not ready.
 
@@ -2364,9 +2366,12 @@ Issue #215 freezes the authoritative
 Issue #216 implements the private local frontend profile, locale foundation, and
 bilingual common shell, and its post-merge Ubuntu parser and matrix-smoke
 corrections passed both required jobs. Issue #217 implements the private grouped
-bilingual Home information architecture and Product-concept guidance without
-completing the Issue #218 through #220 work. Issue #218, "Preserve frontend form
-state and localize validation feedback," is the exact next action.
+bilingual Home information architecture and Product-concept guidance. Issue #218
+implements canonical registered form metadata, rejected-submission state
+separate from accepted workflow/Product state, bounded safe-value preservation,
+localized accessible contextual feedback, and successful PRG. Issue #219,
+"Reduce setup friction with generated IDs, known-player selection, and saved
+defaults," is the exact next action.
 
 Maintainer Microsoft Edge verification resolved Issue #214 and
 UAT-FINDING-004. Repeated UAT-01 nevertheless failed. Issue #208 remains open;
@@ -2382,6 +2387,8 @@ The implemented current frontend remains documented in
 foundation is documented in [Local frontend profile and localization](local_frontend_profile_and_localization.md),
 and the Issue #217 slice is documented in
 [Bilingual Home information architecture](bilingual_home_information_architecture.md).
+Issue #218 is documented in
+[Frontend validation state and localized feedback](frontend_validation_state_and_localized_feedback.md).
 
 Keep immutable imported Workspace Snapshots separate from derived artifacts.
 Public Match/Corpus/Dataset-v2 surfaces, derived persistence, broader Player

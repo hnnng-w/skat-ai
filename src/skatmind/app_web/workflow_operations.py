@@ -14,6 +14,19 @@ from .execution import (
     execute_guided_frontend_review_v1,
 )
 from .form_parsing import FormFieldErrorV1
+from .form_registry import resolve_frontend_form_v1
+from .guided_contracts import (
+    ANALYZE_RUN_GUIDED_ACTION_ROUTE_PATH,
+    ANALYZE_RUN_IMPORTED_ACTION_ROUTE_PATH,
+    REVIEW_APPEND_PLAY_ACTION_ROUTE_PATH,
+    REVIEW_RUN_GUIDED_ACTION_ROUTE_PATH,
+    REVIEW_RUN_IMPORTED_ACTION_ROUTE_PATH,
+    REVIEW_UPDATE_DEAL_ACTION_ROUTE_PATH,
+    REVIEW_UPDATE_DECLARATION_ACTION_ROUTE_PATH,
+    REVIEW_UPDATE_DISCARDS_ACTION_ROUTE_PATH,
+    REVIEW_UPDATE_OPTIONS_ACTION_ROUTE_PATH,
+    REVIEW_UPDATE_PLAYERS_ACTION_ROUTE_PATH,
+)
 from .historical_form import (
     HistoricalFormDraftV1,
     build_historical_execution_options_v1,
@@ -37,35 +50,43 @@ from .position_form import (
     build_guided_position_execution_v1,
     parse_position_form_v1,
 )
-from .workflow_state import (
-    FrontendWorkflowExecutionConflictError,
-    StaleFrontendWorkflowRevisionError,
-)
+from .validation_contracts import FrontendValidationIssueV1
+from .validation_mapping import map_form_field_errors_v1, map_frontend_exception_v1
+from .workflow_state import StaleFrontendWorkflowRevisionError
 
 
 @dataclass(frozen=True, slots=True)
 class FrontendWorkflowValidationError(ValueError):
-    messages: tuple[str, ...]
+    issues: tuple[FrontendValidationIssueV1, ...]
 
     def __post_init__(self) -> None:
-        if not self.messages or any(
-            type(message) is not str or not message for message in self.messages
+        if not self.issues or any(
+            type(issue) is not FrontendValidationIssueV1 for issue in self.issues
         ):
-            raise ValueError("Frontend workflow validation messages must be non-empty text.")
+            raise ValueError("Frontend workflow validation issues must be structured.")
         ValueError.__init__(self, "Frontend workflow validation failed.")
 
 
-def _encoded_errors(errors: tuple[FormFieldErrorV1, ...]) -> tuple[str, ...]:
-    return tuple(f"{error.field}::{error.message}" for error in errors)
+def _structured_errors(
+    route: str,
+    errors: tuple[FormFieldErrorV1, ...],
+) -> tuple[FrontendValidationIssueV1, ...]:
+    return map_form_field_errors_v1(errors, resolve_frontend_form_v1(route))
 
 
-def _safe_validation_error(error: Exception) -> tuple[str, ...]:
+def _safe_validation_error(
+    error: Exception,
+    *,
+    route: str,
+) -> tuple[FrontendValidationIssueV1, ...]:
+    definition = resolve_frontend_form_v1(route)
     if isinstance(error, SkatMindValidationError):
         field = error.path.lstrip("/").split("/", 1)[0] if error.path else "_form"
-        message = error.message
-        if len(message) <= 320 and "[" not in message and "{" not in message:
-            return (f"{field or '_form'}::{message}",)
-    return ("_form::The submitted information could not be validated.",)
+        return map_form_field_errors_v1(
+            (FormFieldErrorV1(field or "_form", error.message),),
+            definition,
+        )
+    return map_frontend_exception_v1(error, definition, status=400)
 
 
 def _publish(
@@ -90,6 +111,26 @@ def _publish(
             context.analyze_state = published
         else:
             context.review_state = published
+
+
+def _publish_candidate(
+    context: AppWebContextV1,
+    *,
+    draft: object,
+    revision: int,
+    execution: GuidedFrontendExecutionV1,
+) -> None:
+    with context.lock:
+        context.analyze_state = context.analyze_state.publish_candidate(
+            expected_revision=revision,
+            execution_revision=revision,
+            draft=draft,
+            request=execution.request,
+            options=execution.options,
+            result=execution.result,
+            request_json_bytes=execution.request_json_bytes,
+            result_json_bytes=execution.result_json_bytes,
+        )
 
 
 def _retain_failed_execution(
@@ -125,56 +166,34 @@ def run_guided_analyze_v1(
     try:
         draft = parse_position_form_v1(values)
     except PositionFormError as error:
-        messages = _encoded_errors(error.errors)
-        with context.lock:
-            context.analyze_state = context.analyze_state.mutate(
-                expected_revision=expected_revision,
-                draft=error.draft,
-                validation_messages=messages,
-            )
-        raise FrontendWorkflowValidationError(messages) from error
+        issues = _structured_errors(ANALYZE_RUN_GUIDED_ACTION_ROUTE_PATH, error.errors)
+        raise FrontendWorkflowValidationError(issues) from error
 
-    with context.lock:
-        if context.analyze_state.execution_source_revision is not None:
-            raise FrontendWorkflowExecutionConflictError(
-                "A frontend workflow execution is already in progress."
-            )
-        state = context.analyze_state.mutate(
-            expected_revision=expected_revision,
-            draft=draft,
-        )
-        state = state.begin(expected_revision=state.revision)
-        context.analyze_state = state
-        execution_revision = state.revision
     try:
         request, options = build_guided_position_execution_v1(draft)
     except PositionFormError as error:
-        messages = _encoded_errors(error.errors)
-        _retain_failed_execution(
-            context,
-            page="analyze",
-            revision=execution_revision,
-            messages=messages,
+        issues = _structured_errors(ANALYZE_RUN_GUIDED_ACTION_ROUTE_PATH, error.errors)
+        raise FrontendWorkflowValidationError(issues) from error
+
+    with context.lock:
+        state = context.analyze_state.begin_candidate(
+            expected_revision=expected_revision,
         )
-        raise FrontendWorkflowValidationError(messages) from error
-    except Exception:
-        _retain_failed_execution(
-            context,
-            page="analyze",
-            revision=execution_revision,
-        )
-        raise
+        context.analyze_state = state
+        execution_revision = state.revision
     try:
         execution = execute_guided_frontend_analysis_v1(request, options=options)
     except SkatMindValidationError as error:
-        messages = _safe_validation_error(error)
+        issues = _safe_validation_error(
+            error,
+            route=ANALYZE_RUN_GUIDED_ACTION_ROUTE_PATH,
+        )
         _retain_failed_execution(
             context,
             page="analyze",
             revision=execution_revision,
-            messages=messages,
         )
-        raise FrontendWorkflowValidationError(messages) from error
+        raise FrontendWorkflowValidationError(issues) from error
     except Exception:
         _retain_failed_execution(
             context,
@@ -182,9 +201,9 @@ def run_guided_analyze_v1(
             revision=execution_revision,
         )
         raise
-    _publish(
+    _publish_candidate(
         context,
-        page="analyze",
+        draft=draft,
         revision=execution_revision,
         execution=execution,
     )
@@ -240,8 +259,17 @@ def run_imported_request_v1(
         state._require_expected_revision(expected_revision)
         request = state.imported_request
         if type(request) is not RequestDocumentV1:
+            definition = resolve_frontend_form_v1(
+                ANALYZE_RUN_IMPORTED_ACTION_ROUTE_PATH
+                if page == "analyze"
+                else REVIEW_RUN_IMPORTED_ACTION_ROUTE_PATH
+            )
             raise FrontendWorkflowValidationError(
-                ("_form::Import a valid Request before running it.",)
+                map_frontend_exception_v1(
+                    ValueError("A valid imported Request is required."),
+                    definition,
+                    status=400,
+                )
             )
         options = ExecutionOptionsV1(validate_output=True)
         state = state.begin(expected_revision=expected_revision)
@@ -256,14 +284,18 @@ def run_imported_request_v1(
             else execute_guided_frontend_review_v1(request, options=options)
         )
     except SkatMindValidationError as error:
-        messages = _safe_validation_error(error)
+        route = (
+            ANALYZE_RUN_IMPORTED_ACTION_ROUTE_PATH
+            if page == "analyze"
+            else REVIEW_RUN_IMPORTED_ACTION_ROUTE_PATH
+        )
+        issues = _safe_validation_error(error, route=route)
         _retain_failed_execution(
             context,
             page=page,
             revision=expected_revision,
-            messages=messages,
         )
-        raise FrontendWorkflowValidationError(messages) from error
+        raise FrontendWorkflowValidationError(issues) from error
     except Exception:
         _retain_failed_execution(
             context,
@@ -312,33 +344,40 @@ def update_review_v1(
         state._require_expected_revision(expected_revision)
         draft = state.draft
         if type(draft) is not HistoricalFormDraftV1:
+            definition = resolve_frontend_form_v1(REVIEW_UPDATE_PLAYERS_ACTION_ROUTE_PATH)
             raise FrontendWorkflowValidationError(
-                ("_form::Start the normal-completion editor first.",)
+                map_frontend_exception_v1(
+                    ValueError("The normal-completion editor is required."),
+                    definition,
+                    status=400,
+                )
             )
         try:
             changed_draft = parser(draft, values)
         except HistoricalFormInputError as error:
-            messages = _encoded_errors(error.errors)
-            context.review_state = (
-                state.mutate(
-                    expected_revision=expected_revision,
-                    draft=error.draft,
-                    validation_messages=messages,
-                )
-                if error.draft is not None
-                else state.reject(
-                    expected_revision=expected_revision,
-                    validation_messages=messages,
-                )
-            )
-            raise FrontendWorkflowValidationError(messages) from error
+            route = {
+                "players": REVIEW_UPDATE_PLAYERS_ACTION_ROUTE_PATH,
+                "deal": REVIEW_UPDATE_DEAL_ACTION_ROUTE_PATH,
+                "declaration": REVIEW_UPDATE_DECLARATION_ACTION_ROUTE_PATH,
+                "discards": REVIEW_UPDATE_DISCARDS_ACTION_ROUTE_PATH,
+                "play": REVIEW_APPEND_PLAY_ACTION_ROUTE_PATH,
+                "options": REVIEW_UPDATE_OPTIONS_ACTION_ROUTE_PATH,
+            }[operation]
+            issues = _structured_errors(route, error.errors)
+            raise FrontendWorkflowValidationError(issues) from error
         except ValueError as error:
-            messages = _safe_validation_error(error)
-            context.review_state = state.reject(
-                expected_revision=expected_revision,
-                validation_messages=messages,
-            )
-            raise FrontendWorkflowValidationError(messages) from error
+            route = {
+                "players": REVIEW_UPDATE_PLAYERS_ACTION_ROUTE_PATH,
+                "deal": REVIEW_UPDATE_DEAL_ACTION_ROUTE_PATH,
+                "declaration": REVIEW_UPDATE_DECLARATION_ACTION_ROUTE_PATH,
+                "discards": REVIEW_UPDATE_DISCARDS_ACTION_ROUTE_PATH,
+                "play": REVIEW_APPEND_PLAY_ACTION_ROUTE_PATH,
+                "options": REVIEW_UPDATE_OPTIONS_ACTION_ROUTE_PATH,
+            }[operation]
+            definition = resolve_frontend_form_v1(route)
+            raise FrontendWorkflowValidationError(
+                map_frontend_exception_v1(error, definition, status=400)
+            ) from error
         context.review_state = state.mutate(
             expected_revision=expected_revision,
             draft=changed_draft,
@@ -350,8 +389,13 @@ def back_review_v1(context: AppWebContextV1, *, expected_revision: int) -> None:
         state = context.review_state
         state._require_expected_revision(expected_revision)
         if type(state.draft) is not HistoricalFormDraftV1:
+            definition = resolve_frontend_form_v1(REVIEW_UPDATE_PLAYERS_ACTION_ROUTE_PATH)
             raise FrontendWorkflowValidationError(
-                ("_form::Start the normal-completion editor first.",)
+                map_frontend_exception_v1(
+                    ValueError("The normal-completion editor is required."),
+                    definition,
+                    status=400,
+                )
             )
         changed = go_back_historical_form_v1(state.draft)
         context.review_state = state.mutate(
@@ -365,8 +409,13 @@ def undo_review_play_v1(context: AppWebContextV1, *, expected_revision: int) -> 
         state = context.review_state
         state._require_expected_revision(expected_revision)
         if type(state.draft) is not HistoricalFormDraftV1:
+            definition = resolve_frontend_form_v1(REVIEW_APPEND_PLAY_ACTION_ROUTE_PATH)
             raise FrontendWorkflowValidationError(
-                ("_form::Start the normal-completion editor first.",)
+                map_frontend_exception_v1(
+                    ValueError("The normal-completion editor is required."),
+                    definition,
+                    status=400,
+                )
             )
         changed = undo_historical_play_v1(state.draft)
         context.review_state = state.mutate(
@@ -385,42 +434,39 @@ def run_guided_review_v1(
         state._require_expected_revision(expected_revision)
         draft = state.draft
         if type(draft) is not HistoricalFormDraftV1:
+            definition = resolve_frontend_form_v1(REVIEW_RUN_GUIDED_ACTION_ROUTE_PATH)
             raise FrontendWorkflowValidationError(
-                ("_form::Complete the guided normal-completion editor first.",)
+                map_frontend_exception_v1(
+                    ValueError("A completed guided editor is required."),
+                    definition,
+                    status=400,
+                )
             )
-    with context.lock:
-        state = context.review_state.begin(expected_revision=expected_revision)
-        context.review_state = state
     try:
         request = build_historical_request_v1(draft)
         options = build_historical_execution_options_v1(draft)
     except (SkatMindValidationError, ValueError) as error:
-        messages = _safe_validation_error(error)
-        _retain_failed_execution(
-            context,
-            page="review",
-            revision=expected_revision,
-            messages=messages,
+        issues = _safe_validation_error(
+            error,
+            route=REVIEW_RUN_GUIDED_ACTION_ROUTE_PATH,
         )
-        raise FrontendWorkflowValidationError(messages) from error
-    except Exception:
-        _retain_failed_execution(
-            context,
-            page="review",
-            revision=expected_revision,
-        )
-        raise
+        raise FrontendWorkflowValidationError(issues) from error
+    with context.lock:
+        state = context.review_state.begin(expected_revision=expected_revision)
+        context.review_state = state
     try:
         execution = execute_guided_frontend_review_v1(request, options=options)
     except SkatMindValidationError as error:
-        messages = _safe_validation_error(error)
+        issues = _safe_validation_error(
+            error,
+            route=REVIEW_RUN_GUIDED_ACTION_ROUTE_PATH,
+        )
         _retain_failed_execution(
             context,
             page="review",
             revision=expected_revision,
-            messages=messages,
         )
-        raise FrontendWorkflowValidationError(messages) from error
+        raise FrontendWorkflowValidationError(issues) from error
     except Exception:
         _retain_failed_execution(
             context,
@@ -444,10 +490,6 @@ def reset_workflow_v1(
 ) -> None:
     with context.lock:
         if page == "analyze":
-            context.analyze_state = context.analyze_state.reset(
-                expected_revision=expected_revision
-            )
+            context.analyze_state = context.analyze_state.reset(expected_revision=expected_revision)
         else:
-            context.review_state = context.review_state.reset(
-                expected_revision=expected_revision
-            )
+            context.review_state = context.review_state.reset(expected_revision=expected_revision)

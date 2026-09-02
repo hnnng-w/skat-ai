@@ -5,6 +5,7 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 from .contracts import BrowserSafeApplicationStateV1, ManagedHomeV1
+from .form_state import ProcessLocalFrontendFeedbackStateV1
 from .frontend_profile_state import (
     FrontendProfileStateV1,
     build_frontend_profile_state_v1,
@@ -32,6 +33,10 @@ class AppWebContextV1:
         default_factory=ProcessLocalFrontendWorkflowStateV1,
         repr=False,
     )
+    form_feedback: ProcessLocalFrontendFeedbackStateV1 = field(
+        default_factory=ProcessLocalFrontendFeedbackStateV1,
+        repr=False,
+    )
     lock: threading.RLock = field(default_factory=threading.RLock, repr=False)
     profile_lock: threading.Lock = field(default_factory=threading.Lock, repr=False)
     profile_redirect_return_to: str | None = field(default=None, repr=False)
@@ -47,6 +52,8 @@ class AppWebContextV1:
             raise ValueError("analyze_state must be exact process-local workflow state.")
         if type(self.review_state) is not ProcessLocalFrontendWorkflowStateV1:
             raise ValueError("review_state must be exact process-local workflow state.")
+        if type(self.form_feedback) is not ProcessLocalFrontendFeedbackStateV1:
+            raise ValueError("form_feedback must be exact process-local feedback state.")
         if type(self.managed_stateful) is not ManagedStatefulContextV1:
             raise ValueError("managed_stateful must be exact managed stateful context.")
         if type(self.frontend_profile) is not FrontendProfileStateV1:

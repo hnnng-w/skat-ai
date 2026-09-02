@@ -109,18 +109,10 @@ class ProcessLocalFrontendWorkflowStateV1:
             )
             if source_revision > revision:
                 raise ValueError("execution_source_revision must not exceed revision.")
-            if (
-                source_revision == revision
-                and self.draft is None
-                and self.imported_request is None
-            ):
-                raise ValueError("Current execution requires a draft or imported Request.")
 
     def _require_expected_revision(self, expected_revision: object) -> int:
         if type(expected_revision) is not int or expected_revision != self.revision:
-            raise StaleFrontendWorkflowRevisionError(
-                "The frontend workflow revision is stale."
-            )
+            raise StaleFrontendWorkflowRevisionError("The frontend workflow revision is stale.")
         return expected_revision
 
     def mutate(
@@ -172,19 +164,11 @@ class ProcessLocalFrontendWorkflowStateV1:
         expected_revision: object,
         validation_messages: tuple[str, ...],
     ) -> ProcessLocalFrontendWorkflowStateV1:
-        """Retains safe input after validation failure and invalidates output."""
+        """Retains accepted state after validation failure."""
 
         self._require_expected_revision(expected_revision)
         return replace(
             self,
-            revision=self.revision + 1,
-            latest_successful_request=None,
-            latest_successful_options=None,
-            latest_successful_result=None,
-            request_json_bytes=(
-                self.request_json_bytes if self.imported_request is not None else None
-            ),
-            result_json_bytes=None,
             validation_messages=_require_messages(validation_messages),
             execution_source_revision=None,
         )
@@ -217,17 +201,67 @@ class ProcessLocalFrontendWorkflowStateV1:
             )
         if self.draft is None and self.imported_request is None:
             raise ValueError("Execution requires a current draft or imported Request.")
+        return replace(self, validation_messages=(), execution_source_revision=self.revision)
+
+    def begin_candidate(
+        self,
+        *,
+        expected_revision: object,
+    ) -> ProcessLocalFrontendWorkflowStateV1:
+        """Marks validation/execution of a candidate without accepting its draft."""
+
+        self._require_expected_revision(expected_revision)
+        if self.execution_source_revision is not None:
+            raise FrontendWorkflowExecutionConflictError(
+                "A frontend workflow execution is already in progress."
+            )
+        return replace(self, validation_messages=(), execution_source_revision=self.revision)
+
+    def publish_candidate(
+        self,
+        *,
+        expected_revision: object,
+        execution_revision: object,
+        draft: object,
+        request: object,
+        options: object,
+        result: object,
+        request_json_bytes: object,
+        result_json_bytes: object,
+    ) -> ProcessLocalFrontendWorkflowStateV1:
+        """Atomically accepts one candidate draft and its successful Result."""
+
+        self._require_expected_revision(expected_revision)
+        if (
+            type(execution_revision) is not int
+            or execution_revision != self.execution_source_revision
+            or execution_revision != self.revision
+        ):
+            raise StaleFrontendWorkflowRevisionError(
+                "The completed frontend workflow execution is stale."
+            )
+        if draft is None:
+            raise ValueError("A successful candidate requires one draft.")
+        if type(request) is not RequestDocumentV1:
+            raise ValueError("request must be an exact RequestDocumentV1.")
+        if type(options) is not ExecutionOptionsV1:
+            raise ValueError("options must be an exact ExecutionOptionsV1.")
+        if type(result) is not ExecutionResultV1:
+            raise ValueError("result must be an exact ExecutionResultV1.")
+        request_bytes = _require_download_bytes(request_json_bytes, "request_json_bytes")
+        result_bytes = _require_download_bytes(result_json_bytes, "result_json_bytes")
         return replace(
             self,
-            latest_successful_request=None,
-            latest_successful_options=None,
-            latest_successful_result=None,
-            request_json_bytes=(
-                self.request_json_bytes if self.imported_request is not None else None
-            ),
-            result_json_bytes=None,
+            revision=self.revision + 2,
+            draft=draft,
+            imported_request=None,
+            latest_successful_request=request,
+            latest_successful_options=options,
+            latest_successful_result=result,
+            request_json_bytes=request_bytes,
+            result_json_bytes=result_bytes,
             validation_messages=(),
-            execution_source_revision=self.revision,
+            execution_source_revision=None,
         )
 
     def publish(

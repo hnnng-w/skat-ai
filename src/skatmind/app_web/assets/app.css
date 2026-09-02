@@ -173,6 +173,31 @@ h1 {
   box-shadow: 0.3rem 0.35rem 0 rgb(11 63 45 / 9%);
 }
 
+.error-summary {
+  margin-bottom: 1.5rem;
+  border-color: #9f2f24;
+  border-left: 0.4rem solid #9f2f24;
+}
+
+.error-summary h2 {
+  margin-top: 0;
+}
+
+.error-summary a,
+.field-error {
+  color: #7e2119;
+  font-weight: 700;
+}
+
+[aria-invalid="true"] {
+  border-color: #9f2f24;
+  box-shadow: 0 0 0 0.12rem rgb(159 47 36 / 18%);
+}
+
+.validation-anchor {
+  scroll-margin-top: 1rem;
+}
+
 .scope-guide,
 .concept-guide,
 .guided-empty-state,

@@ -608,7 +608,9 @@ concepts, related links, and stateful empty-state guidance. UAT-FINDING-001 is
 further partially remediated/open; UAT-FINDING-003 has its Home and concept
 remediation implemented/open pending Issue #220 and repeated UAT-01; and UAT-
 FINDING-008 has bilingual Home and concept coverage implemented/open pending
-Issue #220. Issue #218 is the exact next action. Issue #208 remains open, UAT-02 through
+Issue #220. Issue #218 implements private safe submitted-value preservation and
+localized accessible validation feedback; UAT-FINDING-006 remains open pending
+repeated UAT-01. Issue #219 is the exact next action. Issue #208 remains open, UAT-02 through
 UAT-12 remain paused, B-09 and B-07 remain open, B-06 remains closed, and
 Package `1.0.0` and Release preparation are not ready. No v1 Release title,
 theme, date, tag, publication commit, or production model is frozen.
@@ -914,7 +916,9 @@ frontend UX contract. Issue #216 implements the private local frontend profile,
 locale foundation, and bilingual common shell. Issue #217 implements the private
 grouped bilingual Home information architecture, Product concepts, related links,
 and useful empty states while full workflow translation remains incomplete
-through Issue #220. Issue #218 is the exact next action. UAT-02 through UAT-12 remain paused, B-09 and B-07
+through Issue #220. Issue #218 implements private validation preservation and
+localized feedback without changing Product behavior. Issue #219 is the exact
+next action. UAT-02 through UAT-12 remain paused, B-09 and B-07
 remain open, B-06 remains closed,
 and Package `1.0.0` and Release preparation are not ready.
 End-to-end local Live and Retrospective Session

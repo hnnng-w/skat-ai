@@ -360,7 +360,9 @@ and Issue #216 implements its private profile/localization foundation and
 bilingual common shell. Its narrow parser and matrix-smoke compatibility
 corrections passed both required Ubuntu jobs. Issue #217 implements the grouped
 bilingual Home, Product concepts, related links, and useful empty states. Issue
-#218 is the exact next action. Issue #208 remains
+#218 implements private registry-driven safe form-state preservation and
+localized accessible validation feedback without changing Product or stable
+contracts. Issue #219 is the exact next action. Issue #208 remains
 open; UAT-02 through
 UAT-12 remain paused; B-09 and B-07 remain open; B-06 remains closed; and
 Package `1.0.0` and Release preparation are not ready.
@@ -974,7 +976,9 @@ The implemented current frontend remains governed by the
 Issue #216 implements its private profile/localization and common-shell subset
 without changing the Release decision rule or technical ledger, and its Ubuntu
 follow-up passed. Issue #217 implements the private Home information-architecture
-subset without changing that rule or ledger. Issue #218 is the exact next action.
+subset without changing that rule or ledger. Issue #218 implements the private
+validation-preservation subset without changing that rule or ledger. Issue #219
+is the exact next action.
 Issue #208 remains open; UAT-02 through
 UAT-12 remain paused; B-09 and B-07 remain open; B-06 remains closed; and
 Package `1.0.0` and Release preparation are not ready.

@@ -57,6 +57,7 @@ def test_versions_policy_vocabulary_and_implemented_subset_are_exact() -> None:
         "one_private_local_frontend_profile_per_managed_data_root",
         "saved_language_overrides_browser_language",
         "browser_language_bootstraps_only_without_saved_preference",
+        "validation_preserves_safe_values_and_workflow_context",
         "home_separates_record_analyze_learn_and_product_information",
         "language_and_profile_never_change_product_semantics",
         "no_external_translation_profile_sync_or_cloud_service",
@@ -117,7 +118,7 @@ def test_catalog_resources_are_strict_ordered_and_have_exact_parity() -> None:
     assert tuple(catalogs) == ("de", "en")
     assert tuple(catalogs["de"]) == tuple(catalogs["en"])
     assert tuple(catalogs["en"]) == tuple(sorted(catalogs["en"]))
-    assert len(catalogs["en"]) == 279
+    assert len(catalogs["en"]) == 314
     for locale in SUPPORTED_FRONTEND_LOCALES:
         raw = files("skatmind.app_web").joinpath(f"locales/{locale}.json").read_bytes()
         assert not raw.startswith(b"\xef\xbb\xbf")
@@ -125,24 +126,28 @@ def test_catalog_resources_are_strict_ordered_and_have_exact_parity() -> None:
         assert type(document) is dict
         assert all(type(value) is str and value.strip() for value in document.values())
     for key in catalogs["en"]:
-        assert _placeholder_names(catalogs["de"][key]) == _placeholder_names(
-            catalogs["en"][key]
-        )
+        assert _placeholder_names(catalogs["de"][key]) == _placeholder_names(catalogs["en"][key])
 
 
 def test_translation_lookup_is_strict_plain_text_without_locale_fallback() -> None:
     assert translate_frontend_message_v1("en", "navigation.home") == "Home"
     assert translate_frontend_message_v1("de", "navigation.home") == "Startseite"
-    assert translate_frontend_message_v1(
-        "de",
-        "about.installation.package_value",
-        version="0.17.0",
-    ) == "Paket 0.17.0"
-    assert translate_frontend_message_v1(
-        "en",
-        "about.installation.package_value",
-        version="<unsafe>",
-    ) == "Package <unsafe>"
+    assert (
+        translate_frontend_message_v1(
+            "de",
+            "about.installation.package_value",
+            version="0.17.0",
+        )
+        == "Paket 0.17.0"
+    )
+    assert (
+        translate_frontend_message_v1(
+            "en",
+            "about.installation.package_value",
+            version="<unsafe>",
+        )
+        == "Package <unsafe>"
+    )
     with pytest.raises(KeyError):
         translate_frontend_message_v1("de", "missing.production.key")
     with pytest.raises(ValueError):

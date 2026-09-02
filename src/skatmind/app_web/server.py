@@ -27,6 +27,16 @@ from .cross_area_transfer import (
     transfer_active_match_report_to_corpus_v1,
     transfer_active_match_workspace_to_corpus_v1,
 )
+from .form_parsing import FormValuesV1
+from .form_registry import (
+    FRONTEND_FORM_REGISTRY,
+    UNIFIED_FRONTEND_POST_ROUTES,
+    FrontendFormDefinitionV1,
+    capture_safe_submitted_values_v1,
+    get_frontend_form_by_key_v1,
+    resolve_frontend_form_v1,
+    validate_frontend_form_registry_v1,
+)
 from .frontend_profile_operations import (
     FRONTEND_LANGUAGE_ACTION_ROUTE,
     FRONTEND_PROFILE_ACTION_ROUTES,
@@ -145,6 +155,19 @@ from .stateful_rendering import (
     render_managed_category_landing_v1,
     render_match_to_learning_transfer_v1,
 )
+from .validation_contracts import (
+    FRONTEND_VALIDATION_PRESERVATION_VERSION,
+    FrontendSubmittedFormStateV1,
+    FrontendValidationIssueV1,
+)
+from .validation_mapping import (
+    map_frontend_exception_v1,
+    upload_validation_issues_v1,
+)
+from .validation_rendering import (
+    apply_validation_feedback_to_html_v1,
+    instrument_registered_forms_v1,
+)
 from .workflow_operations import (
     FrontendWorkflowValidationError,
     back_review_v1,
@@ -197,9 +220,7 @@ _MUTATION_METHODS = _BODY_METHODS | {"DELETE"}
 _PERCENT_ESCAPE = re.compile(r"%(?![0-9A-Fa-f]{2})")
 _MATCH_POSITION_PATTERN = re.compile(r"^/matches/position/([1-9]|[12][0-9]|3[0-6])$")
 _MATCH_REPORT_PATTERN = re.compile(r"^/matches/reports/([0-9a-f]{64})$")
-_MATCH_REPORT_JSON_PATTERN = re.compile(
-    r"^/matches/api/v1/reports/([0-9a-f]{64})\.json$"
-)
+_MATCH_REPORT_JSON_PATTERN = re.compile(r"^/matches/api/v1/reports/([0-9a-f]{64})\.json$")
 _MATCH_REPORT_SOURCE_PATTERN = re.compile(
     r"^/matches/api/v1/reports/([0-9a-f]{64})/strategy-source\.json$"
 )
@@ -208,16 +229,12 @@ _MATCH_EXPORT_ROUTES = {
     "/matches/api/v1/exports/historical-games.json": "historical_games",
     "/matches/api/v1/exports/training-sources.json": "training_sources",
     "/matches/api/v1/exports/historical-list-input.json": "historical_list_input",
-    "/matches/api/v1/exports/historical-list-aggregation.json": (
-        "historical_list_aggregation"
-    ),
+    "/matches/api/v1/exports/historical-list-aggregation.json": ("historical_list_aggregation"),
 }
 _LEARNING_DOWNLOAD_ROUTES = {
     "/learning/downloads/player-catalog.json": "player_catalog",
     "/learning/downloads/human-evidence.json": "human_evidence",
-    "/learning/downloads/strategy-teacher-evidence.json": (
-        "strategy_teacher_evidence"
-    ),
+    "/learning/downloads/strategy-teacher-evidence.json": ("strategy_teacher_evidence"),
     "/learning/downloads/learning-dataset-v2.json": "learning_dataset_v2",
     "/learning/downloads/known-player-partitions.json": "known_player_partitions",
     "/learning/downloads/unseen-player-partitions.json": "unseen_player_partitions",
@@ -226,9 +243,7 @@ _LEARNING_DOWNLOAD_ROUTES = {
     "/learning/downloads/tactical-motif-cross-game-summary.json": (
         "tactical_motif_cross_game_summary"
     ),
-    "/learning/downloads/tactical-cross-game-coaching.json": (
-        "tactical_cross_game_coaching"
-    ),
+    "/learning/downloads/tactical-cross-game-coaching.json": ("tactical_cross_game_coaching"),
 }
 _SESSION_DOWNLOAD_ROUTES = {
     "/sessions/downloads/session.json",
@@ -256,6 +271,11 @@ _STATEFUL_POST_ROUTES = {
     "/learning/open",
     "/learning/api/v1/operations",
 }
+validate_frontend_form_registry_v1()
+if set(UNIFIED_FRONTEND_POST_ROUTES) != (
+    set(GUIDED_ACTION_ROUTE_PATHS) | set(FRONTEND_PROFILE_ACTION_ROUTES) | _STATEFUL_POST_ROUTES
+):
+    raise RuntimeError("Unified frontend POST Routes and the form registry diverged.")
 _CONTENT_TITLE_KEYS = {
     "Sessions": "page.sessions.title",
     "Match capture": "page.matches.title",
@@ -269,20 +289,14 @@ _COMMON_ERROR_MESSAGE_KEYS = {
     "A local filesystem operation failed.": "error.filesystem.message",
     "An internal server error occurred.": "error.internal.message",
     "The request could not be validated.": "error.bad_request.message",
-    "This method is not available for the requested page.": (
-        "error.method_not_allowed.message"
-    ),
+    "This method is not available for the requested page.": ("error.method_not_allowed.message"),
     "Not found.": "error.not_found.message",
     "Prepared sources changed.": "error.conflict.message",
     "The selected process-local artifact is stale.": "error.conflict.message",
     "This form is stale. Reload the page and try again.": "error.stale_form.message",
-    "The imported SkatMind workflow is not supported on this page.": (
-        "error.bad_request.message"
-    ),
+    "The imported SkatMind workflow is not supported on this page.": ("error.bad_request.message"),
     "The submitted request is too large.": "error.request_too_large.message",
-    "Use the form content type shown by this page.": (
-        "error.unsupported_content_type.message"
-    ),
+    "Use the form content type shown by this page.": ("error.unsupported_content_type.message"),
     "The submitted form could not be validated.": "error.bad_request.message",
     "Reset the invalid local profile from About before saving a language preference.": (
         "error.profile_invalid.message"
@@ -330,9 +344,7 @@ class SkatMindAppWebServerV1(ThreadingHTTPServer):
         if type(port) is not int or not 0 <= port <= 65_535:
             raise ValueError("port must be 0 or an integer from 1 through 65535.")
         if token is not None and (
-            type(token) is not str
-            or not token
-            or any(character in token for character in ";\r\n")
+            type(token) is not str or not token or any(character in token for character in ";\r\n")
         ):
             raise ValueError("token must be null or safe non-empty text.")
         self.app_context = context
@@ -466,9 +478,7 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
                 type(value) is str for value in candidate_values
             ):
                 accept_language_values = candidate_values
-        accept_language = (
-            accept_language_values[0] if len(accept_language_values) == 1 else None
-        )
+        accept_language = accept_language_values[0] if len(accept_language_values) == 1 else None
         with self.server.app_context.lock:
             profile_state = self.server.app_context.frontend_profile
         return project_browser_safe_frontend_profile_state_v1(
@@ -555,9 +565,7 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
             self.rfile.read(length)
 
     def _page(self, route: str, *, status: int = HTTPStatus.OK) -> None:
-        storage_root = (
-            self.server.app_context.managed_home.root if route == "/about" else None
-        )
+        storage_root = self.server.app_context.managed_home.root if route == "/about" else None
         with self.server.app_context.lock:
             frontend = self._frontend_state()
             rendered = render_app_page_v1(
@@ -568,6 +576,27 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
                 review_state=self.server.app_context.review_state,
                 frontend=frontend,
                 return_to=self._safe_current_return_path(),
+            )
+            rendered = self._apply_retained_feedback(
+                rendered,
+                families=(
+                    *(("analyze",) if route == "/analyze" else ()),
+                    *(("review",) if route == "/review" else ()),
+                    "profile",
+                ),
+                active_identity=None,
+                last_valid_result_retained=(
+                    route == "/analyze"
+                    and self.server.app_context.analyze_state.latest_successful_result is not None
+                )
+                or (
+                    route == "/review"
+                    and self.server.app_context.review_state.latest_successful_result is not None
+                ),
+            )
+            rendered = instrument_registered_forms_v1(
+                rendered,
+                FRONTEND_FORM_REGISTRY,
             )
         self._send_text(
             status,
@@ -673,6 +702,9 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
         extra_stylesheets: tuple[str, ...] = (),
         extra_scripts: tuple[str, ...] = (),
         empty_state_key: str | None = None,
+        feedback_family: str | None = None,
+        feedback_identity: object | None = None,
+        last_valid_result_retained: bool = False,
     ) -> None:
         with self.server.app_context.lock:
             state = self.server.app_context.browser_state
@@ -689,6 +721,17 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
             empty_state_key=empty_state_key,
             extra_stylesheets=extra_stylesheets,
             extra_scripts=extra_scripts,
+        )
+        families = (feedback_family, "profile") if feedback_family is not None else ("profile",)
+        rendered = self._apply_retained_feedback(
+            rendered,
+            families=families,
+            active_identity=feedback_identity,
+            last_valid_result_retained=last_valid_result_retained,
+        )
+        rendered = instrument_registered_forms_v1(
+            rendered,
+            FRONTEND_FORM_REGISTRY,
         )
         self._send_text(
             status,
@@ -721,6 +764,51 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
         if len(body) != length:
             raise ValueError("Request body ended before Content-Length bytes were read.")
         return body, content_types[0]
+
+    def _preselect_shared_form(self, body_prefix: bytes, content_type: str) -> None:
+        """Recovers bounded unified form identity before strict body parsing."""
+
+        try:
+            path = urlsplit(self.path).path
+        except ValueError:
+            return
+        media_type = content_type.split(";", 1)[0].strip().lower()
+        candidates = tuple(
+            definition
+            for definition in FRONTEND_FORM_REGISTRY
+            if definition.action_route == path
+            and definition.discriminator_field is not None
+            and definition.media_type == media_type
+        )
+        matches: list[FrontendFormDefinitionV1] = []
+        for definition in candidates:
+            field = (definition.discriminator_field or "").encode("ascii")
+            value = (definition.discriminator_value or "").encode("ascii")
+            urlencoded = re.compile(
+                rb"(?:^|&)" + re.escape(field) + rb"=" + re.escape(value) + rb"(?:&|$)"
+            )
+            multipart = re.compile(
+                rb'\bname="'
+                + re.escape(field)
+                + rb'"[^\r\n]*\r\n\r\n'
+                + re.escape(value)
+                + rb"\r\n"
+            )
+            if (
+                media_type == "application/x-www-form-urlencoded"
+                and urlencoded.search(body_prefix) is not None
+            ) or (
+                media_type == "multipart/form-data" and multipart.search(body_prefix) is not None
+            ):
+                matches.append(definition)
+        if len(matches) == 1:
+            self._current_form_definition = matches[0]
+        elif candidates:
+            self._current_form_definition = None
+        if media_type == "application/x-www-form-urlencoded":
+            report_id = re.search(rb"(?:^|&)report_id=([0-9a-f]{64})(?:&|$)", body_prefix)
+            if report_id is not None:
+                self._current_match_report_id = report_id.group(1).decode("ascii")
 
     def _flat_form(
         self,
@@ -795,7 +883,7 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
         media_type, separator, parameters = content_type.partition(";")
         if media_type.strip().lower() != "application/x-www-form-urlencoded":
             raise TypeError("Content-Type is not supported.")
-        if separator and parameters.strip().lower() not in {"charset=utf-8", "charset=\"utf-8\""}:
+        if separator and parameters.strip().lower() not in {"charset=utf-8", 'charset="utf-8"'}:
             raise TypeError("Content-Type is not supported.")
         if body.startswith(b"\xef\xbb\xbf"):
             raise ValueError("Form data must not contain a UTF-8 BOM.")
@@ -806,7 +894,7 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
         if _PERCENT_ESCAPE.search(text):
             raise ValueError("Form data contains an invalid percent escape.")
         try:
-            return parse_qs(
+            values = parse_qs(
                 text,
                 keep_blank_values=True,
                 strict_parsing=True,
@@ -816,6 +904,17 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
             )
         except (UnicodeDecodeError, ValueError) as error:
             raise ValueError("Form data is malformed.") from error
+        raw_instance = values.pop("_frontend_form_instance", None)
+        if raw_instance is not None:
+            if (
+                len(raw_instance) != 1
+                or not raw_instance[0].isascii()
+                or not raw_instance[0].isdecimal()
+                or int(raw_instance[0]) > 2048
+            ):
+                raise ValueError("The submitted form instance is invalid.")
+            self._current_form_instance = int(raw_instance[0])
+        return values
 
     def _revision(self, values: dict[str, list[str]]) -> int:
         raw = values.pop("revision", None)
@@ -826,11 +925,270 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
         return int(raw[0])
 
     def _redirect(self, location: str) -> None:
+        definition = getattr(self, "_current_form_definition", None)
+        if type(definition) is FrontendFormDefinitionV1:
+            with self.server.app_context.lock:
+                self.server.app_context.form_feedback.clear(
+                    definition.active_context_requirement or "profile"
+                )
         self._send_text(
             HTTPStatus.SEE_OTHER,
             "",
             extra_headers=(("Location", location),),
         )
+
+    def _feedback_identity(
+        self,
+        definition: FrontendFormDefinitionV1,
+    ) -> object | None:
+        if definition.originating_page not in {
+            "/sessions/current",
+            "/matches/current",
+            "/learning/current",
+        }:
+            return None
+        with self.server.app_context.lock:
+            managed = self.server.app_context.managed_stateful
+            if definition.active_context_requirement == "sessions":
+                return managed.active_session
+            if definition.active_context_requirement == "matches":
+                return managed.active_match
+            if definition.active_context_requirement == "learning":
+                return managed.active_learning
+        return None
+
+    def _apply_retained_feedback(
+        self,
+        rendered: str,
+        *,
+        families: tuple[str, ...],
+        active_identity: object | None,
+        last_valid_result_retained: bool = False,
+    ) -> str:
+        locale = self._frontend_state().locale
+        with self.server.app_context.lock:
+            retained = tuple(
+                self.server.app_context.form_feedback.current(
+                    family,
+                    active_identity=(
+                        active_identity if family in {"sessions", "matches", "learning"} else None
+                    ),
+                )
+                for family in families
+            )
+        for state in retained:
+            if state is None:
+                continue
+            definition = get_frontend_form_by_key_v1(state.form_key)
+            rendered = apply_validation_feedback_to_html_v1(
+                rendered,
+                definition,
+                state,
+                locale=locale,
+                last_valid_result_retained=last_valid_result_retained,
+            )
+        return rendered
+
+    def _prepare_form_submission(
+        self,
+        path: str,
+        body: bytes,
+        content_type: str,
+    ) -> None:
+        media_type = content_type.split(";", 1)[0].strip().lower()
+        self._preselect_shared_form(body[:16_384], content_type)
+        preselected = getattr(self, "_current_form_definition", None)
+        definition = (
+            preselected
+            if type(preselected) is FrontendFormDefinitionV1 and preselected.action_route == path
+            else None
+        )
+        safe_values = FormValuesV1()
+        route_definition_count = sum(
+            definition.action_route == path for definition in FRONTEND_FORM_REGISTRY
+        )
+        registered_media_type = media_type if route_definition_count > 1 else None
+        if media_type == "application/x-www-form-urlencoded":
+            parsed = self._urlencoded_form(body, content_type)
+            flattened = {name: values[0] for name, values in parsed.items() if len(values) == 1}
+            definition = resolve_frontend_form_v1(
+                path,
+                flattened,
+                media_type=registered_media_type,
+            )
+            safe_values = capture_safe_submitted_values_v1(definition, parsed)
+            if definition.form_key == "match.transfer_report":
+                report_ids = parsed.get("report_id", [])
+                if len(report_ids) == 1 and re.fullmatch(r"[0-9a-f]{64}", report_ids[0]):
+                    self._current_match_report_id = report_ids[0]
+        elif media_type == "multipart/form-data" and path == "/learning/api/v1/operations":
+            upload = parse_learning_corpus_multipart_upload_v1(
+                body,
+                content_type=content_type,
+            )
+            definition = resolve_frontend_form_v1(
+                path,
+                upload.fields,
+                media_type=registered_media_type,
+            )
+            safe_values = capture_safe_submitted_values_v1(definition, upload.fields)
+        if definition is None:
+            self._current_form_definition = None
+            self._current_safe_values = safe_values
+            return
+        self._current_form_definition = definition
+        self._current_safe_values = safe_values
+
+    def _retain_form_feedback(
+        self,
+        definition: FrontendFormDefinitionV1,
+        *,
+        issues: tuple[FrontendValidationIssueV1, ...],
+        status: int,
+    ) -> None:
+        family = definition.active_context_requirement or "profile"
+        active_identity = self._feedback_identity(definition)
+        with self.server.app_context.lock:
+            generation = self.server.app_context.form_feedback.next_generation()
+            state = FrontendSubmittedFormStateV1(
+                contract_version=FRONTEND_VALIDATION_PRESERVATION_VERSION,
+                form_key=definition.form_key,
+                originating_route=definition.action_route,
+                active_family_binding=family,
+                review_wizard_step=definition.wizard_step,
+                form_instance=getattr(self, "_current_form_instance", None),
+                safe_visible_values=getattr(
+                    self,
+                    "_current_safe_values",
+                    FormValuesV1(),
+                ),
+                validation_issues=issues,
+                status="conflict" if status == HTTPStatus.CONFLICT else "invalid",
+                feedback_generation=generation,
+            )
+            self.server.app_context.form_feedback.retain(
+                family,
+                state,
+                active_identity=active_identity,
+            )
+
+    def _render_rejected_form(
+        self,
+        definition: FrontendFormDefinitionV1,
+        *,
+        status: int,
+    ) -> None:
+        page = definition.originating_page
+        if definition.active_context_requirement == "profile":
+            page = getattr(self, "_profile_action_return_to", page)
+        if page == "/sessions":
+            self._managed_category_page("sessions", status=status)
+            return
+        if page == "/matches":
+            self._managed_category_page("matches", status=status)
+            return
+        if page == "/learning":
+            self._managed_category_page("corpora", status=status)
+            return
+        if page in APP_ROUTE_PATHS:
+            self._page(page, status=status)
+            return
+        if page == "/sessions/current":
+            try:
+                self._session_page(status=status)
+            except KeyError:
+                self._managed_category_page("sessions", status=status)
+            return
+        if page == "/matches/new":
+            self._match_creation_page(status=status)
+            return
+        if page == "/matches/current":
+            try:
+                active = self._active_match()
+                report_id = getattr(self, "_current_match_report_id", None)
+                if definition.form_key == "match.transfer_report" and report_id is not None:
+                    report_status, report = get_unified_match_report_v1(active, report_id)
+                    if report_status == "found" and report is not None:
+                        self._match_page(
+                            active,
+                            position=report.match_position or 1,
+                            report_id=report_id,
+                            status=status,
+                        )
+                        return
+                self._match_page(
+                    active,
+                    position=active.selected_position,
+                    status=status,
+                )
+            except KeyError:
+                self._managed_category_page("matches", status=status)
+            return
+        position_match = _MATCH_POSITION_PATTERN.fullmatch(page)
+        if position_match is not None:
+            active = self._active_match()
+            self._match_page(
+                active,
+                position=int(position_match.group(1)),
+                status=status,
+            )
+            return
+        report_match = _MATCH_REPORT_PATTERN.fullmatch(page)
+        if report_match is not None:
+            active = self._active_match()
+            report_id = report_match.group(1)
+            report_status, report = get_unified_match_report_v1(active, report_id)
+            if report_status == "missing" or report is None:
+                raise KeyError("Match Report is unavailable.")
+            self._match_page(
+                active,
+                position=report.match_position or 1,
+                report_id=report_id,
+                status=status,
+            )
+            return
+        if page == "/learning/current":
+            try:
+                self._learning_page(status=status)
+            except KeyError:
+                self._managed_category_page("corpora", status=status)
+            return
+        self._send_common_error(status)
+
+    def _reject_registered_form(
+        self,
+        error: Exception,
+        *,
+        status: int,
+        issues: tuple[FrontendValidationIssueV1, ...] | None = None,
+    ) -> bool:
+        definition = getattr(self, "_current_form_definition", None)
+        if type(definition) is not FrontendFormDefinitionV1:
+            return False
+        if issues is None:
+            if status in {
+                HTTPStatus.REQUEST_ENTITY_TOO_LARGE,
+                HTTPStatus.UNSUPPORTED_MEDIA_TYPE,
+            }:
+                issues = upload_validation_issues_v1(definition, status=status)
+            elif definition.file_reselection_behavior == "required" and not isinstance(
+                error, SkatMindWorkflowError
+            ):
+                issues = upload_validation_issues_v1(definition, status=status)
+            else:
+                issues = map_frontend_exception_v1(
+                    error,
+                    definition,
+                    status=status,
+                )
+                if definition.file_reselection_behavior == "required":
+                    issues += upload_validation_issues_v1(
+                        definition,
+                        status=status,
+                    )[-1:]
+        self._retain_form_feedback(definition, issues=issues, status=status)
+        self._render_rejected_form(definition, status=status)
+        return True
 
     def _profile_operation(self, path: str, body: bytes, content_type: str) -> None:
         values = self._text_form(body, content_type)
@@ -911,17 +1269,13 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
             HTTPStatus.OK,
             content,
             content_type="application/json; charset=utf-8",
-            extra_headers=(
-                ("Content-Disposition", f'attachment; filename="{filename}"'),
-            ),
+            extra_headers=(("Content-Disposition", f'attachment; filename="{filename}"'),),
         )
 
     def _refresh_category(self, family: str):
         context = self.server.app_context
         with context.lock:
-            root, generation, active_handle = context.managed_stateful.begin_refresh(
-                family
-            )
+            root, generation, active_handle = context.managed_stateful.begin_refresh(family)
         discovery = discover_managed_items_v1(
             root,
             family=family,
@@ -953,6 +1307,7 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
     def _activate_learning(self, active) -> None:
         with self.server.app_context.lock:
             previous = self.server.app_context.managed_stateful.activate_learning(active)
+            self.server.app_context.form_feedback.clear("matches")
         if previous is not None:
             previous.corpus.shutdown()
 
@@ -995,7 +1350,12 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
                 raise StaleFrontendWorkflowRevisionError
         return active
 
-    def _managed_category_page(self, family: str) -> None:
+    def _managed_category_page(
+        self,
+        family: str,
+        *,
+        status: int = HTTPStatus.OK,
+    ) -> None:
         route = {
             "sessions": "/sessions",
             "matches": "/matches",
@@ -1016,6 +1376,7 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
             route,
             title=title,
             content=render_managed_category_landing_v1(discovery.view),
+            status=status,
             empty_state_key=(
                 {
                     "sessions": "sessions",
@@ -1025,6 +1386,11 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
                 if not discovery.view.items
                 else None
             ),
+            feedback_family={
+                "sessions": "sessions",
+                "matches": "matches",
+                "corpora": "learning",
+            }[family],
         )
 
     def _session_page(self, *, status: int = HTTPStatus.OK) -> None:
@@ -1032,8 +1398,14 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
         self._content_page(
             "/sessions",
             title="Guided Session",
-            content=render_guided_session_v1(active),
+            content=render_guided_session_v1(
+                active,
+                show_operation_notice=status < HTTPStatus.BAD_REQUEST,
+            ),
             status=status,
+            feedback_family="sessions",
+            feedback_identity=active,
+            last_valid_result_retained=active.execution is not None,
         )
 
     def _match_page(
@@ -1062,6 +1434,8 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
             or error_notice
             or (None if result is None else result.message)
         )
+        if status >= HTTPStatus.BAD_REQUEST:
+            notice = None
         notice_kind = (
             operation_notice_kind
             if operation_notice is not None
@@ -1075,9 +1449,7 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
         )
         with self.server.app_context.lock:
             learning = self.server.app_context.managed_stateful.active_learning
-        learning_state = (
-            None if learning is None else build_unified_learning_state_v1(learning)
-        )
+        learning_state = None if learning is None else build_unified_learning_state_v1(learning)
         transfer = render_match_to_learning_transfer_v1(
             learning_state,
             report_id=report_id,
@@ -1098,9 +1470,12 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
             status=status,
             extra_stylesheets=("/matches/assets/capture.css",),
             extra_scripts=("/matches/assets/capture.js",),
+            feedback_family="matches",
+            feedback_identity=active,
+            last_valid_result_retained=report_id is not None,
         )
 
-    def _match_creation_page(self) -> None:
+    def _match_creation_page(self, *, status: int = HTTPStatus.OK) -> None:
         body = render_match_capture_web_body_v1(
             build_unified_match_creation_state_v1(),
             route_prefix="/matches",
@@ -1109,8 +1484,10 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
             "/matches",
             title="Create a managed Match",
             content=body,
+            status=status,
             extra_stylesheets=("/matches/assets/capture.css",),
             extra_scripts=("/matches/assets/capture.js",),
+            feedback_family="matches",
         )
 
     def _learning_page(
@@ -1123,6 +1500,8 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
         state = build_unified_learning_state_v1(active)
         result = active.last_result
         notice = error_notice or (None if result is None else result.message)
+        if status >= HTTPStatus.BAD_REQUEST:
+            notice = None
         notice_kind = (
             "error"
             if error_notice is not None
@@ -1149,6 +1528,9 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
             ),
             extra_stylesheets=("/learning/assets/corpus.css",),
             extra_scripts=("/learning/assets/corpus.js",),
+            feedback_family="learning",
+            feedback_identity=active,
+            last_valid_result_retained=active.corpus.prepared_artifacts is not None,
         )
 
     def _stateful_download(self, path: str) -> bool:
@@ -1364,10 +1746,10 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
                 values,
                 current_revision=expected_revision,
             )
-            apply_guided_session_edit_v1(active, edit)
+            operation = apply_guided_session_edit_v1(active, edit)
         elif path == "/sessions/undo":
             self._exact_fields(values, {"target_revision"})
-            rewind_guided_session_v1(
+            operation = rewind_guided_session_v1(
                 active,
                 target_revision=self._form_integer(
                     values,
@@ -1377,19 +1759,35 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
             )
         elif path == "/sessions/analyze":
             export_options = build_session_position_options_from_form_v1(values)
-            execute_guided_session_position_v1(
+            operation = execute_guided_session_position_v1(
                 active,
                 export_options=export_options,
                 execution_options=default_guided_session_execution_options_v1(),
             )
         else:
-            execution_options = build_session_historical_execution_options_from_form_v1(
-                values
-            )
-            execute_guided_session_historical_v1(
+            execution_options = build_session_historical_execution_options_from_form_v1(values)
+            operation = execute_guided_session_historical_v1(
                 active,
                 execution_options=execution_options,
             )
+        if operation.status in {"rejected", "unavailable", "conflict", "stale"}:
+            status = (
+                HTTPStatus.CONFLICT
+                if operation.status in {"conflict", "stale"}
+                else HTTPStatus.BAD_REQUEST
+            )
+            definition = self._current_form_definition
+            self._retain_form_feedback(
+                definition,
+                issues=map_frontend_exception_v1(
+                    ValueError(operation.message),
+                    definition,
+                    status=status,
+                ),
+                status=status,
+            )
+            self._session_page(status=status)
+            return
         self._redirect("/sessions/current")
 
     def _create_match(self, values: dict[str, str | list[str]]) -> None:
@@ -1467,6 +1865,16 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
             else:
                 self._redirect(f"/matches/position/{position}")
             return
+        definition = self._current_form_definition
+        self._retain_form_feedback(
+            definition,
+            issues=map_frontend_exception_v1(
+                ValueError(result.message),
+                definition,
+                status=result.http_status,
+            ),
+            status=result.http_status,
+        )
         self._match_page(
             active,
             position=position,
@@ -1525,13 +1933,21 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
             )
             self._redirect(location)
             return
+        definition = self._current_form_definition
+        self._retain_form_feedback(
+            definition,
+            issues=map_frontend_exception_v1(
+                ValueError(result.message),
+                definition,
+                status=status,
+            ),
+            status=status,
+        )
         self._match_page(
             source,
             position=source.selected_position,
             report_id=report_id,
             status=status,
-            operation_notice=result.message,
-            operation_notice_kind="warning" if status == HTTPStatus.CONFLICT else "info",
         )
 
     def _create_learning(self, values: dict[str, str]) -> None:
@@ -1583,16 +1999,11 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
                     upload.file_content,
                     selection_mode=fields["selection_mode"],
                     same_revision_resolution=fields["same_revision_resolution"],
-                    expected_catalog_revision=int(
-                        fields["expected_catalog_revision"]
-                    ),
+                    expected_catalog_revision=int(fields["expected_catalog_revision"]),
                 )
             elif operation == "import_strategy_teacher_report":
                 expected = {"operation", "match_snapshot_id"}
-                if (
-                    set(fields) != expected
-                    or upload.file_field != "report_source_file"
-                ):
+                if set(fields) != expected or upload.file_field != "report_source_file":
                     raise ValueError("Report-source import fields are incomplete or unsupported.")
                 import_report_source_bytes_into_unified_learning_v1(
                     active,
@@ -1666,9 +2077,21 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
             else:
                 raise ValueError("Learning operation is not supported.")
         result = active.last_result
-        self._learning_page(
-            status=HTTPStatus.OK if result is None else result.http_status,
+        status = HTTPStatus.OK if result is None else result.http_status
+        if status == HTTPStatus.OK:
+            self._redirect("/learning/current")
+            return
+        definition = self._current_form_definition
+        self._retain_form_feedback(
+            definition,
+            issues=map_frontend_exception_v1(
+                ValueError("The Learning operation could not be applied."),
+                definition,
+                status=status,
+            ),
+            status=status,
         )
+        self._learning_page(status=status)
 
     def _stateful_post(
         self,
@@ -1769,11 +2192,7 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
         except KeyError:
             self._error_page(HTTPStatus.NOT_FOUND, "Artifact unavailable", "Not found.")
         except LearningCorpusPreparedDownloadUnavailableError as error:
-            status = (
-                HTTPStatus.NOT_FOUND
-                if error.reason == "missing"
-                else HTTPStatus.CONFLICT
-            )
+            status = HTTPStatus.NOT_FOUND if error.reason == "missing" else HTTPStatus.CONFLICT
             self._error_page(status, "Artifact unavailable", "Prepared sources changed.")
         except RuntimeError as error:
             if "stale" in str(error).lower():
@@ -1799,8 +2218,19 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
             if parsed.query:
                 self._send_authorization_failure()
                 return
+            if parsed.path in UNIFIED_FRONTEND_POST_ROUTES:
+                candidates = tuple(
+                    definition
+                    for definition in FRONTEND_FORM_REGISTRY
+                    if definition.action_route == parsed.path
+                )
+                self._current_form_definition = candidates[0] if len(candidates) == 1 else None
+                self._current_safe_values = FormValuesV1()
+                self._current_form_instance = None
+                self._current_match_report_id = None
             if parsed.path in FRONTEND_PROFILE_ACTION_ROUTES:
                 body, content_type = self._read_body()
+                self._prepare_form_submission(parsed.path, body, content_type)
                 self._profile_operation(parsed.path, body, content_type)
                 return
             if parsed.path in _STATEFUL_POST_ROUTES:
@@ -1813,6 +2243,7 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
                 else:
                     max_bytes = APP_WEB_MAX_REQUEST_BYTES
                 body, content_type = self._read_body(max_bytes=max_bytes)
+                self._prepare_form_submission(parsed.path, body, content_type)
                 self._stateful_post(parsed.path, body, content_type)
                 return
             if parsed.path not in GUIDED_ACTION_ROUTE_PATHS:
@@ -1832,6 +2263,7 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
                 return
 
             body, content_type = self._read_body()
+            self._prepare_form_submission(parsed.path, body, content_type)
             page = "analyze" if parsed.path in ANALYZE_ACTION_ROUTE_PATHS else "review"
             redirect = "/analyze" if page == "analyze" else "/review"
             if parsed.path in {
@@ -1977,51 +2409,63 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
             StaleFrontendWorkflowRevisionError,
             StaleFrontendProfileGenerationError,
             FrontendProfilePersistenceConflictError,
-        ):
+        ) as error:
+            if self._reject_registered_form(error, status=HTTPStatus.CONFLICT):
+                return
             self._error_page(
                 HTTPStatus.CONFLICT,
                 "Form conflict",
                 "This form is stale. Reload the page and try again.",
             )
-        except InvalidFrontendProfileResetRequiredError:
+        except InvalidFrontendProfileResetRequiredError as error:
+            if self._reject_registered_form(error, status=HTTPStatus.CONFLICT):
+                return
             self._error_page(
                 HTTPStatus.CONFLICT,
                 "State changed",
                 "Reset the invalid local profile from About before saving a language preference.",
             )
-        except FrontendWorkflowValidationError:
-            page = (
-                "/analyze"
-                if urlsplit(self.path).path in ANALYZE_ACTION_ROUTE_PATHS
-                else "/review"
-            )
-            self._page(page, status=HTTPStatus.BAD_REQUEST)
+        except FrontendWorkflowValidationError as error:
+            if self._reject_registered_form(
+                error,
+                status=HTTPStatus.BAD_REQUEST,
+                issues=error.issues,
+            ):
+                return
+            self._send_common_error(HTTPStatus.BAD_REQUEST)
         except SkatMindWorkflowError as error:
-            if urlsplit(self.path).path in _STATEFUL_POST_ROUTES:
-                self._error_page(
-                    HTTPStatus.BAD_REQUEST,
-                    "Unsupported workflow",
-                    str(error),
-                )
+            if self._reject_registered_form(error, status=HTTPStatus.BAD_REQUEST):
                 return
             self._error_page(
                 HTTPStatus.BAD_REQUEST,
                 "Unsupported workflow",
                 "The imported SkatMind workflow is not supported on this page.",
             )
-        except OverflowError:
+        except OverflowError as error:
+            if self._reject_registered_form(
+                error,
+                status=HTTPStatus.REQUEST_ENTITY_TOO_LARGE,
+            ):
+                return
             self._error_page(
                 HTTPStatus.REQUEST_ENTITY_TOO_LARGE,
                 "Upload too large",
                 "The submitted request is too large.",
             )
-        except TypeError:
+        except TypeError as error:
+            if self._reject_registered_form(
+                error,
+                status=HTTPStatus.UNSUPPORTED_MEDIA_TYPE,
+            ):
+                return
             self._error_page(
                 HTTPStatus.UNSUPPORTED_MEDIA_TYPE,
                 "Unsupported content type",
                 "Use the form content type shown by this page.",
             )
         except FileExistsError as error:
+            if self._reject_registered_form(error, status=HTTPStatus.CONFLICT):
+                return
             self._error_page(
                 HTTPStatus.CONFLICT,
                 "Managed item already exists",
@@ -2030,37 +2474,17 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
         except SkatMindInvariantError:
             self._send_common_error(HTTPStatus.INTERNAL_SERVER_ERROR)
         except (SkatMindError, ValueError) as error:
+            if self._reject_registered_form(error, status=HTTPStatus.BAD_REQUEST):
+                return
             path = urlsplit(self.path).path
-            if path in _STATEFUL_POST_ROUTES and path.startswith("/matches/"):
-                try:
-                    active = self._active_match()
-                    self._match_page(
-                        active,
-                        position=active.selected_position,
-                        status=HTTPStatus.BAD_REQUEST,
-                        error_notice=str(error),
-                    )
-                    return
-                except KeyError:
-                    pass
-            if path in _STATEFUL_POST_ROUTES and path.startswith("/learning/"):
-                try:
-                    self._learning_page(
-                        status=HTTPStatus.BAD_REQUEST,
-                        error_notice=str(error),
-                    )
-                    return
-                except KeyError:
-                    pass
-            self._error_page(
-                HTTPStatus.BAD_REQUEST,
-                "Input validation",
-                (
-                    str(error)
-                    if path in _STATEFUL_POST_ROUTES
-                    else "The submitted form could not be validated."
-                ),
-            )
+            if path in _STATEFUL_POST_ROUTES:
+                self._send_common_error(HTTPStatus.BAD_REQUEST)
+            else:
+                self._error_page(
+                    HTTPStatus.BAD_REQUEST,
+                    "Input validation",
+                    "The submitted form could not be validated.",
+                )
         except OSError:
             self._error_page(
                 HTTPStatus.INTERNAL_SERVER_ERROR,

@@ -5,17 +5,17 @@
 This document is the authoritative Product and architecture contract for the
 remaining v1 unified-frontend UX remediation frozen by Issue #215. Issue #216
 implements its private profile/localization and common-shell foundation. Issue
-#217 implements the information-architecture and Product-concept slice. Issues
-#218 through #220 retain the remaining validation, profile-driven form, task-
-first, and complete-translation ownership.
+#217 implements the information-architecture and Product-concept slice. Issue
+#218 implements validation preservation and localized feedback. Issues #219 and
+#220 retain profile-driven form, task-first, and complete-translation ownership.
 
 This document must keep three states distinct:
 
 ```text
 Current behavior:
     the bilingual common shell, private profile, grouped Home, Product concepts,
-    related links, and empty-state guidance implemented through Issue #217, with
-    explicitly marked English workflow bodies
+    related links, empty-state guidance, and validation preservation implemented
+    through Issue #218, with explicitly marked English workflow bodies
 
 Approved target contract:
     the future behavior frozen by Issue #215 in this document
@@ -24,12 +24,14 @@ Future implementation ownership:
     the focused implementation sequence in Issues #216 through #220
 ```
 
-Issue #215 is documentation-only. Issues #216 and #217 implement their assigned
+Issue #215 is documentation-only. Issues #216 through #218 implement their assigned
 subsets without changing Product semantics, CLI/API/JSON/Schema behavior, Package
-version, examples, generated outputs, or the future ownership of Issues #218
-through #220. The exact implementations are documented in
+version, examples, generated outputs, or the future ownership of Issues #219 and
+#220. The exact implementations are documented in
 [Local frontend profile and localization](local_frontend_profile_and_localization.md)
-and [Bilingual Home information architecture](bilingual_home_information_architecture.md).
+and [Bilingual Home information architecture](bilingual_home_information_architecture.md),
+with validation behavior in
+[Frontend validation state and localized feedback](frontend_validation_state_and_localized_feedback.md).
 
 The implemented version-1 launch and frontend boundary remains authoritative in
 [Unified local frontend contract](unified_local_frontend_contract.md). This
@@ -82,7 +84,7 @@ UAT-FINDING-006:
     Validation failures can discard entered values and break the current
     workflow.
     Severity: major
-    Status: open, owned by Issue #218
+    Status: Issue #218 implementation complete; open pending repeated UAT-01
 
 UAT-FINDING-007:
     Stateful workflows expose too many fields and advanced concepts before the
@@ -146,9 +148,10 @@ PROFILE_DRIVEN_FORM_DEFAULTS_VERSION = 1
 FRONTEND_VALIDATION_PRESERVATION_VERSION = 1
 ```
 
-Issue #216 implements the first three versions, and Issue #217 implements the
-information-architecture version. The profile-driven-form-default and
-validation-preservation versions remain future-owned and unimplemented. All
+Issue #216 implements the first three versions, Issue #217 implements the
+information-architecture version, and Issue #218 implements the validation-
+preservation version. The profile-driven-form-default version remains future-
+owned and unimplemented. All
 remain independent from Package version, Public API version, Root
 workflows, Session version, Match Workspace version, Corpus version, Schema
 versions, Dataset versions, and browser protocol versions.
@@ -170,10 +173,10 @@ language_and_profile_never_change_product_semantics
 no_external_translation_profile_sync_or_cloud_service
 ```
 
-These policies remain internal and must not become Public API exports. Issue
-#217 implements exactly the eight-policy subset listed in
+These policies remain internal and must not become Public API exports. Issues
+#216 through #218 implement exactly the nine-policy subset listed in
 [Local frontend profile and localization](local_frontend_profile_and_localization.md);
-the other four remain future-owned.
+the other three remain future-owned.
 
 ## Current behavior
 
@@ -183,13 +186,15 @@ Product-concept and empty-state guidance, About, authorization, and generic comm
 catalogs, and private profile persistence are implemented. Workflow-specific
 Analyze, Review, Session, Match, and Learning bodies remain explicitly marked
 English when the German shell is selected. Machine Routes and identifiers remain
-English and locale-neutral.
+English and locale-neutral. Unified frontend POST forms now use registered,
+bounded, process-local submitted-form preservation and localized contextual
+`400`/`409` feedback as documented in
+[Frontend validation state and localized feedback](frontend_validation_state_and_localized_feedback.md).
 
 Home presents the approved Record, Analyze and review, Learn, and Product-
 information hierarchy with Match Capture first. Normal stateful creation forms
 still expose technical identifiers and metadata. There is no known-Player
-directory, profile-driven form behavior, validation-preservation redesign, or
-complete workflow translation.
+directory, profile-driven form behavior, or complete workflow translation.
 
 The managed data root retains exactly the managed categories `sessions`,
 `matches`, and `corpora`. An optional private `frontend-profile.json` is a direct
@@ -826,7 +831,8 @@ Preserve frontend form state and localize validation feedback
 
 Issue #218 owns same-form validation; safe-value, wizard-step, and language-
 switch state preservation; translated error summaries and field-local messages;
-and consistent HTTP `400`/`409` workflow return behavior.
+and consistent HTTP `400`/`409` workflow return behavior. That private slice is
+implemented by Issue #218 without changing Product semantics or persistence.
 
 ### Issue #219
 
@@ -856,8 +862,8 @@ The exact remaining finding state and ownership is:
 
 ```text
 UAT-FINDING-001:
-    further partially remediated by Issues #216 and #217
-    open across Issues #218 through #220
+    further partially remediated by Issues #216 through #218
+    open across Issues #219 and #220
 
 UAT-FINDING-003:
     Home and concept remediation implemented by Issue #217
@@ -867,8 +873,8 @@ UAT-FINDING-005:
     Issue #219 and relevant Issue #220 views
 
 UAT-FINDING-006:
-    open
-    owned by Issue #218
+    Issue #218 implementation complete
+    open pending repeated UAT-01
 
 UAT-FINDING-007:
     foundation implemented by Issue #216
@@ -892,7 +898,7 @@ UAT-FINDING-004:
 ## UAT repetition and gate state
 
 Repeated UAT-01 remains failed. UAT-01 may be repeated again only after Issues
-#218 through #220 are implemented and validated. UAT-02 through UAT-12 must
+#219 and #220 are implemented and validated. UAT-02 through UAT-12 must
 remain paused until that repeated UAT-01 passes.
 
 The next repeated UAT-01 must verify at least:
@@ -936,20 +942,20 @@ Package 1.0.0 preparation:
     not ready
 ```
 
-The completed 53-row technical ledger must not be reopened. Issue #217
-implements the grouped bilingual Home and Product-concept slice. The exact next
+The completed 53-row technical ledger must not be reopened. Issue #218
+implements validation preservation and localized feedback. The exact next
 implementation action is:
 
 ```text
-Issue #218 — Preserve frontend form state and localize validation feedback
+Issue #219 — Simplify profile-driven Session, Match, and Learning creation
 ```
 
 ## Non-goals and accepted limitations
 
-Issues #216 and #217 do not implement form simplification, validation
-preservation, generated IDs, Player-directory behavior, profile-driven workflow
+Issues #216 through #218 do not implement form simplification, generated IDs,
+Player-directory behavior, profile-driven workflow
 defaults, task-first stateful layouts, or complete workflow translation. Those
-changes remain owned by Issues #218 through #220. Neither creates a tag or
+changes remain owned by Issues #219 and #220. None creates a tag or
 Release.
 
 Issue #215 must not translate or change the CLI, Public Python API, JSON,

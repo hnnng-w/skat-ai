@@ -16,7 +16,7 @@ FRONTEND_TRANSLATION_CATALOG_VERSION = 1
 LOCAL_FRONTEND_PROFILE_VERSION = 1
 ```
 
-Issues #216 and #217 retain the complete frozen policy vocabulary and implement:
+Issues #216 through #218 retain the complete frozen policy vocabulary and implement:
 
 ```text
 technical_contracts_and_machine_values_remain_english
@@ -24,14 +24,15 @@ unified_frontend_visible_content_supports_german_and_english
 one_private_local_frontend_profile_per_managed_data_root
 saved_language_overrides_browser_language
 browser_language_bootstraps_only_without_saved_preference
+validation_preserves_safe_values_and_workflow_context
 home_separates_record_analyze_learn_and_product_information
 language_and_profile_never_change_product_semantics
 no_external_translation_profile_sync_or_cloud_service
 ```
 
 The policies for user-facing Player names, task-first profile-driven workflows,
-secondary Advanced Settings, and validation preservation remain frozen but
-future-owned by Issues #218 through #220. The grouped Home policy is implemented
+and secondary Advanced Settings remain frozen but future-owned by Issues #219
+and #220. The grouped Home policy is implemented
 by Issue #217 and documented in
 [Bilingual Home information architecture](bilingual_home_information_architecture.md).
 
@@ -272,6 +273,8 @@ Issue #216 provides German and English presentation for:
 * About, managed-storage explanation, local/private and no-cloud statements,
   language source, profile status, future-work notice, and reset;
 * authorization and generic common HTTP error wrappers;
+* render-time German and English validation summaries, field messages, retained-
+  Result guidance, and conflict reload guidance through Issue #218;
 * common shell status and action vocabulary.
 
 Every unified page contains the textual `Deutsch` and `English` selector. It is
@@ -289,8 +292,8 @@ Language switching changes only profile/locale state. It does not execute or
 rerun Product work and retains server-owned Analyze/Review drafts and Results,
 Review step, active Session, active Match, active Learning Corpus, Match Reports,
 Learning sources/prepared artifacts, discovery state, and the current safe
-route. Preservation of arbitrary unsubmitted browser-only fields remains Issue
-#218.
+route. Issue #218 additionally preserves allowlisted submitted browser values
+and validation feedback across language changes without rerunning Product work.
 
 The implementation preserves loopback-only binding, bootstrap token and app
 cookie, exact Host and Origin validation, `Referrer-Policy: origin`, CSP,
@@ -316,8 +319,9 @@ The two locale JSON files are `skatmind.app_web` Package Data. Source, Editable,
 Wheel, sdist, clean Wheel, and clean sdist validation checks exact resource
 bytes, strict catalog loading, no startup profile write, browser-derived German,
 explicit language persistence, saved-language precedence, and restart loading
-inside isolated temporary managed roots. Distribution tests use no real user
-profile or browser.
+inside isolated temporary managed roots. Issue #218 adds strict validation-
+registry loading and packaged localized-feedback coverage. Distribution tests
+use no real user profile or browser.
 
 The separate failed `source-resolved` matrix smoke was not caused by locale
 handling, Linux, Package Resources, or a CPython patch difference. The outer
@@ -337,7 +341,9 @@ downloads.
 ## Remaining work and UAT
 
 Home grouping and Product terminology are implemented by Issue #217. Validation
-and safe submitted-value preservation remain Issue #218. Known Players,
+and safe submitted-value preservation are implemented by Issue #218 and
+documented in
+[Frontend validation state and localized feedback](frontend_validation_state_and_localized_feedback.md). Known Players,
 profile-driven Player/default behavior, generated IDs, and simplified creation
 forms remain Issue #219. Task-first stateful layouts and complete bilingual
 workflow coverage remain Issue #220.
@@ -363,8 +369,8 @@ UAT-FINDING-005:
     open
 
 UAT-FINDING-006:
-    open
-    owned by Issue #218
+    Issue #218 implementation complete
+    open pending repeated UAT-01
 
 UAT-FINDING-007:
     foundation implemented
@@ -391,6 +397,7 @@ B-07:
 ```
 
 Package `1.0.0` and Release preparation remain not ready. The Issue #216
-correction and both required post-merge Ubuntu jobs passed. Issue #217 implements
-its assigned Home and concept scope. Issue #218, "Preserve frontend form state
-and localize validation feedback," is the exact next action.
+correction and both required post-merge Ubuntu jobs passed. Issues #217 and #218
+implement their assigned Home/concept and validation scopes. Issue #219,
+"Simplify profile-driven Session, Match, and Learning creation," is the exact
+next action.

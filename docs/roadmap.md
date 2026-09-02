@@ -1560,7 +1560,9 @@ smoke corrections passed both required Ubuntu jobs. Issue #217 implements the
 grouped bilingual Home and Product concepts, further partially remediates UAT-
 FINDING-001, implements the Home/concept part of UAT-FINDING-003, and implements
 bilingual Home/concept coverage for UAT-FINDING-008. Those findings remain open
-pending assigned follow-up and repeated UAT-01. Issue #218 is the exact next
+pending assigned follow-up and repeated UAT-01. Issue #218 implements private
+safe submitted-value preservation and localized accessible contextual feedback;
+UAT-FINDING-006 remains open pending repeated UAT-01. Issue #219 is the exact next
 action. Issue #208 remains open; UAT-02 through
 UAT-12 remain paused; B-09 and B-07 remain open; B-06 remains closed; and
 Package `1.0.0` and Release preparation are not ready. No v1 Release title,

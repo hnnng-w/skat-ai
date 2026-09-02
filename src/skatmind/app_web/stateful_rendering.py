@@ -24,7 +24,7 @@ def _e(value: object) -> str:
 
 def _bool_select(name: str, label: str, *, default: bool = False) -> str:
     return (
-        f"<label>{_e(label)} <select name=\"{_e(name)}\">"
+        f'<label>{_e(label)} <select name="{_e(name)}">'
         f'<option value="false"{" selected" if not default else ""}>No</option>'
         f'<option value="true"{" selected" if default else ""}>Yes</option>'
         "</select></label>"
@@ -53,15 +53,15 @@ def _managed_item_card(item) -> str:
     return (
         f'<article class="managed-item status-{_e(item.status)}">'
         f"<h3>{_e(label)}</h3><p>{_e(item.status.replace('_', ' '))}</p>"
-        f'<dl><dt>Revision</dt><dd>{_e(item.revision)}</dd>'
-        f'<dt>Phase</dt><dd>{_e(item.phase)}</dd></dl><ul>{details}</ul>{action}</article>'
+        f"<dl><dt>Revision</dt><dd>{_e(item.revision)}</dd>"
+        f"<dt>Phase</dt><dd>{_e(item.phase)}</dd></dl><ul>{details}</ul>{action}</article>"
     )
 
 
 def _session_create_form() -> str:
     players = "".join(
         (
-            f'<fieldset><legend>{seat.title()}</legend>'
+            f"<fieldset><legend>{seat.title()}</legend>"
             f'<label>Player ID <input name="player_{index}_id" required></label>'
             f'<label>Label <input name="player_{index}_label"></label>'
             "</fieldset>"
@@ -79,14 +79,14 @@ def _session_create_form() -> str:
         '<option value="live">Live</option><option value="retrospective">Retrospective</option>'
         "</select></label>"
         '<label>Local Player ID for Live capture <input name="local_player_id"></label>'
-        f"{players}<button type=\"submit\">Create and open Session</button></form></details>"
+        f'{players}<button type="submit">Create and open Session</button></form></details>'
     )
 
 
 def _match_create_link() -> str:
     return (
         '<section class="panel"><h2>Create a Match</h2>'
-        '<p>Use guided EuroSkat 36er Standard setup without writing JSON.</p>'
+        "<p>Use guided EuroSkat 36er Standard setup without writing JSON.</p>"
         '<p><a class="button-link" href="/matches/new">Create Match</a></p></section>'
     )
 
@@ -148,10 +148,10 @@ def render_managed_category_landing_v1(view: ManagedCategoryViewV1) -> str:
     cards = "".join(_managed_item_card(item) for item in view.items)
     return (
         f'<section class="managed-landing"><p class="eyebrow">{_e(title)}</p>'
-        '<p>Discovery is direct, bounded, and explicit. No item is opened or analyzed here.</p>'
+        "<p>Discovery is direct, bounded, and explicit. No item is opened or analyzed here.</p>"
         f"{active_link}{limit}{create}{_managed_import_form(view.family)}"
         f'<section aria-labelledby="managed-items-heading"><h2 id="managed-items-heading">'
-        f"Available items</h2><div class=\"managed-item-grid\">{cards or '<p>No managed items found.</p>'}</div>"
+        f'Available items</h2><div class="managed-item-grid">{cards or "<p>No managed items found.</p>"}</div>'
         "</section></section>"
     )
 
@@ -166,15 +166,14 @@ def render_match_to_learning_transfer_v1(
         return (
             '<section class="panel"><h2>Explicit Learning transfer</h2>'
             '<p><a href="/matches/downloads/workspace.json" download>'
-            'Download current Match Workspace JSON</a></p>'
-            '<p>Open a managed Learning Corpus to enable an explicit path-free transfer.</p>'
+            "Download current Match Workspace JSON</a></p>"
+            "<p>Open a managed Learning Corpus to enable an explicit path-free transfer.</p>"
             '<p><a href="/learning">Manage Learning Corpora</a></p></section>'
         )
     if type(target_managed_handle) is not str or len(target_managed_handle) != 64:
         raise ValueError("target_managed_handle must be one opaque managed handle.")
     target_hidden = (
-        '<input type="hidden" name="target_managed_handle" '
-        f'value="{_e(target_managed_handle)}">'
+        f'<input type="hidden" name="target_managed_handle" value="{_e(target_managed_handle)}">'
     )
     corpus = learning_state["corpus"]
     if not isinstance(corpus, dict):
@@ -184,7 +183,7 @@ def render_match_to_learning_transfer_v1(
         raise ValueError("Active Learning state must contain Current Match snapshots.")
     snapshot_options = "".join(
         f'<option value="{_e(item["match_snapshot_id"])}">'
-        f'{_e(item["match_id"])} - {_e(item["match_snapshot_id"])}</option>'
+        f"{_e(item['match_id'])} - {_e(item['match_snapshot_id'])}</option>"
         for item in snapshots
         if isinstance(item, dict)
     )
@@ -198,13 +197,13 @@ def render_match_to_learning_transfer_v1(
             f"{snapshot_options}</select></label>"
             '<button type="submit">Transfer this Decision Report source</button></form>'
             if snapshot_options
-            else '<p>Import and select this Match Workspace before transferring a Report.</p>'
+            else "<p>Import and select this Match Workspace before transferring a Report.</p>"
         )
     return (
         '<section class="panel"><h2>Explicit Learning transfer</h2>'
-        f'<p>Target Corpus: <strong>{_e(corpus["corpus_id"])}</strong></p>'
+        f"<p>Target Corpus: <strong>{_e(corpus['corpus_id'])}</strong></p>"
         '<p><a href="/matches/downloads/workspace.json" download>'
-        'Download current Match Workspace JSON</a></p>'
+        "Download current Match Workspace JSON</a></p>"
         '<form method="post" action="/matches/transfer-workspace" class="form-grid">'
         f"{target_hidden}"
         f'<input type="hidden" name="expected_catalog_revision" value="{_e(corpus["catalog_revision"])}">'
@@ -217,6 +216,8 @@ def render_match_to_learning_transfer_v1(
         '<button type="submit">Transfer current Match Workspace</button></form>'
         f"{report_form}</section>"
     )
+
+
 def _command_fields(kind: str, player_options: str) -> str:
     if kind == "set_game_metadata":
         return (
@@ -319,8 +320,7 @@ def _exposure_response_fields(player_options: str) -> str:
         f'<option value="">None</option>{player_options}</select></label>'
         '<label>Claimed play level <select name="claimed_play_level">'
         '<option value="simple">Simple</option><option value="schneider">Schneider</option>'
-        '<option value="schwarz">Schwarz</option></select></label>'
-        + responses
+        '<option value="schwarz">Schwarz</option></select></label>' + responses
     )
 
 
@@ -335,11 +335,11 @@ def _session_command_forms(context: GuidedSessionContextV1) -> str:
         allowed = state.phase in SESSION_COMMAND_ALLOWED_PHASES[kind]
         forms.append(
             f'<details class="command-form"><summary>{_e(kind.replace("_", " ").title())}'
-            f' - {"available now" if allowed else "correction only in this phase"}</summary>'
+            f" - {'available now' if allowed else 'correction only in this phase'}</summary>"
             '<form method="post" action="/sessions/command" class="form-grid">'
             f'<input type="hidden" name="expected_revision" value="{state.revision}">'
             f'<input type="hidden" name="kind" value="{_e(kind)}">'
-            '<label>Correction target revision (leave empty for a new Command) '
+            "<label>Correction target revision (leave empty for a new Command) "
             '<input type="number" name="target_revision" min="1"></label>'
             f"{_command_fields(kind, player_options)}"
             f'<button type="submit">{"Apply Command" if allowed else "Correct target Command"}</button>'
@@ -403,10 +403,14 @@ def _session_analysis(context: GuidedSessionContextV1) -> str:
     )
 
 
-def render_guided_session_v1(context: GuidedSessionContextV1) -> str:
+def render_guided_session_v1(
+    context: GuidedSessionContextV1,
+    *,
+    show_operation_notice: bool = True,
+) -> str:
     with context.lock:
         state = context.state
-        operation = context.last_operation
+        operation = context.last_operation if show_operation_notice else None
         notice = (
             ""
             if operation is None
@@ -423,7 +427,7 @@ def render_guided_session_v1(context: GuidedSessionContextV1) -> str:
             for player in state.players
         )
         diagnostics = "".join(
-            f'<li><strong>{_e(item.code)}</strong>: {_e(item.message)}</li>'
+            f"<li><strong>{_e(item.code)}</strong>: {_e(item.message)}</li>"
             for item in state.validation.diagnostics
         )
         history = "".join(
@@ -434,12 +438,12 @@ def render_guided_session_v1(context: GuidedSessionContextV1) -> str:
         rendered = (
             f'<div id="session-app">{notice}<section class="panel"><p class="eyebrow">'
             f"{_e(state.capture_mode)} Session</p><h2>{_e(state.session_id)}</h2>"
-            f'<dl><dt>Revision</dt><dd>{state.revision}</dd><dt>Phase</dt><dd>{_e(state.phase)}</dd>'
-            f'<dt>Decision Checkpoints</dt><dd>{len(context.decision_checkpoints)}</dd></dl>'
-            f"<ul>{players}</ul><p><a href=\"/sessions\">Manage Sessions</a></p>"
+            f"<dl><dt>Revision</dt><dd>{state.revision}</dd><dt>Phase</dt><dd>{_e(state.phase)}</dd>"
+            f"<dt>Decision Checkpoints</dt><dd>{len(context.decision_checkpoints)}</dd></dl>"
+            f'<ul>{players}</ul><p><a href="/sessions">Manage Sessions</a></p>'
             '<form method="post" action="/sessions/reload"><button type="submit">Reload from disk</button></form>'
             '<p><a href="/sessions/downloads/session.json" download>Download current Session JSON</a></p>'
-            f"</section><section class=\"panel\"><h2>Validation</h2><ul>{diagnostics or '<li>No current diagnostics.</li>'}</ul></section>"
+            f'</section><section class="panel"><h2>Validation</h2><ul>{diagnostics or "<li>No current diagnostics.</li>"}</ul></section>'
             f'<section class="panel"><h2>Phase-aware Command entry</h2>{_session_command_forms(context)}</section>'
             '<section class="panel"><h2>History</h2><form method="post" action="/sessions/undo">'
             f'<input type="hidden" name="expected_revision" value="{state.revision}">'
@@ -449,8 +453,5 @@ def render_guided_session_v1(context: GuidedSessionContextV1) -> str:
             f"<tbody>{history or '<tr><td colspan="3">No accepted Commands.</td></tr>'}</tbody></table></div></section>"
             f"{_session_analysis(context)}</div>"
         )
-        hidden = (
-            '<input type="hidden" name="managed_handle" '
-            f'value="{_e(context.handle)}">'
-        )
+        hidden = f'<input type="hidden" name="managed_handle" value="{_e(context.handle)}">'
         return _FORM_OPEN.sub(lambda match: match.group(0) + hidden, rendered)

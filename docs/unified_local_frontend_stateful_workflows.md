@@ -6,6 +6,8 @@ Issue #212 implements managed Session, Match Capture, and Learning Corpus
 workflows inside the existing unified local frontend. It extends the Issue #210
 [application shell](unified_local_frontend_application_shell.md) and the Issue
 #211 [guided analysis and Results](unified_local_frontend_guided_analysis_and_results.md).
+Issue #218 adds separate bounded submitted-form state and localized contextual
+validation without changing the existing Session, Match, or Corpus contracts.
 
 This is private Package behavior. Package version remains `0.17.0`, Python
 remains `>=3.13`, the license remains `AGPL-3.0-only`, Public API contract
@@ -90,7 +92,8 @@ Public/Application boundary. Execution runs outside locks and publishes only if
 the Session generation and content fingerprint remain unchanged. Request and
 Result downloads use retained immutable bytes; no render or download executes a
 workflow. Existing unavailable, rejected, conflict, partial, and stale outcomes
-remain normal visible states.
+remain normal visible states; rejected/unavailable responses use contextual HTTP
+`400`, and conflict/stale responses use contextual HTTP `409`.
 
 ## Match Capture
 
@@ -167,6 +170,21 @@ and exports, `/learning/current`, Corpus operations and downloads, and the
 namespaced Capture/Corpus assets. They are private browser transport, not a
 public JSON API.
 
+## Validation Feedback
+
+All lifecycle and active-item POST forms are covered by the private canonical
+registry documented in
+[Frontend validation state and localized feedback](frontend_validation_state_and_localized_feedback.md).
+Rejected safe values remain on the exact originating form. The active Session,
+Match, or Learning Corpus is retained, and switching that exact active object
+invalidates older feedback. Successful actions retain HTTP `303`. File controls
+are always cleared and require explicit reselection. Raw Product, persistence,
+path, handle, and exception details do not become validation presentation.
+
+The unified app adapts existing Capture and Corpus HTML only after their shared
+renderers return. Standalone `skatmind capture` and `skatmind corpus` output and
+transport therefore remain unchanged.
+
 ## Current boundary
 
 Normal users can now create, import where supported, list, open/resume, reload,
@@ -185,5 +203,6 @@ Issue #216 implements the shared private profile/localization foundation. When
 German is active, the future-owned Session, Match, and Learning bodies remain
 explicitly marked English pending Issue #220. Issue #217 adds localized Product-
 unit guidance, safe related links, and useful no-Session, no-Match, no-collection,
-and active-empty-collection states outside those English regions. It changes no
-stateful operation. Issue #218 is the exact next action.
+and active-empty-collection states outside those English regions. Issue #218
+implements contextual stateful validation without changing Product operations.
+Issue #219 is the exact next action.

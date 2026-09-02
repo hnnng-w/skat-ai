@@ -26,6 +26,7 @@ IMPLEMENTED_BILINGUAL_FRONTEND_POLICIES = (
     "one_private_local_frontend_profile_per_managed_data_root",
     "saved_language_overrides_browser_language",
     "browser_language_bootstraps_only_without_saved_preference",
+    "validation_preserves_safe_values_and_workflow_context",
     "home_separates_record_analyze_learn_and_product_information",
     "language_and_profile_never_change_product_semantics",
     "no_external_translation_profile_sync_or_cloud_service",
@@ -95,8 +96,7 @@ class BrowserSafeFrontendProfileStateV1:
         if self.resolution_source == "saved_profile" and self.profile_status != "available":
             raise ValueError("Saved-profile resolution requires an available profile.")
         if self.profile_status == "invalid" and (
-            self.locale != FRONTEND_FALLBACK_LOCALE
-            or self.resolution_source != "fallback"
+            self.locale != FRONTEND_FALLBACK_LOCALE or self.resolution_source != "fallback"
         ):
             raise ValueError("Invalid profile state must use the English fallback.")
 
@@ -104,9 +104,7 @@ class BrowserSafeFrontendProfileStateV1:
 def validate_bilingual_frontend_contract_v1() -> None:
     if len(BILINGUAL_FRONTEND_POLICIES) != len(set(BILINGUAL_FRONTEND_POLICIES)):
         raise ValueError("Bilingual frontend policies must not repeat.")
-    if not set(IMPLEMENTED_BILINGUAL_FRONTEND_POLICIES).issubset(
-        BILINGUAL_FRONTEND_POLICIES
-    ):
+    if not set(IMPLEMENTED_BILINGUAL_FRONTEND_POLICIES).issubset(BILINGUAL_FRONTEND_POLICIES):
         raise ValueError("Implemented policies must belong to the frozen vocabulary.")
     if SUPPORTED_FRONTEND_LOCALES != ("de", "en"):
         raise ValueError("Supported frontend locales must remain canonical.")

@@ -12,6 +12,8 @@ _GUIDED_MODULES = (
     "card_form",
     "execution",
     "form_parsing",
+    "form_registry",
+    "form_state",
     "guided_contracts",
     "guided_rendering",
     "historical_form",
@@ -23,6 +25,9 @@ _GUIDED_MODULES = (
     "result_rendering",
     "workflow_operations",
     "workflow_state",
+    "validation_contracts",
+    "validation_mapping",
+    "validation_rendering",
 )
 
 
@@ -42,6 +47,7 @@ def test_guided_frontend_modules_are_private_package_discovered_modules() -> Non
             "FRONTEND_JSON_TRANSFER_VERSION",
             "PROCESS_LOCAL_FRONTEND_WORKFLOW_STATE_VERSION",
             "FRONTEND_INFORMATION_ARCHITECTURE_VERSION",
+            "FRONTEND_VALIDATION_PRESERVATION_VERSION",
         }
     )
 
@@ -61,6 +67,8 @@ def test_existing_local_app_resources_contain_guided_no_javascript_styles() -> N
         b".workflow-form",
         b".card-grid",
         b".error-summary",
+        b".field-error",
+        b'[aria-invalid="true"]',
         b".result-presentation",
     ):
         assert required in css_bytes

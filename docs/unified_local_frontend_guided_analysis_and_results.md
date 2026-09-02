@@ -8,6 +8,10 @@ the Issue #210 [application shell](unified_local_frontend_application_shell.md)
 without adding a Root workflow, Public API export, Schema, persistence format,
 dependency, or Product algorithm.
 
+Issue #218 adds separate submitted-form preservation and localized validation
+feedback without changing the guided Product builders or execution boundary. See
+[Frontend validation state and localized feedback](frontend_validation_state_and_localized_feedback.md).
+
 The implemented browser areas are:
 
 ```text
@@ -41,6 +45,7 @@ GUIDED_HISTORICAL_REVIEW_FORM_VERSION = 1
 FRONTEND_RESULT_PRESENTATION_VERSION = 1
 FRONTEND_JSON_TRANSFER_VERSION = 1
 PROCESS_LOCAL_FRONTEND_WORKFLOW_STATE_VERSION = 1
+FRONTEND_VALIDATION_PRESERVATION_VERSION = 1
 ```
 
 The private policy tuple is exactly:
@@ -66,12 +71,13 @@ Schema, Session, Match, Corpus, Search, and persistence versions.
 Analyze and Review have independent immutable revisioned state under the existing
 application-context lock. Each area retains at most one draft or imported
 `RequestDocumentV1`, one latest successful Request/options/Result tuple, exact
-precomputed download bytes, safe validation messages, and one in-progress source
+precomputed download bytes, legacy safe validation messages, and one in-progress source
 revision.
 
 Every accepted input mutation advances its route-specific revision once and
-invalidates older output. Validation failure retains safe form values. Execution
-failure publishes no successful Result. Reset requires explicit confirmation.
+invalidates older output. A rejected submitted candidate remains separate and
+does not advance accepted state or clear older successful output. Execution
+failure publishes no replacement Result. Reset requires explicit confirmation.
 Stale forms and duplicate Run attempts return HTTP `409`; stale completed work
 cannot overwrite newer state. Product execution occurs outside the context lock,
 and publication rechecks the exact source revision without retry.
@@ -250,9 +256,11 @@ The private browser transport uses these status meanings:
 500    generic unexpected internal failure
 ```
 
-Form failures show an error summary and field-local escaped messages where a safe
-public path maps to a visible control. Safe submitted Deal selections remain in
-the process-local draft for correction. Unexpected, resource, serialization, and
+Form failures show a translated error summary and translated field-local escaped
+messages where a registered field maps to a visible control. Safe submitted Deal
+selections remain in separate bounded process-local feedback state for correction;
+the accepted Review draft and exact wizard step remain unchanged. A rejected Run
+retains and identifies any last successful visible Result. Unexpected, resource, serialization, and
 invariant failures expose no internal message, stack, token, path, fingerprint,
 private Source Reference, hidden Card, or complete uploaded document.
 
@@ -339,5 +347,7 @@ Issue #216 implements the shared private profile/localization foundation. When
 German is active, future-owned Analyze and Review bodies remain explicitly
 marked English pending Issue #220. Issue #217 adds localized one-Decision
 current/retrospective and one-completed-Game guidance plus safe related links
-outside that English region without changing either workflow. Issue #218 is the
-exact next action.
+outside that English region without changing either workflow. Issue #218 adds
+accepted-versus-submitted state separation, safe rejected-value preservation,
+and localized accessible contextual validation without changing workflow
+execution. Issue #219 is the exact next action.

@@ -190,11 +190,15 @@ def _example(name: str) -> dict[str, object]:
 def _multipart(content: bytes, *, revision: int) -> tuple[bytes, str]:
     boundary = "skatmind-guided-web-boundary"
     body = (
-        f'--{boundary}\r\nContent-Disposition: form-data; name="revision"\r\n\r\n'
-        f"{revision}\r\n"
-        f'--{boundary}\r\nContent-Disposition: form-data; name="request_file"; '
-        'filename="ignored.json"\r\nContent-Type: application/json\r\n\r\n'
-    ).encode("ascii") + content + f"\r\n--{boundary}--\r\n".encode("ascii")
+        (
+            f'--{boundary}\r\nContent-Disposition: form-data; name="revision"\r\n\r\n'
+            f"{revision}\r\n"
+            f'--{boundary}\r\nContent-Disposition: form-data; name="request_file"; '
+            'filename="ignored.json"\r\nContent-Type: application/json\r\n\r\n'
+        ).encode("ascii")
+        + content
+        + f"\r\n--{boundary}--\r\n".encode("ascii")
+    )
     return body, f"multipart/form-data; boundary={boundary}"
 
 
@@ -584,7 +588,9 @@ def test_review_all_guided_actions_run_download_and_reset(
     with server.app_context.lock:
         failed_state = server.app_context.review_state
     assert failed_state.execution_source_revision is None
-    assert failed_state.latest_successful_result is None
+    assert failed_state.latest_successful_result is not None
+    assert failed_state.request_json_bytes == request_bytes
+    assert failed_state.result_json_bytes == result_bytes
 
     _assert_redirect(
         _post_form(
@@ -637,12 +643,13 @@ def test_invalid_review_deal_retains_safe_submitted_cards(
         },
     )
     assert status == 400
-    assert b"must contain exactly 10 cards" in body
+    assert b"Check the submitted form" in body
+    assert f'value="{deck[0]}" checked'.encode() in body
     with server.app_context.lock:
         state = server.app_context.review_state
-    assert state.revision == 3
+    assert state.revision == 2
     assert type(state.draft) is HistoricalFormDraftV1
-    assert state.draft.players[0].initial_hand == deck[:9]
+    assert state.draft.players[0].initial_hand == ()
     assert state.latest_successful_result is None
 
 
@@ -718,7 +725,7 @@ def test_route_methods_authentication_missing_downloads_and_status_mapping(
         {"revision": 9, "confirm_reset": "on"},
     )
     assert status == 409
-    status, _headers, _body = _request(
+    status, _headers, body = _request(
         server,
         "POST",
         ANALYZE_RUN_GUIDED_ACTION_ROUTE_PATH,
@@ -726,6 +733,7 @@ def test_route_methods_authentication_missing_downloads_and_status_mapping(
         body=b"{}",
     )
     assert status == 415
+    assert b"upload type shown by this form" in body
 
 
 @pytest.mark.parametrize(
@@ -814,9 +822,7 @@ def test_malformed_targets_and_protocol_errors_keep_hardened_headers(
 
     malformed_target = _raw_request(
         server,
-        f"GET http://[ HTTP/1.1\r\nHost: {host}\r\nCookie: {cookie}\r\n\r\n".encode(
-            "ascii"
-        ),
+        f"GET http://[ HTTP/1.1\r\nHost: {host}\r\nCookie: {cookie}\r\n\r\n".encode("ascii"),
     )
     _assert_hardened_raw_response(malformed_target, 400)
 
@@ -871,11 +877,11 @@ def test_validation_is_field_local_accessible_and_advanced_groups_are_exact(
     )
     assert status == 400
     html = body.decode()
-    assert '<a href="#field-game_type">' in html
-    assert 'id="field-game_type" aria-invalid="true"' in html
-    assert 'aria-describedby="error-game_type-1"' in html
-    assert 'id="error-game_type-1"' in html
-    assert html.index('id="field-game_type"') < html.index('id="error-game_type-1"')
+    assert '<a href="#validation-field-1-game_type">' in html
+    assert 'id="validation-field-1-game_type"' in html
+    assert 'aria-invalid="true"' in html
+    assert 'aria-describedby="validation-message-1-1"' in html
+    assert 'id="validation-message-1-1"' in html
 
     status, _headers, analyze_body = _request(
         server,
@@ -959,7 +965,8 @@ def test_import_rejects_an_incompatible_workflow_with_a_safe_distinct_error(
 
     assert status == 400
     html = response_body.decode()
-    assert "Unsupported workflow" in html
+    assert "does not identify a workflow supported by this form" in html
+    assert "select the file again" in html
     assert "historical_grand_normal_completion" not in html
     assert str(server.app_context.managed_home.root) not in html
 
@@ -994,11 +1001,9 @@ def test_duplicate_run_is_409_and_unexpected_execution_failure_is_generic_500(
     }
     draft = parse_position_form_v1(parse_values)
     with server.app_context.lock:
-        server.app_context.analyze_state = (
-            server.app_context.analyze_state.mutate(expected_revision=0, draft=draft).begin(
-                expected_revision=1
-            )
-        )
+        server.app_context.analyze_state = server.app_context.analyze_state.mutate(
+            expected_revision=0, draft=draft
+        ).begin(expected_revision=1)
     duplicate = _position_values(1)
     status, _headers, _body = _post_form(
         server,
@@ -1061,9 +1066,68 @@ def test_public_execution_validation_is_400_and_retains_safe_field_message(
     )
     assert status == 400
     html = body.decode()
-    assert "The submitted hand is invalid." in html
-    assert 'id="field-hand" aria-invalid="true"' in html
-    assert 'aria-describedby="error-hand-1"' in html
+    assert "The submitted hand is invalid." not in html
+    assert "SkatMind could not apply these values" in html
+    assert 'id="validation-field-1-hand"' in html
+    assert 'aria-invalid="true"' in html
+    assert 'aria-describedby="validation-message-1-1"' in html
+
+
+def test_rejected_analyze_candidate_keeps_last_successful_result_visible(
+    guided_server: SkatMindAppWebServerV1,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    server = guided_server
+    _cookie, mutation_headers = _bootstrap(server)
+
+    def succeed(
+        request: RequestDocumentV1,
+        *,
+        options: ExecutionOptionsV1,
+    ) -> GuidedFrontendExecutionV1:
+        return _fake_execution(request, options=options)
+
+    monkeypatch.setattr(operations_module, "execute_guided_frontend_analysis_v1", succeed)
+    _assert_redirect(
+        _post_form(
+            server,
+            ANALYZE_RUN_GUIDED_ACTION_ROUTE_PATH,
+            mutation_headers,
+            _position_values(0),
+        ),
+        "/analyze",
+    )
+    with server.app_context.lock:
+        successful = server.app_context.analyze_state
+    assert successful.latest_successful_result is not None
+
+    def reject(
+        _request_value: RequestDocumentV1,
+        *,
+        options: ExecutionOptionsV1,
+    ) -> GuidedFrontendExecutionV1:
+        assert options.validate_output is True
+        raise SkatMindValidationError("private validation detail", path="/hand")
+
+    monkeypatch.setattr(operations_module, "execute_guided_frontend_analysis_v1", reject)
+    rejected_values = _position_values(successful.revision)
+    rejected_values["bid_value"] = "23"
+    status, _headers, body = _post_form(
+        server,
+        ANALYZE_RUN_GUIDED_ACTION_ROUTE_PATH,
+        mutation_headers,
+        rejected_values,
+    )
+    assert status == 400
+    assert b"last valid Result remains available" in body
+    assert b'value="23"' in body
+    assert b"private validation detail" not in body
+    with server.app_context.lock:
+        rejected = server.app_context.analyze_state
+    assert rejected.revision == successful.revision
+    assert rejected.latest_successful_result is successful.latest_successful_result
+    assert rejected.request_json_bytes == successful.request_json_bytes
+    assert rejected.result_json_bytes == successful.result_json_bytes
 
 
 def test_action_and_download_route_sets_are_fully_exercised() -> None:

@@ -11,10 +11,22 @@ from urllib.parse import urlencode
 
 import pytest
 from test_local_match_capture_web import _creation_values
+from test_match_decision_review_preparation import _workspace_with_partial_game
 
 from skatmind.app_web.context import AppWebContextV1
 from skatmind.app_web.contracts import APP_NAVIGATION_LABELS, APP_ROUTE_PATHS
+from skatmind.app_web.cross_area_transfer import (
+    transfer_active_match_workspace_to_corpus_v1,
+)
+from skatmind.app_web.learning_frontend import (
+    build_unified_learning_state_v1,
+    create_unified_learning_corpus_v1,
+)
 from skatmind.app_web.managed_data import prepare_managed_home_v1
+from skatmind.app_web.match_frontend import (
+    execute_unified_match_analysis_v1,
+    import_unified_match_v1,
+)
 from skatmind.app_web.security import (
     APP_WEB_CONTENT_SECURITY_POLICY,
     APP_WEB_COOKIE_NAME,
@@ -35,6 +47,9 @@ from skatmind.capture_web.security import (
 from skatmind.corpus_web.security import (
     has_valid_learning_corpus_web_cookie_v1,
     validate_learning_corpus_web_origin_v1,
+)
+from skatmind.match_workspace_persistence_codec import (
+    build_match_workspace_persistence_document_v1,
 )
 
 _TOKEN = "app-test-token"
@@ -97,9 +112,7 @@ def _bootstrap(server: SkatMindAppWebServerV1) -> tuple[str, dict[str, str]]:
     assert headers["location"] == "/"
     assert body == b""
     set_cookie = headers["set-cookie"]
-    assert set_cookie == (
-        f"{APP_WEB_COOKIE_NAME}={_TOKEN}; HttpOnly; SameSite=Strict; Path=/"
-    )
+    assert set_cookie == (f"{APP_WEB_COOKIE_NAME}={_TOKEN}; HttpOnly; SameSite=Strict; Path=/")
     cookie = set_cookie.split(";", 1)[0]
     return cookie, {
         "Cookie": cookie,
@@ -248,11 +261,9 @@ def test_all_authenticated_routes_render_shared_navigation_and_one_h1(
         assert html.count("<h1>") == 1
         assert '<a class="skip-link" href="#main-content">Skip to main content</a>' in html
         assert "<header" in html and "<nav" in html and "<main" in html and "<footer" in html
-        assert f'>{escape(current_label)}</a>' in html
+        assert f">{escape(current_label)}</a>" in html
         assert html.count('aria-current="page"') == 1
-        positions = [
-            html.index(f">{escape(label)}</a>") for label in APP_NAVIGATION_LABELS
-        ]
+        positions = [html.index(f">{escape(label)}</a>") for label in APP_NAVIGATION_LABELS]
         assert positions == sorted(positions)
         assert "<script" not in html
         assert "http://" not in html and "https://" not in html
@@ -287,7 +298,7 @@ def test_home_has_exact_tasks_local_no_cloud_copy_and_honest_status(
     for heading in ("When to use it", "What you need", "Stored", "Result"):
         assert html.count(f"<dt>{heading}</dt>") == 6
     for forbidden in (
-        "type=\"file\"",
+        'type="file"',
         "seed",
         "samples",
         "Search settings",
@@ -520,8 +531,273 @@ def test_managed_session_form_is_rejected_after_active_item_switch(
         },
     )
     assert status == 409
-    assert b"This form is stale" in body
+    assert b"The form is out of date" in body
+    assert b"Reload the current page" in body
     assert second.state.revision == 0
+
+
+def test_unavailable_session_analysis_rerenders_context_without_raw_notice(
+    running_app_server: SkatMindAppWebServerV1,
+) -> None:
+    server = running_app_server
+    _cookie, mutation_headers = _bootstrap(server)
+    status, _headers, _body = _post_form(
+        server,
+        "/sessions/create",
+        mutation_headers,
+        {
+            "session_id": "unavailable-analysis",
+            "capture_mode": "retrospective",
+            "local_player_id": "",
+            "player_1_id": "alice",
+            "player_1_label": "Alice",
+            "player_2_id": "bob",
+            "player_2_label": "Bob",
+            "player_3_id": "carol",
+            "player_3_label": "Carol",
+        },
+    )
+    assert status == 303
+    active = server.app_context.managed_stateful.active_session
+    assert active is not None
+
+    status, _headers, body = _post_form(
+        server,
+        "/sessions/analyze",
+        mutation_headers,
+        {
+            "managed_handle": active.handle,
+            "expected_revision": "0",
+            "sample_count": "100",
+            "random_seed": "0",
+            "opponent_strategy": "basic",
+            "recommendation_method": "",
+            "search_budget_profile": "interactive_v1",
+        },
+    )
+    assert status == 400
+    assert b"Check the submitted form" in body
+    assert b"SkatMind could not apply these values" in body
+    assert b"Position Request export unavailable" not in body
+    assert active.state.revision == 0
+
+
+def test_shared_route_parse_failure_targets_submitted_session_command(
+    running_app_server: SkatMindAppWebServerV1,
+) -> None:
+    server = running_app_server
+    _cookie, mutation_headers = _bootstrap(server)
+    status, _headers, _body = _post_form(
+        server,
+        "/sessions/create",
+        mutation_headers,
+        {
+            "session_id": "malformed-command",
+            "capture_mode": "retrospective",
+            "local_player_id": "",
+            "player_1_id": "alice",
+            "player_1_label": "Alice",
+            "player_2_id": "bob",
+            "player_2_label": "Bob",
+            "player_3_id": "carol",
+            "player_3_label": "Carol",
+        },
+    )
+    assert status == 303
+    active = server.app_context.managed_stateful.active_session
+    assert active is not None
+    body = (
+        f"managed_handle={active.handle}&expected_revision=0&kind=set_declaration&malformed"
+    ).encode("ascii")
+    status, _headers, response = _request(
+        server,
+        "POST",
+        "/sessions/command",
+        headers={
+            **mutation_headers,
+            "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body=body,
+    )
+    assert status == 400
+    assert b"Set Declaration - correction only in this phase</summary>" in response
+    with server.app_context.lock:
+        feedback = server.app_context.form_feedback.current(
+            "sessions",
+            active_identity=active,
+        )
+    assert feedback is not None
+    assert feedback.form_key == "session.command.set_declaration"
+
+
+def test_shared_route_failure_before_discriminator_is_safe_and_form_agnostic(
+    running_app_server: SkatMindAppWebServerV1,
+) -> None:
+    server = running_app_server
+    cookie, _mutation_headers = _bootstrap(server)
+    host = f"127.0.0.1:{server.port}"
+    status, _headers, body = _raw_request(
+        server,
+        "POST",
+        "/sessions/command",
+        (
+            ("Host", host),
+            ("Cookie", cookie),
+            ("Origin", server.origin),
+            ("Content-Length", str(APP_WEB_MAX_REQUEST_BYTES + 1)),
+            ("Content-Type", "application/x-www-form-urlencoded"),
+        ),
+    )
+    assert status == 413
+    assert b"The submitted request is too large" in body
+    assert b"error-summary" not in body
+    with server.app_context.lock:
+        assert (
+            server.app_context.form_feedback.current(
+                "sessions",
+                active_identity=None,
+            )
+            is None
+        )
+
+
+def test_form_agnostic_multipart_failure_never_renders_parser_input(
+    running_app_server: SkatMindAppWebServerV1,
+) -> None:
+    server = running_app_server
+    _cookie, mutation_headers = _bootstrap(server)
+    status, _headers, _body = _post_form(
+        server,
+        "/learning/create",
+        mutation_headers,
+        {"corpus_id": "safe-parser-errors"},
+    )
+    assert status == 303
+    marker = b"private-multipart-field-marker"
+    boundary = "safe-boundary"
+    body = (
+        f"--{boundary}\r\n"
+        f'Content-Disposition: form-data; name="{marker.decode()}"\r\n\r\n'
+        "private-value-marker\r\n"
+        f"--{boundary}--\r\n"
+    ).encode("ascii")
+    status, _headers, response = _request(
+        server,
+        "POST",
+        "/learning/api/v1/operations",
+        headers={
+            **mutation_headers,
+            "Content-Type": f"multipart/form-data; boundary={boundary}",
+        },
+        body=body,
+    )
+    assert status == 400
+    assert b"The request could not be validated" in response
+    assert marker not in response
+    assert b"private-value-marker" not in response
+    assert b"error-summary" not in response
+
+
+def test_stateful_creation_errors_rerender_originating_forms_without_activation(
+    running_app_server: SkatMindAppWebServerV1,
+) -> None:
+    server = running_app_server
+    _cookie, mutation_headers = _bootstrap(server)
+
+    status, _headers, body = _post_form(
+        server,
+        "/sessions/create",
+        mutation_headers,
+        {
+            "session_id": "retained-session",
+            "capture_mode": "invalid",
+            "local_player_id": "",
+            "player_1_id": "alice",
+            "player_1_label": "Alice",
+            "player_2_id": "bob",
+            "player_2_label": "Bob",
+            "player_3_id": "carol",
+            "player_3_label": "Carol",
+        },
+    )
+    assert status == 400
+    with server.app_context.lock:
+        retained = server.app_context.form_feedback.current(
+            "sessions",
+            active_identity=None,
+        )
+    assert retained is not None and retained.form_key == "session.create"
+    assert b'action="/sessions/create"' in body
+    assert b"Check the submitted form" in body
+    assert b'value="retained-session"' in body
+    assert server.app_context.managed_stateful.active_session is None
+
+    status, _headers, body = _post_form(
+        server,
+        "/matches/api/v1/create",
+        mutation_headers,
+        {"match_id": "retained-match"},
+    )
+    assert status == 400
+    assert b"Check the submitted form" in body
+    assert b'value="retained-match"' in body
+    assert server.app_context.managed_stateful.active_match is None
+
+    status, _headers, body = _post_form(
+        server,
+        "/learning/create",
+        mutation_headers,
+        {"corpus_id": " "},
+    )
+    assert status == 400
+    assert b"Check the submitted form" in body
+    assert b'value=" "' in body
+    assert server.app_context.managed_stateful.active_learning is None
+
+
+def test_learning_validation_is_contextual_and_success_remains_prg(
+    running_app_server: SkatMindAppWebServerV1,
+) -> None:
+    server = running_app_server
+    _cookie, mutation_headers = _bootstrap(server)
+    status, headers, body = _post_form(
+        server,
+        "/learning/create",
+        mutation_headers,
+        {"corpus_id": "validation-corpus"},
+    )
+    assert status == 303 and headers["location"] == "/learning/current" and body == b""
+    active = server.app_context.managed_stateful.active_learning
+    assert active is not None
+
+    status, headers, body = _post_form(
+        server,
+        "/learning/api/v1/operations",
+        mutation_headers,
+        {"managed_handle": active.handle, "operation": "reload_corpus"},
+    )
+    assert status == 303 and headers["location"] == "/learning/current" and body == b""
+
+    status, _headers, body = _post_form(
+        server,
+        "/learning/api/v1/operations",
+        mutation_headers,
+        {
+            "managed_handle": active.handle,
+            "operation": "prepare_learning_artifacts",
+            "dataset_id": "retained-dataset",
+            "known_player_seed": "invalid",
+            "unseen_player_seed": "0",
+            "train_weight": "70",
+            "validation_weight": "15",
+            "test_weight": "15",
+        },
+    )
+    assert status == 400
+    assert b"Check the submitted form" in body
+    assert b'value="retained-dataset"' in body
+    assert b"Enter a whole number" in body
+    assert server.app_context.managed_stateful.active_learning is active
 
 
 def test_managed_match_learning_and_explicit_transfer_http_lifecycle(
@@ -621,8 +897,25 @@ def test_managed_match_learning_and_explicit_transfer_http_lifecycle(
         },
     )
     assert status == 409
-    assert b"revision" in body.lower()
+    assert b"The form is out of date" in body
+    assert b"Reload the current page" in body
     assert b'name="expected_catalog_revision" value="1"' in body
+
+    status, _headers, _body = _post_form(
+        server,
+        "/learning/create",
+        mutation_headers,
+        {"corpus_id": "replacement-corpus"},
+    )
+    assert status == 303
+    with server.app_context.lock:
+        assert (
+            server.app_context.form_feedback.current(
+                "matches",
+                active_identity=match,
+            )
+            is None
+        )
 
     status, headers, body = _request(
         server,
@@ -633,6 +926,67 @@ def test_managed_match_learning_and_explicit_transfer_http_lifecycle(
     assert status == 200
     assert headers["content-disposition"].endswith('"skatmind-managed-match.json"')
     assert json.loads(body)["workspace"]["match_definition"]["match_id"] == "web-match"
+
+
+def test_rejected_report_transfer_rerenders_the_originating_report_form(
+    running_app_server: SkatMindAppWebServerV1,
+) -> None:
+    server = running_app_server
+    _cookie, mutation_headers = _bootstrap(server)
+    workspace, _data = _workspace_with_partial_game()
+    document = build_match_workspace_persistence_document_v1(workspace)
+    with server.app_context.lock:
+        match_root = server.app_context.managed_stateful.root("matches")
+        learning_root = server.app_context.managed_stateful.root("corpora")
+    source = import_unified_match_v1(
+        match_root,
+        handle="6" * 64,
+        document=document.to_dict(),
+    )
+    target = create_unified_learning_corpus_v1(
+        learning_root,
+        handle="7" * 64,
+        corpus_id="report-rejection-corpus",
+    )
+    with server.app_context.lock:
+        server.app_context.managed_stateful.activate_match(source)
+        server.app_context.managed_stateful.activate_learning(target)
+    transfer_active_match_workspace_to_corpus_v1(
+        source,
+        target,
+        selection_mode="select_imported",
+        same_revision_resolution="reject",
+        expected_catalog_revision=0,
+    )
+    analyzed = execute_unified_match_analysis_v1(
+        source,
+        {
+            "operation": "analyze_decision",
+            "match_position": "3",
+            "expected_revision": str(workspace.revision),
+            "decision_index": "1",
+        },
+    )
+    report_id = analyzed.state["selected_report_id"]
+    match_snapshot_id = build_unified_learning_state_v1(target)["current_match_snapshots"][0][
+        "match_snapshot_id"
+    ]
+
+    status, _headers, body = _post_form(
+        server,
+        "/matches/transfer-report",
+        mutation_headers,
+        {
+            "managed_handle": source.handle,
+            "target_managed_handle": "0" * 64,
+            "report_id": report_id,
+            "match_snapshot_id": match_snapshot_id,
+        },
+    )
+    assert status == 409
+    assert b"The form is out of date" in body
+    assert f'name="report_id" value="{report_id}"'.encode() in body
+    assert b"Transfer this Decision Report source" in body
 
 
 def test_about_identity_runtime_local_boundaries_and_closed_storage_disclosure(

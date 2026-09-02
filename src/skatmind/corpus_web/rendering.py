@@ -344,21 +344,19 @@ def render_learning_corpus_web_body_v1(
         raise ValueError("route_prefix must be one absolute non-trailing route prefix.")
     if not isinstance(state, dict):
         raise ValueError("state must be one browser projection.")
+    if state.get("initialized") is not True:
+        raise ValueError("The unified Corpus adapter requires an initialized Corpus.")
     if managed_handle is not None and (
         type(managed_handle) is not str or len(managed_handle) != 64
     ):
         raise ValueError("managed_handle must be null or one opaque managed handle.")
-    body = (
-        _initialization()
-        if not state["initialized"]
-        else "".join(
-            (
-                _corpus_summary(state),
-                _workspace_import(state),
-                _matches(state),
-                _strategy_sources(state),
-                _preparation(state),
-            )
+    body = "".join(
+        (
+            _corpus_summary(state),
+            _workspace_import(state),
+            _matches(state),
+            _strategy_sources(state),
+            _preparation(state),
         )
     )
     notice_html = (
@@ -368,10 +366,7 @@ def render_learning_corpus_web_body_v1(
     )
     adapted = f'<div id="corpus-app">{notice_html}<div class="dashboard">{body}</div></div>'
     if managed_handle is not None:
-        hidden = (
-            '<input type="hidden" name="managed_handle" '
-            f'value="{_e(managed_handle)}">'
-        )
+        hidden = f'<input type="hidden" name="managed_handle" value="{_e(managed_handle)}">'
         adapted = _FORM_OPEN.sub(lambda match: match.group(0) + hidden, adapted)
     return _LOCAL_ROUTE_ATTRIBUTE.sub(
         lambda match: f'{match.group("attribute")}="{route_prefix}/',

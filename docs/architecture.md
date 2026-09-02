@@ -182,7 +182,10 @@ parser-header compatibility correction and a separate stale matrix-smoke
 filename correction. The correction and both required Ubuntu jobs passed,
 completing Issue #216. Issue #217 adds the grouped bilingual Home, clarified
 Product concepts, safe related links, and useful stateful empty states. Issue
-#218 is the exact next action. Issue #208 remains open; UAT-02 through
+#218 adds private registry-driven safe submitted-value preservation, accepted-
+state isolation, localized accessible validation, contextual `400`/`409`
+responses, and successful `303` PRG without changing standalone servers. Issue
+#219 is the exact next action. Issue #208 remains open; UAT-02 through
 UAT-12 remain paused; B-09 and B-07 remain open; B-06 remains closed; and
 Package `1.0.0` and Release preparation are not ready. See
 [Advanced CLI automation](advanced_cli_automation_interface.md).

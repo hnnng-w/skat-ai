@@ -229,4 +229,5 @@ Issue #216 implements its private profile, locale, catalog, language-selector,
 and bilingual common-shell subset, and its Ubuntu follow-up passed. Issue #217
 implements the grouped bilingual Home, Product concepts, related links, and
 stateful empty-state guidance without translating all workflow bodies. Issue
-#218 is the exact next action.
+#218 implements private safe form-state preservation and localized accessible
+validation feedback. Issue #219 is the exact next action.

@@ -13,6 +13,9 @@ onboarding and advanced-automation slice frozen below.
 Issue #216 implements the private profile/localization foundation and bilingual
 common-shell slice documented in
 [Local frontend profile and localization](local_frontend_profile_and_localization.md).
+Issue #217 implements grouped Home/Product concepts, and Issue #218 implements
+validation preservation and localized feedback documented in
+[Frontend validation state and localized feedback](frontend_validation_state_and_localized_feedback.md).
 
 This document remains authoritative for the implemented version-1 frontend.
 The authoritative implemented-foundation and remaining bilingual, profile-driven
@@ -30,13 +33,14 @@ Approved target contract:
     the complete required behavior frozen by Issue #209
 
 Implemented behavior:
-    the Issue #209 target plus the Issue #216 profile/localization foundation
+    the Issue #209 target plus the Issue #216 through #218 profile,
+    information-architecture, and validation-preservation slices
 ```
 
 Current executable contracts, Public APIs, persistence formats, browser
 protocols, Schemas, and information controls remain authoritative while the
 implemented target remains in use. Issue #209 changed none of them; Issues #210
-through #216 add only their assigned private frontend and onboarding boundaries.
+through #218 add only their assigned private frontend and onboarding boundaries.
 
 ## UAT source
 
@@ -779,12 +783,15 @@ Issue #215 freezes the authoritative
 without changing the completed 53-row technical ledger. Issue #216 implements
 its private profile/localization and bilingual common-shell foundation while
 full workflow translation remains incomplete, and its Ubuntu follow-up passed.
-Issue #217 implements the grouped bilingual Home and Product-concept slice.
+Issue #217 implements the grouped bilingual Home and Product-concept slice, and
+Issue #218 implements registered contextual validation with safe submitted-value,
+workflow-context, Result, wizard-step, and language-switch preservation.
 UAT-FINDING-001 is further partially remediated and open; UAT-FINDING-003 has its
 Home/concept remediation implemented and remains open pending Issue #220 and
 repeated UAT-01; UAT-FINDING-007 remains open; and UAT-FINDING-008 has bilingual
-Home/concept coverage and remains open pending Issue #220. Issue #218 is the
-exact next action.
+Home/concept coverage and remains open pending Issue #220. UAT-FINDING-006 has
+its Issue #218 implementation complete and remains open pending repeated UAT-01.
+Issue #219 is the exact next action.
 
 UAT-02 through UAT-12 remain paused. Frontend work remains part of B-09 outside
 the technical ledger and must not reopen B-06. B-07 remains open.

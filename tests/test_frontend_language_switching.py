@@ -242,6 +242,47 @@ def test_explicit_language_persists_over_browser_changes_and_survives_restart(
     assert restarted.frontend_profile.document.language == "en"
 
 
+def test_language_switch_rerenders_retained_validation_without_product_work(
+    localized_server: SkatMindAppWebServerV1,
+) -> None:
+    server = localized_server
+    get_headers, post_headers = _bootstrap(server)
+    status, _headers, body = _post(
+        server,
+        post_headers,
+        "/actions/analyze/run-guided",
+        {
+            "revision": "0",
+            "analysis_mode": "live_decision",
+            "game_type": "invalid",
+            "bid_value": "23",
+        },
+    )
+    assert status == 400
+    assert b"Check the submitted form" in body
+    with server.app_context.lock:
+        assert server.app_context.analyze_state.revision == 0
+        assert server.app_context.analyze_state.latest_successful_result is None
+
+    status, headers, body = _post(
+        server,
+        post_headers,
+        FRONTEND_LANGUAGE_ACTION_ROUTE,
+        {"language": "de", "profile_generation": "0", "return_to": "/analyze"},
+    )
+    assert status == 303 and headers["location"] == "/analyze" and body == b""
+
+    status, _headers, body = _request(server, "GET", "/analyze", headers=get_headers)
+    html = body.decode()
+    assert status == 200
+    assert '<html lang="de">' in html
+    assert "Prüfen Sie das ausgefüllte Formular" in html
+    assert 'value="23"' in html
+    with server.app_context.lock:
+        assert server.app_context.analyze_state.revision == 0
+        assert server.app_context.analyze_state.latest_successful_result is None
+
+
 def test_language_redirect_to_category_reuses_retained_discovery(
     localized_server: SkatMindAppWebServerV1,
 ) -> None:

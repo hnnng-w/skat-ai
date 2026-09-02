@@ -300,4 +300,5 @@ Issue #216 implements the separate private unified-browser profile/localization
 foundation. Existing advanced CLI contracts remain English and unchanged. The
 Issue #216 follow-up and both required Ubuntu jobs passed. Issue #217 implements
 the separate grouped bilingual Home and Product-concept presentation without
-changing this CLI. Issue #218 is the exact next action.
+changing this CLI. Issue #218 implements separate private browser validation
+preservation without changing this CLI. Issue #219 is the exact next action.

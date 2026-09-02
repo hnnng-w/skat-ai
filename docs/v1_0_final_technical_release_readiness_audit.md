@@ -701,6 +701,17 @@ workflow forms remain explicitly marked English on German pages. No Product
 operation, persistence, machine Route, Public API, Schema, example, generated
 output, Package version, dependency, or technical-ledger classification changes.
 
+Issue #218 implements private version-1 frontend validation preservation with a
+canonical form registry, rejected submitted state separate from accepted
+workflow and Product state, bounded allowlisted visible-value retention,
+localized accessible error summaries and field messages, exact active-context
+binding, contextual `400`/`409` responses, and successful `303` PRG. Raw Product,
+parser, upload, path, token, handle, and file values are not rendered. Standalone
+Session, Capture, and Corpus servers, Product behavior, persistence, Public API,
+CLI, Schemas, examples, generated outputs, dependencies, and Package version are
+unchanged. UAT-FINDING-006 has its assigned implementation complete but remains
+open pending repeated maintainer UAT-01.
+
 The post-audit Release-process state is:
 
 ```text
@@ -711,6 +722,9 @@ Issue #217:
     Home and Product-concept scope implemented
 
 Issue #218:
+    validation-preservation scope implemented
+
+Issue #219:
     exact next action
 
 Issue #208:
@@ -747,7 +761,8 @@ UAT-FINDING-005:
 
 UAT-FINDING-006:
     open
-    owned by Issue #218
+    Issue #218 implementation complete
+    pending repeated UAT-01
 
 UAT-FINDING-007:
     open
@@ -775,5 +790,5 @@ B-06:
 The 53-row ledger remains exactly 19 `satisfied`, 34
 `satisfied_with_approved_bounded_scope`, and zero in each unresolved
 classification. Frontend and UAT work remains under B-09 outside that ledger and
-does not reopen B-06. Issue #218, "Preserve frontend form state and localize
-validation feedback," is the exact next action.
+does not reopen B-06. Issue #219, "Reduce setup friction with generated IDs,
+known-player selection, and saved defaults," is the exact next action.

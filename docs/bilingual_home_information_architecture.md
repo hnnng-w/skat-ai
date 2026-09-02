@@ -295,7 +295,7 @@ Private Corpus downloads:   10
 
 ## UAT and next action
 
-The post-Issue-#217 state is:
+The post-Issue-#218 state is:
 
 ```text
 UAT-FINDING-001:
@@ -317,7 +317,8 @@ UAT-FINDING-005:
 
 UAT-FINDING-006:
     open
-    owned by Issue #218
+    Issue #218 implementation complete
+    pending repeated UAT-01
 
 UAT-FINDING-007:
     open
@@ -342,9 +343,10 @@ B-07:
     open
 ```
 
-Issue #217 does not repeat UAT or close a finding. Package `1.0.0` and Release
+Issue #218 does not repeat UAT or close a finding. Package `1.0.0` and Release
 preparation remain not ready. The exact next action is:
 
 ```text
-Issue #218 — Preserve frontend form state and localize validation feedback
+Issue #219 — Reduce setup friction with generated IDs, known-player selection,
+and saved defaults
 ```

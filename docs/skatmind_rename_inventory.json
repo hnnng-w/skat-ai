@@ -379,7 +379,7 @@
                         },
                         {
                             "path":  "docs/project_handoff.md",
-                            "line":  1918,
+                            "line":  1920,
                             "token":  "hyphenated_identity",
                             "count":  1,
                             "classification":  "historical_evidence",
@@ -388,7 +388,7 @@
                         },
                         {
                             "path":  "docs/project_handoff.md",
-                            "line":  1919,
+                            "line":  1921,
                             "token":  "underscore_identity",
                             "count":  1,
                             "classification":  "historical_evidence",
@@ -406,7 +406,7 @@
                         },
                         {
                             "path":  "docs/requirements_traceability.md",
-                            "line":  604,
+                            "line":  606,
                             "token":  "hyphenated_identity",
                             "count":  1,
                             "classification":  "historical_evidence",
@@ -415,7 +415,7 @@
                         },
                         {
                             "path":  "docs/requirements_traceability.md",
-                            "line":  604,
+                            "line":  606,
                             "token":  "underscore_identity",
                             "count":  2,
                             "classification":  "historical_evidence",

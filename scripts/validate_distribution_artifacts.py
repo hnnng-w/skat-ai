@@ -980,6 +980,11 @@ import skatmind.errors as public_errors
 from skatmind.app_web.context import AppWebContextV1
 from skatmind.app_web.frontend_profile_contracts import LOCAL_FRONTEND_PROFILE_VERSION
 from skatmind.app_web.frontend_profile_persistence import load_frontend_profile_file_v1
+from skatmind.app_web.form_registry import (
+    FRONTEND_FORM_REGISTRY,
+    UNIFIED_FRONTEND_POST_ROUTES,
+    validate_frontend_form_registry_v1,
+)
 from skatmind.app_web.guided_contracts import GUIDED_ANALYSIS_FRONTEND_VERSION
 from skatmind.app_web.information_architecture import FRONTEND_INFORMATION_ARCHITECTURE_VERSION
 from skatmind.app_web.json_transfer import (
@@ -997,6 +1002,7 @@ from skatmind.app_web.position_form import (
 )
 from skatmind.app_web.server import start_app_web_server_v1
 from skatmind.app_web.translation_catalog import load_frontend_translation_catalogs_v1
+from skatmind.app_web.validation_contracts import FRONTEND_VALIDATION_PRESERVATION_VERSION
 from skatmind.api.v1 import (
     ExecutionOptionsV1,
     WorkflowV1,
@@ -1171,7 +1177,14 @@ assert BILINGUAL_FRONTEND_CONTRACT_VERSION == 1
 assert FRONTEND_TRANSLATION_CATALOG_VERSION == 1
 assert LOCAL_FRONTEND_PROFILE_VERSION == 1
 assert FRONTEND_INFORMATION_ARCHITECTURE_VERSION == 1
-assert tuple(load_frontend_translation_catalogs_v1()) == ("de", "en")
+assert FRONTEND_VALIDATION_PRESERVATION_VERSION == 1
+assert len(UNIFIED_FRONTEND_POST_ROUTES) == 38
+assert len(FRONTEND_FORM_REGISTRY) == 71
+validate_frontend_form_registry_v1()
+frontend_catalogs = load_frontend_translation_catalogs_v1()
+assert tuple(frontend_catalogs) == ("de", "en")
+assert "validation.summary.heading" in frontend_catalogs["en"]
+assert "validation.summary.heading" in frontend_catalogs["de"]
 assert load_frontend_profile_file_v1(app_home.root).status == "absent"
 assert not (app_home.root / "frontend-profile.json").exists()
 app_server = start_app_web_server_v1(app_context, port=0, token="app-distribution-token")
@@ -1228,6 +1241,23 @@ try:
         assert status == 200 and b"<h1>" in content
         assert response_headers["Cache-Control"] == "no-store"
         assert b"app-distribution-token" not in content
+    invalid_guided_body = urlencode(
+        {
+            "revision": "0",
+            "analysis_mode": "live_decision",
+            "game_type": "invalid",
+            "bid_value": "23",
+        }
+    ).encode("ascii")
+    status, _, content = app_request(
+        "POST",
+        "/actions/analyze/run-guided",
+        headers=app_post_headers,
+        body=invalid_guided_body,
+    )
+    assert status == 400
+    assert b'class="error-summary"' in content
+    assert b'value="23"' in content
     assert GUIDED_ANALYSIS_FRONTEND_VERSION == 1
     guided_draft = parse_position_form_v1(
         {
