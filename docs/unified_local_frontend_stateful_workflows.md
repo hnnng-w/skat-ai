@@ -8,6 +8,10 @@ workflows inside the existing unified local frontend. It extends the Issue #210
 #211 [guided analysis and Results](unified_local_frontend_guided_analysis_and_results.md).
 Issue #218 adds separate bounded submitted-form state and localized contextual
 validation without changing the existing Session, Match, or Corpus contracts.
+Issue #219 adds private profile-driven normal creation, generated identities,
+known Players, defaults, and managed display labels without changing those
+authoritative Product contracts. See [Profile-driven stateful
+creation](profile_driven_stateful_creation.md).
 
 This is private Package behavior. Package version remains `0.17.0`, Python
 remains `>=3.13`, the license remains `AGPL-3.0-only`, Public API contract
@@ -27,6 +31,7 @@ GUIDED_SESSION_FRONTEND_VERSION = 1
 UNIFIED_MATCH_CAPTURE_FRONTEND_VERSION = 1
 UNIFIED_LEARNING_FRONTEND_VERSION = 1
 FRONTEND_CROSS_AREA_TRANSFER_VERSION = 1
+PROFILE_DRIVEN_FORM_DEFAULTS_VERSION = 1
 ```
 
 The exact ordered policies are:
@@ -55,9 +60,11 @@ Each candidate is classified as `available`, `invalid`, or
 `resolution_required`. Duplicate semantic Product identities require explicit
 resolution and cannot be opened.
 
-Browser state contains a domain-separated opaque handle, Product display
-identity where safely reconstructed, revision, phase/summary, status, active
-marker, and discovery generation. It contains no path or storage basename.
+Browser state contains a domain-separated opaque handle, profile-backed display
+label or localized fallback, Product display identity where safely reconstructed,
+revision, phase/summary, status, active marker, and discovery generation. It
+contains no path or storage basename. Normal creation generates Product
+identities; imported Product identities remain unchanged.
 Open resolves a handle only against the exact retained generation and rechecks
 the direct child and reconstructed Product identity before activation. Every
 active-item mutation form retains the opaque handle that rendered it; submission
@@ -72,7 +79,9 @@ Match:   match-<sha256>.json
 Corpus:  corpus-<sha256>
 ```
 
-Create and import reject an existing canonical destination. Browser upload
+Create and import reject an existing canonical destination. Session and Match
+landing-page order is normal Create, existing managed items, then secondary
+Advanced import. Browser upload
 filenames are never authoritative. Session and Match imports accept one strict
 finite UTF-8 JSON object without a BOM, duplicate keys, non-finite numbers, or a
 non-object root. Uploaded JSON content is bounded to `16,777,216` bytes.
@@ -80,6 +89,9 @@ non-object root. Uploaded JSON content is bounded to `16,777,216` bytes.
 ## Sessions
 
 `/sessions` lists managed Sessions and provides strict creation and import.
+Normal creation asks for a Game name, recording mode, three saved-or-new Player
+names, and a visible perspective seat, then generates the Session and any new
+Player IDs. Saving new Players and the selected perspective is explicit.
 Opening uses the stable Public Session File API and existing strict persistence
 resume. The active guided page supports all ten existing typed Session Command
 kinds, phase-aware entry, accepted-Log history, strict-prefix Undo, one-Command
@@ -97,8 +109,8 @@ remain normal visible states; rejected/unavailable responses use contextual HTTP
 
 ## Match Capture
 
-`/matches` lists managed Workspaces, offers the existing no-JSON Match creation
-flow and strict Workspace import, and embeds the existing Capture body and
+`/matches` lists managed Workspaces, offers a bilingual no-JSON Match creation
+flow and strict secondary Workspace import, and embeds the existing Capture body and
 packaged progressive assets under namespaced routes. Every metadata, Game,
 Card, Commentary, response, passed-deal, clear, Statistics, materialization,
 Decision-analysis, Historical-analysis, Report, and export action delegates to
@@ -110,6 +122,13 @@ Optimistic Workspace persistence, explicit conflict Reload, maximum-eight
 revision-scoped Report behavior, and stale analysis publication rules are
 unchanged. The standalone `skatmind capture` server remains supported and uses
 its unchanged renderer and transport.
+
+Normal Match creation asks for a title, optional display date, friendly platform,
+three saved-or-new Player names, perspective seat, and optional source URL. The
+fixed format is presented as `EuroSkat 36-game standard`; uncommon exact Product
+metadata remains under Advanced. A date alone does not invent `played_at`, and
+saved platform IDs are never copied into Product metadata without explicit
+submission.
 
 ## Learning
 
@@ -129,6 +148,9 @@ publishes only after exact source-lineage revalidation. It performs no implicit
 analysis. Switching Corpora discards process-local sources/preparation through
 the existing context shutdown and changes no persisted Catalog or immutable
 object.
+
+Normal creation asks only for a learning-collection name and generates the
+Corpus ID. It performs no import, Current selection, preparation, or analysis.
 
 ## Cross-area transfer
 
@@ -175,6 +197,8 @@ public JSON API.
 All lifecycle and active-item POST forms are covered by the private canonical
 registry documented in
 [Frontend validation state and localized feedback](frontend_validation_state_and_localized_feedback.md).
+The complete unified registry has 44 POST routes and 77 definitions. Creation
+and settings forms use profile-generation checks and exact opaque form identity.
 Rejected safe values remain on the exact originating form. The active Session,
 Match, or Learning Corpus is retained, and switching that exact active object
 invalidates older feedback. Successful actions retain HTTP `303`. File controls
@@ -184,6 +208,13 @@ path, handle, and exception details do not become validation presentation.
 The unified app adapts existing Capture and Corpus HTML only after their shared
 renderers return. Standalone `skatmind capture` and `skatmind corpus` output and
 transport therefore remain unchanged.
+
+Creation validates values and current profile state, generates identities, and
+persists the authoritative Product exactly once before attempting one optional
+profile update. A Product failure makes no profile change. A later profile
+conflict, capacity, size, or storage failure leaves the Product persisted,
+active, and discoverable and displays a localized warning; there is no cross-file
+transaction or rollback claim.
 
 ## Current boundary
 
@@ -200,9 +231,10 @@ closed; and Package `1.0.0` and Release preparation are not ready.
 Issue #215 freezes the authoritative
 [bilingual profile-driven frontend UX contract](bilingual_profile_driven_frontend_ux_contract.md).
 Issue #216 implements the shared private profile/localization foundation. When
-German is active, the future-owned Session, Match, and Learning bodies remain
-explicitly marked English pending Issue #220. Issue #217 adds localized Product-
+German is active, remaining future-owned active Session, Match, and Learning
+bodies retain explicit language boundaries pending Issue #220. Issue #217 adds localized Product-
 unit guidance, safe related links, and useful no-Session, no-Match, no-collection,
-and active-empty-collection states outside those English regions. Issue #218
-implements contextual stateful validation without changing Product operations.
-Issue #219 is the exact next action.
+and active-empty-collection states outside those regions. Issue #218 implements
+contextual stateful validation without changing Product operations. Issue #219
+implements bilingual profile-driven creation and local Player/default/label
+management. Issue #220 is the exact next action.

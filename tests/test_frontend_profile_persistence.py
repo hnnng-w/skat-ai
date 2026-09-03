@@ -32,6 +32,10 @@ from skatmind.app_web.frontend_profile_persistence import (
     save_frontend_profile_file_v1,
 )
 from skatmind.app_web.managed_data import prepare_managed_home_v1
+from skatmind.app_web.profile_player_contracts import (
+    KnownPlayerPlatformIdV1,
+    KnownPlayerV1,
+)
 
 
 def _expected_document(*, revision: int, language: str | None, fingerprint: str) -> dict:
@@ -194,6 +198,39 @@ def test_profile_save_validates_expected_state_and_exact_revision_transition(
             build_local_frontend_profile_v1(revision=2, language="en"),
             expected_fingerprint=initial.content_fingerprint,
         )
+
+
+def test_profile_save_rejects_unreloadable_canonical_bytes_before_writing(
+    tmp_path: Path,
+) -> None:
+    home = prepare_managed_home_v1(tmp_path / "managed")
+    platform_ids = tuple(
+        KnownPlayerPlatformIdV1(
+            "EuroSkat",
+            f"{index:02d}-" + "x" * 252,
+        )
+        for index in range(16)
+    )
+    players = tuple(
+        KnownPlayerV1(
+            f"frontend-player-{index:064x}",
+            f"Player {index}",
+            (),
+            platform_ids,
+        )
+        for index in range(512)
+    )
+    oversized = build_local_frontend_profile_v1(known_players=players)
+    assert len(build_frontend_profile_bytes_v1(oversized)) > FRONTEND_PROFILE_MAX_FILE_BYTES
+
+    with pytest.raises(ValueError, match="bounded persistence limit"):
+        save_frontend_profile_file_v1(
+            home.root,
+            oversized,
+            expected_fingerprint=None,
+        )
+    assert not (home.root / FRONTEND_PROFILE_FILENAME).exists()
+    assert not tuple(home.root.glob(f".{FRONTEND_PROFILE_FILENAME}.*.tmp"))
 
 
 def test_profile_save_rechecks_target_immediately_before_replace(

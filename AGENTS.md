@@ -95,6 +95,10 @@ The project focuses on:
   preparation, atomic generation-safe publication, minimized presentation, and
   ten authenticated canonical
   downloads without derived persistence or public contracts
+* private profile-driven Session, Match, and Learning creation with generated
+  internal identities, known Players, saved defaults and display labels,
+  friendly bilingual forms, secondary JSON transfer, and Product-first/profile-
+  second persistence semantics
 * JSON input/output for regression-friendly testing
 
 The current implementation is not a machine-learning model or a full official
@@ -230,6 +234,7 @@ Before larger changes, read the relevant documentation:
 * `docs/bilingual_profile_driven_frontend_ux_contract.md`
 * `docs/local_frontend_profile_and_localization.md`
 * `docs/bilingual_home_information_architecture.md`
+* `docs/profile_driven_stateful_creation.md`
 
 Do not assume old behavior if documentation or tests say otherwise.
 
@@ -610,7 +615,11 @@ remediation implemented/open pending Issue #220 and repeated UAT-01; and UAT-
 FINDING-008 has bilingual Home and concept coverage implemented/open pending
 Issue #220. Issue #218 implements private safe submitted-value preservation and
 localized accessible validation feedback; UAT-FINDING-006 remains open pending
-repeated UAT-01. Issue #219 is the exact next action. Issue #208 remains open, UAT-02 through
+repeated UAT-01. Issue #219 implements private known Players, local creation
+defaults and display labels, generated frontend identities, bilingual name-first
+Session/Match/Learning creation, secondary JSON transfer, and Product-first/
+profile-second failure handling. Issue #220 is the exact next action. Issue #208
+remains open, UAT-02 through
 UAT-12 remain paused, B-09 and B-07 remain open, B-06 remains closed, and
 Package `1.0.0` and Release preparation are not ready. No v1 Release title,
 theme, date, tag, publication commit, or production model is frozen.
@@ -917,8 +926,10 @@ locale foundation, and bilingual common shell. Issue #217 implements the private
 grouped bilingual Home information architecture, Product concepts, related links,
 and useful empty states while full workflow translation remains incomplete
 through Issue #220. Issue #218 implements private validation preservation and
-localized feedback without changing Product behavior. Issue #219 is the exact
-next action. UAT-02 through UAT-12 remain paused, B-09 and B-07
+localized feedback without changing Product behavior. Issue #219 implements
+private profile-driven normal creation and local Player/default/label management
+without changing Product contracts. Issue #220 is the exact next action. UAT-02
+through UAT-12 remain paused, B-09 and B-07
 remain open, B-06 remains closed,
 and Package `1.0.0` and Release preparation are not ready.
 End-to-end local Live and Retrospective Session
@@ -1007,6 +1018,8 @@ The private profile/localization foundation is documented in
 [`docs/local_frontend_profile_and_localization.md`](docs/local_frontend_profile_and_localization.md).
 The grouped Home and Product concepts are documented in
 [`docs/bilingual_home_information_architecture.md`](docs/bilingual_home_information_architecture.md).
+The profile-driven Session, Match, and Learning creation layer is documented in
+[`docs/profile_driven_stateful_creation.md`](docs/profile_driven_stateful_creation.md).
 The authoritative implemented-foundation and remaining bilingual,
 profile-driven frontend UX boundary is in
 [`docs/bilingual_profile_driven_frontend_ux_contract.md`](docs/bilingual_profile_driven_frontend_ux_contract.md).

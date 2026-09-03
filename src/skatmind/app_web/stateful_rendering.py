@@ -10,6 +10,8 @@ from skatmind.session_commands import (
     SESSION_COMMAND_KINDS,
 )
 
+from .friendly_creation_rendering import render_friendly_managed_category_landing_v1
+from .frontend_profile_contracts import LocalFrontendProfileV1
 from .managed_item_contracts import ManagedCategoryViewV1
 from .result_presentation import build_result_presentation_v1
 from .result_rendering import render_result_presentation_v1
@@ -31,128 +33,18 @@ def _bool_select(name: str, label: str, *, default: bool = False) -> str:
     )
 
 
-def _managed_item_card(item) -> str:
-    label = item.display_label or "Invalid managed item"
-    details = "".join(f"<li>{_e(value)}</li>" for value in item.summary)
-    route_family = "learning" if item.family == "corpora" else item.family
-    action = (
-        ""
-        if item.status != "available"
-        else (
-            '<form method="post" action="/{family}/open">'
-            '<input type="hidden" name="handle" value="{handle}">'
-            '<input type="hidden" name="generation" value="{generation}">'
-            '<button type="submit">{action}</button></form>'
-        ).format(
-            family=route_family,
-            handle=_e(item.handle),
-            generation=item.discovery_generation,
-            action="Reopen active item" if item.active else "Open",
-        )
-    )
-    return (
-        f'<article class="managed-item status-{_e(item.status)}">'
-        f"<h3>{_e(label)}</h3><p>{_e(item.status.replace('_', ' '))}</p>"
-        f"<dl><dt>Revision</dt><dd>{_e(item.revision)}</dd>"
-        f"<dt>Phase</dt><dd>{_e(item.phase)}</dd></dl><ul>{details}</ul>{action}</article>"
-    )
-
-
-def _session_create_form() -> str:
-    players = "".join(
-        (
-            f"<fieldset><legend>{seat.title()}</legend>"
-            f'<label>Player ID <input name="player_{index}_id" required></label>'
-            f'<label>Label <input name="player_{index}_label"></label>'
-            "</fieldset>"
-        )
-        for index, seat in enumerate(
-            ("forehand", "middlehand", "rearhand"),
-            start=1,
-        )
-    )
-    return (
-        '<details class="panel"><summary>Create a Session</summary>'
-        '<form method="post" action="/sessions/create" class="form-grid">'
-        '<label>Session ID <input name="session_id" required></label>'
-        '<label>Capture mode <select name="capture_mode">'
-        '<option value="live">Live</option><option value="retrospective">Retrospective</option>'
-        "</select></label>"
-        '<label>Local Player ID for Live capture <input name="local_player_id"></label>'
-        f'{players}<button type="submit">Create and open Session</button></form></details>'
-    )
-
-
-def _match_create_link() -> str:
-    return (
-        '<section class="panel"><h2>Create a Match</h2>'
-        "<p>Use guided EuroSkat 36er Standard setup without writing JSON.</p>"
-        '<p><a class="button-link" href="/matches/new">Create Match</a></p></section>'
-    )
-
-
-def _corpus_create_form() -> str:
-    return (
-        '<section class="panel"><h2>Create a Learning Corpus</h2>'
-        '<form method="post" action="/learning/create" class="form-grid">'
-        '<label>Corpus ID <input name="corpus_id" required></label>'
-        '<button type="submit">Create and open Corpus</button></form></section>'
-    )
-
-
-def _managed_import_form(family: str) -> str:
-    if family == "corpora":
-        return ""
-    singular = "Session" if family == "sessions" else "Match Workspace"
-    file_field = "session_file" if family == "sessions" else "workspace_file"
-    return (
-        f'<section class="panel"><h2>Import {singular}</h2>'
-        f'<form method="post" action="/{family}/import" enctype="multipart/form-data">'
-        f'<label>{singular} JSON <input type="file" name="{file_field}" '
-        'accept="application/json,.json" required></label>'
-        '<button type="submit">Validate, import, and open</button></form></section>'
-    )
-
-
-def render_managed_category_landing_v1(view: ManagedCategoryViewV1) -> str:
-    if type(view) is not ManagedCategoryViewV1:
-        raise ValueError("view must be an exact managed category view.")
-    title = {
-        "sessions": "Managed Sessions",
-        "matches": "Managed Matches",
-        "corpora": "Managed Learning Corpora",
-    }[view.family]
-    create = (
-        _session_create_form()
-        if view.family == "sessions"
-        else _match_create_link()
-        if view.family == "matches"
-        else _corpus_create_form()
-    )
-    current_route = {
-        "sessions": "/sessions/current",
-        "matches": "/matches/current",
-        "corpora": "/learning/current",
-    }[view.family]
-    active = next((item for item in view.items if item.active), None)
-    active_link = (
-        ""
-        if active is None
-        else f'<p><a class="button-link" href="{current_route}">Continue active item</a></p>'
-    )
-    limit = (
-        '<p class="notice warning">Only the first 2,048 direct candidates are shown.</p>'
-        if view.candidate_limit_reached
-        else ""
-    )
-    cards = "".join(_managed_item_card(item) for item in view.items)
-    return (
-        f'<section class="managed-landing"><p class="eyebrow">{_e(title)}</p>'
-        "<p>Discovery is direct, bounded, and explicit. No item is opened or analyzed here.</p>"
-        f"{active_link}{limit}{create}{_managed_import_form(view.family)}"
-        f'<section aria-labelledby="managed-items-heading"><h2 id="managed-items-heading">'
-        f'Available items</h2><div class="managed-item-grid">{cards or "<p>No managed items found.</p>"}</div>'
-        "</section></section>"
+def render_managed_category_landing_v1(
+    view: ManagedCategoryViewV1,
+    *,
+    profile: LocalFrontendProfileV1 | None = None,
+    profile_generation: int = 0,
+    locale: str = "en",
+) -> str:
+    return render_friendly_managed_category_landing_v1(
+        view,
+        profile=profile,
+        profile_generation=profile_generation,
+        locale=locale,
     )
 
 

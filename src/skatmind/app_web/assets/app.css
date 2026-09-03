@@ -45,6 +45,21 @@ textarea:focus-visible {
   outline-offset: 0.2rem;
 }
 
+.error-summary:focus-visible {
+  outline: 0.2rem solid var(--focus);
+  outline-offset: 0.2rem;
+}
+
+.custom-platform-field,
+.media-source-fields {
+  display: none;
+}
+
+label:has(select[name="platform_choice"] option[value="custom"]:checked) + .custom-platform-field,
+label:has(select[name="source_kind"] option:is([value="youtube_video"], [value="other_video"]):checked) ~ .media-source-fields {
+  display: grid;
+}
+
 .skip-link {
   position: fixed;
   z-index: 2;
@@ -623,6 +638,80 @@ thead {
   margin-top: 0;
 }
 
+.friendly-create,
+.managed-landing > section,
+.local-settings {
+  max-width: 64rem;
+}
+
+.friendly-create {
+  margin-top: 1.5rem;
+  padding: clamp(1.1rem, 3vw, 1.8rem);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-top: 0.35rem solid var(--green);
+  border-radius: 0.25rem;
+}
+
+.friendly-create h2,
+.settings-panel h3,
+.known-player-card h4 {
+  margin-top: 0;
+}
+
+.managed-item-grid,
+.known-player-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+  gap: 1rem;
+}
+
+.managed-item,
+.known-player-card,
+.settings-panel {
+  min-width: 0;
+  padding: 1rem;
+  background: #fbf8f0;
+  border: 1px solid var(--line);
+  border-radius: 0.2rem;
+}
+
+.managed-item h3,
+.known-player-card h4 {
+  overflow-wrap: anywhere;
+}
+
+.managed-label-editor,
+.known-player-card details,
+.add-player {
+  margin-top: 1rem;
+  padding: 0.8rem;
+  background: var(--surface);
+  border: 1px solid var(--line);
+}
+
+.local-settings {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.settings-panel textarea {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.remove-player-form {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+}
+
+.remove-player-form button,
+.reset-form button {
+  background: #7e2119;
+  border-color: #5f1711;
+}
+
 .storage-disclosure {
   margin-top: 1.2rem;
 }
@@ -675,6 +764,10 @@ footer p {
   }
 
   .about-grid > section:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .about-grid > section:has(.local-settings) {
     grid-column: 1 / -1;
   }
 }

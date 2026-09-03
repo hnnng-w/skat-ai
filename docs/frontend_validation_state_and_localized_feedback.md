@@ -34,7 +34,7 @@ API exports and are not persisted.
 
 ## Canonical Form Registry
 
-`FRONTEND_FORM_REGISTRY` covers all 38 unified frontend POST routes through 71
+`FRONTEND_FORM_REGISTRY` covers all 44 unified frontend POST routes through 77
 exact definitions. Shared routes are split by their existing discriminator:
 
 ```text
@@ -50,9 +50,11 @@ active context, Review step, upload reselection rule, success redirect, and
 contextual failure page. Registry validation rejects missing routes, orphaned
 routes, duplicate identities, and incomplete Session or Match operation coverage.
 
-The registry excludes revisions, optimistic fingerprints, opaque managed
-handles, tokens, cookies, caller paths, caller filenames, and other hidden
-transport or private state. File inputs and destructive confirmations are never
+The registry excludes revisions, optimistic fingerprints, tokens, cookies,
+caller paths, caller filenames, and other hidden transport or private state.
+Opaque known-Player and managed handles may be retained only as bounded hidden
+or select identity values for exact form targeting; they are never visible IDs
+or raw error text. File inputs and destructive confirmations are never
 retained. Text and repeated values are bounded; fixed select and radio values
 use explicit allowlists; Card selections use canonical Card limits. Omitted
 checkbox and repeated Card groups retain an explicit empty presentation value so
@@ -85,6 +87,7 @@ of these families:
 analyze
 review
 profile
+local_settings
 sessions
 matches
 learning
@@ -110,7 +113,11 @@ Once the originating form is uniquely identified, the failed response renders
 that form rather than a generic error page. Safe values are applied to text
 controls, textareas, checkboxes, radios, repeated Card controls, and selects. The
 Review disclosure containing the exact accepted step and any disclosure
-containing the failed form is opened.
+containing the failed form or failed field is opened. Issue #219 creation errors
+may declare their exact registered field. Repeated Player and managed-label
+forms bind feedback to opaque form identity values so only the rejected item is
+annotated; if that exact item is no longer renderable, a page-level summary is
+used instead.
 
 Each response contains one translated error summary for the rejected form and
 translated field-local messages where a visible control exists. The summary is a
@@ -135,8 +142,10 @@ content is never retained as submitted-form state.
 
 Known exceptions are mapped to a finite localized vocabulary. Unknown validation
 exceptions use one generic Product-rejection message. Browser output therefore
-contains no raw exception text, stack trace, filesystem path, managed handle,
-token, cookie, fingerprint, hidden Card, or uploaded document. Existing escaping,
+contains no raw exception text, stack trace, filesystem path, visible managed or
+Player handle, token, cookie, fingerprint, hidden Card, or uploaded document.
+Opaque handles may remain in bounded hidden/select values and are never copied
+into validation messages. Existing escaping,
 loopback binding, Host/Origin checks, app cookie, Content Security Policy,
 `Referrer-Policy: origin`, no-CORS, and no-external-request boundaries remain
 unchanged.
@@ -153,6 +162,9 @@ limits, feedback lifecycle, exact form-instance targeting, repeated-select order
 German/English render-time translation, accessibility, accepted Result
 retention, contextual Analyze/Review/Session/Match/Learning responses, upload
 reselection, POST/Redirect/GET, standalone regression, and Package discovery.
+Issue #219 adds profile-driven creation/settings, language-switch retention,
+exact repeated-form identity, Advanced-field opening, and Product-first/profile-
+second failure coverage.
 
 ## Current Boundary
 
@@ -162,7 +174,9 @@ remediates `UAT-FINDING-001`. Its assigned implementation for
 maintainer UAT-01. UAT-02 through UAT-12 remain paused; B-09 and B-07 remain
 open; Package `1.0.0` and Release preparation remain not ready.
 
-Issue #219 is the exact next action. It owns profile-driven Session, Match, and
-Learning creation, friendly normal fields, generated internal IDs, known-Player
-selection, and saved defaults. Issue #220 retains task-first stateful layout and
-complete workflow translation ownership.
+Issue #219 integrates profile-driven Session, Match, and Learning creation,
+friendly fields, generated internal IDs, known-Player selection, saved defaults,
+and local display labels into this validation layer. Its implementation is
+documented in [Profile-driven stateful creation](profile_driven_stateful_creation.md).
+Issue #220 is the exact next action and retains task-first active-workflow layout
+and complete workflow translation ownership.

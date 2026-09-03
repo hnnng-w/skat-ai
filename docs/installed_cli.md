@@ -419,7 +419,11 @@ fingerprints, provenance entries, or file contents by default. The Match and
 Learning Corpus browsers are private loopback-only local transports. The current
 Package includes the unified local application shell, process-local guided
 Analyze/Review workflows, and Issue #212 managed Session, Match, and Learning
-lifecycles over the existing authoritative persistence and operations. The
+lifecycles over the existing authoritative persistence and operations. Bare and
+explicit `app` launch also expose the Issue-#219 private profile-driven creation,
+known-Player/default settings, generated frontend identities, friendly labels,
+and secondary imports documented in [Profile-driven stateful
+creation](profile_driven_stateful_creation.md). The
 standalone `session`, `capture`, and `corpus` commands remain supported advanced
 interfaces. Hosted or remote browser deployment, online-platform integration,
 cloud synchronization, distributed locking, encryption/key management, and

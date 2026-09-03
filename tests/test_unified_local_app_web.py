@@ -10,7 +10,6 @@ from pathlib import Path
 from urllib.parse import urlencode
 
 import pytest
-from test_local_match_capture_web import _creation_values
 from test_match_decision_review_preparation import _workspace_with_partial_game
 
 from skatmind.app_web.context import AppWebContextV1
@@ -323,9 +322,9 @@ def test_guided_and_managed_stateful_pages_are_available(
         assert "Issue #" not in html
 
     expected_stateful_text = {
-        "/sessions": "Create a Session",
+        "/sessions": "Create a game",
         "/matches": "Create a Match",
-        "/learning": "Create a Learning Corpus",
+        "/learning": "Create learning collection",
     }
     for route, expected in expected_stateful_text.items():
         status, _headers, body = _request(server, "GET", route, headers={"Cookie": cookie})
@@ -422,6 +421,78 @@ def _post_form(
     )
 
 
+def _profile_generation(server: SkatMindAppWebServerV1) -> str:
+    with server.app_context.lock:
+        return str(server.app_context.frontend_profile.generation)
+
+
+def _session_creation_values(
+    server: SkatMindAppWebServerV1,
+    *,
+    game_name: str,
+    capture_mode: str = "retrospective",
+) -> dict[str, str]:
+    return {
+        "game_name": game_name,
+        "capture_mode": capture_mode,
+        "player_1_handle": "",
+        "player_1_name": "Alice",
+        "player_2_handle": "",
+        "player_2_name": "Bob",
+        "player_3_handle": "",
+        "player_3_name": "Carol",
+        "perspective_seat": "",
+        "save_players": "false",
+        "save_preferences": "false",
+        "profile_generation": _profile_generation(server),
+    }
+
+
+def _learning_creation_values(
+    server: SkatMindAppWebServerV1,
+    *,
+    collection_name: str,
+) -> dict[str, str]:
+    return {
+        "collection_name": collection_name,
+        "profile_generation": _profile_generation(server),
+    }
+
+
+def _match_creation_values(
+    server: SkatMindAppWebServerV1,
+    *,
+    match_title: str,
+) -> dict[str, str]:
+    return {
+        "match_title": match_title,
+        "played_date": "",
+        "platform_choice": "euroskat",
+        "custom_platform": "",
+        "player_1_handle": "",
+        "player_1_name": "Alice",
+        "player_2_handle": "",
+        "player_2_name": "Bob",
+        "player_3_handle": "",
+        "player_3_name": "Carol",
+        "perspective_seat": "forehand",
+        "source_url": "",
+        "external_match_id": "",
+        "player_1_platform_id": "",
+        "player_2_platform_id": "",
+        "player_3_platform_id": "",
+        "source_kind": "",
+        "source_title": "",
+        "source_channel_name": "",
+        "played_at": "",
+        "match_timecode_start": "",
+        "match_timecode_end": "",
+        "save_players": "false",
+        "save_preferences": "false",
+        "profile_generation": _profile_generation(server),
+    }
+
+
 def test_managed_session_http_lifecycle_command_and_download(
     running_app_server: SkatMindAppWebServerV1,
 ) -> None:
@@ -431,17 +502,7 @@ def test_managed_session_http_lifecycle_command_and_download(
         server,
         "/sessions/create",
         mutation_headers,
-        {
-            "session_id": "web-session",
-            "capture_mode": "retrospective",
-            "local_player_id": "",
-            "player_1_id": "alice",
-            "player_1_label": "Alice",
-            "player_2_id": "bob",
-            "player_2_label": "Bob",
-            "player_3_id": "carol",
-            "player_3_label": "Carol",
-        },
+        _session_creation_values(server, game_name="Web game"),
     )
     assert status == 303 and headers["location"] == "/sessions/current"
     active_session = server.app_context.managed_stateful.active_session
@@ -469,7 +530,7 @@ def test_managed_session_http_lifecycle_command_and_download(
     )
     html = body.decode("utf-8")
     assert status == 200
-    assert "web-session" in html and "web-game" in html
+    assert "web-game" in html
     assert html.count('action="/sessions/command"') == 10
 
     status, headers, body = _request(
@@ -488,21 +549,11 @@ def test_managed_session_form_is_rejected_after_active_item_switch(
 ) -> None:
     server = running_app_server
     _cookie, mutation_headers = _bootstrap(server)
-    create_values = {
-        "capture_mode": "retrospective",
-        "local_player_id": "",
-        "player_1_id": "alice",
-        "player_1_label": "Alice",
-        "player_2_id": "bob",
-        "player_2_label": "Bob",
-        "player_3_id": "carol",
-        "player_3_label": "Carol",
-    }
     status, _headers, _body = _post_form(
         server,
         "/sessions/create",
         mutation_headers,
-        {**create_values, "session_id": "first-session"},
+        _session_creation_values(server, game_name="First game"),
     )
     assert status == 303
     first = server.app_context.managed_stateful.active_session
@@ -511,7 +562,7 @@ def test_managed_session_form_is_rejected_after_active_item_switch(
         server,
         "/sessions/create",
         mutation_headers,
-        {**create_values, "session_id": "second-session"},
+        _session_creation_values(server, game_name="Second game"),
     )
     assert status == 303
     second = server.app_context.managed_stateful.active_session
@@ -545,17 +596,7 @@ def test_unavailable_session_analysis_rerenders_context_without_raw_notice(
         server,
         "/sessions/create",
         mutation_headers,
-        {
-            "session_id": "unavailable-analysis",
-            "capture_mode": "retrospective",
-            "local_player_id": "",
-            "player_1_id": "alice",
-            "player_1_label": "Alice",
-            "player_2_id": "bob",
-            "player_2_label": "Bob",
-            "player_3_id": "carol",
-            "player_3_label": "Carol",
-        },
+        _session_creation_values(server, game_name="Unavailable analysis"),
     )
     assert status == 303
     active = server.app_context.managed_stateful.active_session
@@ -591,17 +632,7 @@ def test_shared_route_parse_failure_targets_submitted_session_command(
         server,
         "/sessions/create",
         mutation_headers,
-        {
-            "session_id": "malformed-command",
-            "capture_mode": "retrospective",
-            "local_player_id": "",
-            "player_1_id": "alice",
-            "player_1_label": "Alice",
-            "player_2_id": "bob",
-            "player_2_label": "Bob",
-            "player_3_id": "carol",
-            "player_3_label": "Carol",
-        },
+        _session_creation_values(server, game_name="Malformed command"),
     )
     assert status == 303
     active = server.app_context.managed_stateful.active_session
@@ -670,7 +701,7 @@ def test_form_agnostic_multipart_failure_never_renders_parser_input(
         server,
         "/learning/create",
         mutation_headers,
-        {"corpus_id": "safe-parser-errors"},
+        _learning_creation_values(server, collection_name="Safe parser errors"),
     )
     assert status == 303
     marker = b"private-multipart-field-marker"
@@ -708,17 +739,11 @@ def test_stateful_creation_errors_rerender_originating_forms_without_activation(
         server,
         "/sessions/create",
         mutation_headers,
-        {
-            "session_id": "retained-session",
-            "capture_mode": "invalid",
-            "local_player_id": "",
-            "player_1_id": "alice",
-            "player_1_label": "Alice",
-            "player_2_id": "bob",
-            "player_2_label": "Bob",
-            "player_3_id": "carol",
-            "player_3_label": "Carol",
-        },
+        _session_creation_values(
+            server,
+            game_name="Retained session",
+            capture_mode="invalid",
+        ),
     )
     assert status == 400
     with server.app_context.lock:
@@ -729,25 +754,28 @@ def test_stateful_creation_errors_rerender_originating_forms_without_activation(
     assert retained is not None and retained.form_key == "session.create"
     assert b'action="/sessions/create"' in body
     assert b"Check the submitted form" in body
-    assert b'value="retained-session"' in body
+    assert b'value="Retained session"' in body
     assert server.app_context.managed_stateful.active_session is None
 
     status, _headers, body = _post_form(
         server,
         "/matches/api/v1/create",
         mutation_headers,
-        {"match_id": "retained-match"},
+        {
+            **_match_creation_values(server, match_title="Retained match"),
+            "perspective_seat": "",
+        },
     )
     assert status == 400
     assert b"Check the submitted form" in body
-    assert b'value="retained-match"' in body
+    assert b'value="Retained match"' in body
     assert server.app_context.managed_stateful.active_match is None
 
     status, _headers, body = _post_form(
         server,
         "/learning/create",
         mutation_headers,
-        {"corpus_id": " "},
+        _learning_creation_values(server, collection_name=" "),
     )
     assert status == 400
     assert b"Check the submitted form" in body
@@ -764,7 +792,7 @@ def test_learning_validation_is_contextual_and_success_remains_prg(
         server,
         "/learning/create",
         mutation_headers,
-        {"corpus_id": "validation-corpus"},
+        _learning_creation_values(server, collection_name="Validation collection"),
     )
     assert status == 303 and headers["location"] == "/learning/current" and body == b""
     active = server.app_context.managed_stateful.active_learning
@@ -809,7 +837,7 @@ def test_managed_match_learning_and_explicit_transfer_http_lifecycle(
         server,
         "/learning/create",
         mutation_headers,
-        {"corpus_id": "web-corpus"},
+        _learning_creation_values(server, collection_name="Web collection"),
     )
     assert status == 303 and headers["location"] == "/learning/current"
     learning = server.app_context.managed_stateful.active_learning
@@ -830,7 +858,7 @@ def test_managed_match_learning_and_explicit_transfer_http_lifecycle(
         server,
         "/matches/api/v1/create",
         mutation_headers,
-        _creation_values(match_id="web-match"),
+        _match_creation_values(server, match_title="Web match"),
     )
     assert status == 303 and headers["location"] == "/matches/position/1"
     match = server.app_context.managed_stateful.active_match
@@ -882,7 +910,8 @@ def test_managed_match_learning_and_explicit_transfer_http_lifecycle(
     state = json.loads(body)
     assert status == 200
     assert state["corpus"]["logical_match_count"] == 1
-    assert state["current_match_snapshots"][0]["match_id"] == "web-match"
+    match_id = match.workspace.match_definition.match_id
+    assert state["current_match_snapshots"][0]["match_id"] == match_id
 
     status, _headers, body = _post_form(
         server,
@@ -905,7 +934,7 @@ def test_managed_match_learning_and_explicit_transfer_http_lifecycle(
         server,
         "/learning/create",
         mutation_headers,
-        {"corpus_id": "replacement-corpus"},
+        _learning_creation_values(server, collection_name="Replacement collection"),
     )
     assert status == 303
     with server.app_context.lock:
@@ -925,7 +954,7 @@ def test_managed_match_learning_and_explicit_transfer_http_lifecycle(
     )
     assert status == 200
     assert headers["content-disposition"].endswith('"skatmind-managed-match.json"')
-    assert json.loads(body)["workspace"]["match_definition"]["match_id"] == "web-match"
+    assert json.loads(body)["workspace"]["match_definition"]["match_id"] == match_id
 
 
 def test_rejected_report_transfer_rerenders_the_originating_report_form(
@@ -1096,35 +1125,29 @@ def test_browser_policy_allows_same_origin_review_session_match_and_corpus_posts
     assert "access-control-allow-origin" not in headers
 
     same_origin_actions = (
-        ("/actions/review/start", {"revision": "0"}, "/review"),
+        ("/actions/review/start", lambda: {"revision": "0"}, "/review"),
         (
             "/sessions/create",
-            {
-                "session_id": "policy-session",
-                "capture_mode": "retrospective",
-                "local_player_id": "",
-                "player_1_id": "alice",
-                "player_1_label": "Alice",
-                "player_2_id": "bob",
-                "player_2_label": "Bob",
-                "player_3_id": "carol",
-                "player_3_label": "Carol",
-            },
+            lambda: _session_creation_values(server, game_name="Policy game"),
             "/sessions/current",
         ),
-        ("/learning/create", {"corpus_id": "policy-corpus"}, "/learning/current"),
+        (
+            "/learning/create",
+            lambda: _learning_creation_values(server, collection_name="Policy collection"),
+            "/learning/current",
+        ),
         (
             "/matches/api/v1/create",
-            _creation_values(match_id="policy-match"),
+            lambda: _match_creation_values(server, match_title="Policy match"),
             "/matches/position/1",
         ),
     )
-    for route, values, location in same_origin_actions:
+    for route, build_values, location in same_origin_actions:
         status, headers, _body = _post_form(
             server,
             route,
             mutation_headers,
-            values,
+            build_values(),
         )
         assert status == 303
         assert headers["location"] == location

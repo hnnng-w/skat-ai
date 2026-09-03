@@ -350,4 +350,7 @@ current/retrospective and one-completed-Game guidance plus safe related links
 outside that English region without changing either workflow. Issue #218 adds
 accepted-versus-submitted state separation, safe rejected-value preservation,
 and localized accessible contextual validation without changing workflow
-execution. Issue #219 is the exact next action.
+execution. Issue #219 changes only private stateful creation, profile settings,
+and managed display presentation; it does not change Analyze or Review execution.
+See [Profile-driven stateful creation](profile_driven_stateful_creation.md).
+Issue #220 is the exact next action.

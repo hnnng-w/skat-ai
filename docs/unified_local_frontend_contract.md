@@ -16,6 +16,9 @@ common-shell slice documented in
 Issue #217 implements grouped Home/Product concepts, and Issue #218 implements
 validation preservation and localized feedback documented in
 [Frontend validation state and localized feedback](frontend_validation_state_and_localized_feedback.md).
+Issue #219 implements private profile-driven Session/Match/Learning creation,
+known Players, generated identities, saved defaults, and display labels as
+documented in [Profile-driven stateful creation](profile_driven_stateful_creation.md).
 
 This document remains authoritative for the implemented version-1 frontend.
 The authoritative implemented-foundation and remaining bilingual, profile-driven
@@ -33,14 +36,14 @@ Approved target contract:
     the complete required behavior frozen by Issue #209
 
 Implemented behavior:
-    the Issue #209 target plus the Issue #216 through #218 profile,
-    information-architecture, and validation-preservation slices
+    the Issue #209 target plus the Issue #216 through #219 profile,
+    information-architecture, validation-preservation, and creation slices
 ```
 
 Current executable contracts, Public APIs, persistence formats, browser
 protocols, Schemas, and information controls remain authoritative while the
 implemented target remains in use. Issue #209 changed none of them; Issues #210
-through #218 add only their assigned private frontend and onboarding boundaries.
+through #219 add only their assigned private frontend and onboarding boundaries.
 
 ## UAT source
 
@@ -736,6 +739,8 @@ and [Guided analysis and Results](unified_local_frontend_guided_analysis_and_res
 and [Managed stateful workflows](unified_local_frontend_stateful_workflows.md)
 and [Advanced CLI automation](advanced_cli_automation_interface.md) for the
 implemented boundaries.
+The later profile-driven creation implementation is documented separately in
+[Profile-driven stateful creation](profile_driven_stateful_creation.md).
 
 ## UAT repetition and Release state
 
@@ -786,12 +791,16 @@ full workflow translation remains incomplete, and its Ubuntu follow-up passed.
 Issue #217 implements the grouped bilingual Home and Product-concept slice, and
 Issue #218 implements registered contextual validation with safe submitted-value,
 workflow-context, Result, wizard-step, and language-switch preservation.
+Issue #219 implements private known Players, generated identities, local
+defaults/display labels, and friendly bilingual Session/Match/Learning creation.
 UAT-FINDING-001 is further partially remediated and open; UAT-FINDING-003 has its
 Home/concept remediation implemented and remains open pending Issue #220 and
-repeated UAT-01; UAT-FINDING-007 remains open; and UAT-FINDING-008 has bilingual
-Home/concept coverage and remains open pending Issue #220. UAT-FINDING-006 has
+repeated UAT-01; UAT-FINDING-007 has its profile/default/creation scope
+implemented and remains open pending Issue #220; and UAT-FINDING-008 has
+bilingual Home/concept/creation coverage and remains open pending Issue #220. UAT-FINDING-006 has
 its Issue #218 implementation complete and remains open pending repeated UAT-01.
-Issue #219 is the exact next action.
+The creation-form scope of UAT-FINDING-005 is implemented but remains open for
+relevant Issue-#220 views and repeated UAT-01. Issue #220 is the exact next action.
 
 UAT-02 through UAT-12 remain paused. Frontend work remains part of B-09 outside
 the technical ledger and must not reopen B-06. B-07 remains open.

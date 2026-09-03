@@ -389,8 +389,10 @@ bilingual common shell without changing the 53-row ledger. Its narrow parser and
 matrix-smoke corrections passed both required Ubuntu jobs. Issue #217 implements
 the grouped bilingual Home and Product concepts without changing any row
 classification. Issue #218 implements private frontend validation preservation
-and localized feedback without changing any row classification. Issue #219 is
-the exact next action. Issue #208 remains open; UAT-02 through
+and localized feedback without changing any row classification. Issue #219
+implements private profile-driven stateful creation, generated frontend
+identities, local Players/defaults/labels, and secondary imports without changing
+any row classification. Issue #220 is the exact next action. Issue #208 remains open; UAT-02 through
 UAT-12 remain paused; B-09 and B-07 remain open; B-06 remains closed; and
 Package `1.0.0` and Release preparation are not ready.
 
@@ -900,6 +902,8 @@ bilingual common-shell subset and changes no traceability classification. Its
 follow-up passed. Issue #217 implements the private information-architecture
 subset and likewise changes no classification. Issue #218 implements the private
 validation-preservation subset and likewise changes no classification. Issue
-#219 is next. Issue #208 remains
+#219 implements the private profile-driven creation subset and likewise creates
+no 54th row or classification change; see [Profile-driven stateful
+creation](profile_driven_stateful_creation.md). Issue #220 is next. Issue #208 remains
 open; UAT-02 through UAT-12 remain paused; B-09 and B-07 remain open; B-06
 remains closed; and Package `1.0.0` and Release preparation are not ready.

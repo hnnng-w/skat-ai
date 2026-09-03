@@ -57,6 +57,7 @@ def test_versions_policy_vocabulary_and_implemented_subset_are_exact() -> None:
         "one_private_local_frontend_profile_per_managed_data_root",
         "saved_language_overrides_browser_language",
         "browser_language_bootstraps_only_without_saved_preference",
+        "user_facing_names_replace_required_manual_internal_ids",
         "validation_preserves_safe_values_and_workflow_context",
         "home_separates_record_analyze_learn_and_product_information",
         "language_and_profile_never_change_product_semantics",
@@ -118,7 +119,7 @@ def test_catalog_resources_are_strict_ordered_and_have_exact_parity() -> None:
     assert tuple(catalogs) == ("de", "en")
     assert tuple(catalogs["de"]) == tuple(catalogs["en"])
     assert tuple(catalogs["en"]) == tuple(sorted(catalogs["en"]))
-    assert len(catalogs["en"]) == 314
+    assert len(catalogs["en"]) == 463
     for locale in SUPPORTED_FRONTEND_LOCALES:
         raw = files("skatmind.app_web").joinpath(f"locales/{locale}.json").read_bytes()
         assert not raw.startswith(b"\xef\xbb\xbf")

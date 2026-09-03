@@ -1549,6 +1549,7 @@ Main documentation files:
 * `docs/bilingual_profile_driven_frontend_ux_contract.md`
 * `docs/local_frontend_profile_and_localization.md`
 * `docs/bilingual_home_information_architecture.md`
+* `docs/profile_driven_stateful_creation.md`
 * `docs/roadmap.md`
 * `docs/project_handoff.md`
 
@@ -1767,7 +1768,11 @@ implemented/open pending Issue #220 and repeated UAT-01; and UAT-FINDING-008 has
 bilingual Home and concept coverage implemented/open pending Issue #220. Issue
 #218 implements private safe form-state preservation and localized accessible
 validation feedback. UAT-FINDING-006 has its implementation complete but remains
-open pending repeated UAT-01. Issue #219 is the exact next action. Issue #208
+open pending repeated UAT-01. Issue #219 implements private known Players,
+generated frontend identities, saved creation defaults and display labels,
+bilingual name-first Session/Match/Learning creation, secondary JSON transfer,
+and Product-first/profile-second persistence semantics. Issue #220 is the exact
+next action. Issue #208
 remains open, UAT-02 through
 UAT-12 remain paused, B-09 and B-07 remain open, B-06 remains closed, and
 Package `1.0.0` and Release preparation are not ready.
@@ -2288,10 +2293,10 @@ Completed implementation scope:
   review export, automatic Checkpoint collection, all 12 CLI subcommands,
   explicit Position/Historical execution, the Assistant, examples, and generated
   outputs are implemented. Export-only operations execute no workflow, and the
-  reusable Application still has only seven Root workflows. Session GUI/browser
-  UI remains absent in the current Product. Issue #209 approves its future
-  integration in one unified local frontend as B-09 remediation outside the
-  completed technical ledger. Online-platform adapters, cloud synchronization,
+  reusable Application still has only seven Root workflows. Issue #212 adds the
+  managed Session browser, and Issue #219 adds profile-driven name-first creation
+  with generated private identities without changing the Public Session or file
+  APIs. Online-platform adapters, cloud synchronization,
   distributed locking, encryption/key management, and automatic backups remain
   absent.
 * Opponent behavior and confidence remain heuristic and rule-based; behavioral evaluation does not prove stronger play.
@@ -2371,7 +2376,9 @@ implements canonical registered form metadata, rejected-submission state
 separate from accepted workflow/Product state, bounded safe-value preservation,
 localized accessible contextual feedback, and successful PRG. Issue #219,
 "Reduce setup friction with generated IDs, known-player selection, and saved
-defaults," is the exact next action.
+defaults," is implemented in [Profile-driven stateful
+creation](profile_driven_stateful_creation.md). Issue #220, "Add task-first
+bilingual Session, Match, and Learning workflows," is the exact next action.
 
 Maintainer Microsoft Edge verification resolved Issue #214 and
 UAT-FINDING-004. Repeated UAT-01 nevertheless failed. Issue #208 remains open;
@@ -2389,6 +2396,8 @@ and the Issue #217 slice is documented in
 [Bilingual Home information architecture](bilingual_home_information_architecture.md).
 Issue #218 is documented in
 [Frontend validation state and localized feedback](frontend_validation_state_and_localized_feedback.md).
+Issue #219 is documented in [Profile-driven stateful
+creation](profile_driven_stateful_creation.md).
 
 Keep immutable imported Workspace Snapshots separate from derived artifacts.
 Public Match/Corpus/Dataset-v2 surfaces, derived persistence, broader Player

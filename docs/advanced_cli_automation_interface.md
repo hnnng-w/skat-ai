@@ -301,4 +301,7 @@ foundation. Existing advanced CLI contracts remain English and unchanged. The
 Issue #216 follow-up and both required Ubuntu jobs passed. Issue #217 implements
 the separate grouped bilingual Home and Product-concept presentation without
 changing this CLI. Issue #218 implements separate private browser validation
-preservation without changing this CLI. Issue #219 is the exact next action.
+preservation without changing this CLI. Issue #219 implements separate private
+unified-browser profile-driven creation without changing CLI automation; see
+[Profile-driven stateful creation](profile_driven_stateful_creation.md). Issue
+#220 is the exact next action.

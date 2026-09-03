@@ -6,6 +6,7 @@ from importlib.resources import files
 from pathlib import Path
 
 from .contracts import APP_ROUTE_PATHS, BrowserSafeApplicationStateV1
+from .frontend_profile_contracts import LocalFrontendProfileV1
 from .frontend_profile_operations import (
     FRONTEND_LANGUAGE_ACTION_ROUTE,
     FRONTEND_PROFILE_RESET_ACTION_ROUTE,
@@ -20,6 +21,7 @@ from .information_architecture import (
     validate_frontend_information_architecture_v1,
 )
 from .localization_contracts import BrowserSafeFrontendProfileStateV1
+from .profile_settings_rendering import render_local_settings_v1
 from .translation_catalog import translate_frontend_message_v1
 from .workflow_state import ProcessLocalFrontendWorkflowStateV1
 
@@ -54,11 +56,7 @@ def _default_frontend_state() -> BrowserSafeFrontendProfileStateV1:
 
 
 def _template() -> str:
-    return (
-        files("skatmind.app_web")
-        .joinpath("templates/app.html")
-        .read_text(encoding="utf-8")
-    )
+    return files("skatmind.app_web").joinpath("templates/app.html").read_text(encoding="utf-8")
 
 
 def _text(
@@ -101,8 +99,8 @@ def _language_selector(
     options = "".join(
         (
             f'<option value="{locale}"'
-            f'{" selected" if frontend.locale == locale else ""}>'
-            f'{_translated(frontend, f"common.language.{locale}")}</option>'
+            f"{' selected' if frontend.locale == locale else ''}>"
+            f"{_translated(frontend, f'common.language.{locale}')}</option>"
         )
         for locale in ("de", "en")
     )
@@ -110,7 +108,7 @@ def _language_selector(
         f'<form class="language-selector" method="post" '
         f'action="{FRONTEND_LANGUAGE_ACTION_ROUTE}" '
         f'aria-label="{_translated(frontend, "language.selector_label")}">'
-        f'<label><span>{_translated(frontend, "language.select_label")}</span>'
+        f"<label><span>{_translated(frontend, 'language.select_label')}</span>"
         f'<select name="language">{options}</select></label>'
         f'<input type="hidden" name="profile_generation" '
         f'value="{frontend.profile_generation}">'
@@ -140,19 +138,19 @@ def _home(
     ):
         route = task_routes[task_key]
         scope_items.append(
-            f'<dt>{_translated(frontend, f"home.scope_guide.{scope_key}.unit")}</dt>'
+            f"<dt>{_translated(frontend, f'home.scope_guide.{scope_key}.unit')}</dt>"
             f'<dd><a href="{escape(route, quote=True)}">'
-            f'{_translated(frontend, f"home.scope_guide.{scope_key}.action")}</a> '
-            f'{_translated(frontend, f"home.scope_guide.{scope_key}.description")}</dd>'
+            f"{_translated(frontend, f'home.scope_guide.{scope_key}.action')}</a> "
+            f"{_translated(frontend, f'home.scope_guide.{scope_key}.description')}</dd>"
         )
     scope_guide = (
         '<section class="scope-guide" aria-labelledby="scope-guide-heading">'
         f'<h2 id="scope-guide-heading">'
-        f'{_translated(frontend, "home.scope_guide.heading")}</h2>'
-        f'<p>{_translated(frontend, "home.scope_guide.introduction")}</p>'
+        f"{_translated(frontend, 'home.scope_guide.heading')}</h2>"
+        f"<p>{_translated(frontend, 'home.scope_guide.introduction')}</p>"
         f'<dl class="scope-guide-list">{"".join(scope_items)}</dl>'
         f'<p class="scope-distinction">'
-        f'{_translated(frontend, "home.scope_guide.distinction")}</p></section>'
+        f"{_translated(frontend, 'home.scope_guide.distinction')}</p></section>"
     )
 
     groups = []
@@ -166,34 +164,34 @@ def _home(
             prefix = f"home.task.{task_key}"
             cards.append(
                 '<article class="task-card">'
-                f'<h3>{_translated(frontend, f"{prefix}.title")}</h3>'
+                f"<h3>{_translated(frontend, f'{prefix}.title')}</h3>"
                 f'<p class="task-summary">{_translated(frontend, f"{prefix}.summary")}</p>'
                 '<dl class="task-scope">'
-                f'<dt>{_translated(frontend, "home.details.unit")}</dt>'
-                f'<dd>{_translated(frontend, f"{prefix}.unit")}</dd>'
-                f'<dt>{_translated(frontend, "home.details.timing")}</dt>'
-                f'<dd>{_translated(frontend, f"{prefix}.timing")}</dd></dl>'
+                f"<dt>{_translated(frontend, 'home.details.unit')}</dt>"
+                f"<dd>{_translated(frontend, f'{prefix}.unit')}</dd>"
+                f"<dt>{_translated(frontend, 'home.details.timing')}</dt>"
+                f"<dd>{_translated(frontend, f'{prefix}.timing')}</dd></dl>"
                 '<details class="task-disclosure"><summary>'
-                f'{_translated(frontend, "home.details.more")}</summary>'
+                f"{_translated(frontend, 'home.details.more')}</summary>"
                 '<dl class="task-details">'
-                f'<dt>{_translated(frontend, "home.details.when")}</dt>'
-                f'<dd>{_translated(frontend, f"{prefix}.when")}</dd>'
-                f'<dt>{_translated(frontend, "home.details.required")}</dt>'
-                f'<dd>{_translated(frontend, f"{prefix}.required")}</dd>'
-                f'<dt>{_translated(frontend, "home.details.storage")}</dt>'
-                f'<dd>{_translated(frontend, f"{prefix}.storage")}</dd>'
-                f'<dt>{_translated(frontend, "home.details.result")}</dt>'
-                f'<dd>{_translated(frontend, f"{prefix}.result")}</dd></dl></details>'
+                f"<dt>{_translated(frontend, 'home.details.when')}</dt>"
+                f"<dd>{_translated(frontend, f'{prefix}.when')}</dd>"
+                f"<dt>{_translated(frontend, 'home.details.required')}</dt>"
+                f"<dd>{_translated(frontend, f'{prefix}.required')}</dd>"
+                f"<dt>{_translated(frontend, 'home.details.storage')}</dt>"
+                f"<dd>{_translated(frontend, f'{prefix}.storage')}</dd>"
+                f"<dt>{_translated(frontend, 'home.details.result')}</dt>"
+                f"<dd>{_translated(frontend, f'{prefix}.result')}</dd></dl></details>"
                 f'<p class="task-action"><a class="button-link" '
                 f'href="{escape(route, quote=True)}">'
-                f'{_translated(frontend, f"{prefix}.action")}</a></p></article>'
+                f"{_translated(frontend, f'{prefix}.action')}</a></p></article>"
             )
         heading_id = f"home-group-{group_key}"
         groups.append(
             f'<section class="home-group" aria-labelledby="{heading_id}">'
             f'<h2 id="{heading_id}">'
-            f'{_translated(frontend, f"home.group.{group_key}.title")}</h2>'
-            f'<p>{_translated(frontend, f"home.group.{group_key}.description")}</p>'
+            f"{_translated(frontend, f'home.group.{group_key}.title')}</h2>"
+            f"<p>{_translated(frontend, f'home.group.{group_key}.description')}</p>"
             f'<div class="task-grid">{"".join(cards)}</div></section>'
         )
     content = (
@@ -210,16 +208,14 @@ def _related_areas(
 ) -> str:
     task_routes = dict(HOME_TASK_ROUTE_MAPPINGS)
     source_task = next(
-        task_key
-        for task_key, task_route in HOME_TASK_ROUTE_MAPPINGS
-        if task_route == route
+        task_key for task_key, task_route in HOME_TASK_ROUTE_MAPPINGS if task_route == route
     )
     related = dict(HOME_RELATED_TASK_MEMBERSHIP).get(source_task, ())
     if not related:
         return ""
     links = "".join(
         f'<li><a href="{escape(task_routes[task_key], quote=True)}">'
-        f'{_translated(frontend, f"related.{task_key}")}</a></li>'
+        f"{_translated(frontend, f'related.{task_key}')}</a></li>"
         for task_key in related
     )
     return (
@@ -237,24 +233,24 @@ def _workflow_concept(
     steps = ""
     if route == "/learning":
         steps = (
-            f'<h3>{_translated(frontend, "concept.learning.steps.heading")}</h3>'
+            f"<h3>{_translated(frontend, 'concept.learning.steps.heading')}</h3>"
             '<ol class="learning-steps">'
             + "".join(
-                f'<li>{_translated(frontend, f"concept.learning.steps.{step}")}</li>'
+                f"<li>{_translated(frontend, f'concept.learning.steps.{step}')}</li>"
                 for step in ("record", "add", "select", "build", "review")
             )
             + "</ol>"
-            f'<p>{_translated(frontend, "concept.learning.automatic")}</p>'
+            f"<p>{_translated(frontend, 'concept.learning.automatic')}</p>"
         )
     return (
         f'<section class="concept-guide" aria-labelledby="concept-{concept_key}-heading">'
         f'<p class="eyebrow">{_translated(frontend, f"concept.{concept_key}.scope")}</p>'
         f'<h2 id="concept-{concept_key}-heading">'
-        f'{_translated(frontend, f"concept.{concept_key}.heading")}</h2>'
+        f"{_translated(frontend, f'concept.{concept_key}.heading')}</h2>"
         f'<p class="concept-timing">'
-        f'{_translated(frontend, f"concept.{concept_key}.timing")}</p>'
-        f'<p>{_translated(frontend, f"concept.{concept_key}.description")}</p>'
-        f'<p>{_translated(frontend, f"concept.{concept_key}.detail")}</p>'
+        f"{_translated(frontend, f'concept.{concept_key}.timing')}</p>"
+        f"<p>{_translated(frontend, f'concept.{concept_key}.description')}</p>"
+        f"<p>{_translated(frontend, f'concept.{concept_key}.detail')}</p>"
         f"{steps}</section>{_related_areas(route, frontend)}"
     )
 
@@ -269,9 +265,9 @@ def _empty_state(
     return (
         f'<section class="guided-empty-state" aria-labelledby="empty-{empty_state_key}-heading">'
         f'<h2 id="empty-{empty_state_key}-heading">'
-        f'{_translated(frontend, f"{prefix}.heading")}</h2>'
-        f'<p>{_translated(frontend, f"{prefix}.description")}</p>'
-        f'<p>{_translated(frontend, f"{prefix}.next")}</p></section>'
+        f"{_translated(frontend, f'{prefix}.heading')}</h2>"
+        f"<p>{_translated(frontend, f'{prefix}.description')}</p>"
+        f"<p>{_translated(frontend, f'{prefix}.next')}</p></section>"
     )
 
 
@@ -283,39 +279,48 @@ def _placeholder(
     return title, (
         '<section class="placeholder" aria-labelledby="placeholder-status">'
         '<p id="placeholder-status" class="task-status available">'
-        f'<span>{_translated(frontend, "status.label")}:</span> '
-        f'{_translated(frontend, "placeholder.available")}</p>'
+        f"<span>{_translated(frontend, 'status.label')}:</span> "
+        f"{_translated(frontend, 'placeholder.available')}</p>"
         f'<p><a class="back-link" href="/">'
-        f'{_translated(frontend, "placeholder.return")}</a></p>'
+        f"{_translated(frontend, 'placeholder.return')}</a></p>"
         "</section>"
     )
 
 
-def _profile_about_section(frontend: BrowserSafeFrontendProfileStateV1) -> str:
+def _profile_about_section(
+    frontend: BrowserSafeFrontendProfileStateV1,
+    profile: LocalFrontendProfileV1 | None,
+) -> str:
     language = _translated(frontend, f"common.language.{frontend.locale}")
     source = _translated(frontend, f"profile.source.{frontend.resolution_source}")
     status = _translated(frontend, f"profile.status.{frontend.profile_status}")
     return (
         '<section aria-labelledby="profile-heading">'
         f'<h2 id="profile-heading">{_translated(frontend, "about.profile.heading")}</h2>'
-        f'<p>{_translated(frontend, "about.profile.private")}</p>'
-        f'<p>{_translated(frontend, "about.profile.no_cloud")}</p>'
+        f"<p>{_translated(frontend, 'about.profile.private')}</p>"
+        f"<p>{_translated(frontend, 'about.profile.no_cloud')}</p>"
         '<dl class="about-list">'
-        f'<dt>{_translated(frontend, "about.profile.current_language")}</dt>'
+        f"<dt>{_translated(frontend, 'about.profile.current_language')}</dt>"
         f"<dd>{language}</dd>"
-        f'<dt>{_translated(frontend, "about.profile.language_source")}</dt>'
+        f"<dt>{_translated(frontend, 'about.profile.language_source')}</dt>"
         f"<dd>{source}</dd>"
-        f'<dt>{_translated(frontend, "about.profile.status")}</dt>'
+        f"<dt>{_translated(frontend, 'about.profile.status')}</dt>"
         f"<dd>{status}</dd></dl>"
-        f'<p>{_translated(frontend, "about.profile.future")}</p>'
-        f'<form class="reset-form" method="post" '
+        f"<p>{_translated(frontend, 'about.profile.future')}</p>"
+        + render_local_settings_v1(
+            profile=profile,
+            profile_generation=frontend.profile_generation,
+            profile_valid=frontend.profile_status != "invalid",
+            locale=frontend.locale,
+        )
+        + f'<form class="reset-form" method="post" '
         f'action="{FRONTEND_PROFILE_RESET_ACTION_ROUTE}">'
         f'<input type="hidden" name="profile_generation" '
         f'value="{frontend.profile_generation}">'
         '<input type="hidden" name="return_to" value="/about">'
-        f'<p>{_translated(frontend, "profile.reset.description")}</p>'
+        f"<p>{_translated(frontend, 'profile.reset.description')}</p>"
         f'<label><input type="checkbox" name="confirm_reset" value="on" required> '
-        f'{_translated(frontend, "profile.reset.confirm")}</label>'
+        f"{_translated(frontend, 'profile.reset.confirm')}</label>"
         f'<button type="submit">{_translated(frontend, "profile.reset.submit")}</button>'
         "</form></section>"
     )
@@ -325,6 +330,7 @@ def _about(
     state: BrowserSafeApplicationStateV1,
     storage_root: Path,
     frontend: BrowserSafeFrontendProfileStateV1,
+    profile: LocalFrontendProfileV1 | None,
 ) -> tuple[str, str]:
     package_value = _translated(
         frontend,
@@ -335,39 +341,39 @@ def _about(
         '<div class="about-grid">'
         '<section aria-labelledby="installation-heading">'
         f'<h2 id="installation-heading">'
-        f'{_translated(frontend, "about.installation.heading")}</h2>'
+        f"{_translated(frontend, 'about.installation.heading')}</h2>"
         '<dl class="about-list">'
-        f'<dt>{_translated(frontend, "about.installation.product")}</dt>'
+        f"<dt>{_translated(frontend, 'about.installation.product')}</dt>"
         f"<dd>{escape(state.product_name)}</dd>"
-        f'<dt>{_translated(frontend, "about.installation.package")}</dt>'
+        f"<dt>{_translated(frontend, 'about.installation.package')}</dt>"
         f"<dd>{package_value}</dd>"
-        f'<dt>{_translated(frontend, "about.installation.license")}</dt>'
+        f"<dt>{_translated(frontend, 'about.installation.license')}</dt>"
         "<dd>AGPL-3.0-only</dd>"
-        f'<dt>{_translated(frontend, "about.installation.copyright")}</dt>'
+        f"<dt>{_translated(frontend, 'about.installation.copyright')}</dt>"
         "<dd>Copyright (C) 2026 Henning Wiese</dd>"
-        f'<dt>{_translated(frontend, "about.installation.current_python")}</dt>'
+        f"<dt>{_translated(frontend, 'about.installation.current_python')}</dt>"
         f"<dd>{escape(state.python_runtime)}</dd>"
-        f'<dt>{_translated(frontend, "about.installation.required_python")}</dt>'
+        f"<dt>{_translated(frontend, 'about.installation.required_python')}</dt>"
         "<dd>Python &gt;=3.13</dd>"
-        f'<dt>{_translated(frontend, "about.installation.certified_boundary")}</dt>'
+        f"<dt>{_translated(frontend, 'about.installation.certified_boundary')}</dt>"
         "<dd>CPython 3.13</dd>"
         "</dl></section>"
         '<section aria-labelledby="operation-heading">'
         f'<h2 id="operation-heading">{_translated(frontend, "about.local.heading")}</h2>'
-        f'<p>{_translated(frontend, "about.local.description")}</p>'
-        f'<p>{_translated(frontend, "about.local.managed_home")}</p>'
+        f"<p>{_translated(frontend, 'about.local.description')}</p>"
+        f"<p>{_translated(frontend, 'about.local.managed_home')}</p>"
         '<details class="storage-disclosure"><summary>'
-        f'{_translated(frontend, "about.local.storage_show")}</summary>'
+        f"{_translated(frontend, 'about.local.storage_show')}</summary>"
         f"<code>{escape(str(storage_root), quote=True)}</code></details>"
         "</section>"
-        f"{_profile_about_section(frontend)}"
+        f"{_profile_about_section(frontend, profile)}"
         '<section aria-labelledby="interfaces-heading">'
         f'<h2 id="interfaces-heading">{_translated(frontend, "about.advanced.heading")}</h2>'
-        f'<p>{_translated(frontend, "about.advanced.description")}</p>'
-        f'<p>{_translated(frontend, "about.advanced.documentation")}: '
-        '<code>README.md</code>, <code>docs/installed_cli.md</code>, '
-        '<code>docs/public_python_api_v1.md</code>, '
-        '<code>docs/unified_local_frontend_contract.md</code>.</p>'
+        f"<p>{_translated(frontend, 'about.advanced.description')}</p>"
+        f"<p>{_translated(frontend, 'about.advanced.documentation')}: "
+        "<code>README.md</code>, <code>docs/installed_cli.md</code>, "
+        "<code>docs/public_python_api_v1.md</code>, "
+        "<code>docs/unified_local_frontend_contract.md</code>.</p>"
         "</section></div>"
     )
     return _text(frontend, "page.about.title"), content
@@ -381,7 +387,7 @@ def _workflow_boundary(
         return content
     return (
         '<aside class="translation-status" role="status">'
-        f'{_translated(frontend, "translation.english_body_notice")}</aside>'
+        f"{_translated(frontend, 'translation.english_body_notice')}</aside>"
         f'<div class="english-workflow-body" lang="en">{content}</div>'
     )
 
@@ -399,7 +405,7 @@ def _shell(
 ) -> str:
     warning = (
         '<aside class="profile-warning" role="alert">'
-        f'{_translated(frontend, "profile.invalid_warning")}</aside>'
+        f"{_translated(frontend, 'profile.invalid_warning')}</aside>"
         if frontend.warning
         else ""
     )
@@ -421,8 +427,7 @@ def _shell(
             for path in extra_stylesheets
         ),
         "{{EXTRA_SCRIPTS}}": "".join(
-            f'<script src="{escape(path, quote=True)}" defer></script>'
-            for path in extra_scripts
+            f'<script src="{escape(path, quote=True)}" defer></script>' for path in extra_scripts
         ),
     }
     template = _template()
@@ -440,6 +445,7 @@ def render_app_page_v1(
     analyze_state: ProcessLocalFrontendWorkflowStateV1 | None = None,
     review_state: ProcessLocalFrontendWorkflowStateV1 | None = None,
     frontend: BrowserSafeFrontendProfileStateV1 | None = None,
+    profile: LocalFrontendProfileV1 | None = None,
     return_to: str | None = None,
 ) -> str:
     if type(state) is not BrowserSafeApplicationStateV1:
@@ -448,6 +454,8 @@ def render_app_page_v1(
         raise ValueError("route must be a canonical application route.")
     if route != "/about" and storage_root is not None:
         raise ValueError("Private storage Path is allowed only on About.")
+    if route != "/about" and profile is not None:
+        raise ValueError("Private profile data is allowed only on About.")
     if analyze_state is not None and type(analyze_state) is not ProcessLocalFrontendWorkflowStateV1:
         raise ValueError("analyze_state must be exact process-local workflow state.")
     if review_state is not None and type(review_state) is not ProcessLocalFrontendWorkflowStateV1:
@@ -457,18 +465,14 @@ def render_app_page_v1(
         title, content = _home(state, frontend_state)
     elif route == "/analyze":
         title = _text(frontend_state, "page.analyze.title")
-        content = render_analyze_workflow_v1(
-            analyze_state or ProcessLocalFrontendWorkflowStateV1()
-        )
+        content = render_analyze_workflow_v1(analyze_state or ProcessLocalFrontendWorkflowStateV1())
     elif route == "/review":
         title = _text(frontend_state, "page.review.title")
-        content = render_review_workflow_v1(
-            review_state or ProcessLocalFrontendWorkflowStateV1()
-        )
+        content = render_review_workflow_v1(review_state or ProcessLocalFrontendWorkflowStateV1())
     elif route == "/about":
         if not isinstance(storage_root, Path):
             raise ValueError("About rendering requires one private storage Path.")
-        title, content = _about(state, storage_root, frontend_state)
+        title, content = _about(state, storage_root, frontend_state, profile)
     else:
         title, content = _placeholder(route, frontend_state)
     if route in _WORKFLOW_ROUTES:
@@ -520,9 +524,7 @@ def render_app_content_page_v1(
     ):
         raise ValueError("Extra assets must use safe absolute local routes.")
     frontend_state = frontend or _default_frontend_state()
-    resolved_title = (
-        _text(frontend_state, title_key) if title_key is not None else str(title)
-    )
+    resolved_title = _text(frontend_state, title_key) if title_key is not None else str(title)
     if empty_state_key is not None and route not in _WORKFLOW_ROUTES:
         raise ValueError("Empty-state guidance belongs only to workflow Routes.")
     localized_content = ""
@@ -569,24 +571,19 @@ def render_app_error_page_v1(
     if message_key is not None and (type(message_key) is not str or not message_key):
         raise ValueError("Error message key must be non-empty text.")
     frontend_state = frontend or _default_frontend_state()
-    resolved_title = (
-        _text(frontend_state, title_key) if title_key is not None else str(title)
-    )
+    resolved_title = _text(frontend_state, title_key) if title_key is not None else str(title)
     resolved_message = (
         _translated(frontend_state, message_key)
         if message_key is not None
         else escape(str(message))
     )
     if untranslated_message and frontend_state.locale == "de":
-        resolved_message = (
-            '<div lang="en" class="english-workflow-body">'
-            f"{resolved_message}</div>"
-        )
+        resolved_message = f'<div lang="en" class="english-workflow-body">{resolved_message}</div>'
     content = (
         '<section class="placeholder">'
         f"<p>{resolved_message}</p>"
         f'<p><a class="back-link" href="/">'
-        f'{_translated(frontend_state, "common.action.return_home")}</a></p>'
+        f"{_translated(frontend_state, 'common.action.return_home')}</a></p>"
         "</section>"
     )
     return _shell(
@@ -607,7 +604,7 @@ def render_authorization_failure_v1(frontend: BrowserSafeFrontendProfileStateV1)
     return (
         "<!doctype html>\n"
         f'<html lang="{escape(frontend.locale, quote=True)}">\n'
-        "<head>\n<meta charset=\"utf-8\">\n"
+        '<head>\n<meta charset="utf-8">\n'
         f"<title>{_translated(frontend, 'authorization.heading')}</title>\n"
         "</head>\n<body>\n<main>\n"
         f"<h1>{_translated(frontend, 'authorization.heading')}</h1>\n"

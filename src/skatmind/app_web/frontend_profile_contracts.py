@@ -2,6 +2,14 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from .profile_player_contracts import (
+    MAX_KNOWN_PLAYERS,
+    MAX_MANAGED_ITEM_DISPLAY_LABELS,
+    KnownPlayerV1,
+    ManagedItemDisplayLabelV1,
+    normalize_player_display_name_v1,
+)
+
 LOCAL_FRONTEND_PROFILE_VERSION = 1
 LOCAL_FRONTEND_PROFILE_DOCUMENT_KIND = "skatmind_frontend_profile"
 FRONTEND_PROFILE_FILENAME = "frontend-profile.json"
@@ -25,11 +33,11 @@ class FrontendInterfacePreferencesV1:
     advanced_settings_expanded: bool = False
 
     def __post_init__(self) -> None:
-        if self.advanced_settings_expanded is not False:
-            raise ValueError("advanced_settings_expanded must remain false in version 1.")
+        if type(self.advanced_settings_expanded) is not bool:
+            raise ValueError("advanced_settings_expanded must be a boolean.")
 
     def to_dict(self) -> dict[str, object]:
-        return {"advanced_settings_expanded": False}
+        return {"advanced_settings_expanded": self.advanced_settings_expanded}
 
 
 @dataclass(frozen=True, slots=True)
@@ -52,15 +60,13 @@ class LocalFrontendProfileV1:
     content_fingerprint: str
     local_frontend_profile_version: int = LOCAL_FRONTEND_PROFILE_VERSION
     document_kind: str = LOCAL_FRONTEND_PROFILE_DOCUMENT_KIND
-    interface_preferences: FrontendInterfacePreferencesV1 = (
-        FrontendInterfacePreferencesV1()
-    )
-    own_player_id: None = None
-    known_players: tuple[object, ...] = ()
-    preferred_perspective_player_id: None = None
-    preferred_game_platform: None = None
+    interface_preferences: FrontendInterfacePreferencesV1 = FrontendInterfacePreferencesV1()
+    own_player_id: str | None = None
+    known_players: tuple[KnownPlayerV1, ...] = ()
+    preferred_perspective_player_id: str | None = None
+    preferred_game_platform: str | None = None
     workflow_preferences: FrontendWorkflowPreferencesV1 = FrontendWorkflowPreferencesV1()
-    managed_item_display_labels: tuple[object, ...] = ()
+    managed_item_display_labels: tuple[ManagedItemDisplayLabelV1, ...] = ()
 
     def __post_init__(self) -> None:
         if (
@@ -76,16 +82,51 @@ class LocalFrontendProfileV1:
             raise ValueError("language must be de, en, or null.")
         if type(self.interface_preferences) is not FrontendInterfacePreferencesV1:
             raise ValueError("interface_preferences must be exact version-1 preferences.")
-        if self.own_player_id is not None or self.preferred_perspective_player_id is not None:
-            raise ValueError("Player preferences must remain null in Issue #216.")
+        if type(self.known_players) is not tuple:
+            raise ValueError("known_players must be an exact tuple.")
+        if len(self.known_players) > MAX_KNOWN_PLAYERS:
+            raise ValueError("known_players may contain a maximum 512 Players.")
+        if any(type(player) is not KnownPlayerV1 for player in self.known_players):
+            raise ValueError("known_players must contain exact known Players.")
+        player_ids = tuple(player.player_id for player in self.known_players)
+        if len(set(player_ids)) != len(player_ids):
+            raise ValueError("known_players must contain unique Player IDs.")
+        normalized_names = tuple(
+            normalize_player_display_name_v1(player.display_name) for player in self.known_players
+        )
+        if len(set(normalized_names)) != len(normalized_names):
+            raise ValueError("Duplicate display names must be explicitly disambiguated.")
+        for value, name in (
+            (self.own_player_id, "own_player_id"),
+            (self.preferred_perspective_player_id, "preferred_perspective_player_id"),
+        ):
+            if value is not None and value not in player_ids:
+                raise ValueError(f"{name} must reference one known Player.")
         if self.preferred_game_platform is not None:
-            raise ValueError("preferred_game_platform must remain null in Issue #216.")
-        if type(self.known_players) is not tuple or self.known_players:
-            raise ValueError("known_players must remain empty in Issue #216.")
+            if (
+                type(self.preferred_game_platform) is not str
+                or not self.preferred_game_platform
+                or self.preferred_game_platform != self.preferred_game_platform.strip()
+                or len(self.preferred_game_platform) > 120
+                or any(not character.isprintable() for character in self.preferred_game_platform)
+            ):
+                raise ValueError("preferred_game_platform must be null or bounded text.")
         if type(self.workflow_preferences) is not FrontendWorkflowPreferencesV1:
             raise ValueError("workflow_preferences must be exact version-1 preferences.")
-        if type(self.managed_item_display_labels) is not tuple or self.managed_item_display_labels:
-            raise ValueError("managed_item_display_labels must remain empty in Issue #216.")
+        if type(self.managed_item_display_labels) is not tuple:
+            raise ValueError("managed_item_display_labels must be an exact tuple.")
+        if len(self.managed_item_display_labels) > MAX_MANAGED_ITEM_DISPLAY_LABELS:
+            raise ValueError("managed_item_display_labels may contain a maximum 2,048 entries.")
+        if any(
+            type(label) is not ManagedItemDisplayLabelV1
+            for label in self.managed_item_display_labels
+        ):
+            raise ValueError("managed_item_display_labels must contain exact labels.")
+        label_keys = tuple(
+            (label.family, label.product_id) for label in self.managed_item_display_labels
+        )
+        if len(set(label_keys)) != len(label_keys):
+            raise ValueError("Managed item labels must have unique family/Product-ID pairs.")
         _require_sha256(self.content_fingerprint, "content_fingerprint")
 
     def to_dict(self) -> dict[str, object]:
@@ -95,12 +136,14 @@ class LocalFrontendProfileV1:
             "revision": self.revision,
             "language": self.language,
             "interface_preferences": self.interface_preferences.to_dict(),
-            "own_player_id": None,
-            "known_players": [],
-            "preferred_perspective_player_id": None,
-            "preferred_game_platform": None,
+            "own_player_id": self.own_player_id,
+            "known_players": [player.to_dict() for player in self.known_players],
+            "preferred_perspective_player_id": self.preferred_perspective_player_id,
+            "preferred_game_platform": self.preferred_game_platform,
             "workflow_preferences": self.workflow_preferences.to_dict(),
-            "managed_item_display_labels": [],
+            "managed_item_display_labels": [
+                label.to_dict() for label in self.managed_item_display_labels
+            ],
             "content_fingerprint": self.content_fingerprint,
         }
 

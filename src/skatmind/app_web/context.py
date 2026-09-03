@@ -40,6 +40,7 @@ class AppWebContextV1:
     lock: threading.RLock = field(default_factory=threading.RLock, repr=False)
     profile_lock: threading.Lock = field(default_factory=threading.Lock, repr=False)
     profile_redirect_return_to: str | None = field(default=None, repr=False)
+    stateful_creation_notices: dict[str, str] = field(default_factory=dict, repr=False)
 
     def __post_init__(self) -> None:
         from .stateful_context import ManagedStatefulContextV1
@@ -62,6 +63,8 @@ class AppWebContextV1:
             raise ValueError("Frontend profile path must be one direct managed-root child.")
         if self.profile_redirect_return_to is not None:
             raise ValueError("A new app context must not retain a profile redirect.")
+        if self.stateful_creation_notices:
+            raise ValueError("A new app context must not retain creation notices.")
 
     @classmethod
     def create(cls, managed_home: ManagedHomeV1) -> AppWebContextV1:

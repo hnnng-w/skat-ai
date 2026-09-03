@@ -3,8 +3,10 @@ from __future__ import annotations
 import hmac
 import json
 import re
+import secrets
 import threading
 from email.message import Message
+from html import escape
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from importlib.resources import files
@@ -37,17 +39,27 @@ from .form_registry import (
     resolve_frontend_form_v1,
     validate_frontend_form_registry_v1,
 )
+from .friendly_creation_rendering import render_profile_driven_match_creation_v1
 from .frontend_profile_operations import (
     FRONTEND_LANGUAGE_ACTION_ROUTE,
     FRONTEND_PROFILE_ACTION_ROUTES,
+    FRONTEND_PROFILE_MANAGED_LABEL_ACTION_ROUTE,
+    FRONTEND_PROFILE_PLAYER_ADD_ACTION_ROUTE,
+    FRONTEND_PROFILE_PLAYER_REMOVE_ACTION_ROUTE,
+    FRONTEND_PROFILE_PLAYER_UPDATE_ACTION_ROUTE,
+    FRONTEND_PROFILE_PREFERENCES_ACTION_ROUTE,
+    FRONTEND_PROFILE_RECOMMENDED_RESET_ACTION_ROUTE,
     FRONTEND_PROFILE_RESET_ACTION_ROUTE,
     FrontendProfilePersistenceConflictError,
     InvalidFrontendProfileResetRequiredError,
     StaleFrontendProfileGenerationError,
     is_safe_frontend_return_path_v1,
     reset_frontend_profile_v1,
+    reset_frontend_recommended_defaults_v1,
+    save_prepared_frontend_profile_v1,
     set_frontend_language_v1,
 )
+from .frontend_profile_persistence import FrontendProfilePersistenceSizeError
 from .frontend_profile_state import (
     project_browser_safe_frontend_profile_state_v1,
 )
@@ -95,7 +107,10 @@ from .learning_frontend import (
     select_unified_learning_current_snapshot_v1,
 )
 from .managed_item_contracts import MANAGED_ITEM_MAX_IMPORT_BYTES
-from .managed_item_discovery import discover_managed_items_v1
+from .managed_item_discovery import (
+    apply_managed_item_display_labels_v1,
+    discover_managed_items_v1,
+)
 from .managed_item_import import parse_managed_item_json_upload_v1
 from .managed_item_storage import (
     build_managed_item_handle_v1,
@@ -103,7 +118,6 @@ from .managed_item_storage import (
 )
 from .match_frontend import (
     apply_unified_match_operation_v1,
-    build_unified_match_creation_state_v1,
     build_unified_match_export_download_v1,
     build_unified_match_report_download_v1,
     build_unified_match_state_v1,
@@ -115,6 +129,27 @@ from .match_frontend import (
     open_unified_match_v1,
     reload_unified_match_v1,
     select_unified_match_position_v1,
+)
+from .profile_driven_creation import (
+    PROFILE_DRIVEN_LEARNING_CREATE_FIELDS,
+    PROFILE_DRIVEN_MATCH_CREATE_FIELDS,
+    PROFILE_DRIVEN_SESSION_CREATE_FIELDS,
+    prepare_profile_driven_learning_creation_v1,
+    prepare_profile_driven_match_creation_v1,
+    prepare_profile_driven_session_creation_v1,
+    resolve_friendly_game_platform_v1,
+)
+from .profile_player_contracts import (
+    KnownPlayerPlatformIdV1,
+    ManagedItemDisplayLabelV1,
+)
+from .profile_player_operations import (
+    add_known_player_v1,
+    remove_known_player_v1,
+    replace_known_player_v1,
+    resolve_known_player_handle_v1,
+    set_frontend_creation_preferences_v1,
+    set_managed_item_display_label_v1,
 )
 from .rendering import (
     render_app_content_page_v1,
@@ -139,7 +174,6 @@ from .session_form_translation import (
 from .session_frontend import (
     apply_guided_session_edit_v1,
     build_guided_session_persistence_download_v1,
-    build_guided_session_players_v1,
     create_guided_session_v1,
     default_guided_session_execution_options_v1,
     execute_guided_session_historical_v1,
@@ -155,6 +189,7 @@ from .stateful_rendering import (
     render_managed_category_landing_v1,
     render_match_to_learning_transfer_v1,
 )
+from .translation_catalog import translate_frontend_message_v1
 from .validation_contracts import (
     FRONTEND_VALIDATION_PRESERVATION_VERSION,
     FrontendSubmittedFormStateV1,
@@ -298,7 +333,7 @@ _COMMON_ERROR_MESSAGE_KEYS = {
     "The submitted request is too large.": "error.request_too_large.message",
     "Use the form content type shown by this page.": ("error.unsupported_content_type.message"),
     "The submitted form could not be validated.": "error.bad_request.message",
-    "Reset the invalid local profile from About before saving a language preference.": (
+    "Reset the invalid local profile from About before changing local settings.": (
         "error.profile_invalid.message"
     ),
 }
@@ -575,6 +610,9 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
                 analyze_state=self.server.app_context.analyze_state,
                 review_state=self.server.app_context.review_state,
                 frontend=frontend,
+                profile=(
+                    self.server.app_context.frontend_profile.document if route == "/about" else None
+                ),
                 return_to=self._safe_current_return_path(),
             )
             rendered = self._apply_retained_feedback(
@@ -582,6 +620,7 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
                 families=(
                     *(("analyze",) if route == "/analyze" else ()),
                     *(("review",) if route == "/review" else ()),
+                    *(("local_settings",) if route == "/about" else ()),
                     "profile",
                 ),
                 active_identity=None,
@@ -705,6 +744,7 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
         feedback_family: str | None = None,
         feedback_identity: object | None = None,
         last_valid_result_retained: bool = False,
+        untranslated_workflow_body: bool = True,
     ) -> None:
         with self.server.app_context.lock:
             state = self.server.app_context.browser_state
@@ -721,8 +761,13 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
             empty_state_key=empty_state_key,
             extra_stylesheets=extra_stylesheets,
             extra_scripts=extra_scripts,
+            untranslated_workflow_body=untranslated_workflow_body,
         )
-        families = (feedback_family, "profile") if feedback_family is not None else ("profile",)
+        families = (
+            (feedback_family, "local_settings", "profile")
+            if feedback_family is not None
+            else ("local_settings", "profile")
+        )
         rendered = self._apply_retained_feedback(
             rendered,
             families=families,
@@ -1079,7 +1124,7 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
         status: int,
     ) -> None:
         page = definition.originating_page
-        if definition.active_context_requirement == "profile":
+        if definition.active_context_requirement in {"profile", "local_settings"}:
             page = getattr(self, "_profile_action_return_to", page)
         if page == "/sessions":
             self._managed_category_page("sessions", status=status)
@@ -1190,33 +1235,92 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
         self._render_rejected_form(definition, status=status)
         return True
 
-    def _profile_operation(self, path: str, body: bytes, content_type: str) -> None:
-        values = self._text_form(body, content_type)
-        if path == FRONTEND_LANGUAGE_ACTION_ROUTE:
-            self._exact_fields(
-                values,
-                {"language", "profile_generation", "return_to"},
-            )
-        else:
-            self._exact_fields(
-                values,
-                {"confirm_reset", "profile_generation", "return_to"},
-            )
-        return_to = values["return_to"]
-        if not is_safe_frontend_return_path_v1(return_to):
-            raise ValueError("return_to must identify one safe rendered HTML path.")
-        self._profile_action_return_to = return_to
-        if path == FRONTEND_PROFILE_RESET_ACTION_ROUTE:
-            if values["confirm_reset"] != "on":
-                raise ValueError("Profile reset requires explicit confirmation.")
-        raw_generation = values["profile_generation"]
+    @staticmethod
+    def _profile_generation_value(values: dict[str, str]) -> int:
+        raw_generation = values.get("profile_generation", "")
         if (
             not raw_generation.isascii()
             or not raw_generation.isdecimal()
             or (len(raw_generation) > 1 and raw_generation.startswith("0"))
         ):
             raise ValueError("profile_generation must be a non-negative integer.")
-        generation = int(raw_generation)
+        return int(raw_generation)
+
+    @staticmethod
+    def _profile_aliases(value: str) -> tuple[str, ...]:
+        return tuple(line.strip() for line in value.splitlines() if line.strip())
+
+    @staticmethod
+    def _profile_platform_ids(value: str) -> tuple[KnownPlayerPlatformIdV1, ...]:
+        parsed: list[KnownPlayerPlatformIdV1] = []
+        for line in value.splitlines():
+            if not line.strip():
+                continue
+            platform, separator, player_id = line.partition("=")
+            if not separator or not platform.strip() or not player_id.strip():
+                raise ValueError(
+                    "platform_player_ids must use one 'Platform = Player ID' pair per line."
+                )
+            parsed.append(KnownPlayerPlatformIdV1(platform.strip(), player_id.strip()))
+        return tuple(parsed)
+
+    def _profile_operation(self, path: str, body: bytes, content_type: str) -> None:
+        values = self._text_form(body, content_type)
+        if path == FRONTEND_LANGUAGE_ACTION_ROUTE:
+            fields = {"language", "profile_generation", "return_to"}
+            return_to = values.get("return_to", "")
+        elif path == FRONTEND_PROFILE_RESET_ACTION_ROUTE:
+            fields = {"confirm_reset", "profile_generation", "return_to"}
+            return_to = values.get("return_to", "")
+        elif path == FRONTEND_PROFILE_PLAYER_ADD_ACTION_ROUTE:
+            fields = {"display_name", "aliases", "platform_player_ids", "profile_generation"}
+            return_to = "/about"
+        elif path == FRONTEND_PROFILE_PLAYER_UPDATE_ACTION_ROUTE:
+            fields = {
+                "display_name",
+                "aliases",
+                "platform_player_ids",
+                "player_handle",
+                "profile_generation",
+            }
+            return_to = "/about"
+        elif path == FRONTEND_PROFILE_PLAYER_REMOVE_ACTION_ROUTE:
+            values.setdefault("confirm_referenced", "")
+            fields = {"confirm_referenced", "player_handle", "profile_generation"}
+            return_to = "/about"
+        elif path == FRONTEND_PROFILE_PREFERENCES_ACTION_ROUTE:
+            fields = {
+                "own_player_handle",
+                "preferred_perspective_player_handle",
+                "platform_choice",
+                "custom_platform",
+                "advanced_settings_expanded",
+                "profile_generation",
+            }
+            return_to = "/about"
+        elif path == FRONTEND_PROFILE_RECOMMENDED_RESET_ACTION_ROUTE:
+            values.setdefault("confirm_recommended_reset", "")
+            fields = {"confirm_recommended_reset", "profile_generation"}
+            return_to = "/about"
+        elif path == FRONTEND_PROFILE_MANAGED_LABEL_ACTION_ROUTE:
+            fields = {
+                "managed_family",
+                "managed_handle",
+                "managed_generation",
+                "display_name",
+                "played_date",
+                "profile_generation",
+                "return_to",
+            }
+            return_to = values.get("return_to", "")
+        else:
+            raise RuntimeError("Profile action route dispatch is incomplete.")
+        self._exact_fields(values, fields)
+        if not is_safe_frontend_return_path_v1(return_to):
+            raise ValueError("return_to must identify one safe rendered HTML path.")
+        self._profile_action_return_to = return_to
+        generation = self._profile_generation_value(values)
+
         if path == FRONTEND_LANGUAGE_ACTION_ROUTE:
             set_frontend_language_v1(
                 self.server.app_context,
@@ -1224,10 +1328,126 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
                 expected_generation=generation,
             )
         elif path == FRONTEND_PROFILE_RESET_ACTION_ROUTE:
+            if values["confirm_reset"] != "on":
+                raise ValueError("Profile reset requires explicit confirmation.")
             reset_frontend_profile_v1(
                 self.server.app_context,
                 expected_generation=generation,
             )
+        elif path in {
+            FRONTEND_PROFILE_PLAYER_ADD_ACTION_ROUTE,
+            FRONTEND_PROFILE_PLAYER_UPDATE_ACTION_ROUTE,
+        }:
+            aliases = self._profile_aliases(values["aliases"])
+            platform_ids = self._profile_platform_ids(values["platform_player_ids"])
+            if path == FRONTEND_PROFILE_PLAYER_ADD_ACTION_ROUTE:
+                add_known_player_v1(
+                    self.server.app_context,
+                    display_name=values["display_name"].strip(),
+                    aliases=aliases,
+                    platform_player_ids=platform_ids,
+                    expected_generation=generation,
+                    entropy_source=secrets.token_bytes,
+                )
+            else:
+                replace_known_player_v1(
+                    self.server.app_context,
+                    player_handle=values["player_handle"],
+                    display_name=values["display_name"].strip(),
+                    aliases=aliases,
+                    platform_player_ids=platform_ids,
+                    expected_generation=generation,
+                )
+        elif path == FRONTEND_PROFILE_PLAYER_REMOVE_ACTION_ROUTE:
+            if values["confirm_referenced"] not in {"", "on"}:
+                raise ValueError("confirm_referenced must be an explicit checkbox value.")
+            remove_known_player_v1(
+                self.server.app_context,
+                player_handle=values["player_handle"],
+                confirm_referenced=values["confirm_referenced"] == "on",
+                expected_generation=generation,
+            )
+        elif path == FRONTEND_PROFILE_PREFERENCES_ACTION_ROUTE:
+            with self.server.app_context.lock:
+                profile_state = self.server.app_context.frontend_profile
+                if profile_state.generation != generation:
+                    raise StaleFrontendProfileGenerationError
+                if profile_state.load_status == "invalid":
+                    raise InvalidFrontendProfileResetRequiredError
+                profile = profile_state.document
+
+            def resolve_player(handle: str) -> str | None:
+                return (
+                    None
+                    if not handle
+                    else resolve_known_player_handle_v1(profile, handle).player_id
+                )
+
+            choice = values["platform_choice"]
+            custom_platform = values["custom_platform"]
+            if not choice:
+                if custom_platform.strip():
+                    raise ValueError(
+                        "custom_platform is allowed only when Custom platform is selected."
+                    )
+                platform = None
+            else:
+                platform = resolve_friendly_game_platform_v1(choice, custom_platform)
+            advanced = values["advanced_settings_expanded"]
+            if advanced not in {"false", "true"}:
+                raise ValueError("advanced_settings_expanded must be one visible choice.")
+            set_frontend_creation_preferences_v1(
+                self.server.app_context,
+                own_player_id=resolve_player(values["own_player_handle"]),
+                preferred_perspective_player_id=resolve_player(
+                    values["preferred_perspective_player_handle"]
+                ),
+                preferred_game_platform=platform,
+                advanced_settings_expanded=advanced == "true",
+                expected_generation=generation,
+            )
+        elif path == FRONTEND_PROFILE_RECOMMENDED_RESET_ACTION_ROUTE:
+            if values["confirm_recommended_reset"] != "on":
+                raise ValueError("Recommended-default reset requires explicit confirmation.")
+            reset_frontend_recommended_defaults_v1(
+                self.server.app_context,
+                expected_generation=generation,
+            )
+        elif path == FRONTEND_PROFILE_MANAGED_LABEL_ACTION_ROUTE:
+            family = values["managed_family"]
+            expected_return = {
+                "sessions": "/sessions",
+                "matches": "/matches",
+                "corpora": "/learning",
+            }.get(family)
+            if return_to != expected_return:
+                raise ValueError("Managed display-label return target is invalid.")
+            managed_generation = self._form_integer(
+                values,
+                "managed_generation",
+                minimum=1,
+            )
+            with self.server.app_context.lock:
+                entry = self.server.app_context.managed_stateful.resolve(
+                    family,
+                    handle=values["managed_handle"],
+                    generation=managed_generation,
+                )
+            product_id = entry.summary.semantic_product_id
+            if product_id is None:
+                raise ValueError("Only a valid managed Product may receive a display label.")
+            played_date = values["played_date"].strip() or None
+            set_managed_item_display_label_v1(
+                self.server.app_context,
+                label=ManagedItemDisplayLabelV1(
+                    family=family,
+                    product_id=product_id,
+                    display_name=values["display_name"].strip(),
+                    played_date=played_date,
+                ),
+                expected_generation=generation,
+            )
+            self._refresh_category(family)
         else:
             raise RuntimeError("Profile action route dispatch is incomplete.")
         with self.server.app_context.profile_lock:
@@ -1281,6 +1501,12 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
             family=family,
             generation=generation,
             active_handle=active_handle,
+        )
+        with context.lock:
+            profile = context.frontend_profile.document
+        discovery = apply_managed_item_display_labels_v1(
+            discovery,
+            () if profile is None else profile.managed_item_display_labels,
         )
         with context.lock:
             if context.managed_stateful.publish_refresh(family, discovery):
@@ -1372,10 +1598,17 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
             "matches": "Match capture",
             "corpora": "Learning & cross-game insights",
         }[family]
+        with self.server.app_context.lock:
+            profile_state = self.server.app_context.frontend_profile
         self._content_page(
             route,
             title=title,
-            content=render_managed_category_landing_v1(discovery.view),
+            content=render_managed_category_landing_v1(
+                discovery.view,
+                profile=profile_state.document,
+                profile_generation=profile_state.generation,
+                locale=self._frontend_state().locale,
+            ),
             status=status,
             empty_state_key=(
                 {
@@ -1391,14 +1624,17 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
                 "matches": "matches",
                 "corpora": "learning",
             }[family],
+            untranslated_workflow_body=False,
         )
 
     def _session_page(self, *, status: int = HTTPStatus.OK) -> None:
         active = self._active_session()
+        notice = self._take_creation_notice("sessions")
         self._content_page(
             "/sessions",
             title="Guided Session",
-            content=render_guided_session_v1(
+            content=notice
+            + render_guided_session_v1(
                 active,
                 show_operation_notice=status < HTTPStatus.BAD_REQUEST,
             ),
@@ -1455,7 +1691,7 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
             report_id=report_id,
             target_managed_handle=None if learning is None else learning.handle,
         )
-        body = render_match_capture_web_body_v1(
+        body = self._take_creation_notice("matches") + render_match_capture_web_body_v1(
             state,
             route_prefix="/matches",
             notice=notice,
@@ -1476,18 +1712,21 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
         )
 
     def _match_creation_page(self, *, status: int = HTTPStatus.OK) -> None:
-        body = render_match_capture_web_body_v1(
-            build_unified_match_creation_state_v1(),
-            route_prefix="/matches",
+        with self.server.app_context.lock:
+            profile_state = self.server.app_context.frontend_profile
+        frontend = self._frontend_state()
+        body = render_profile_driven_match_creation_v1(
+            profile=profile_state.document,
+            profile_generation=profile_state.generation,
+            locale=frontend.locale,
         )
         self._content_page(
             "/matches",
             title="Create a managed Match",
             content=body,
             status=status,
-            extra_stylesheets=("/matches/assets/capture.css",),
-            extra_scripts=("/matches/assets/capture.js",),
             feedback_family="matches",
+            untranslated_workflow_body=False,
         )
 
     def _learning_page(
@@ -1509,7 +1748,7 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
             if result is not None and result.http_status == HTTPStatus.CONFLICT
             else "info"
         )
-        body = render_learning_corpus_web_body_v1(
+        body = self._take_creation_notice("corpora") + render_learning_corpus_web_body_v1(
             state,
             route_prefix="/learning",
             notice=notice,
@@ -1676,17 +1915,91 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
         self._refresh_category(family)
         self._redirect(location)
 
+    def _take_creation_notice(self, family: str) -> str:
+        with self.server.app_context.lock:
+            message_key = self.server.app_context.stateful_creation_notices.pop(family, None)
+        if message_key is None:
+            return ""
+        locale = self._frontend_state().locale
+        notice = translate_frontend_message_v1(locale, message_key)
+        return (
+            f'<aside class="profile-warning" role="status" lang="{locale}">'
+            f"{escape(notice)}</aside>"
+        )
+
+    def _profile_creation_snapshot(
+        self,
+        values: dict[str, str],
+        fields: tuple[str, ...],
+    ):
+        self._exact_fields(values, set(fields))
+        generation = self._form_integer(values, "profile_generation", minimum=0)
+        del values["profile_generation"]
+        with self.server.app_context.lock:
+            state = self.server.app_context.frontend_profile
+            if state.generation != generation:
+                raise StaleFrontendProfileGenerationError
+            if state.load_status == "invalid":
+                raise InvalidFrontendProfileResetRequiredError
+            return state.document, generation
+
+    def _save_creation_profile(self, prepared, *, family: str) -> None:
+        if prepared.profile_document is None:
+            with self.server.app_context.lock:
+                self.server.app_context.stateful_creation_notices[family] = (
+                    "creation.profile_capacity_warning"
+                )
+            return
+        try:
+            save_prepared_frontend_profile_v1(
+                self.server.app_context,
+                requested=prepared.profile_document,
+                expected_generation=prepared.expected_profile_generation,
+            )
+        except (
+            StaleFrontendProfileGenerationError,
+            FrontendProfilePersistenceConflictError,
+        ):
+            with self.server.app_context.lock:
+                self.server.app_context.stateful_creation_notices[family] = (
+                    "creation.profile_save_warning"
+                )
+        except FrontendProfilePersistenceSizeError:
+            with self.server.app_context.lock:
+                self.server.app_context.stateful_creation_notices[family] = (
+                    "creation.profile_capacity_warning"
+                )
+        except OSError:
+            with self.server.app_context.lock:
+                self.server.app_context.stateful_creation_notices[family] = (
+                    "creation.profile_storage_warning"
+                )
+        else:
+            with self.server.app_context.lock:
+                self.server.app_context.stateful_creation_notices.pop(family, None)
+
     def _create_session(self, values: dict[str, str]) -> None:
-        fields = {"session_id", "capture_mode", "local_player_id"}
-        for index in (1, 2, 3):
-            fields.update({f"player_{index}_id", f"player_{index}_label"})
-        self._exact_fields(values, fields)
-        session_id = values["session_id"]
+        profile, generation = self._profile_creation_snapshot(
+            values,
+            PROFILE_DRIVEN_SESSION_CREATE_FIELDS,
+        )
+        discovery = self._refresh_category("sessions")
+        prepared = prepare_profile_driven_session_creation_v1(
+            values,
+            profile=profile,
+            expected_profile_generation=generation,
+            existing_session_ids=tuple(
+                item.semantic_product_id
+                for item in discovery.view.items
+                if item.semantic_product_id is not None
+            ),
+            entropy_source=secrets.token_bytes,
+        )
+        session_id = prepared.session_id
         storage_name = build_managed_item_storage_name_v1(
             family="sessions",
             product_id=session_id,
         )
-        players = build_guided_session_players_v1(values)
         with self.server.app_context.lock:
             root = self.server.app_context.managed_stateful.root("sessions")
         active = create_guided_session_v1(
@@ -1696,10 +2009,11 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
                 basename=storage_name,
             ),
             session_id=session_id,
-            players=players,
-            capture_mode=values["capture_mode"],
-            local_player_id=values["local_player_id"] or None,
+            players=prepared.players,
+            capture_mode=prepared.capture_mode,
+            local_player_id=prepared.local_player_id,
         )
+        self._save_creation_profile(prepared, family="sessions")
         self._activate_session(active)
         self._refresh_category("sessions")
         self._redirect("/sessions/current")
@@ -1791,9 +2105,26 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
         self._redirect("/sessions/current")
 
     def _create_match(self, values: dict[str, str | list[str]]) -> None:
-        match_id = values.get("match_id")
-        if type(match_id) is not str:
-            raise ValueError("match_id is required as form text.")
+        if any(type(value) is not str for value in values.values()):
+            raise ValueError("Match creation fields must contain text.")
+        text_values = {name: str(value) for name, value in values.items()}
+        profile, generation = self._profile_creation_snapshot(
+            text_values,
+            PROFILE_DRIVEN_MATCH_CREATE_FIELDS,
+        )
+        discovery = self._refresh_category("matches")
+        prepared = prepare_profile_driven_match_creation_v1(
+            text_values,
+            profile=profile,
+            expected_profile_generation=generation,
+            existing_match_ids=tuple(
+                item.semantic_product_id
+                for item in discovery.view.items
+                if item.semantic_product_id is not None
+            ),
+            entropy_source=secrets.token_bytes,
+        )
+        match_id = prepared.match_id
         storage_name = build_managed_item_storage_name_v1(
             family="matches",
             product_id=match_id,
@@ -1806,8 +2137,9 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
                 family="matches",
                 basename=storage_name,
             ),
-            values=values,
+            values=prepared.product_values,
         )
+        self._save_creation_profile(prepared, family="matches")
         self._activate_match(active)
         self._refresh_category("matches")
         self._redirect("/matches/position/1")
@@ -1951,8 +2283,23 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
         )
 
     def _create_learning(self, values: dict[str, str]) -> None:
-        self._exact_fields(values, {"corpus_id"})
-        corpus_id = values["corpus_id"]
+        profile, generation = self._profile_creation_snapshot(
+            values,
+            PROFILE_DRIVEN_LEARNING_CREATE_FIELDS,
+        )
+        discovery = self._refresh_category("corpora")
+        prepared = prepare_profile_driven_learning_creation_v1(
+            values,
+            profile=profile,
+            expected_profile_generation=generation,
+            existing_corpus_ids=tuple(
+                item.semantic_product_id
+                for item in discovery.view.items
+                if item.semantic_product_id is not None
+            ),
+            entropy_source=secrets.token_bytes,
+        )
+        corpus_id = prepared.corpus_id
         storage_name = build_managed_item_storage_name_v1(
             family="corpora",
             product_id=corpus_id,
@@ -1967,6 +2314,7 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
             ),
             corpus_id=corpus_id,
         )
+        self._save_creation_profile(prepared, family="corpora")
         self._activate_learning(active)
         self._refresh_category("corpora")
         self._redirect("/learning/current")
@@ -2423,7 +2771,7 @@ class SkatMindAppWebRequestHandlerV1(BaseHTTPRequestHandler):
             self._error_page(
                 HTTPStatus.CONFLICT,
                 "State changed",
-                "Reset the invalid local profile from About before saving a language preference.",
+                "Reset the invalid local profile from About before changing local settings.",
             )
         except FrontendWorkflowValidationError as error:
             if self._reject_registered_form(

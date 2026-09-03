@@ -11,7 +11,15 @@ from skatmind.corpus_web.contracts import LEARNING_CORPUS_WEB_MAX_REQUEST_BYTES
 from skatmind.session_commands import SESSION_COMMAND_KINDS
 
 from .form_parsing import FormValuesV1, FormValueV1
-from .frontend_profile_operations import FRONTEND_PROFILE_ACTION_ROUTES
+from .frontend_profile_operations import (
+    FRONTEND_PROFILE_ACTION_ROUTES,
+    FRONTEND_PROFILE_MANAGED_LABEL_ACTION_ROUTE,
+    FRONTEND_PROFILE_PLAYER_ADD_ACTION_ROUTE,
+    FRONTEND_PROFILE_PLAYER_REMOVE_ACTION_ROUTE,
+    FRONTEND_PROFILE_PLAYER_UPDATE_ACTION_ROUTE,
+    FRONTEND_PROFILE_PREFERENCES_ACTION_ROUTE,
+    FRONTEND_PROFILE_RECOMMENDED_RESET_ACTION_ROUTE,
+)
 from .guided_contracts import GUIDED_ACTION_ROUTE_PATHS
 from .json_transfer import FRONTEND_JSON_MAX_FILE_BYTES
 from .managed_item_contracts import MANAGED_ITEM_MAX_IMPORT_BYTES
@@ -22,6 +30,12 @@ from .position_form import (
     POSITION_MULTI_STEP_POLICIES_V1,
     POSITION_OPPONENT_POLICIES_V1,
     POSITION_POLICY_PRESETS_V1,
+)
+from .profile_driven_creation import (
+    FRIENDLY_GAME_PLATFORM_VALUES,
+    PROFILE_DRIVEN_LEARNING_CREATE_FIELDS,
+    PROFILE_DRIVEN_MATCH_CREATE_FIELDS,
+    PROFILE_DRIVEN_SESSION_CREATE_FIELDS,
 )
 
 _DEFAULT_BODY_LIMIT = FRONTEND_JSON_MAX_FILE_BYTES + 4_096
@@ -63,6 +77,8 @@ _DESTRUCTIVE_FIELDS = {
     "confirm_clear",
     "confirm_clear_snapshot",
     "confirm_replace",
+    "confirm_referenced",
+    "confirm_recommended_reset",
     "confirm_reset",
 }
 _REPEATED_FIELDS = {
@@ -79,6 +95,7 @@ _FILE_FIELDS = {
     "workspace_file",
     "report_source_file",
 }
+_BOOLEAN_CHOICES = ("false", "true")
 _SELECT_CHOICES = {
     "analysis_mode": ("live_decision", "post_game_review"),
     "capture_mode": ("live", "retrospective"),
@@ -88,8 +105,11 @@ _SELECT_CHOICES = {
     "selection_mode": ("select_imported", "keep_current"),
     "same_revision_resolution": ("reject", "retain"),
     "source_kind": ("youtube_video", "other_video", "manual_observation"),
+    "platform_choice": FRIENDLY_GAME_PLATFORM_VALUES,
+    "perspective_seat": ("", "forehand", "middlehand", "rearhand"),
+    "save_players": _BOOLEAN_CHOICES,
+    "save_preferences": _BOOLEAN_CHOICES,
 }
-_BOOLEAN_CHOICES = ("false", "true")
 _LABEL_KEYS = {
     "capture_mode": "validation.field.capture_mode",
     "card": "validation.field.card",
@@ -97,14 +117,44 @@ _LABEL_KEYS = {
     "corpus_id": "validation.field.corpus_id",
     "game_type": "validation.field.game_type",
     "language": "validation.field.language",
+    "aliases": "validation.field.aliases",
+    "advanced_settings_expanded": "validation.field.advanced_settings_expanded",
+    "custom_platform": "validation.field.custom_platform",
+    "display_name": "validation.field.display_name",
+    "external_match_id": "validation.field.external_match_id",
+    "game_name": "validation.field.game_name",
     "match_id": "validation.field.match_id",
+    "match_timecode_end": "validation.field.match_timecode_end",
+    "match_timecode_start": "validation.field.match_timecode_start",
+    "match_title": "validation.field.match_title",
+    "own_player_handle": "validation.field.own_player",
+    "player_1_handle": "validation.field.forehand_known_player",
+    "player_1_name": "validation.field.forehand_new_player",
+    "player_1_platform_id": "validation.field.forehand_platform_player_id",
+    "player_2_handle": "validation.field.middlehand_known_player",
+    "player_2_name": "validation.field.middlehand_new_player",
+    "player_2_platform_id": "validation.field.middlehand_platform_player_id",
+    "player_3_handle": "validation.field.rearhand_known_player",
+    "player_3_name": "validation.field.rearhand_new_player",
+    "player_3_platform_id": "validation.field.rearhand_platform_player_id",
+    "platform_choice": "validation.field.platform",
+    "platform_player_ids": "validation.field.platform_player_ids",
+    "played_at": "validation.field.played_at",
+    "played_date": "validation.field.played_date",
+    "preferred_perspective_player_handle": "validation.field.preferred_perspective",
+    "perspective_seat": "validation.field.perspective_seat",
     "request_file": "validation.field.file",
     "session_id": "validation.field.session_id",
     "session_file": "validation.field.file",
     "source_title": "validation.field.source_title",
     "source_url": "validation.field.source_url",
+    "source_channel_name": "validation.field.source_channel_name",
+    "source_kind": "validation.field.source_kind",
+    "collection_name": "validation.field.collection_name",
     "workspace_file": "validation.field.file",
     "report_source_file": "validation.field.file",
+    "save_players": "validation.field.save_players",
+    "save_preferences": "validation.field.save_preferences",
 }
 
 
@@ -133,7 +183,7 @@ class FrontendFormFieldV1:
             "file",
         }:
             raise ValueError("control_type must be canonical.")
-        if type(self.reflection_length) is not int or not 0 <= self.reflection_length <= 4096:
+        if type(self.reflection_length) is not int or not 0 <= self.reflection_length <= 8192:
             raise ValueError("reflection_length must be a bounded integer.")
         if not self.field_label_key.startswith("validation.field."):
             raise ValueError("field_label_key must identify a validation field label.")
@@ -208,7 +258,15 @@ def _field(
             cardinality_override or ("repeated" if name in _REPEATED_FIELDS else "single")
         ),
         control_type=control,
-        reflection_length=0 if control == "file" else 4 if control == "card" else 2048,
+        reflection_length=(
+            0
+            if control == "file"
+            else 4
+            if control == "card"
+            else 8192
+            if name == "platform_player_ids"
+            else 2048
+        ),
         field_label_key=_LABEL_KEYS.get(name, "validation.field.submitted_value"),
         allowed_values=(
             choices_override if choices_override is not None else _SELECT_CHOICES.get(name, ())
@@ -292,17 +350,7 @@ _REVIEW_OPTIONS = (
     "immediate_sample_count",
     "immediate_base_random_seed",
 )
-_SESSION_CREATE_FIELDS = (
-    "session_id",
-    "capture_mode",
-    "local_player_id",
-    "player_1_id",
-    "player_1_label",
-    "player_2_id",
-    "player_2_label",
-    "player_3_id",
-    "player_3_label",
-)
+_SESSION_CREATE_FIELDS = PROFILE_DRIVEN_SESSION_CREATE_FIELDS
 _SESSION_COMMAND_FIELDS = {
     "set_game_metadata": ("target_revision", "game_id", "played_at"),
     "record_dealt_card": ("target_revision", "destination", "player_id", "card"),
@@ -358,8 +406,8 @@ _SESSION_COMMAND_FIELDS = {
     ),
     "promote_to_retrospective": ("target_revision",),
 }
-_MATCH_CREATE_FIELDS = (
-    "match_id",
+_MATCH_CREATE_FIELDS = PROFILE_DRIVEN_MATCH_CREATE_FIELDS
+_MATCH_METADATA_FIELDS = (
     "title",
     "game_platform",
     "external_match_id",
@@ -370,22 +418,12 @@ _MATCH_CREATE_FIELDS = (
     "source_channel_name",
     "match_timecode_start",
     "match_timecode_end",
-    "player_1_id",
     "player_1_label",
     "player_1_platform_id",
-    "player_2_id",
     "player_2_label",
     "player_2_platform_id",
-    "player_3_id",
     "player_3_label",
     "player_3_platform_id",
-    "perspective_player_id",
-)
-_MATCH_METADATA_FIELDS = tuple(
-    name
-    for name in _MATCH_CREATE_FIELDS
-    if name
-    not in {"match_id", "perspective_player_id", "player_1_id", "player_2_id", "player_3_id"}
 )
 _STATISTIC_FIELDS = (
     "snapshot_id",
@@ -710,12 +748,110 @@ _FORMS: list[FrontendFormDefinitionV1] = [
         success="contextual",
     ),
     _definition(
+        "profile.player_add",
+        FRONTEND_PROFILE_PLAYER_ADD_ACTION_ROUTE,
+        ("display_name", "aliases", "platform_player_ids", "profile_generation"),
+        page="/about",
+        active="local_settings",
+        success="/about",
+        control_overrides={"aliases": "textarea", "platform_player_ids": "textarea"},
+    ),
+    _definition(
+        "profile.player_update",
+        FRONTEND_PROFILE_PLAYER_UPDATE_ACTION_ROUTE,
+        (
+            "display_name",
+            "aliases",
+            "platform_player_ids",
+            "player_handle",
+            "profile_generation",
+        ),
+        page="/about",
+        active="local_settings",
+        success="/about",
+        control_overrides={"aliases": "textarea", "platform_player_ids": "textarea"},
+    ),
+    _definition(
+        "profile.player_remove",
+        FRONTEND_PROFILE_PLAYER_REMOVE_ACTION_ROUTE,
+        ("confirm_referenced", "player_handle", "profile_generation"),
+        page="/about",
+        active="local_settings",
+        success="/about",
+    ),
+    _definition(
+        "profile.preferences",
+        FRONTEND_PROFILE_PREFERENCES_ACTION_ROUTE,
+        (
+            "own_player_handle",
+            "preferred_perspective_player_handle",
+            "platform_choice",
+            "custom_platform",
+            "advanced_settings_expanded",
+            "profile_generation",
+        ),
+        page="/about",
+        active="local_settings",
+        success="/about",
+        control_overrides={
+            "own_player_handle": "select",
+            "preferred_perspective_player_handle": "select",
+            "platform_choice": "select",
+            "advanced_settings_expanded": "radio",
+        },
+        choice_overrides={
+            "platform_choice": ("", *FRIENDLY_GAME_PLATFORM_VALUES),
+            "advanced_settings_expanded": _BOOLEAN_CHOICES,
+        },
+    ),
+    _definition(
+        "profile.recommended_reset",
+        FRONTEND_PROFILE_RECOMMENDED_RESET_ACTION_ROUTE,
+        ("confirm_recommended_reset", "profile_generation"),
+        page="/about",
+        active="local_settings",
+        success="/about",
+    ),
+    _definition(
+        "profile.managed_label",
+        FRONTEND_PROFILE_MANAGED_LABEL_ACTION_ROUTE,
+        (
+            "managed_family",
+            "managed_handle",
+            "managed_generation",
+            "display_name",
+            "played_date",
+            "profile_generation",
+            "return_to",
+        ),
+        page="/about",
+        active="local_settings",
+        success="contextual",
+        control_overrides={"managed_family": "select"},
+        choice_overrides={"managed_family": ("sessions", "matches", "corpora")},
+    ),
+    _definition(
         "session.create",
         "/sessions/create",
         _SESSION_CREATE_FIELDS,
         page="/sessions",
         active="sessions",
         success="/sessions/current",
+        control_overrides={
+            "capture_mode": "radio",
+            "player_1_handle": "select",
+            "player_2_handle": "select",
+            "player_3_handle": "select",
+            "perspective_seat": "select",
+            "save_players": "select",
+            "save_preferences": "select",
+        },
+        choice_overrides={
+            "capture_mode": ("live", "retrospective"),
+            "perspective_seat": ("", "forehand", "middlehand", "rearhand"),
+            "save_players": _BOOLEAN_CHOICES,
+            "save_preferences": _BOOLEAN_CHOICES,
+        },
     ),
     _definition(
         "session.import",
@@ -858,6 +994,23 @@ _FORMS: list[FrontendFormDefinitionV1] = [
         active="matches",
         body_limit=MATCH_CAPTURE_WEB_MAX_REQUEST_BYTES,
         success="/matches/position/1",
+        control_overrides={
+            "platform_choice": "select",
+            "player_1_handle": "select",
+            "player_2_handle": "select",
+            "player_3_handle": "select",
+            "perspective_seat": "select",
+            "source_kind": "select",
+            "save_players": "select",
+            "save_preferences": "select",
+        },
+        choice_overrides={
+            "platform_choice": FRIENDLY_GAME_PLATFORM_VALUES,
+            "perspective_seat": ("", "forehand", "middlehand", "rearhand"),
+            "source_kind": ("", "youtube_video", "other_video", "manual_observation"),
+            "save_players": _BOOLEAN_CHOICES,
+            "save_preferences": _BOOLEAN_CHOICES,
+        },
     ),
     _definition(
         "match.reload",
@@ -888,7 +1041,7 @@ _FORMS: list[FrontendFormDefinitionV1] = [
     _definition(
         "learning.create",
         "/learning/create",
-        ("corpus_id",),
+        PROFILE_DRIVEN_LEARNING_CREATE_FIELDS,
         page="/learning",
         active="learning",
         success="/learning/current",

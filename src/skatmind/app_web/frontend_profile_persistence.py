@@ -29,6 +29,10 @@ class _InvalidFrontendProfileEntryError(ValueError):
         self.digest = digest
 
 
+class FrontendProfilePersistenceSizeError(ValueError):
+    pass
+
+
 def frontend_profile_path_v1(managed_data_root: Path) -> Path:
     if not isinstance(managed_data_root, Path):
         raise ValueError("managed_data_root must be a Path.")
@@ -226,6 +230,10 @@ def save_frontend_profile_file_v1(
     )
     path = frontend_profile_path_v1(managed_data_root)
     requested_bytes = build_frontend_profile_bytes_v1(document)
+    if len(requested_bytes) > FRONTEND_PROFILE_MAX_FILE_BYTES:
+        raise FrontendProfilePersistenceSizeError(
+            "Frontend profile canonical bytes exceed the bounded persistence limit."
+        )
     first = load_frontend_profile_file_v1(managed_data_root)
     if not _matches_expected(
         first,

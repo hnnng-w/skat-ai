@@ -13,6 +13,9 @@ Issue #213 completes the CLI onboarding separation documented in
 [Advanced CLI automation](advanced_cli_automation_interface.md).
 Issue #216 adds the private profile/localization foundation and bilingual common
 shell documented in [Local frontend profile and localization](local_frontend_profile_and_localization.md).
+Issues #217 and #218 add the grouped bilingual Home and localized validation;
+Issue #219 adds the [profile-driven stateful creation](profile_driven_stateful_creation.md)
+layer.
 
 The exact internal contract identities are:
 
@@ -205,6 +208,10 @@ now discover direct children, create/open/reload Sessions, Match Workspaces, and
 Corpora, reuse existing mutations and analyses, prepare existing process-local
 Learning artifacts, and provide canonical downloads. No Result or derived
 Learning artifact gains new persistence. Discovery is explicit and bounded.
+Normal stateful creation now uses bilingual names and friendly fields, generated
+private identities, saved local Players/defaults, editable managed display
+labels, and secondary Session/Match import. Product persistence remains
+authoritative and precedes optional profile persistence.
 
 Canonical `skatmind run` and concise top-level Product help are implemented.
 
@@ -230,4 +237,6 @@ and bilingual common-shell subset, and its Ubuntu follow-up passed. Issue #217
 implements the grouped bilingual Home, Product concepts, related links, and
 stateful empty-state guidance without translating all workflow bodies. Issue
 #218 implements private safe form-state preservation and localized accessible
-validation feedback. Issue #219 is the exact next action.
+validation feedback. Issue #219 implements private profile-driven creation and
+local Player/default/label management without changing the standalone advanced
+interfaces. Issue #220 is the exact next action.

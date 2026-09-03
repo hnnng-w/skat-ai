@@ -20,7 +20,8 @@ vocabulary with exactly:
 home_separates_record_analyze_learn_and_product_information
 ```
 
-The complete implemented subset, in canonical vocabulary order, is:
+The complete implemented subset through Issue #219, in canonical vocabulary
+order, is:
 
 ```text
 technical_contracts_and_machine_values_remain_english
@@ -28,14 +29,16 @@ unified_frontend_visible_content_supports_german_and_english
 one_private_local_frontend_profile_per_managed_data_root
 saved_language_overrides_browser_language
 browser_language_bootstraps_only_without_saved_preference
+user_facing_names_replace_required_manual_internal_ids
+validation_preserves_safe_values_and_workflow_context
 home_separates_record_analyze_learn_and_product_information
 language_and_profile_never_change_product_semantics
 no_external_translation_profile_sync_or_cloud_service
 ```
 
-The future policies for user-facing names instead of manual IDs, task-first
-profile-driven workflows, secondary explained Advanced Settings, and validation
-preservation remain unimplemented by this Issue.
+Issue #218 adds validation preservation and Issue #219 adds user-facing names and
+profile-driven creation. Task-first active workflows and the complete explained
+Advanced/Technical hierarchy remain owned by Issue #220.
 
 ## Private values
 
@@ -218,15 +221,16 @@ operations and preparation remain unchanged.
 
 The Session landing explains that no standalone one-Game record exists, defines
 the resumable during-or-afterward unit, distinguishes it from Match Capture, and
-points to the unchanged creation form.
+points to the bilingual name-first creation form implemented by Issue #219.
 
 The Match landing explains that no complete Match is recorded, defines the same-
 three-participant 36-position unit with Played Games and Passed Deals, and points
-to the existing Match creation action.
+to the bilingual friendly Match creation action implemented by Issue #219.
 
 The Learning landing explains that no learning collection exists, defines its
 cross-Match purpose and recorded-Match prerequisite, and directs the user to
-record Matches before explicitly creating a collection.
+record Matches before explicitly creating a named collection. None of these
+empty states performs creation or profile mutation by itself.
 
 An active Learning collection with no imported Match data explains why no cross-
 game summary is available and directs the user to record a Match, add it
@@ -255,11 +259,11 @@ The English and German catalogs add sorted parity-checked `home.group.*`,
 `home.scope_guide.*`, `home.task.*`, `concept.*`, `empty.*`, and `related.*`
 keys. Visible German or English Issue #217 copy is not hard-coded in Python.
 
-On a German workflow page, the localized Product concept, related links, and any
-Issue #217 empty state appear in German before the existing transition notice.
-The future-owned form or dashboard body remains inside an explicit `lang="en"`
-region. Home is fully localized and has no transitional region. This does not
-claim complete workflow translation; that remains Issue #220.
+On a German workflow page, the localized Product concept, related links, empty
+state, landing page, and Issue-#219 creation form appear in German. Remaining
+future-owned active dashboard regions retain explicit language boundaries. Home
+is fully localized and has no transitional region. This does not claim complete
+active-workflow translation; that remains Issue #220.
 
 The packaged CSS adds only the semantic Home grouping, compact cards, scope and
 concept guides, empty states, responsive long-label handling, native disclosure,
@@ -295,7 +299,7 @@ Private Corpus downloads:   10
 
 ## UAT and next action
 
-The post-Issue-#218 state is:
+The post-Issue-#219 state is:
 
 ```text
 UAT-FINDING-001:
@@ -313,7 +317,8 @@ UAT-FINDING-004:
     resolved by Issue #214
 
 UAT-FINDING-005:
-    open
+    creation-form scope implemented
+    open for relevant Issue #220 views and repeated UAT-01
 
 UAT-FINDING-006:
     open
@@ -321,10 +326,11 @@ UAT-FINDING-006:
     pending repeated UAT-01
 
 UAT-FINDING-007:
-    open
+    profile/default/creation scope implemented
+    open pending Issue #220
 
 UAT-FINDING-008:
-    bilingual Home and concept coverage implemented
+    bilingual Home, concept, and creation-page coverage implemented
     open pending Issue #220
 
 Repeated UAT-01:
@@ -343,10 +349,9 @@ B-07:
     open
 ```
 
-Issue #218 does not repeat UAT or close a finding. Package `1.0.0` and Release
+Issue #219 does not repeat UAT or close a finding. Package `1.0.0` and Release
 preparation remain not ready. The exact next action is:
 
 ```text
-Issue #219 — Reduce setup friction with generated IDs, known-player selection,
-and saved defaults
+Issue #220 - Add task-first bilingual Session, Match, and Learning workflows
 ```

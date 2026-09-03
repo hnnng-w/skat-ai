@@ -12,6 +12,7 @@ FRONTEND_VALIDATION_ACTIVE_FAMILIES = (
     "analyze",
     "review",
     "profile",
+    "local_settings",
     "sessions",
     "matches",
     "learning",

@@ -712,6 +712,15 @@ CLI, Schemas, examples, generated outputs, dependencies, and Package version are
 unchanged. UAT-FINDING-006 has its assigned implementation complete but remains
 open pending repeated maintainer UAT-01.
 
+Issue #219 implements private version-1
+[profile-driven stateful creation](profile_driven_stateful_creation.md): known
+Players and opaque handles, generated Player/Session/Match/Corpus identities,
+saved creation defaults and managed labels, bilingual name-first Session/Match/
+Learning creation, friendly Match metadata, secondary imports, and strict
+Product-first/profile-second failure handling. It changes no Product persistence,
+Public API, CLI, Schema, example, generated output, dependency, Package version,
+or 53-row technical classification.
+
 The post-audit Release-process state is:
 
 ```text
@@ -725,6 +734,9 @@ Issue #218:
     validation-preservation scope implemented
 
 Issue #219:
+    profile-driven creation scope implemented
+
+Issue #220:
     exact next action
 
 Issue #208:
@@ -757,7 +769,8 @@ UAT-FINDING-003:
     open pending Issue #220 and repeated UAT-01
 
 UAT-FINDING-005:
-    open
+    creation-form scope implemented by Issue #219
+    open for relevant Issue #220 views and repeated UAT-01
 
 UAT-FINDING-006:
     open
@@ -765,10 +778,11 @@ UAT-FINDING-006:
     pending repeated UAT-01
 
 UAT-FINDING-007:
-    open
+    profile/default/creation scope implemented through Issue #219
+    open pending Issue #220
 
 UAT-FINDING-008:
-    bilingual Home and concept coverage implemented
+    bilingual Home, concept, and creation-page coverage implemented
     open pending Issue #220
 
 Issue #214:
@@ -790,5 +804,6 @@ B-06:
 The 53-row ledger remains exactly 19 `satisfied`, 34
 `satisfied_with_approved_bounded_scope`, and zero in each unresolved
 classification. Frontend and UAT work remains under B-09 outside that ledger and
-does not reopen B-06. Issue #219, "Reduce setup friction with generated IDs,
-known-player selection, and saved defaults," is the exact next action.
+does not reopen B-06. Issue #219 is implemented without changing the historical
+Issue-#207 technical conclusion. Issue #220, "Add task-first bilingual Session,
+Match, and Learning workflows," is the exact next action.

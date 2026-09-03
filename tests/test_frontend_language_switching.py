@@ -6,7 +6,6 @@ from pathlib import Path
 from urllib.parse import urlencode
 
 import pytest
-from test_local_match_capture_web import _creation_values
 
 from skatmind.app_web.context import AppWebContextV1
 from skatmind.app_web.frontend_profile_operations import (
@@ -83,6 +82,58 @@ def _post(
         headers=headers,
         body=urlencode(values).encode("ascii"),
     )
+
+
+def _profile_generation(server: SkatMindAppWebServerV1) -> str:
+    with server.app_context.lock:
+        return str(server.app_context.frontend_profile.generation)
+
+
+def _session_creation_values(server: SkatMindAppWebServerV1) -> dict[str, str]:
+    return {
+        "game_name": "Locale game",
+        "capture_mode": "retrospective",
+        "player_1_handle": "",
+        "player_1_name": "Alice",
+        "player_2_handle": "",
+        "player_2_name": "Bob",
+        "player_3_handle": "",
+        "player_3_name": "Carol",
+        "perspective_seat": "",
+        "save_players": "false",
+        "save_preferences": "false",
+        "profile_generation": _profile_generation(server),
+    }
+
+
+def _match_creation_values(server: SkatMindAppWebServerV1) -> dict[str, str]:
+    return {
+        "match_title": "Locale match",
+        "played_date": "",
+        "platform_choice": "euroskat",
+        "custom_platform": "",
+        "player_1_handle": "",
+        "player_1_name": "Alice",
+        "player_2_handle": "",
+        "player_2_name": "Bob",
+        "player_3_handle": "",
+        "player_3_name": "Carol",
+        "perspective_seat": "forehand",
+        "source_url": "",
+        "external_match_id": "",
+        "player_1_platform_id": "",
+        "player_2_platform_id": "",
+        "player_3_platform_id": "",
+        "source_kind": "",
+        "source_title": "",
+        "source_channel_name": "",
+        "played_at": "",
+        "match_timecode_start": "",
+        "match_timecode_end": "",
+        "save_players": "false",
+        "save_preferences": "false",
+        "profile_generation": _profile_generation(server),
+    }
 
 
 def test_return_path_allowlist_accepts_only_rendered_html_routes() -> None:
@@ -162,7 +213,7 @@ def test_browser_german_does_not_write_and_localizes_shell_home_about_and_errors
     assert "Lokale Einstellungen und Spieler" in about_html
     assert "Browsersprache" in about_html
     assert "Nicht gespeichert" in about_html
-    assert "Gespeicherte Spieler und Arbeitsablauf-Vorgaben" in about_html
+    assert "Gespeicherte Spieler und Erfassungsvorgaben" in about_html
     assert 'action="/actions/profile/reset"' in about_html
     assert ", and <code>" not in about_html
 
@@ -177,7 +228,7 @@ def test_german_workflow_bodies_are_explicitly_marked_as_transitional_english(
     server = localized_server
     get_headers, _post_headers = _bootstrap(server)
     german = {**get_headers, "Accept-Language": "de"}
-    for route in ("/analyze", "/review", "/sessions", "/matches", "/learning"):
+    for route in ("/analyze", "/review"):
         status, _headers, body = _request(server, "GET", route, headers=german)
         html = body.decode()
         assert status == 200
@@ -186,17 +237,16 @@ def test_german_workflow_bodies_are_explicitly_marked_as_transitional_english(
         assert html.index('class="concept-guide"') < html.index(
             '<div class="english-workflow-body" lang="en">'
         )
-    status, _headers, sessions = _request(server, "GET", "/sessions", headers=german)
-    assert status == 200
-    sessions_html = sessions.decode()
-    assert "Noch keine erfassten einzelnen Spiele" in sessions_html
-    assert sessions_html.index("Noch keine erfassten einzelnen Spiele") < sessions_html.index(
-        '<div class="english-workflow-body" lang="en">'
-    )
-    status, _headers, matches = _request(server, "GET", "/matches", headers=german)
-    assert status == 200 and "Noch keine erfassten Matches" in matches.decode()
-    status, _headers, learning = _request(server, "GET", "/learning", headers=german)
-    assert status == 200 and "Noch keine Lernsammlungen" in learning.decode()
+    expected = {
+        "/sessions": "Noch keine erfassten einzelnen Spiele",
+        "/matches": "Noch keine erfassten Matches",
+        "/learning": "Noch keine Lernsammlungen",
+    }
+    for route, message in expected.items():
+        status, _headers, body = _request(server, "GET", route, headers=german)
+        html = body.decode()
+        assert status == 200 and message in html
+        assert "english-workflow-body" not in html
     status, _headers, home = _request(server, "GET", "/", headers=german)
     assert status == 200
     assert "english-workflow-body" not in home.decode()
@@ -417,31 +467,24 @@ def test_language_switch_preserves_all_retained_context_objects_and_executes_no_
         server,
         post_headers,
         "/learning/create",
-        {"corpus_id": "locale-corpus"},
-    )
-    assert status == 303
-    status, _headers, _body = _post(
-        server,
-        post_headers,
-        "/sessions/create",
         {
-            "session_id": "locale-session",
-            "capture_mode": "retrospective",
-            "local_player_id": "",
-            "player_1_id": "alice",
-            "player_1_label": "Alice",
-            "player_2_id": "bob",
-            "player_2_label": "Bob",
-            "player_3_id": "carol",
-            "player_3_label": "Carol",
+            "collection_name": "Locale collection",
+            "profile_generation": _profile_generation(server),
         },
     )
     assert status == 303
     status, _headers, _body = _post(
         server,
         post_headers,
+        "/sessions/create",
+        _session_creation_values(server),
+    )
+    assert status == 303
+    status, _headers, _body = _post(
+        server,
+        post_headers,
         "/matches/api/v1/create",
-        _creation_values(match_id="locale-match"),
+        _match_creation_values(server),
     )
     assert status == 303
     context = server.app_context
@@ -481,7 +524,11 @@ def test_language_switch_preserves_all_retained_context_objects_and_executes_no_
         server,
         post_headers,
         FRONTEND_LANGUAGE_ACTION_ROUTE,
-        {"language": "de", "profile_generation": "0", "return_to": "/review"},
+        {
+            "language": "de",
+            "profile_generation": _profile_generation(server),
+            "return_to": "/review",
+        },
     )
     assert status == 303
     assert retained == (

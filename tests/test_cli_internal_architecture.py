@@ -640,6 +640,7 @@ def test_app_web_layering_and_startup_execution_boundaries() -> None:
         "json_transfer.py",
         "managed_item_discovery.py",
         "position_form.py",
+        "profile_driven_creation.py",
         "result_presentation.py",
         "session_form_translation.py",
         "session_frontend.py",

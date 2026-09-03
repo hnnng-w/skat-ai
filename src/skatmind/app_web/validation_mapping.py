@@ -6,6 +6,7 @@ from skatmind.errors import SkatMindWorkflowError
 
 from .form_parsing import FormFieldErrorV1
 from .form_registry import FrontendFormDefinitionV1
+from .frontend_profile_operations import FrontendProfilePersistenceConflictError
 from .validation_contracts import FrontendValidationIssueV1
 
 
@@ -87,14 +88,22 @@ def map_frontend_exception_v1(
 ) -> tuple[FrontendValidationIssueV1, ...]:
     fields = tuple(field.field_key for field in definition.safe_fields)
     lowered = str(error).lower()
-    field = next(
-        (
-            candidate
-            for candidate in sorted(fields, key=len, reverse=True)
-            if re.search(rf"(?<![a-z0-9_]){re.escape(candidate.lower())}(?![a-z0-9_])", lowered)
-        ),
-        None,
-    )
+    declared_field = getattr(error, "field_key", None)
+    field = _known_field(definition, declared_field)
+    if field is None:
+        field = next(
+            (
+                candidate
+                for candidate in sorted(fields, key=len, reverse=True)
+                if re.search(
+                    rf"(?<![a-z0-9_]){re.escape(candidate.lower())}(?![a-z0-9_])",
+                    lowered,
+                )
+            ),
+            None,
+        )
+    if isinstance(error, FrontendProfilePersistenceConflictError):
+        return (_issue(field, "validation.message.persistence_conflict"),)
     if status == 409:
         key = (
             "validation.message.persistence_conflict"

@@ -5,7 +5,10 @@
 Issue #216 implements the private local frontend profile and localization
 foundation approved by the
 [bilingual profile-driven frontend UX contract](bilingual_profile_driven_frontend_ux_contract.md).
-This is private unified-browser behavior. It is not a Public API export, an
+Issue #219 subsequently activates the reserved Player, perspective, platform,
+interface-preference, and managed-label fields without changing profile version
+`1`; that creation layer is documented in [Profile-driven stateful
+creation](profile_driven_stateful_creation.md). This is private unified-browser behavior. It is not a Public API export, an
 eighth Root workflow, a public Schema, or a Product persistence format.
 
 The implemented contract versions are exactly:
@@ -16,7 +19,7 @@ FRONTEND_TRANSLATION_CATALOG_VERSION = 1
 LOCAL_FRONTEND_PROFILE_VERSION = 1
 ```
 
-Issues #216 through #218 retain the complete frozen policy vocabulary and implement:
+Issues #216 through #219 retain the complete frozen policy vocabulary and implement:
 
 ```text
 technical_contracts_and_machine_values_remain_english
@@ -26,13 +29,13 @@ saved_language_overrides_browser_language
 browser_language_bootstraps_only_without_saved_preference
 validation_preserves_safe_values_and_workflow_context
 home_separates_record_analyze_learn_and_product_information
+user_facing_names_replace_required_manual_internal_ids
 language_and_profile_never_change_product_semantics
 no_external_translation_profile_sync_or_cloud_service
 ```
 
-The policies for user-facing Player names, task-first profile-driven workflows,
-and secondary Advanced Settings remain frozen but future-owned by Issues #219
-and #220. The grouped Home policy is implemented
+The task-first active-workflow and complete Advanced/Technical-detail policies
+remain frozen and future-owned by Issue #220. The grouped Home policy is implemented
 by Issue #217 and documented in
 [Bilingual Home information architecture](bilingual_home_information_architecture.md).
 
@@ -107,8 +110,8 @@ One profile may exist as the regular non-link direct child:
 
 It is separate from the three managed categories `sessions`, `matches`, and
 `corpora`, and managed discovery ignores it. Startup and browser-language
-detection do not create it. Explicit language selection or explicit reset may
-create it.
+detection do not create it. Explicit language selection, local settings,
+successful stateful creation labels, or explicit reset may create it.
 
 The exact Issue #216 document shape is:
 
@@ -134,10 +137,13 @@ The exact Issue #216 document shape is:
 }
 ```
 
-`language` may be `de`, `en`, or null. Every future-owned Player, perspective,
-platform, workflow-default, display-label, and Advanced-settings value remains
-at its canonical null, empty, or false value. Issue #216 exposes no Player
-management UI.
+`language` may be `de`, `en`, or null. In the historical Issue-#216 slice, every
+then-future-owned Player, perspective, platform, workflow-default, display-label,
+and Advanced-settings value remained at its canonical null, empty, or false
+value, and Issue #216 exposed no Player management UI. Issue #219 now permits
+canonical non-empty known-Player, perspective, platform, interface-preference,
+and managed-label values while preserving this exact version-1 shape and the
+canonical empty-profile bytes. Workflow-analysis preferences remain null.
 
 Unknown, missing, reordered, or wrongly typed fields are invalid. Boolean
 revisions are rejected. The maximum file size is `1,048,576` bytes.
@@ -194,11 +200,10 @@ pre-replacement observation. It is not a cross-process transaction or an
 external lock; the focused contract explicitly adds no coordination outside the
 profile file boundary.
 
-Initial explicit creation uses revision zero. A changed valid profile increments
-revision once. Selecting the already saved language returns `unchanged` and
-writes nothing. The app context uses a separate profile-operation lock and a
-process-local profile generation so language persistence does not hold or mutate
-Product workflow contexts.
+Initial explicit profile creation uses revision zero. A changed valid profile
+increments revision once. An unchanged operation writes nothing. The app context
+uses a separate profile-operation lock and a process-local profile generation so
+profile persistence does not hold or mutate Product workflow contexts.
 
 ## Invalid profile and reset
 
@@ -207,7 +212,8 @@ It contributes no language preference, selects English fallback, and produces
 one safe common warning. Browser output includes no parser detail, raw bytes,
 profile path, fingerprint, raw digest, stack trace, or failed security value.
 
-Language saving is blocked until explicit reset. The reset action compares the
+Profile-driven creation and all local-setting mutations except reset are blocked
+until explicit reset. The reset action compares the
 retained valid fingerprint or invalid raw-file digest and atomically publishes
 the canonical empty profile. It changes no Session, Match, Learning Corpus,
 Result, Report, source, prepared artifact, discovery, or active selection.
@@ -227,24 +233,35 @@ profile generation
 safe warning flag
 ```
 
-It receives no path, fingerprint, digest, raw header, token, cookie, port,
-environment value, or Product data. Profile loading occurs once during app
-context creation; there is no watcher, polling loop, background worker, or
-page-load disk read.
+It receives no path, fingerprint, digest, raw header, token, cookie, port, or
+environment value. Trusted server-side settings and creation rendering may
+receive a valid profile's names, defaults, opaque handles, and display labels;
+the small common-shell projection above remains unchanged. Internal Player IDs
+and platform IDs are not rendered as normal visible values. Profile loading
+occurs once during app context creation; there is no watcher, polling loop,
+background worker, or page-load disk read.
 
 ## Browser actions
 
-The authenticated language mutation route is exactly:
+The authenticated profile routes are:
 
 ```text
 POST /actions/profile/language
+POST /actions/profile/reset
+POST /actions/profile/players/add
+POST /actions/profile/players/update
+POST /actions/profile/players/remove
+POST /actions/profile/preferences
+POST /actions/profile/recommended-defaults/reset
+POST /actions/profile/managed-label
 ```
 
-Its exact fields are `language`, `profile_generation`, and `return_to`. The
-reset route is `POST /actions/profile/reset` with explicit confirmation under
-the same private namespace. Both require the app cookie, exact Host, exact
-Origin, canonical form encoding, current generation, and a safe rendered local
-HTML return path.
+Language uses `language`, `profile_generation`, and `return_to`; reset requires
+explicit confirmation. Player and preference operations use the current profile
+generation and opaque Player handles. Managed labels additionally bind one exact
+managed family, handle, and discovery generation. All routes require the app
+cookie, exact Host, exact Origin, canonical form encoding, current generation,
+and their registered safe return behavior.
 
 Allowed return paths cover the seven shell routes plus safe current Session,
 Match, Match-position, Match-report, and Learning pages. Validation rejects
@@ -254,8 +271,9 @@ identities, and unknown paths. Referer is neither authorization input nor return
 routing input.
 
 Saved and unchanged actions return `303`. Malformed forms return `400`. Stale
-generation, invalid-profile language save, and persistence conflict return
-`409`.
+generation, invalid-profile mutation, and persistence conflict return `409`.
+Stale in-process forms instruct a page reload; an external profile-file conflict
+requires restarting SkatMind because page loads do not reread the profile.
 
 To preserve an already retained managed-category discovery through the `303`
 language redirect, the process-local app context may retain one pending safe
@@ -274,17 +292,21 @@ Issue #216 provides German and English presentation for:
   language source, profile status, future-work notice, and reset;
 * authorization and generic common HTTP error wrappers;
 * render-time German and English validation summaries, field messages, retained-
-  Result guidance, and conflict reload guidance through Issue #218;
+  Result guidance, stale-form reload guidance, and profile-conflict restart
+  guidance through Issues #218 and #219;
+* local settings, known-Player/default management, profile-driven Session/Match/
+  Learning creation, and managed display-label editing through Issue #219;
 * common shell status and action vocabulary.
 
 Every unified page contains the textual `Deutsch` and `English` selector. It is
 a native authenticated POST form and works without JavaScript.
 
-Analyze, Review, Session, Match, and Learning workflow bodies are not fully
-translated by Issue #216. When German is active, the shell shows a German
-translation-status notice and wraps the future-owned English body in an explicit
-`lang="en"` region. This avoids silent language mixing and does not claim complete
-German workflow coverage. Complete workflow translation remains Issue #220.
+Analyze, Review, and active Session, Match, and Learning workflow bodies are not
+fully translated. Session, Match, and Learning landings and creation forms are
+bilingual through Issue #219. When German is active, remaining future-owned
+English regions are explicitly marked. This avoids silent language mixing and
+does not claim complete German workflow coverage. Complete active-workflow
+translation remains Issue #220.
 
 ## State and security
 
@@ -320,7 +342,9 @@ Wheel, sdist, clean Wheel, and clean sdist validation checks exact resource
 bytes, strict catalog loading, no startup profile write, browser-derived German,
 explicit language persistence, saved-language precedence, and restart loading
 inside isolated temporary managed roots. Issue #218 adds strict validation-
-registry loading and packaged localized-feedback coverage. Distribution tests
+registry loading and packaged localized-feedback coverage. Issue #219 adds
+populated-profile, generated-identifier, bilingual creation, settings, and local
+CSS/locale Package-resource coverage. Distribution tests
 use no real user profile or browser.
 
 The separate failed `source-resolved` matrix smoke was not caused by locale
@@ -343,10 +367,12 @@ downloads.
 Home grouping and Product terminology are implemented by Issue #217. Validation
 and safe submitted-value preservation are implemented by Issue #218 and
 documented in
-[Frontend validation state and localized feedback](frontend_validation_state_and_localized_feedback.md). Known Players,
-profile-driven Player/default behavior, generated IDs, and simplified creation
-forms remain Issue #219. Task-first stateful layouts and complete bilingual
-workflow coverage remain Issue #220.
+[Frontend validation state and localized feedback](frontend_validation_state_and_localized_feedback.md).
+Known Players, profile-driven Player/default behavior, generated IDs, labels,
+and simplified bilingual creation forms are implemented by Issue #219 and
+documented in [Profile-driven stateful creation](profile_driven_stateful_creation.md).
+Task-first active stateful layouts and complete bilingual workflow coverage
+remain Issue #220.
 
 The current finding state is:
 
@@ -366,18 +392,19 @@ UAT-FINDING-004:
     resolved by Issue #214
 
 UAT-FINDING-005:
-    open
+    creation-form scope implemented by Issue #219
+    open for relevant Issue #220 views and repeated UAT-01
 
 UAT-FINDING-006:
     Issue #218 implementation complete
     open pending repeated UAT-01
 
 UAT-FINDING-007:
-    foundation implemented
-    open
+    profile/default/creation scope implemented through Issue #219
+    open pending Issue #220
 
 UAT-FINDING-008:
-    bilingual Home and concept coverage implemented
+    bilingual Home, concept, and creation-page coverage implemented
     open pending Issue #220
 
 Repeated UAT-01:
@@ -397,7 +424,7 @@ B-07:
 ```
 
 Package `1.0.0` and Release preparation remain not ready. The Issue #216
-correction and both required post-merge Ubuntu jobs passed. Issues #217 and #218
-implement their assigned Home/concept and validation scopes. Issue #219,
-"Simplify profile-driven Session, Match, and Learning creation," is the exact
-next action.
+correction and both required post-merge Ubuntu jobs passed. Issues #217 through
+#219 implement their assigned Home/concept, validation, and profile-driven
+creation scopes. Issue #220, "Add task-first bilingual Session, Match, and
+Learning workflows," is the exact next action.

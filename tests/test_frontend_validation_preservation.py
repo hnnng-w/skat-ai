@@ -57,8 +57,8 @@ def _state(
 
 def test_validation_contract_and_registry_coverage_are_exact() -> None:
     assert FRONTEND_VALIDATION_PRESERVATION_VERSION == 1
-    assert len(UNIFIED_FRONTEND_POST_ROUTES) == 38
-    assert len(FRONTEND_FORM_REGISTRY) == 71
+    assert len(UNIFIED_FRONTEND_POST_ROUTES) == 44
+    assert len(FRONTEND_FORM_REGISTRY) == 77
     assert {form.action_route for form in FRONTEND_FORM_REGISTRY} == set(
         UNIFIED_FRONTEND_POST_ROUTES
     )
@@ -97,6 +97,29 @@ def test_validation_contract_and_registry_coverage_are_exact() -> None:
             media_type="multipart/form-data",
         ).form_key
         == "learning.operation.import_match_workspace"
+    )
+
+    metadata = resolve_frontend_form_v1(
+        "/matches/api/v1/operation",
+        {"operation": "update_match_metadata"},
+    )
+    assert tuple(field.field_key for field in metadata.safe_fields) == (
+        "title",
+        "game_platform",
+        "external_match_id",
+        "played_at",
+        "source_kind",
+        "source_url",
+        "source_title",
+        "source_channel_name",
+        "match_timecode_start",
+        "match_timecode_end",
+        "player_1_label",
+        "player_1_platform_id",
+        "player_2_label",
+        "player_2_platform_id",
+        "player_3_label",
+        "player_3_platform_id",
     )
 
 
@@ -145,6 +168,24 @@ def test_safe_capture_is_allowlisted_bounded_and_clears_omitted_groups() -> None
     assert rejected.singular("analysis_mode") is None
     assert rejected.singular("game_type") is None
     assert rejected.singular("bid_value") is None
+
+
+def test_maximum_valid_platform_identifier_text_is_retained() -> None:
+    definition = resolve_frontend_form_v1("/actions/profile/players/add")
+    platform_ids = "\n".join(
+        f"{'p' * 120} = {index:02d}-{'x' * 252}" for index in range(16)
+    )
+    assert 4096 < len(platform_ids) <= 8192
+    captured = capture_safe_submitted_values_v1(
+        definition,
+        {
+            "display_name": ["Anna"],
+            "aliases": [""],
+            "platform_player_ids": [platform_ids],
+            "profile_generation": ["0"],
+        },
+    )
+    assert captured.singular("platform_player_ids") == platform_ids
 
 
 def test_file_and_destructive_values_are_never_retained() -> None:
@@ -350,6 +391,56 @@ def test_rendering_preserves_values_localizes_and_targets_exact_form_instance() 
     assert 'id="validation-form-heading-1"' in rendered
     assert rendered.index('value="null" selected') < rendered.index("error-summary")
     assert rendered.rindex('value="grand" selected') > rendered.index("error-summary")
+
+
+def test_player_feedback_uses_opaque_handle_instead_of_stale_form_ordinal() -> None:
+    definition = resolve_frontend_form_v1("/actions/profile/players/update")
+    handle = "b" * 64
+    html = (
+        '<main id="main-content"><form action="/actions/profile/players/update">'
+        f'<input type="hidden" name="player_handle" value="{handle}">'
+        '<label>Name <input name="display_name" value="Current"></label>'
+        "</form></main>"
+    )
+    state = FrontendSubmittedFormStateV1(
+        contract_version=FRONTEND_VALIDATION_PRESERVATION_VERSION,
+        form_key="profile.player_update",
+        originating_route="/actions/profile/players/update",
+        active_family_binding="local_settings",
+        review_wizard_step=None,
+        form_instance=1,
+        safe_visible_values=FormValuesV1(
+            (
+                FormValueV1("display_name", ("Retained",)),
+                FormValueV1("player_handle", (handle,)),
+            )
+        ),
+        validation_issues=(
+            FrontendValidationIssueV1(
+                field_key="display_name",
+                message_key="validation.message.stale",
+            ),
+        ),
+        status="conflict",
+        feedback_generation=2,
+    )
+    rendered = apply_validation_feedback_to_html_v1(
+        html,
+        definition,
+        state,
+        locale="en",
+    )
+    assert 'name="display_name" value="Retained" aria-invalid="true"' in rendered
+    assert rendered.count('class="error-summary"') == 1
+
+    missing = apply_validation_feedback_to_html_v1(
+        '<main id="main-content"><p>No matching Player remains.</p></main>',
+        definition,
+        state,
+        locale="en",
+    )
+    assert missing.count('class="error-summary"') == 1
+    assert "No matching Player remains." in missing
 
 
 def test_repeated_select_values_keep_their_submitted_order() -> None:

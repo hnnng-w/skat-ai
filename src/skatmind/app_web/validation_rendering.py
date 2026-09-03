@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 from html import escape
 
-from .form_registry import FrontendFormDefinitionV1
+from .form_registry import FrontendFormDefinitionV1, FrontendFormFieldV1
 from .translation_catalog import translate_frontend_message_v1
 from .validation_contracts import FrontendSubmittedFormStateV1
 
@@ -29,6 +29,7 @@ def _find_form_bounds(
     html: str,
     definition: FrontendFormDefinitionV1,
     form_instance: int | None,
+    form_identity: tuple[tuple[str, str], ...] = (),
 ) -> tuple[int, int] | None:
     matching_index = 0
     for match in _FORM_OPEN.finditer(html):
@@ -49,6 +50,17 @@ def _find_form_bounds(
             )
             if discriminator.search(block) is None:
                 continue
+        if any(
+            re.search(
+                rf'<input\b(?=[^>]*\bname="{re.escape(field)}")'
+                rf'(?=[^>]*\bvalue="{re.escape(value)}")[^>]*>',
+                block,
+                re.IGNORECASE,
+            )
+            is None
+            for field, value in form_identity
+        ):
+            continue
         if form_instance is not None and matching_index != form_instance:
             matching_index += 1
             continue
@@ -107,6 +119,42 @@ def _open_containing_details(html: str, form_start: int, form_end: int) -> str:
         return html
     opened = candidate.group(0)[:-1] + " open>"
     return html[: candidate.start()] + opened + html[candidate.end() :]
+
+
+def _open_field_details(block: str, field: str) -> str:
+    field_pattern = re.escape(field)
+    control = re.search(
+        rf'<(?:input|select|textarea)\b(?=[^>]*\bname="{field_pattern}")[^>]*>',
+        block,
+        re.IGNORECASE,
+    )
+    if control is None:
+        return block
+    candidate = None
+    for match in _DETAILS_OPEN.finditer(block, 0, control.start()):
+        close = block.find("</details>", match.end())
+        if close >= control.end():
+            candidate = match
+    if candidate is None or " open" in candidate.group(0):
+        return block
+    opened = candidate.group(0)[:-1] + " open>"
+    return block[: candidate.start()] + opened + block[candidate.end() :]
+
+
+def _insert_field_messages(block: str, field: str, messages: str) -> str:
+    field_pattern = re.escape(field)
+    control = re.search(
+        rf'<input\b(?=[^>]*\bname="{field_pattern}")[^>]*>'
+        rf'|<select\b(?=[^>]*\bname="{field_pattern}")[^>]*>.*?</select>'
+        rf'|<textarea\b(?=[^>]*\bname="{field_pattern}")[^>]*>.*?</textarea>',
+        block,
+        re.IGNORECASE | re.DOTALL,
+    )
+    if control is None:
+        return block
+    label_end = block.find("</label>", control.end())
+    insertion = control.end() if label_end < 0 else label_end + len("</label>")
+    return block[:insertion] + messages + block[insertion:]
 
 
 def _replace_values(block: str, state: FrontendSubmittedFormStateV1) -> str:
@@ -206,6 +254,78 @@ def _add_control_accessibility(
     return block, first_control_id
 
 
+def _render_summary(
+    state: FrontendSubmittedFormStateV1,
+    translated: list[tuple[str | None, str, str]],
+    field_definitions: dict[str, FrontendFormFieldV1],
+    rendered_fields: dict[str, str],
+    *,
+    locale: str,
+    fallback_anchor: str,
+    last_valid_result_retained: bool,
+) -> str:
+    heading_key = (
+        "validation.summary.conflict_heading"
+        if state.status == "conflict"
+        else "validation.summary.heading"
+    )
+    guidance_key = (
+        "validation.summary.conflict_guidance"
+        if state.status == "conflict"
+        else "validation.summary.guidance"
+    )
+    items = []
+    for field, _identifier, message in translated:
+        href = f"#{rendered_fields.get(field or '', fallback_anchor)}"
+        label = ""
+        field_definition = field_definitions.get(field or "")
+        if field_definition is not None:
+            label = (
+                translate_frontend_message_v1(locale, field_definition.field_label_key) + ": "
+            )
+        items.append(f'<li><a href="{escape(href, quote=True)}">{escape(label + message)}</a></li>')
+    retained_result = (
+        f"<p>{escape(translate_frontend_message_v1(locale, 'validation.last_valid_result'))}</p>"
+        if last_valid_result_retained
+        else ""
+    )
+    conflict_guidance_key = (
+        "error.profile_conflict.message"
+        if state.active_family_binding in {"local_settings", "profile"}
+        and any(
+            issue.message_key == "validation.message.persistence_conflict"
+            for issue in state.validation_issues
+        )
+        else "validation.reload_guidance"
+    )
+    reload_guidance = (
+        f"<p>{escape(translate_frontend_message_v1(locale, conflict_guidance_key))}</p>"
+        if state.status == "conflict"
+        else ""
+    )
+    locale_attribute = escape(locale, quote=True)
+    return (
+        f'<section class="error-summary" role="alert" tabindex="-1" autofocus '
+        f'aria-labelledby="validation-summary-heading-{state.feedback_generation}" '
+        f'lang="{locale_attribute}">'
+        f'<h2 id="validation-summary-heading-{state.feedback_generation}">'
+        f"{escape(translate_frontend_message_v1(locale, heading_key))}</h2>"
+        f"<p>{escape(translate_frontend_message_v1(locale, guidance_key))}</p>"
+        f"<ul>{''.join(items)}</ul>{reload_guidance}{retained_result}</section>"
+    )
+
+
+def _prepend_to_main(html: str, content: str) -> str:
+    main_start = html.find('<main id="main-content"')
+    if main_start < 0:
+        return html
+    opening_end = html.find(">", main_start)
+    if opening_end < 0:
+        return html
+    insertion = opening_end + 1
+    return html[:insertion] + content + html[insertion:]
+
+
 def apply_validation_feedback_to_html_v1(
     html: str,
     definition: FrontendFormDefinitionV1,
@@ -220,16 +340,6 @@ def apply_validation_feedback_to_html_v1(
         raise ValueError("Validation rendering requires HTML and one registered form.")
     if type(state) is not FrontendSubmittedFormStateV1 or state.form_key != definition.form_key:
         raise ValueError("Submitted form state must match the registered form key.")
-    bounds = _find_form_bounds(html, definition, state.form_instance)
-    if bounds is None:
-        return html
-    form_start, form_end = bounds
-    html = _open_containing_details(html, form_start, form_end)
-    bounds = _find_form_bounds(html, definition, state.form_instance)
-    if bounds is None:
-        return html
-    form_start, form_end = bounds
-    block = _replace_values(html[form_start:form_end], state)
     translated: list[tuple[str | None, str, str]] = []
     field_messages: dict[str, list[tuple[str, str]]] = {}
     rendered_fields: dict[str, str] = {}
@@ -244,7 +354,42 @@ def apply_validation_feedback_to_html_v1(
         translated.append((issue.field_key, message_id, message))
         if issue.field_key is not None:
             field_messages.setdefault(issue.field_key, []).append((message_id, message))
+    identity_fields = (
+        ("managed_family", "managed_handle")
+        if definition.form_key == "profile.managed_label"
+        else ("player_handle",)
+        if definition.form_key in {"profile.player_update", "profile.player_remove"}
+        else ()
+    )
+    form_identity = tuple(
+        (field, value)
+        for field in identity_fields
+        if (value := state.safe_visible_values.singular(field)) is not None
+    )
+    form_instance = None if form_identity else state.form_instance
+    bounds = _find_form_bounds(html, definition, form_instance, form_identity)
+    if bounds is None:
+        return _prepend_to_main(
+            html,
+            _render_summary(
+                state,
+                translated,
+                field_definitions,
+                rendered_fields,
+                locale=locale,
+                fallback_anchor="main-content",
+                last_valid_result_retained=last_valid_result_retained,
+            ),
+        )
+    form_start, form_end = bounds
+    html = _open_containing_details(html, form_start, form_end)
+    bounds = _find_form_bounds(html, definition, form_instance, form_identity)
+    if bounds is None:
+        return html
+    form_start, form_end = bounds
+    block = _replace_values(html[form_start:form_end], state)
     for field, messages in field_messages.items():
+        block = _open_field_details(block, field)
         described_by = " ".join(identifier for identifier, _message in messages)
         control_id = f"validation-field-{state.feedback_generation}-{field}"
         block, rendered_control_id = _add_control_accessibility(
@@ -260,46 +405,17 @@ def apply_validation_feedback_to_html_v1(
             f'<p class="field-error" id="{identifier}">{escape(message)}</p>'
             for identifier, message in messages
         )
-        block = block.removesuffix("</form>") + rendered_messages + "</form>"
+        block = _insert_field_messages(block, field, rendered_messages)
 
-    heading_key = (
-        "validation.summary.conflict_heading"
-        if state.status == "conflict"
-        else "validation.summary.heading"
-    )
-    guidance_key = (
-        "validation.summary.conflict_guidance"
-        if state.status == "conflict"
-        else "validation.summary.guidance"
-    )
-    items = []
     form_anchor_id = f"validation-form-heading-{state.feedback_generation}"
-    for field, _identifier, message in translated:
-        href = f"#{rendered_fields.get(field or '', form_anchor_id)}"
-        label = ""
-        field_definition = field_definitions.get(field or "")
-        if field_definition is not None:
-            label = translate_frontend_message_v1(locale, field_definition.field_label_key) + ": "
-        items.append(f'<li><a href="{escape(href, quote=True)}">{escape(label + message)}</a></li>')
-    retained_result = (
-        f"<p>{escape(translate_frontend_message_v1(locale, 'validation.last_valid_result'))}</p>"
-        if last_valid_result_retained
-        else ""
-    )
-    reload_guidance = (
-        f"<p>{escape(translate_frontend_message_v1(locale, 'validation.reload_guidance'))}</p>"
-        if state.status == "conflict"
-        else ""
-    )
-    locale_attribute = escape(locale, quote=True)
-    summary = (
-        f'<section class="error-summary" role="alert" tabindex="-1" autofocus '
-        f'aria-labelledby="validation-summary-heading-{state.feedback_generation}" '
-        f'lang="{locale_attribute}">'
-        f'<h2 id="validation-summary-heading-{state.feedback_generation}">'
-        f"{escape(translate_frontend_message_v1(locale, heading_key))}</h2>"
-        f"<p>{escape(translate_frontend_message_v1(locale, guidance_key))}</p>"
-        f"<ul>{''.join(items)}</ul>{reload_guidance}{retained_result}</section>"
+    summary = _render_summary(
+        state,
+        translated,
+        field_definitions,
+        rendered_fields,
+        locale=locale,
+        fallback_anchor=form_anchor_id,
+        last_valid_result_retained=last_valid_result_retained,
     )
     form_anchor = f'<span class="validation-anchor" id="{form_anchor_id}"></span>'
     block = form_anchor + block

@@ -185,7 +185,12 @@ Product concepts, safe related links, and useful stateful empty states. Issue
 #218 adds private registry-driven safe submitted-value preservation, accepted-
 state isolation, localized accessible validation, contextual `400`/`409`
 responses, and successful `303` PRG without changing standalone servers. Issue
-#219 is the exact next action. Issue #208 remains open; UAT-02 through
+#219 adds private known Players, generated Player/Product identities and opaque
+selection handles, saved creation defaults and labels, bilingual name-first
+Session/Match/Learning creation, and strict Product-first/profile-second
+publication. The implementation is documented in [Profile-driven stateful
+creation](profile_driven_stateful_creation.md). Issue #220 is the exact next
+action. Issue #208 remains open; UAT-02 through
 UAT-12 remain paused; B-09 and B-07 remain open; B-06 remains closed; and
 Package `1.0.0` and Release preparation are not ready. See
 [Advanced CLI automation](advanced_cli_automation_interface.md).
@@ -426,7 +431,7 @@ canonical Root execution before that optional public conversion.
 | `src/skatmind/cli/entrypoint.py` | Lightweight Package entry with shell-first bare/leading-`app` dispatch before broad Root imports. |
 | `src/skatmind/cli/execution.py` | Package-owned compatibility facade with `app`, `corpus`, `capture`, `session`, and Root dispatch. |
 | `src/skatmind/cli/app.py` | Unified shell managed-home preparation, browser opening, foreground lifecycle, and Exit Code transport. |
-| `src/skatmind/app_web/` | Private managed-data and information-architecture contracts, bounded discovery, Session/Match/Learning adapters, cross-area transfer, strict local profile persistence, locale resolution, German/English catalogs, browser-safe rendering, security, one Standard Library server, template, and packaged assets. |
+| `src/skatmind/app_web/` | Private managed-data and information-architecture contracts, bounded discovery, Session/Match/Learning adapters, cross-area transfer, strict local profile persistence, known Players, generated identifiers and opaque handles, profile-driven creation preparation, bilingual friendly rendering and local settings, locale resolution, German/English catalogs, browser-safe validation, security, one Standard Library server, template, and packaged assets. |
 | `src/skatmind/cli/corpus.py` | Private local Learning Corpus CLI startup, browser opening, shutdown, and Exit Code transport. |
 | `src/skatmind/cli/capture.py` | Private local Capture CLI startup and Exit Code transport. |
 | `src/skatmind/cli/session.py` | Session compatibility facade over focused parser and orchestration services. |
@@ -1290,5 +1295,7 @@ governs the implemented current frontend. Its private profile and localization
 foundation is documented in [Local frontend profile and localization](local_frontend_profile_and_localization.md).
 The grouped Home and Product-concept presentation is documented in
 [Bilingual Home information architecture](bilingual_home_information_architecture.md).
-The implemented foundation and remaining bilingual, profile-driven UX are
-governed by the [Bilingual profile-driven frontend UX contract](bilingual_profile_driven_frontend_ux_contract.md).
+The profile-backed creation adapter is documented in [Profile-driven stateful
+creation](profile_driven_stateful_creation.md). The implemented foundation and
+remaining Issue-#220 task-first and complete-translation UX are governed by the
+[Bilingual profile-driven frontend UX contract](bilingual_profile_driven_frontend_ux_contract.md).

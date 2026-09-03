@@ -17,6 +17,7 @@ from .managed_item_contracts import (
     ManagedItemSummaryV1,
 )
 from .managed_item_storage import build_managed_item_handle_v1
+from .profile_player_contracts import ManagedItemDisplayLabelV1
 
 
 def _is_reparse_point(path: Path) -> bool:
@@ -28,8 +29,10 @@ def _is_reparse_point(path: Path) -> bool:
 
 
 def _is_link_or_junction(path: Path) -> bool:
-    return path.is_symlink() or (hasattr(path, "is_junction") and path.is_junction()) or (
-        _is_reparse_point(path)
+    return (
+        path.is_symlink()
+        or (hasattr(path, "is_junction") and path.is_junction())
+        or (_is_reparse_point(path))
     )
 
 
@@ -88,11 +91,12 @@ def _session_summary(
 ) -> ManagedItemSummaryV1:
     resumed = session_files.load_session_file(path).value
     state = resumed.document.state
+    players = ", ".join(player.player_label or "Player" for player in state.players)
     return ManagedItemSummaryV1(
         family="sessions",
         handle=handle,
         semantic_product_id=state.session_id,
-        display_label=state.session_id,
+        display_label=f"Session: {players}",
         status="available",
         revision=state.revision,
         phase=state.phase,
@@ -117,8 +121,12 @@ def _match_summary(
     definition = workspace.match_definition
     progress = resumed.progress
     participants = ", ".join(
-        participant.player_label or participant.player_id
+        participant.player_label or "Player" for participant in definition.participants
+    )
+    perspective = next(
+        participant.player_label or "Player"
         for participant in definition.participants
+        if participant.player_id == definition.perspective_player_id
     )
     return ManagedItemSummaryV1(
         family="matches",
@@ -130,7 +138,7 @@ def _match_summary(
         phase=progress.status,
         summary=(
             participants,
-            f"Perspective: {definition.perspective_player_id}",
+            f"Perspective: {perspective}",
             (
                 f"{progress.observed_game_count} observed, "
                 f"{progress.passed_deal_count} passed, "
@@ -156,7 +164,7 @@ def _corpus_summary(
         family="corpora",
         handle=handle,
         semantic_product_id=catalog.corpus_id,
-        display_label=catalog.corpus_id,
+        display_label="Imported learning collection",
         status="available",
         revision=catalog.revision,
         phase="catalog_ready",
@@ -244,9 +252,7 @@ def discover_managed_items_v1(
             )
         provisional.append(DiscoveredManagedItemV1(summary=summary, path=path))
         if summary.semantic_product_id is not None:
-            identities.setdefault(summary.semantic_product_id, []).append(
-                len(provisional) - 1
-            )
+            identities.setdefault(summary.semantic_product_id, []).append(len(provisional) - 1)
 
     for duplicate_indexes in identities.values():
         if len(duplicate_indexes) < 2:
@@ -272,6 +278,47 @@ def discover_managed_items_v1(
             generation=generation,
             items=tuple(entry.summary for entry in entries),
             candidate_limit_reached=limit_reached,
+        ),
+        entries=entries,
+    )
+
+
+def apply_managed_item_display_labels_v1(
+    discovery: ManagedCategoryDiscoveryV1,
+    labels: tuple[ManagedItemDisplayLabelV1, ...],
+) -> ManagedCategoryDiscoveryV1:
+    if type(discovery) is not ManagedCategoryDiscoveryV1:
+        raise ValueError("discovery must be an exact managed category discovery.")
+    if type(labels) is not tuple or any(
+        type(label) is not ManagedItemDisplayLabelV1 for label in labels
+    ):
+        raise ValueError("labels must contain exact managed display labels.")
+    by_identity = {(label.family, label.product_id): label for label in labels}
+    entries = tuple(
+        DiscoveredManagedItemV1(
+            summary=replace(
+                entry.summary,
+                display_label=(
+                    by_identity[
+                        (entry.summary.family, entry.summary.semantic_product_id)
+                    ].display_name
+                    if (
+                        entry.summary.semantic_product_id is not None
+                        and (entry.summary.family, entry.summary.semantic_product_id) in by_identity
+                    )
+                    else entry.summary.display_label
+                ),
+            ),
+            path=entry.path,
+        )
+        for entry in discovery.entries
+    )
+    return ManagedCategoryDiscoveryV1(
+        view=ManagedCategoryViewV1(
+            family=discovery.view.family,
+            generation=discovery.view.generation,
+            items=tuple(entry.summary for entry in entries),
+            candidate_limit_reached=discovery.view.candidate_limit_reached,
         ),
         entries=entries,
     )

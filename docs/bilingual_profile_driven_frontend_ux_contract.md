@@ -6,8 +6,9 @@ This document is the authoritative Product and architecture contract for the
 remaining v1 unified-frontend UX remediation frozen by Issue #215. Issue #216
 implements its private profile/localization and common-shell foundation. Issue
 #217 implements the information-architecture and Product-concept slice. Issue
-#218 implements validation preservation and localized feedback. Issues #219 and
-#220 retain profile-driven form, task-first, and complete-translation ownership.
+#218 implements validation preservation and localized feedback. Issue #219
+implements profile-driven creation and local Player/default/label management.
+Issue #220 retains task-first active-workflow and complete-translation ownership.
 
 This document must keep three states distinct:
 
@@ -15,7 +16,8 @@ This document must keep three states distinct:
 Current behavior:
     the bilingual common shell, private profile, grouped Home, Product concepts,
     related links, empty-state guidance, and validation preservation implemented
-    through Issue #218, with explicitly marked English workflow bodies
+    through Issue #219, including bilingual profile-driven creation, with
+    explicitly marked English active workflow bodies
 
 Approved target contract:
     the future behavior frozen by Issue #215 in this document
@@ -24,14 +26,16 @@ Future implementation ownership:
     the focused implementation sequence in Issues #216 through #220
 ```
 
-Issue #215 is documentation-only. Issues #216 through #218 implement their assigned
+Issue #215 is documentation-only. Issues #216 through #219 implement their assigned
 subsets without changing Product semantics, CLI/API/JSON/Schema behavior, Package
-version, examples, generated outputs, or the future ownership of Issues #219 and
-#220. The exact implementations are documented in
+version, examples, generated outputs, or the future ownership of Issue #220. The
+exact implementations are documented in
 [Local frontend profile and localization](local_frontend_profile_and_localization.md)
 and [Bilingual Home information architecture](bilingual_home_information_architecture.md),
 with validation behavior in
-[Frontend validation state and localized feedback](frontend_validation_state_and_localized_feedback.md).
+[Frontend validation state and localized feedback](frontend_validation_state_and_localized_feedback.md)
+and creation behavior in [Profile-driven stateful
+creation](profile_driven_stateful_creation.md).
 
 The implemented version-1 launch and frontend boundary remains authoritative in
 [Unified local frontend contract](unified_local_frontend_contract.md). This
@@ -58,7 +62,7 @@ UAT-FINDING-001:
     A primary frontend exists, but normal stateful Product workflows are not yet
     acceptable.
     Severity: blocker
-    Status: further partially remediated by Issues #216 and #217, open
+    Status: further partially remediated through Issue #219, open
 
 UAT-FINDING-002:
     CLI onboarding was an unstructured expert interface.
@@ -78,7 +82,8 @@ UAT-FINDING-005:
     Normal forms expose internal identifiers, enums, timestamps, and technical
     metadata.
     Severity: major
-    Status: open
+    Status: creation-form scope implemented by Issue #219, open for applicable
+    Issue-#220 views and repeated UAT-01
 
 UAT-FINDING-006:
     Validation failures can discard entered values and break the current
@@ -90,20 +95,22 @@ UAT-FINDING-007:
     Stateful workflows expose too many fields and advanced concepts before the
     next normal Skat task is clear.
     Severity: major
-    Status: foundation implemented by Issue #216, open
+    Status: profile/default/creation scope implemented through Issue #219, open
+    pending Issue #220
 
 UAT-FINDING-008:
     Complete German and English workflow coverage is unavailable.
     Severity: major
-    Status: bilingual Home and concept coverage implemented through Issue #217, open
-    pending Issue #220
+    Status: bilingual Home, concept, and creation-page coverage implemented
+    through Issue #219, open pending Issue #220
 ```
 
-Issues #216 and #217 further partially remediate UAT-FINDING-001. Issue #216
+Issues #216, #217, and #219 further partially remediate UAT-FINDING-001. Issue #216
 implements the foundation for UAT-FINDING-007; Issue #217 implements the Home
-and concept part of UAT-FINDING-003 and bilingual Home/concept coverage for UAT-
-FINDING-008. All remain open pending the assigned follow-up work and repeated
-UAT.
+and concept part of UAT-FINDING-003. Issue #219 implements the profile/default/
+creation part of UAT-FINDING-007, creation-form scope for UAT-FINDING-005, and
+bilingual creation pages toward UAT-FINDING-008. All remain open pending their
+assigned follow-up work and repeated UAT.
 
 ## Maintainer decisions
 
@@ -149,9 +156,9 @@ FRONTEND_VALIDATION_PRESERVATION_VERSION = 1
 ```
 
 Issue #216 implements the first three versions, Issue #217 implements the
-information-architecture version, and Issue #218 implements the validation-
-preservation version. The profile-driven-form-default version remains future-
-owned and unimplemented. All
+information-architecture version, Issue #218 implements the validation-
+preservation version, and Issue #219 implements the profile-driven-form-default
+version. All
 remain independent from Package version, Public API version, Root
 workflows, Session version, Match Workspace version, Corpus version, Schema
 versions, Dataset versions, and browser protocol versions.
@@ -174,27 +181,30 @@ no_external_translation_profile_sync_or_cloud_service
 ```
 
 These policies remain internal and must not become Public API exports. Issues
-#216 through #218 implement exactly the nine-policy subset listed in
+#216 through #219 implement the ten-policy subset listed in
 [Local frontend profile and localization](local_frontend_profile_and_localization.md);
-the other three remain future-owned.
+the task-first active-workflow and complete Advanced-detail policies remain
+future-owned by Issue #220.
 
 ## Current behavior
 
 Package `0.17.0` currently provides a German/English common shell, grouped Home,
 Product-concept and empty-state guidance, About, authorization, and generic common-error presentation. Exact HTML
 `lang`, global language selection, saved/browser/fallback resolution, strict
-catalogs, and private profile persistence are implemented. Workflow-specific
-Analyze, Review, Session, Match, and Learning bodies remain explicitly marked
-English when the German shell is selected. Machine Routes and identifiers remain
-English and locale-neutral. Unified frontend POST forms now use registered,
+catalogs, and private profile persistence are implemented. Session, Match, and
+Learning landing and creation pages are bilingual; active workflow bodies remain
+explicitly transitional where Issue #220 translation is pending. Machine Routes
+and identifiers remain English and locale-neutral. Unified frontend POST forms now use registered,
 bounded, process-local submitted-form preservation and localized contextual
 `400`/`409` feedback as documented in
 [Frontend validation state and localized feedback](frontend_validation_state_and_localized_feedback.md).
 
 Home presents the approved Record, Analyze and review, Learn, and Product-
 information hierarchy with Match Capture first. Normal stateful creation forms
-still expose technical identifiers and metadata. There is no known-Player
-directory, profile-driven form behavior, or complete workflow translation.
+use names, known Players, friendly fields, generated private identities, saved
+defaults, and secondary import. About provides local Player/default management,
+and managed landing pages provide private display labels. Complete active-
+workflow translation and task-first layouts remain pending Issue #220.
 
 The managed data root retains exactly the managed categories `sessions`,
 `matches`, and `corpora`. An optional private `frontend-profile.json` is a direct
@@ -367,7 +377,8 @@ Linux:
 The profile is private local data. It is not a managed Session, Match, or
 Corpus; a managed-item discovery manifest; a Public API document; or a public
 Schema. Managed-item discovery must work without it. Starting SkatMind alone
-must not create it unless an explicit preference or onboarding choice is saved.
+must not create it unless an explicit preference, Player/default/label change,
+or successful creation label is saved.
 
 The profile must make no network request and must add no cloud or remote
 synchronization, encryption, automatic backup, account, or login claim.
@@ -433,15 +444,15 @@ or behavior inference. Technical IDs may be visible only under explicit
 Technical details.
 
 The frontend must allow the user to identify one optional own Player entry.
-Normal perspective selection must use entered or saved Player names, for
-example:
+Normal perspective selection must use a visible seat choice alongside the three
+entered or saved Player names, for example:
 
 ```text
 Whose perspective are you recording?
 
-Henning
-Peter
-Anna
+Forehand - Henning
+Middlehand - Peter
+Rearhand - Anna
 ```
 
 The normal frontend must not ask for `Local Player ID` or `Perspective Player
@@ -452,8 +463,8 @@ active selection must remain visible and changeable before saving or execution.
 
 The profile may retain only explicit user-selected frontend preferences. At a
 minimum, it must conceptually support selected language, whether Advanced
-Settings are normally expanded, preferred capture mode, preferred game
-platform, preferred perspective, explicitly saved Position-analysis choices,
+Settings are normally expanded, preferred game platform, preferred perspective,
+explicitly saved Position-analysis choices,
 and explicitly saved Historical-review choices.
 
 Absent values must use existing Product defaults. Profile preferences must
@@ -608,7 +619,8 @@ equivalents:
 
 The form must explain `During play` and `After the game` before selection. It
 must use saved known Players where available, allow inline creation of a new
-Player, and select perspective through a dropdown of the three named Players.
+Player, and select perspective through a visible seat choice alongside the three
+named Players.
 
 The normal form must not show Session ID or Player IDs. Internal identifiers
 must be generated or safely derived and remain available only in Technical
@@ -624,7 +636,7 @@ The normal Match creation form must prioritize:
 | Date played, optional | Spieltag, optional |
 | Platform, friendly dropdown | Plattform, verständliche Auswahlliste |
 | Three Players | Drei Spieler |
-| Perspective Player, selected from the three Players | Perspektivspieler, aus den drei Spielern ausgewählt |
+| Perspective seat, alongside the three Players | Perspektivposition, neben den drei Spielern |
 | Optional source URL | Optionale Quell-URL |
 
 These technical or uncommon fields must move to Advanced:
@@ -645,7 +657,7 @@ The normal form must not ask for a Match ID or expose raw
 `euroskat_36_standard_v1`. It must show a friendly fixed-format label. It must
 not use raw `RFC 3339` wording and must use locale-appropriate date controls and
 text. Video-time fields must appear only when a media source is selected.
-Perspective must use Player names.
+Perspective must use a visible seat choice alongside the named Players.
 
 Hidden fields must never remain conditionally required without explanation.
 Required source metadata must either be visibly requested with a reason or
@@ -845,6 +857,12 @@ selection; system-owned internal IDs; friendly normal creation fields; fixed
 friendly format labels; date and conditional media-source input; secondary JSON
 import; and local saved defaults.
 
+This slice is implemented and documented in [Profile-driven stateful
+creation](profile_driven_stateful_creation.md). Normal creation uses visible
+seat selection alongside the three entered or selected Player names; internal
+Player IDs and Product IDs remain system-owned. Capture mode is an explicit
+Session choice and is not persisted as a profile preference.
+
 ### Issue #220
 
 ```text
@@ -862,26 +880,27 @@ The exact remaining finding state and ownership is:
 
 ```text
 UAT-FINDING-001:
-    further partially remediated by Issues #216 through #218
-    open across Issues #219 and #220
+    further partially remediated through Issue #219
+    open pending Issue #220 and repeated UAT-01
 
 UAT-FINDING-003:
     Home and concept remediation implemented by Issue #217
     open pending Issue #220 and repeated UAT-01
 
 UAT-FINDING-005:
-    Issue #219 and relevant Issue #220 views
+    creation-form scope implemented by Issue #219
+    open for relevant Issue #220 views and repeated UAT-01
 
 UAT-FINDING-006:
     Issue #218 implementation complete
     open pending repeated UAT-01
 
 UAT-FINDING-007:
-    foundation implemented by Issue #216
-    open for Issues #219 and #220
+    profile/default/creation scope implemented through Issue #219
+    open pending Issue #220
 
 UAT-FINDING-008:
-    bilingual Home and concept coverage implemented by Issues #216 and #217
+    bilingual Home, concept, and creation-page coverage implemented through #219
     open pending Issue #220
 ```
 
@@ -897,8 +916,8 @@ UAT-FINDING-004:
 
 ## UAT repetition and gate state
 
-Repeated UAT-01 remains failed. UAT-01 may be repeated again only after Issues
-#219 and #220 are implemented and validated. UAT-02 through UAT-12 must
+Repeated UAT-01 remains failed. UAT-01 may be repeated again only after Issue
+#220 is implemented and validated. UAT-02 through UAT-12 must
 remain paused until that repeated UAT-01 passes.
 
 The next repeated UAT-01 must verify at least:
@@ -942,20 +961,19 @@ Package 1.0.0 preparation:
     not ready
 ```
 
-The completed 53-row technical ledger must not be reopened. Issue #218
-implements validation preservation and localized feedback. The exact next
+The completed 53-row technical ledger must not be reopened. Issue #219
+implements profile-driven creation without changing that ledger. The exact next
 implementation action is:
 
 ```text
-Issue #219 — Simplify profile-driven Session, Match, and Learning creation
+Issue #220 - Add task-first bilingual Session, Match, and Learning workflows
 ```
 
 ## Non-goals and accepted limitations
 
-Issues #216 through #218 do not implement form simplification, generated IDs,
-Player-directory behavior, profile-driven workflow
-defaults, task-first stateful layouts, or complete workflow translation. Those
-changes remain owned by Issues #219 and #220. None creates a tag or
+Issues #216 through #219 do not implement task-first active stateful layouts,
+the complete Advanced/Technical-detail hierarchy, or complete active-workflow
+translation. Those changes remain owned by Issue #220. None creates a tag or
 Release.
 
 Issue #215 must not translate or change the CLI, Public Python API, JSON,

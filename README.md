@@ -707,8 +707,13 @@ complete; guided process-local Position analysis, one-Decision Post-game Review,
 normal-completion Historical entry, strict JSON import/download, and readable
 Results are available. Managed Session entry and execution, Match Capture,
 Learning workflows, and explicit Match-to-Corpus transfer are also available
-without normal-user paths or ports. See [Guided analysis and Results](docs/unified_local_frontend_guided_analysis_and_results.md),
+without normal-user paths or ports. Normal creation uses names and saved Players,
+generates internal Product identities, presents friendly Match platform/date/
+source fields, and keeps Session and Match JSON import secondary. Local Players,
+defaults, and managed display names are edited from About and the stateful
+landing pages. See [Guided analysis and Results](docs/unified_local_frontend_guided_analysis_and_results.md),
 the [managed stateful workflows](docs/unified_local_frontend_stateful_workflows.md),
+the [profile-driven creation layer](docs/profile_driven_stateful_creation.md),
 and the [application shell](docs/unified_local_frontend_application_shell.md).
 The shared shell, grouped Home, Product-concept and empty-state guidance, About,
 authorization, and common errors now support German and English. Browser
@@ -1346,6 +1351,7 @@ Detailed documentation is split into topic-specific files:
 * [v1.0 scope and traceability audit](docs/v1_0_scope_and_traceability_audit.md)
 * [Bilingual profile-driven frontend UX contract](docs/bilingual_profile_driven_frontend_ux_contract.md)
 * [Bilingual Home information architecture](docs/bilingual_home_information_architecture.md)
+* [Profile-driven stateful creation](docs/profile_driven_stateful_creation.md)
 * [Roadmap](docs/roadmap.md)
 * [Project handoff](docs/project_handoff.md)
 
@@ -1824,8 +1830,14 @@ existing persistence and standalone advanced interfaces. `run` and final top-
 level Product help are implemented by Issue #213. Issue #216 adds one strict
 private `frontend-profile.json` per managed root, saved/browser/fallback locale
 resolution, packaged German and English catalogs, global language selection, and
-bilingual common-shell coverage without changing Product semantics. See [Guided analysis and Results](docs/unified_local_frontend_guided_analysis_and_results.md),
+bilingual common-shell coverage without changing Product semantics. Issue #217
+adds the grouped bilingual Home and Product concepts; Issue #218 adds safe
+localized validation preservation. Issue #219 adds private known Players, saved
+creation defaults and labels, generated Product identities, and bilingual name-
+first Session, Match, and Learning creation without changing their authoritative
+persistence. See [Guided analysis and Results](docs/unified_local_frontend_guided_analysis_and_results.md),
 [Managed stateful workflows](docs/unified_local_frontend_stateful_workflows.md),
+[Profile-driven stateful creation](docs/profile_driven_stateful_creation.md),
 and [Advanced CLI automation](docs/advanced_cli_automation_interface.md).
 
 Issue #159 synchronized the historical `v0.14.0` publication status. The
@@ -1975,7 +1987,12 @@ without product-code change. Issue #202 closes B-02 and makes P-10 and P-13
   submitted values from accepted workflow and Product state, preserves bounded
   allowlisted values, and renders localized accessible contextual validation.
   UAT-FINDING-006 has its assigned implementation complete but remains open
-  pending repeated UAT-01. Issue #219 is the exact next action. Issue #208 remains
+  pending repeated UAT-01. Issue #219 adds the private known-Player directory,
+  generated Product and Player identities, local defaults and display labels,
+  friendly bilingual Session/Match/Learning creation, and Product-first/profile-
+  second failure handling. It further partially remediates UAT-FINDING-001 and
+  implements its assigned portions of UAT-FINDING-005, UAT-FINDING-007, and UAT-
+  FINDING-008 without closing them. Issue #220 is the exact next action. Issue #208 remains
   open; UAT-02 through UAT-12
   remain paused; B-09 and B-07 remain open; B-06 remains closed; and Package
   `1.0.0` and Release preparation are not ready. No v1 Release title, theme,
@@ -1994,9 +2011,11 @@ documented in the [application shell](docs/unified_local_frontend_application_sh
 [Local frontend profile and localization](docs/local_frontend_profile_and_localization.md),
 [Bilingual Home information architecture](docs/bilingual_home_information_architecture.md),
 [Frontend validation state and localized feedback](docs/frontend_validation_state_and_localized_feedback.md),
+[Profile-driven stateful creation](docs/profile_driven_stateful_creation.md),
 [Advanced CLI automation](docs/advanced_cli_automation_interface.md), and the
 [unified local frontend contract](docs/unified_local_frontend_contract.md). The
-authoritative remaining UX boundary is the [bilingual profile-driven frontend UX
+authoritative remaining Issue-#220 task-first and complete-translation boundary
+is the [bilingual profile-driven frontend UX
 contract](docs/bilingual_profile_driven_frontend_ux_contract.md).
 The Historical integration is documented in [Historical party-wide
   Claim](docs/historical_party_wide_claim.md). The private boundary is documented in [Party-wide Claim
