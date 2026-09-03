@@ -918,11 +918,17 @@ def test_public_cli_schema_example_generated_and_package_boundaries_are_unchange
         for path in (PROJECT_ROOT / "src" / "skatmind" / "cli").rglob("*.py")
     )
     assert "party_wide_claim" not in cli_source
+    # Filesystem glob order is not stable across platforms; normalize before comparison.
     external_executor_references = tuple(
-        path
-        for path in (PROJECT_ROOT / "src" / "skatmind").rglob("*.py")
-        if path != EXECUTOR_PATH
-        if "party_wide_claim_proof_executor" in path.read_text(encoding="utf-8")
+        sorted(
+            (
+                path
+                for path in (PROJECT_ROOT / "src" / "skatmind").rglob("*.py")
+                if path != EXECUTOR_PATH
+                if "party_wide_claim_proof_executor" in path.read_text(encoding="utf-8")
+            ),
+            key=lambda path: path.relative_to(PROJECT_ROOT).as_posix(),
+        )
     )
     assert external_executor_references == (
         PROJECT_ROOT / "src" / "skatmind" / "historical_party_wide_claim.py",
